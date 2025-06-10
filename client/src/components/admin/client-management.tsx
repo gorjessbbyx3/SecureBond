@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Plus, Edit, Trash2, Eye, Key, Search, Filter } from "lucide-react";
+import { Users, Plus, Edit, Trash2, Eye, Key, Search, Filter, MapPin, Calendar, DollarSign, Clock, Phone, User, Home, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -61,6 +61,8 @@ export default function ClientManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [generatedCredentials, setGeneratedCredentials] = useState<{ clientId: string; password: string } | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isClientDetailsOpen, setIsClientDetailsOpen] = useState(false);
 
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientFormSchema),
@@ -537,7 +539,21 @@ export default function ClientManagement() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleEdit(client)}
+                            onClick={() => {
+                              setSelectedClient(client);
+                              setIsClientDetailsOpen(true);
+                            }}
+                          >
+                            <Eye className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingClient(client);
+                              setIsAddDialogOpen(true);
+                              handleEdit(client);
+                            }}
                           >
                             <Edit className="w-3 h-3" />
                           </Button>
@@ -586,6 +602,283 @@ export default function ClientManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Client Details Dialog */}
+      {selectedClient && (
+        <ClientDetailsDialog 
+          client={selectedClient}
+          isOpen={isClientDetailsOpen}
+          onClose={() => {
+            setIsClientDetailsOpen(false);
+            setSelectedClient(null);
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+// Client Details Dialog Component
+function ClientDetailsDialog({ client, isOpen, onClose }: {
+  client: Client;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  // Fetch client-specific data
+  const { data: payments } = useQuery({
+    queryKey: ["/api/clients", client.id, "payments"],
+    enabled: isOpen,
+  });
+
+  const { data: checkIns } = useQuery({
+    queryKey: ["/api/clients", client.id, "checkins"],
+    enabled: isOpen,
+  });
+
+  const { data: courtDates } = useQuery({
+    queryKey: ["/api/clients", client.id, "court-dates"],
+    enabled: isOpen,
+  });
+
+  const totalPaid = (payments as any[])?.reduce((sum, payment) => sum + parseFloat(payment.amount), 0) || 0;
+  const checkInCount = (checkIns as any[])?.length || 0;
+  const upcomingCourtDates = (courtDates as any[])?.filter(cd => new Date(cd.date) > new Date()).length || 0;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <User className="w-5 h-5" />
+            {client.fullName} - Client Profile
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Client Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-green-600" />
+                  <div>
+                    <p className="text-sm text-slate-600">Total Paid</p>
+                    <p className="text-lg font-semibold">${totalPaid.toLocaleString()}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-blue-600" />
+                  <div>
+                    <p className="text-sm text-slate-600">Check-ins</p>
+                    <p className="text-lg font-semibold">{checkInCount}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-purple-600" />
+                  <div>
+                    <p className="text-sm text-slate-600">Upcoming Courts</p>
+                    <p className="text-lg font-semibold">{upcomingCourtDates}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-orange-600" />
+                  <div>
+                    <p className="text-sm text-slate-600">Missed Check-ins</p>
+                    <p className="text-lg font-semibold">{client.missedCheckIns}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Client Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Client Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-slate-600">Client ID</Label>
+                    <p className="font-mono text-sm bg-slate-100 p-2 rounded">{client.clientId}</p>
+                  </div>
+                  <div>
+                    <Label className="text-slate-600">Full Name</Label>
+                    <p className="font-medium">{client.fullName}</p>
+                  </div>
+                  <div>
+                    <Label className="text-slate-600">Phone Number</Label>
+                    <p className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-slate-500" />
+                      {client.phoneNumber || "Not provided"}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-slate-600">Address</Label>
+                    <p className="flex items-center gap-2">
+                      <Home className="w-4 h-4 text-slate-500" />
+                      {client.address || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-slate-600">Bond Amount</Label>
+                    <p className="text-lg font-semibold text-blue-600">${parseFloat(client.bondAmount).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <Label className="text-slate-600">Total Owed</Label>
+                    <p className="text-lg font-semibold">${client.totalOwed ? parseFloat(client.totalOwed).toLocaleString() : '0'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-slate-600">Remaining Balance</Label>
+                    <p className={`text-lg font-semibold ${client.remainingBalance && parseFloat(client.remainingBalance) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      ${client.remainingBalance ? parseFloat(client.remainingBalance).toLocaleString() : '0'}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-slate-600">Status</Label>
+                    <div className="mt-1">
+                      <Badge variant={client.isActive ? "default" : "secondary"}>
+                        {client.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment History */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                Payment History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {payments && (payments as any[]).length > 0 ? (
+                <div className="space-y-2">
+                  {(payments as any[]).slice(0, 5).map((payment: any) => (
+                    <div key={payment.id} className="flex justify-between items-center p-3 bg-slate-50 rounded">
+                      <div>
+                        <p className="font-medium">${parseFloat(payment.amount).toLocaleString()}</p>
+                        <p className="text-sm text-slate-600">{payment.paymentMethod}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm">{new Date(payment.createdAt).toLocaleDateString()}</p>
+                        <Badge variant={payment.isConfirmed ? "default" : "secondary"}>
+                          {payment.isConfirmed ? "Confirmed" : "Pending"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {(payments as any[]).length > 5 && (
+                    <p className="text-sm text-slate-500 text-center">
+                      And {(payments as any[]).length - 5} more payments...
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-slate-500 text-center py-4">No payment history available</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Check-ins */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Recent Check-ins
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {checkIns && (checkIns as any[]).length > 0 ? (
+                <div className="space-y-2">
+                  {(checkIns as any[]).slice(0, 5).map((checkIn: any) => (
+                    <div key={checkIn.id} className="flex justify-between items-center p-3 bg-slate-50 rounded">
+                      <div>
+                        <p className="font-medium">{checkIn.location || "Location not specified"}</p>
+                        <p className="text-sm text-slate-600">{checkIn.notes || "No notes"}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm">{new Date(checkIn.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-slate-500">
+                          {new Date(checkIn.createdAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {(checkIns as any[]).length > 5 && (
+                    <p className="text-sm text-slate-500 text-center">
+                      And {(checkIns as any[]).length - 5} more check-ins...
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-slate-500 text-center py-4">No check-in history available</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Court Dates */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Court Dates
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {courtDates && (courtDates as any[]).length > 0 ? (
+                <div className="space-y-2">
+                  {(courtDates as any[]).map((courtDate: any) => (
+                    <div key={courtDate.id} className="flex justify-between items-center p-3 bg-slate-50 rounded">
+                      <div>
+                        <p className="font-medium">{courtDate.courtType || "Court Appearance"}</p>
+                        <p className="text-sm text-slate-600">{courtDate.location || "Location TBD"}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm">{new Date(courtDate.date).toLocaleDateString()}</p>
+                        <Badge variant={
+                          courtDate.status === "attended" ? "default" :
+                          courtDate.status === "missed" ? "destructive" :
+                          "secondary"
+                        }>
+                          {courtDate.status || "Pending"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-500 text-center py-4">No court dates scheduled</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
