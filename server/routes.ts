@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
 import { storage } from "./storage";
+import { courtScraper } from "./courtScraper";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import bcrypt from 'bcrypt';
 import { 
@@ -17,7 +18,6 @@ import {
   insertNotificationPreferencesSchema
 } from "@shared/schema";
 import { randomBytes } from "crypto";
-import { courtScraper } from "./courtScraper";
 import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";

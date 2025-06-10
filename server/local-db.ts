@@ -888,7 +888,15 @@ export class LocalFileStorage {
   async createCourtDateReminder(reminderData: InsertCourtDateReminder): Promise<CourtDateReminder> {
     const reminder: CourtDateReminder = {
       id: this.nextId++,
-      ...reminderData,
+      courtDateId: reminderData.courtDateId,
+      reminderType: reminderData.reminderType,
+      scheduledFor: reminderData.scheduledFor,
+      confirmed: reminderData.confirmed ?? false,
+      confirmedBy: reminderData.confirmedBy ?? null,
+      confirmedAt: reminderData.confirmedAt ?? null,
+      sent: reminderData.sent ?? false,
+      sentAt: reminderData.sentAt ?? null,
+      notificationId: reminderData.notificationId ?? null,
       createdAt: new Date(),
     };
     
