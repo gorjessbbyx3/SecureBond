@@ -622,8 +622,13 @@ export class LocalFileStorage {
 
   // Arrest monitoring operations
   async getArrestRecords(): Promise<any[]> {
-    // Generate sample arrest records for demonstration
     const clients = await this.getAllClients();
+    
+    // If no clients exist, return empty array
+    if (!clients || clients.length === 0) {
+      return [];
+    }
+
     const hawaiiCounties = ['honolulu', 'hawaii', 'maui', 'kauai'];
     const charges = [
       'DUI', 'Public Intoxication', 'Disorderly Conduct', 'Theft', 
@@ -633,8 +638,14 @@ export class LocalFileStorage {
     const arrestRecords = [];
     
     // Create some sample arrest records
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < Math.min(5, clients.length); i++) {
       const client = clients[Math.floor(Math.random() * clients.length)];
+      
+      // Ensure client exists and has required properties
+      if (!client || !client.id) {
+        continue;
+      }
+
       const county = hawaiiCounties[Math.floor(Math.random() * hawaiiCounties.length)];
       const arrestDate = new Date();
       arrestDate.setDate(arrestDate.getDate() - Math.floor(Math.random() * 30));
@@ -650,7 +661,7 @@ export class LocalFileStorage {
       arrestRecords.push({
         id: `arrest-${client.id}-${i}-${Date.now()}`,
         clientId: client.id,
-        clientName: client.fullName,
+        clientName: client.fullName || 'Unknown Client',
         arrestDate: arrestDate.toISOString().split('T')[0],
         arrestTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
         arrestLocation: `${Math.floor(Math.random() * 9999) + 1000} ${['Ala Moana Blvd', 'King St', 'Beretania St', 'Kapiolani Blvd'][Math.floor(Math.random() * 4)]}, ${county.charAt(0).toUpperCase() + county.slice(1)}, HI`,

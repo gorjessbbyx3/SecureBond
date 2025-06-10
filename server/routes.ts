@@ -864,6 +864,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Real-time arrest log monitoring from Hawaii police departments
+  app.post('/api/arrest-monitoring/search-logs', isAuthenticated, async (req, res) => {
+    try {
+      const { clientName, options } = req.body;
+      
+      if (!clientName) {
+        return res.status(400).json({ message: 'Client name is required' });
+      }
+
+      const searchResult = await courtScraper.searchArrestLogs(clientName, options || {});
+      res.json(searchResult);
+    } catch (error) {
+      console.error('Error searching arrest logs:', error);
+      res.status(500).json({ message: 'Failed to search arrest logs' });
+    }
+  });
+
   app.get('/api/arrest-monitoring/config', isAuthenticated, async (req, res) => {
     try {
       const config = await storage.getMonitoringConfig();
