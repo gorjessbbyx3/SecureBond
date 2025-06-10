@@ -107,52 +107,29 @@ export default function Landing() {
           <div className="absolute top-12 right-16 w-1 h-40 bg-yellow-300 opacity-25 transform rotate-60 sun-ray"></div>
         </div>
         
-        {/* Jail cell window frame and bars overlay */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          {/* Window frame - concrete cell wall with cutout */}
-          <div className="relative w-[800px] h-[600px]">
-            {/* Frame border - top */}
-            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
-            {/* Frame border - bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
-            {/* Frame border - left */}
-            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
-            {/* Frame border - right */}
-            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
-            
-            {/* Window opening - completely transparent to show beach behind */}
-            <div className="absolute inset-8">
-              
-              {/* Heavy prison bars - semi-transparent */}
-              <div className="absolute inset-0 grid grid-cols-9 gap-6 p-6">
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <div key={i} className="w-3 bg-gradient-to-b from-gray-500/80 via-gray-400/80 to-gray-500/80 rounded-full shadow-2xl border border-gray-600 relative jail-bars mx-auto">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
-                  </div>
-                ))}
+        {/* Full-screen prison bars overlay */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Vertical prison bars spanning full screen */}
+          <div className="absolute inset-0 grid grid-cols-12 gap-8 px-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="w-3 bg-gradient-to-b from-gray-500/70 via-gray-400/70 to-gray-500/70 rounded-full shadow-2xl border border-gray-600 relative jail-bars mx-auto">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
               </div>
-              
-              {/* Horizontal security bars - semi-transparent */}
-              <div className="absolute inset-0 flex flex-col justify-evenly px-6">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-4 bg-gradient-to-r from-gray-500/80 via-gray-400/80 to-gray-500/80 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
-                  </div>
-                ))}
+            ))}
+          </div>
+          
+          {/* Horizontal security bars spanning full screen */}
+          <div className="absolute inset-0 flex flex-col justify-evenly px-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-3 bg-gradient-to-r from-gray-500/70 via-gray-400/70 to-gray-500/70 rounded-full shadow-2xl border border-gray-600 relative jail-bars">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
               </div>
-              
-              {/* Window ledge */}
-              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-gray-800 to-gray-700 border-t-2 border-gray-600"></div>
-              
-              {/* Cell number plate */}
-              <div className="absolute top-4 right-4 bg-yellow-600 text-black font-bold text-xs px-2 py-1 rounded shadow-lg cell-plate">
-                ALOHA BAIL BOND
-              </div>
-            </div>
-            
-            {/* Window frame depth and shadows */}
-            <div className="absolute -inset-2 bg-gradient-to-br from-gray-800 to-gray-900 -z-10 rounded"></div>
-            <div className="absolute -inset-4 bg-gradient-to-br from-gray-900 to-black -z-20 rounded-lg"></div>
+            ))}
+          </div>
+          
+          {/* Cell identification plate */}
+          <div className="absolute top-8 right-8 bg-yellow-600 text-black font-bold text-sm px-3 py-2 rounded shadow-lg cell-plate">
+            ALOHA BAIL BOND
           </div>
         </div>
         
