@@ -96,6 +96,8 @@ export default function EnhancedAdminDashboard() {
           </div>
           
           <div className="flex items-center gap-2">
+            <RealTimeNotificationCenter />
+            
             <Button
               variant="outline"
               size="sm"
