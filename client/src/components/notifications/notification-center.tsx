@@ -86,12 +86,12 @@ export function NotificationCenter() {
   const queryClient = useQueryClient();
   const userId = 'demo-user';
 
-  const { data: notifications = [], isLoading } = useQuery({
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: ['/api/notifications/user', userId],
     refetchInterval: 30000, // Poll every 30 seconds for real-time updates
   });
 
-  const { data: unreadNotifications = [] } = useQuery({
+  const { data: unreadNotifications = [] } = useQuery<Notification[]>({
     queryKey: ['/api/notifications/user', userId, 'unread'],
     refetchInterval: 10000, // Poll every 10 seconds for unread count
   });

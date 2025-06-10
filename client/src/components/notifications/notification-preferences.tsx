@@ -74,18 +74,21 @@ export function NotificationPreferences({ open, onOpenChange, userId }: Notifica
   });
 
   // Update form data when preferences load
-  useState(() => {
+  useEffect(() => {
     if (preferences) {
-      setFormData(preferences);
+      setFormData(prev => ({ ...prev, ...preferences }));
     }
   }, [preferences]);
 
   const updatePreferencesMutation = useMutation({
     mutationFn: async (data: NotificationPreferencesData) => {
-      return await apiRequest('/api/notification-preferences', {
+      const response = await fetch('/api/notification-preferences', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error('Failed to update preferences');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notification-preferences'] });
