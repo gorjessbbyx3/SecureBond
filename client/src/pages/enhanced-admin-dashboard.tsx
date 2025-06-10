@@ -170,7 +170,7 @@ export default function EnhancedAdminDashboard() {
 
         {/* Enhanced Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 h-12 text-xs overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-11 h-12 text-xs overflow-x-auto">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
@@ -192,9 +192,6 @@ export default function EnhancedAdminDashboard() {
             <TabsTrigger value="clients" className="data-[state=active]:bg-orange-600 data-[state=active]:text-white">
               Clients
             </TabsTrigger>
-            <TabsTrigger value="bulk-upload" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
-              Bulk Upload
-            </TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
               Financial
             </TabsTrigger>
@@ -205,7 +202,7 @@ export default function EnhancedAdminDashboard() {
               Arrest Monitor
             </TabsTrigger>
             <TabsTrigger value="data" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-              Data & Backup
+              Settings & Data
             </TabsTrigger>
           </TabsList>
 
@@ -275,10 +272,6 @@ export default function EnhancedAdminDashboard() {
             <ClientManagement />
           </TabsContent>
 
-          <TabsContent value="bulk-upload" className="space-y-6">
-            <BulkClientUpload />
-          </TabsContent>
-
           <TabsContent value="financial" className="space-y-6">
             <FinancialDashboard />
           </TabsContent>
@@ -292,7 +285,27 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="data" className="space-y-6">
-            <DataManagement />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Download className="h-5 w-5" />
+                      Bulk Client Upload
+                    </CardTitle>
+                    <CardDescription>
+                      Import multiple clients at once using a CSV file
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <BulkClientUpload />
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="space-y-6">
+                <DataManagement />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
