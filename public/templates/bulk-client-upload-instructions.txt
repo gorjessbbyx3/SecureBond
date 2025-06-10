@@ -1,0 +1,34 @@
+ALOHA BAIL BOND - BULK CLIENT UPLOAD INSTRUCTIONS
+
+REQUIRED FIELDS:
+- Full Name: Complete first and last name
+- Phone Number: Format: (808) 555-0123
+- Email: Valid email address
+- Address: Complete address with city, state, ZIP
+- Date of Birth: Format: YYYY-MM-DD (e.g., 1985-03-15)
+- Emergency Contact Name: Full name of emergency contact
+- Emergency Contact Phone: Format: (808) 555-0123
+- Is Active: TRUE for active clients, FALSE for inactive
+
+OPTIONAL FIELDS:
+- SSN: Social Security Number (format: 123-45-6789)
+- Notes: Additional information about the client
+
+IMPORTANT NOTES:
+1. Save your file as CSV format before uploading
+2. Do not modify the header row
+3. Use TRUE/FALSE (not true/false) for the Is Active column
+4. Phone numbers should include area code in parentheses
+5. Dates must be in YYYY-MM-DD format
+6. Leave optional fields blank if no data available
+7. Maximum 500 clients per upload
+
+UPLOAD PROCESS:
+1. Download the template
+2. Fill in your client data
+3. Save as CSV
+4. Use the bulk upload feature in Admin Dashboard
+5. Review any error messages and correct data as needed
+6. Confirm successful import
+
+For questions or support, contact your system administrator.
