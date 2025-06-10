@@ -201,7 +201,7 @@ export default function PerformanceMetrics() {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold">{kpis.avgResponseTime}h</p>
-                    <Badge variant="default">Target: <3h</Badge>
+                    <Badge variant="default">Target: Under 3h</Badge>
                   </div>
                 </div>
                 

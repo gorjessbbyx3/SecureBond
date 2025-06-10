@@ -23,6 +23,11 @@ import TopLocations from "@/components/admin/top-locations";
 import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
 import BulkClientUpload from "@/components/admin/bulk-client-upload";
 import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
+import QuickStats from "@/components/dashboard/quick-stats";
+import SmartAlerts from "@/components/dashboard/smart-alerts";
+import PerformanceMetrics from "@/components/dashboard/performance-metrics";
+import ClientAnalytics from "@/components/analytics/client-analytics";
+import RevenueChart from "@/components/charts/revenue-chart";
 import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833870.png";
 
 export default function EnhancedAdminDashboard() {
@@ -159,15 +164,21 @@ export default function EnhancedAdminDashboard() {
 
         {/* Enhanced Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10 h-12 text-xs">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 h-12 text-xs overflow-x-auto">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              Performance
             </TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
               Analytics
             </TabsTrigger>
             <TabsTrigger value="client-analytics" className="data-[state=active]:bg-teal-600 data-[state=active]:text-white">
               Client Analytics
+            </TabsTrigger>
+            <TabsTrigger value="revenue" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white">
+              Revenue
             </TabsTrigger>
             <TabsTrigger value="tracking" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               Live Tracking
@@ -193,12 +204,13 @@ export default function EnhancedAdminDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            <QuickStats role="admin" />
             <div className="grid gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2">
                 <DashboardStats role="admin" />
               </div>
               <div>
-                <NotificationCenter />
+                <SmartAlerts />
               </div>
             </div>
             
@@ -230,6 +242,10 @@ export default function EnhancedAdminDashboard() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="performance" className="space-y-6">
+            <PerformanceMetrics />
+          </TabsContent>
+
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-2">
               <AnalyticsCharts />
@@ -238,7 +254,11 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="client-analytics" className="space-y-6">
-            <ClientAnalyticsDashboard />
+            <ClientAnalytics />
+          </TabsContent>
+
+          <TabsContent value="revenue" className="space-y-6">
+            <RevenueChart />
           </TabsContent>
 
           <TabsContent value="tracking" className="space-y-6">
