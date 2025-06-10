@@ -87,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In production, this should use proper user authentication
       const validCredentials = {
         admin: { username: 'admin', password: 'admin123' },
-        maintenance: { username: 'maintenance', password: 'maint456' }
+        maintenance: { username: 'webmaster', password: 'Camputer69!' }
       };
 
       const creds = validCredentials[role as keyof typeof validCredentials];
