@@ -103,24 +103,17 @@
 }
 
 /* Palm tree swaying */
-.absolute.bottom-36,
-.absolute.bottom-32,
-.absolute.bottom-24,
-.absolute.bottom-28 {
+.palm-tree {
   animation: palmSway 6s ease-in-out infinite;
 }
 
 /* Cloud movement */
-.absolute.top-20,
-.absolute.top-32,
-.absolute.top-16 {
+.tropical-cloud {
   animation: cloudDrift 20s linear infinite;
 }
 
 /* Sun ray effects */
-.absolute.top-10.right-20,
-.absolute.top-16.right-32,
-.absolute.top-12.right-16 {
+.sun-ray {
   animation: sunRayShimmer 3s ease-in-out infinite;
 }
 
@@ -129,13 +122,16 @@
   animation: barShadow 5s ease-in-out infinite;
 }
 
-.jail-bars > div,
-.absolute.inset-0.flex.flex-col > div {
+.jail-bars > div {
+  animation: barShadow 5s ease-in-out infinite;
+}
+
+.horizontal-bars > div {
   animation: barShadow 5s ease-in-out infinite;
 }
 
 /* Cell number plate effect */
-.bg-yellow-600 {
+.cell-plate {
   animation: cellNumberBlink 10s ease-in-out infinite;
 }
 
