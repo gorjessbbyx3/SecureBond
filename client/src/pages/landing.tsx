@@ -71,11 +71,11 @@ export default function Landing() {
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Jail Cell Window Background - Waikiki Beach View */}
       <div className="fixed inset-0 z-0">
-        {/* Ocean GIF background */}
+        {/* Hawaii GIF background */}
         <div className="w-full h-full">
           <img 
-            src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjVha2d4amFiZmlwZmxtaW5zaG1lcWQzc3FnYno3b29pMWhsc25xdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2ce7VbC0HrksUwWueh/giphy.gif"
-            alt="Ocean waves"
+            src="https://media.giphy.com/media/2kTP0snH51sgMB3Rxm/giphy.gif"
+            alt="Hawaii paradise view"
             className="w-full h-full object-cover"
           />
         </div>
