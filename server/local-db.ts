@@ -515,6 +515,79 @@ export class LocalFileStorage {
     await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), filteredCourtDates);
   }
 
+  // Court date approval system
+  async approveCourtDate(id: number, approvedBy: string): Promise<CourtDate> {
+    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
+    const courtDate = courtDates.find(cd => cd.id === id);
+    
+    if (!courtDate) {
+      throw new Error(`Court date with id ${id} not found`);
+    }
+
+    const updatedCourtDate: CourtDate = {
+      ...courtDate,
+      adminApproved: true,
+      approvedBy,
+      approvedAt: new Date(),
+    };
+
+    const updatedCourtDates = courtDates.map(cd => 
+      cd.id === id ? updatedCourtDate : cd
+    );
+
+    await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), updatedCourtDates);
+
+    // Create notification for client about approved court date
+    await this.createNotification({
+      userId: `client-${courtDate.clientId}`,
+      title: "Court Date Confirmed",
+      message: `Your court date on ${new Date(courtDate.courtDate).toLocaleDateString()} has been confirmed by administration. Please acknowledge this notification.`,
+      type: "court_date_approval",
+      priority: "high",
+      actionUrl: "/client/court-dates",
+      metadata: { courtDateId: id }
+    });
+
+    return updatedCourtDate;
+  }
+
+  async getPendingCourtDates(): Promise<CourtDate[]> {
+    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
+    return courtDates.filter(cd => !cd.adminApproved && !cd.completed);
+  }
+
+  // Client acknowledgment system
+  async acknowledgeCourtDate(id: number, clientId: number): Promise<CourtDate> {
+    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
+    const courtDate = courtDates.find(cd => cd.id === id && cd.clientId === clientId);
+    
+    if (!courtDate) {
+      throw new Error(`Court date with id ${id} not found or not accessible by client ${clientId}`);
+    }
+
+    if (!courtDate.adminApproved) {
+      throw new Error(`Court date must be admin approved before client acknowledgment`);
+    }
+
+    const updatedCourtDate: CourtDate = {
+      ...courtDate,
+      clientAcknowledged: true,
+      acknowledgedAt: new Date(),
+    };
+
+    const updatedCourtDates = courtDates.map(cd => 
+      cd.id === id ? updatedCourtDate : cd
+    );
+
+    await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), updatedCourtDates);
+    return updatedCourtDate;
+  }
+
+  async getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]> {
+    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
+    return courtDates.filter(cd => cd.clientId === clientId && cd.adminApproved);
+  }
+
   async getExpensesByDateRange(startDate: Date, endDate: Date): Promise<Expense[]> {
     const expenses = await this.getAllExpenses();
     return expenses.filter(e => {

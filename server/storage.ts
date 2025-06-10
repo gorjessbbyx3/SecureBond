@@ -78,6 +78,12 @@ export interface IStorage {
   getAllUpcomingCourtDates(): Promise<CourtDate[]>;
   updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate>;
   deleteCourtDate(id: number): Promise<void>;
+  // Court date approval system
+  approveCourtDate(id: number, approvedBy: string): Promise<CourtDate>;
+  getPendingCourtDates(): Promise<CourtDate[]>;
+  // Client acknowledgment system
+  acknowledgeCourtDate(id: number, clientId: number): Promise<CourtDate>;
+  getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]>;
   
   // Expense operations
   createExpense(expense: InsertExpense): Promise<Expense>;

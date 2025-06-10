@@ -1804,6 +1804,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin court date approval system
+  app.get('/api/court-dates/pending', isAuthenticated, async (req, res) => {
+    try {
+      const pendingCourtDates = await storage.getPendingCourtDates();
+      res.json(pendingCourtDates);
+    } catch (error) {
+      console.error('Error fetching pending court dates:', error);
+      res.status(500).json({ message: 'Failed to fetch pending court dates' });
+    }
+  });
+
+  app.patch('/api/court-dates/:id/approve', isAuthenticated, async (req, res) => {
+    try {
+      const courtDateId = parseInt(req.params.id);
+      const userId = req.user?.claims?.sub || 'admin';
+      
+      const approvedCourtDate = await storage.approveCourtDate(courtDateId, userId);
+      res.json(approvedCourtDate);
+    } catch (error) {
+      console.error('Error approving court date:', error);
+      res.status(500).json({ message: 'Failed to approve court date' });
+    }
+  });
+
+  // Client court date acknowledgment system
+  app.patch('/api/client/court-dates/:id/acknowledge', async (req, res) => {
+    try {
+      const courtDateId = parseInt(req.params.id);
+      const { clientId } = req.body;
+      
+      if (!clientId) {
+        return res.status(400).json({ message: 'Client ID is required' });
+      }
+
+      const acknowledgedCourtDate = await storage.acknowledgeCourtDate(courtDateId, clientId);
+      res.json(acknowledgedCourtDate);
+    } catch (error) {
+      console.error('Error acknowledging court date:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Update court date
   app.patch('/api/court-dates/:id', isAuthenticated, async (req, res) => {
     try {

@@ -169,6 +169,15 @@ export const courtDates = pgTable("court_dates", {
   notes: text("notes"),
   completed: boolean("completed").default(false),
   attendanceStatus: varchar("attendance_status").default("pending"), // pending, attended, missed, rescheduled
+  // Admin approval system
+  adminApproved: boolean("admin_approved").default(false),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  // Client acknowledgment system
+  clientAcknowledged: boolean("client_acknowledged").default(false),
+  acknowledgedAt: timestamp("acknowledged_at"),
+  source: varchar("source").default("manual"), // manual, scraped, imported
+  sourceVerified: boolean("source_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -316,6 +325,8 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
 export const insertCourtDateSchema = createInsertSchema(courtDates).omit({
   id: true,
   createdAt: true,
+  approvedAt: true,
+  acknowledgedAt: true,
 }).extend({
   courtDate: z.string().transform((val) => new Date(val)),
 });
