@@ -509,8 +509,9 @@ export class LocalFileStorage {
 
         const type = daysDiff === 0 ? 'today' : daysDiff < 0 ? 'overdue' : 'upcoming';
 
-        // Get client name from clients array
-        const client = this.clients.find(c => c.id === courtDate.clientId);
+        // Get client name from clients array using await
+        const allClients = await this.getAllClients();
+        const client = allClients.find(c => c.id === courtDate.clientId);
         const clientName = client ? client.fullName : 'Unknown Client';
 
         reminders.push({
