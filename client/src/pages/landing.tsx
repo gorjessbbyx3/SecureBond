@@ -75,10 +75,10 @@ export default function Landing() {
         <div className="w-full h-full bg-gradient-to-b from-sky-400 via-sky-300 to-cyan-300">
           {/* Ocean waves */}
           <div className="absolute bottom-0 w-full h-2/3 bg-gradient-to-t from-blue-600 via-blue-400 to-cyan-300">
-            <div className="waikiki-waves absolute inset-0 opacity-60">
-              <div className="absolute bottom-0 w-full h-20 bg-gradient-to-t from-blue-700 to-transparent"></div>
-              <div className="absolute bottom-16 w-full h-8 bg-gradient-to-t from-blue-500 to-transparent opacity-70"></div>
-              <div className="absolute bottom-32 w-full h-6 bg-gradient-to-t from-blue-400 to-transparent opacity-50"></div>
+            <div className="absolute inset-0 opacity-60">
+              <div className="waikiki-waves absolute bottom-0 w-full h-20 bg-gradient-to-t from-blue-700 to-transparent"></div>
+              <div className="waikiki-waves absolute bottom-16 w-full h-8 bg-gradient-to-t from-blue-500 to-transparent opacity-70"></div>
+              <div className="waikiki-waves absolute bottom-32 w-full h-6 bg-gradient-to-t from-blue-400 to-transparent opacity-50"></div>
             </div>
           </div>
           
@@ -87,24 +87,24 @@ export default function Landing() {
                style={{clipPath: 'polygon(0% 100%, 30% 40%, 60% 60%, 100% 100%)'}}>
           </div>
           
-          {/* Palm trees */}
+          {/* Palm trees with animation */}
           <div className="absolute bottom-0 left-20 w-8 h-48 bg-gradient-to-t from-amber-800 to-amber-700"></div>
-          <div className="palm-tree absolute bottom-36 left-16 w-32 h-4 bg-green-600 rounded-full transform -rotate-12"></div>
-          <div className="palm-tree absolute bottom-32 left-24 w-28 h-4 bg-green-600 rounded-full transform rotate-12"></div>
+          <div className="absolute bottom-36 left-16 w-32 h-4 bg-green-600 rounded-full transform -rotate-12 palm-tree"></div>
+          <div className="absolute bottom-32 left-24 w-28 h-4 bg-green-600 rounded-full transform rotate-12 palm-tree"></div>
           
           <div className="absolute bottom-0 right-32 w-6 h-32 bg-gradient-to-t from-amber-800 to-amber-700"></div>
-          <div className="palm-tree absolute bottom-24 right-28 w-24 h-3 bg-green-600 rounded-full transform -rotate-25"></div>
-          <div className="palm-tree absolute bottom-28 right-36 w-20 h-3 bg-green-600 rounded-full transform rotate-20"></div>
+          <div className="absolute bottom-24 right-28 w-24 h-3 bg-green-600 rounded-full transform -rotate-25 palm-tree"></div>
+          <div className="absolute bottom-28 right-36 w-20 h-3 bg-green-600 rounded-full transform rotate-20 palm-tree"></div>
           
-          {/* Tropical clouds */}
-          <div className="tropical-cloud absolute top-20 left-1/4 w-32 h-16 bg-white rounded-full opacity-70"></div>
-          <div className="tropical-cloud absolute top-32 right-1/3 w-24 h-12 bg-white rounded-full opacity-60"></div>
-          <div className="tropical-cloud absolute top-16 right-1/4 w-20 h-10 bg-white rounded-full opacity-50"></div>
+          {/* Tropical clouds with animation */}
+          <div className="absolute top-20 left-1/4 w-32 h-16 bg-white rounded-full opacity-70 tropical-cloud"></div>
+          <div className="absolute top-32 right-1/3 w-24 h-12 bg-white rounded-full opacity-60 tropical-cloud"></div>
+          <div className="absolute top-16 right-1/4 w-20 h-10 bg-white rounded-full opacity-50 tropical-cloud"></div>
           
-          {/* Sunlight rays */}
-          <div className="sun-ray absolute top-10 right-20 w-2 h-48 bg-yellow-300 opacity-30 transform rotate-45"></div>
-          <div className="sun-ray absolute top-16 right-32 w-1 h-32 bg-yellow-300 opacity-20 transform rotate-30"></div>
-          <div className="sun-ray absolute top-12 right-16 w-1 h-40 bg-yellow-300 opacity-25 transform rotate-60"></div>
+          {/* Sunlight rays with animation */}
+          <div className="absolute top-10 right-20 w-2 h-48 bg-yellow-300 opacity-30 transform rotate-45 sun-ray"></div>
+          <div className="absolute top-16 right-32 w-1 h-32 bg-yellow-300 opacity-20 transform rotate-30 sun-ray"></div>
+          <div className="absolute top-12 right-16 w-1 h-40 bg-yellow-300 opacity-25 transform rotate-60 sun-ray"></div>
         </div>
         
         {/* Jail cell window frame and bars overlay */}
@@ -116,18 +116,18 @@ export default function Landing() {
             <div className="absolute inset-8 bg-black/20 shadow-inner">
               
               {/* Heavy prison bars */}
-              <div className="jail-bars absolute inset-0 grid grid-cols-7 gap-4 p-6">
+              <div className="absolute inset-0 grid grid-cols-7 gap-4 p-6">
                 {Array.from({ length: 7 }).map((_, i) => (
-                  <div key={i} className="bg-gradient-to-b from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative">
+                  <div key={i} className="bg-gradient-to-b from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
                   </div>
                 ))}
               </div>
               
               {/* Horizontal security bars */}
-              <div className="horizontal-bars absolute inset-0 flex flex-col justify-evenly px-6">
+              <div className="absolute inset-0 flex flex-col justify-evenly px-6">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-4 bg-gradient-to-r from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative">
+                  <div key={i} className="h-4 bg-gradient-to-r from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
                   </div>
                 ))}
