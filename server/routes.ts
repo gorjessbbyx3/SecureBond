@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import session from "express-session";
 import { storage } from "./storage";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
@@ -22,13 +23,13 @@ const isAuthenticated = (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Simple session middleware for development
-  app.use((req: any, res, next) => {
-    if (!req.session) {
-      req.session = {};
-    }
-    next();
-  });
+  // Session middleware setup
+  app.use(session({
+    secret: 'aloha-bail-bond-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  }));
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

@@ -273,14 +273,28 @@ export default function ClientManagement() {
           <h2 className="text-2xl font-bold text-slate-900">Client Management</h2>
           <p className="text-slate-600">Manage client accounts and information</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center">
-              <Plus className="mr-2 w-4 h-4" />
-              Add New Client
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="flex gap-2">
+          <Dialog open={isAdminSettingsOpen} onOpenChange={setIsAdminSettingsOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex items-center">
+                <Settings className="mr-2 w-4 h-4" />
+                Admin Settings
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center">
+                <Plus className="mr-2 w-4 h-4" />
+                Add New Client
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        </div>
+
+      {/* Add New Client Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingClient ? "Edit Client" : "Add New Client"}</DialogTitle>
             </DialogHeader>
