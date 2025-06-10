@@ -89,11 +89,13 @@ export default function Landing() {
       <header className="relative z-10 bg-gradient-to-r from-blue-900/90 to-blue-800/90 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-center">
-            <div className="text-center">
-              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-wide">
-                ALOHA BAIL BOND
-              </h1>
-              <p className="text-blue-100 text-sm mt-1">Professional Bail Bond Services</p>
+            <div className="text-center flex flex-col items-center">
+              <img 
+                src="/attached_assets/download_1749535196337.png" 
+                alt="Aloha Bail Bonds Logo" 
+                className="h-16 md:h-20 w-auto mb-2"
+              />
+              <p className="text-blue-100 text-sm">Professional Bail Bond Services</p>
             </div>
           </div>
         </div>
@@ -105,8 +107,12 @@ export default function Landing() {
           <Card className="secure-card overflow-hidden backdrop-blur-sm bg-white/95 shadow-2xl border-2 border-gray-300">
             {/* Card Header */}
             <div className="professional-gradient px-8 py-6 text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <UserCircle className="text-white text-2xl w-8 h-8" />
+              <div className="w-20 h-16 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-4 p-2">
+                <img 
+                  src="/attached_assets/download_1749535196337.png" 
+                  alt="Aloha Bail Bonds" 
+                  className="h-full w-auto"
+                />
               </div>
               <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>
               <p className="text-blue-100 text-sm">Secure access to your account</p>
