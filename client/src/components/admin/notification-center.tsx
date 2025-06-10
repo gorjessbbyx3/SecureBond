@@ -8,31 +8,19 @@ import { Bell, AlertTriangle, CheckCircle, Clock, Phone, MapPin, DollarSign, Cal
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-
-interface Notification {
-  id: number;
-  type: 'alert' | 'payment' | 'checkin' | 'court' | 'system';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  title: string;
-  message: string;
-  clientId?: string;
-  clientName?: string;
-  timestamp: string;
-  read: boolean;
-  actionRequired: boolean;
-}
+import { Notification } from "@/lib/types";
 
 export default function NotificationCenter() {
   const [activeTab, setActiveTab] = useState("all");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: notifications, isLoading } = useQuery({
+  const { data: notifications, isLoading } = useQuery<Notification[]>({
     queryKey: ['/api/notifications'],
   });
 
   const markAsReadMutation = useMutation({
-    mutationFn: async (notificationId: number) => {
+    mutationFn: async (notificationId: string) => {
       await apiRequest("POST", `/api/notifications/${notificationId}/read`);
     },
     onSuccess: () => {
@@ -41,7 +29,7 @@ export default function NotificationCenter() {
   });
 
   const handleActionMutation = useMutation({
-    mutationFn: async (data: { notificationId: number; action: string }) => {
+    mutationFn: async (data: { notificationId: string; action: string }) => {
       await apiRequest("POST", `/api/notifications/${data.notificationId}/action`, data);
     },
     onSuccess: () => {
@@ -53,57 +41,7 @@ export default function NotificationCenter() {
     },
   });
 
-  // Mock notifications for demonstration
-  const mockNotifications: Notification[] = [
-    {
-      id: 1,
-      type: 'alert',
-      priority: 'critical',
-      title: 'Client Missing Check-in',
-      message: 'John Smith (SB123456) has missed 3 consecutive check-ins',
-      clientId: 'SB123456',
-      clientName: 'John Smith',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      actionRequired: true,
-    },
-    {
-      id: 2,
-      type: 'payment',
-      priority: 'high',
-      title: 'Payment Received',
-      message: 'New payment of $500 received from Maria Garcia',
-      clientId: 'SB789012',
-      clientName: 'Maria Garcia',
-      timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      actionRequired: true,
-    },
-    {
-      id: 3,
-      type: 'court',
-      priority: 'medium',
-      title: 'Upcoming Court Date',
-      message: 'Robert Johnson has a court appearance tomorrow at 9:00 AM',
-      clientId: 'SB345678',
-      clientName: 'Robert Johnson',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-      read: true,
-      actionRequired: false,
-    },
-    {
-      id: 4,
-      type: 'system',
-      priority: 'low',
-      title: 'System Update',
-      message: 'Monthly backup completed successfully',
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      read: true,
-      actionRequired: false,
-    },
-  ];
-
-  const notificationData = notifications || mockNotifications;
+  const notificationData = notifications || [];
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -126,15 +64,15 @@ export default function NotificationCenter() {
     }
   };
 
-  const filteredNotifications = notificationData.filter(notification => {
+  const filteredNotifications = notificationData.filter((notification: Notification) => {
     if (activeTab === "all") return true;
     if (activeTab === "unread") return !notification.read;
     if (activeTab === "actions") return notification.actionRequired;
     return notification.type === activeTab;
   });
 
-  const unreadCount = notificationData.filter(n => !n.read).length;
-  const actionCount = notificationData.filter(n => n.actionRequired).length;
+  const unreadCount = notificationData.filter((n: Notification) => !n.read).length;
+  const actionCount = notificationData.filter((n: Notification) => n.actionRequired).length;
 
   if (isLoading) {
     return (
@@ -191,7 +129,7 @@ export default function NotificationCenter() {
           <TabsContent value={activeTab}>
             <ScrollArea className="h-96">
               <div className="space-y-3">
-                {filteredNotifications.map((notification) => (
+                {filteredNotifications.map((notification: Notification) => (
                   <div
                     key={notification.id}
                     className={`p-4 border rounded-lg transition-colors ${

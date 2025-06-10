@@ -3,29 +3,14 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Users, DollarSign, Calendar, AlertTriangle, TrendingUp, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { DashboardStats as DashboardStatsType, Alert } from "@/lib/types";
 
 interface DashboardStatsProps {
   role?: 'admin' | 'maintenance' | 'client';
 }
 
-interface DashboardStats {
-  totalClients: number;
-  activeClients: number;
-  upcomingCourtDates: number;
-  pendingPayments: number;
-  totalRevenue: number;
-  pendingAmount: number;
-}
-
-interface Alert {
-  id: string | number;
-  message: string;
-  alertType?: string;
-  type?: string;
-}
-
 export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) {
-  const { data: stats } = useQuery<DashboardStats>({
+  const { data: stats } = useQuery<DashboardStatsType>({
     queryKey: ['/api/dashboard/stats'],
   });
 
@@ -34,12 +19,13 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
   });
 
   // Provide default values for stats to prevent type errors
-  const safeStats: DashboardStats = stats || {
+  const safeStats = stats || {
     totalClients: 0,
     activeClients: 0,
     upcomingCourtDates: 0,
     pendingPayments: 0,
     totalRevenue: 0,
+    totalExpenses: 0,
     pendingAmount: 0
   };
 
@@ -92,7 +78,7 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
     {
       title: "Pending Payments",
       value: safeStats.pendingPayments,
-      description: `$${safeStats.pendingAmount.toLocaleString()} total`,
+      description: `$${(safeStats.pendingAmount || 0).toLocaleString()} total`,
       icon: AlertTriangle,
       trend: safeStats.pendingPayments > 0 ? "-2 from yesterday" : "No pending payments",
       color: "text-red-600",
