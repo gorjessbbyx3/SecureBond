@@ -454,7 +454,6 @@ export default function ClientManagement() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
       {/* Generated Credentials Dialog */}
       {generatedCredentials && (
@@ -642,6 +641,14 @@ export default function ClientManagement() {
                           >
                             <Edit className="w-3 h-3" />
                           </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fetchClientCredentialsMutation.mutate(client.clientId)}
+                            disabled={fetchClientCredentialsMutation.isPending}
+                          >
+                            <Key className="w-3 h-3" />
+                          </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="outline" size="sm">
@@ -688,48 +695,126 @@ export default function ClientManagement() {
         </CardContent>
       </Card>
 
-      {/* Client Details Dialog */}
-      {selectedClient && (
-        <ClientDetailsDialog 
-          client={selectedClient}
-          isOpen={isClientDetailsOpen}
-          onClose={() => {
-            setIsClientDetailsOpen(false);
-            setSelectedClient(null);
-          }}
-        />
-      )}
+      {/* Admin Settings Dialog */}
+      <Dialog open={isAdminSettingsOpen} onOpenChange={setIsAdminSettingsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Settings className="mr-2 w-5 h-5" />
+              Admin Settings
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+{adminCredentials && (adminCredentials as any).admin && (adminCredentials as any).maintenance && (
+              <div className="space-y-3">
+                <h3 className="font-medium">Current Admin Credentials</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-2 bg-slate-50 rounded">
+                    <span className="text-sm font-medium">Admin Username:</span>
+                    <span className="text-sm">{(adminCredentials as any).admin.username}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-slate-50 rounded">
+                    <span className="text-sm font-medium">Maintenance Username:</span>
+                    <span className="text-sm">{(adminCredentials as any).maintenance.username}</span>
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newAdminPassword = prompt("Enter new admin password:");
+                      if (newAdminPassword) {
+                        updateCredentialsMutation.mutate({
+                          role: "admin",
+                          username: (adminCredentials as any).admin.username,
+                          password: newAdminPassword
+                        });
+                      }
+                    }}
+                    disabled={updateCredentialsMutation.isPending}
+                  >
+                    Update Admin Password
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2"
+                    onClick={() => {
+                      const newMaintenancePassword = prompt("Enter new maintenance password:");
+                      if (newMaintenancePassword) {
+                        updateCredentialsMutation.mutate({
+                          role: "maintenance",
+                          username: (adminCredentials as any).maintenance.username,
+                          password: newMaintenancePassword
+                        });
+                      }
+                    }}
+                    disabled={updateCredentialsMutation.isPending}
+                  >
+                    Update Maintenance Password
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Client Credentials Dialog */}
+      <Dialog open={isCredentialsDialogOpen} onOpenChange={setIsCredentialsDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Key className="mr-2 w-5 h-5" />
+              Client Login Credentials
+            </DialogTitle>
+          </DialogHeader>
+          {clientCredentials && (
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p className="text-sm font-medium text-blue-800 mb-3">
+                  Client login information:
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-blue-700">Client ID:</Label>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm">{clientCredentials.clientId}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(clientCredentials.clientId)}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-blue-700">Password:</Label>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm">{clientCredentials.password}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(clientCredentials.password)}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600">
+                Share these credentials with the client for portal access.
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-// Client Details Dialog Component
-function ClientDetailsDialog({ client, isOpen, onClose }: {
-  client: Client;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  // Fetch client-specific data
-  const { data: payments } = useQuery({
-    queryKey: ["/api/clients", client.id, "payments"],
-    enabled: isOpen,
-  });
-
-  const { data: checkIns } = useQuery({
-    queryKey: ["/api/clients", client.id, "check-ins"],
-    enabled: isOpen,
-  });
-
-  const { data: courtDates } = useQuery({
-    queryKey: ["/api/clients", client.id, "court-dates"],
-    enabled: isOpen,
-  });
-
-  const totalPaid = (payments as any[])?.reduce((sum, payment) => sum + parseFloat(payment.amount), 0) || 0;
-  const checkInCount = (checkIns as any[])?.length || 0;
-  const upcomingCourtDates = (courtDates as any[])?.filter(cd => new Date(cd.courtDate) > new Date()).length || 0;
-
-  return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
