@@ -108,26 +108,34 @@ export default function Landing() {
         </div>
         
         {/* Jail cell window frame and bars overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* Window frame - concrete cell wall */}
-          <div className="relative w-[800px] h-[600px] bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {/* Window frame - concrete cell wall with cutout */}
+          <div className="relative w-[800px] h-[600px]">
+            {/* Frame border - top */}
+            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
+            {/* Frame border - bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
+            {/* Frame border - left */}
+            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
+            {/* Frame border - right */}
+            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl"></div>
             
-            {/* Window opening */}
-            <div className="absolute inset-8 bg-black/20 shadow-inner">
+            {/* Window opening - completely transparent to show beach behind */}
+            <div className="absolute inset-8">
               
-              {/* Heavy prison bars */}
+              {/* Heavy prison bars - semi-transparent */}
               <div className="absolute inset-0 grid grid-cols-7 gap-4 p-6">
                 {Array.from({ length: 7 }).map((_, i) => (
-                  <div key={i} className="bg-gradient-to-b from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
+                  <div key={i} className="bg-gradient-to-b from-gray-500/80 via-gray-400/80 to-gray-500/80 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
                   </div>
                 ))}
               </div>
               
-              {/* Horizontal security bars */}
+              {/* Horizontal security bars - semi-transparent */}
               <div className="absolute inset-0 flex flex-col justify-evenly px-6">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-4 bg-gradient-to-r from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
+                  <div key={i} className="h-4 bg-gradient-to-r from-gray-500/80 via-gray-400/80 to-gray-500/80 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
                   </div>
                 ))}
