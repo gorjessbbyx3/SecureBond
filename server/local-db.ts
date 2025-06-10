@@ -847,10 +847,112 @@ export class LocalFileStorage {
     await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'notifications.json'), updated);
   }
 
+  async confirmNotification(id: number, confirmedBy: string): Promise<Notification> {
+    const notifications = await this.readJsonFile<Notification>(path.join(this.dataDir, 'notifications', 'notifications.json'));
+    const notification = notifications.find(n => n.id === id);
+    
+    if (!notification) {
+      throw new Error("Notification not found");
+    }
+    
+    notification.confirmed = true;
+    notification.confirmedAt = new Date();
+    notification.confirmedBy = confirmedBy;
+    
+    await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'notifications.json'), notifications);
+    await this.backupData();
+    
+    return notification;
+  }
+
   async deleteNotification(id: number): Promise<void> {
     const notifications = await this.readJsonFile<Notification>(path.join(this.dataDir, 'notifications', 'notifications.json'));
     const filtered = notifications.filter(n => n.id !== id);
     await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'notifications.json'), filtered);
+  }
+
+  // Court date reminder operations
+  async createCourtDateReminder(reminderData: InsertCourtDateReminder): Promise<CourtDateReminder> {
+    const reminder: CourtDateReminder = {
+      id: this.nextId++,
+      ...reminderData,
+      createdAt: new Date(),
+    };
+    
+    const reminders = await this.readJsonFile<CourtDateReminder>(path.join(this.dataDir, 'notifications', 'court-reminders.json'));
+    reminders.push(reminder);
+    await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'court-reminders.json'), reminders);
+    await this.backupData();
+    
+    return reminder;
+  }
+
+  async getCourtDateRemindersForDate(courtDateId: number): Promise<CourtDateReminder[]> {
+    const reminders = await this.readJsonFile<CourtDateReminder>(path.join(this.dataDir, 'notifications', 'court-reminders.json'));
+    return reminders.filter(r => r.courtDateId === courtDateId);
+  }
+
+  async scheduleFollowupReminders(courtDateId: number): Promise<void> {
+    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'court-dates', 'court-dates.json'));
+    const courtDate = courtDates.find(cd => cd.id === courtDateId);
+    
+    if (!courtDate || !courtDate.courtDate) return;
+
+    const courtDateTime = new Date(courtDate.courtDate);
+    const now = new Date();
+    
+    // Schedule initial reminder (3 days before)
+    const initialReminder = new Date(courtDateTime);
+    initialReminder.setDate(initialReminder.getDate() - 3);
+    
+    if (initialReminder > now) {
+      await this.createCourtDateReminder({
+        courtDateId,
+        reminderType: 'initial',
+        scheduledFor: initialReminder,
+        sent: false,
+        sentAt: null,
+        confirmed: false,
+        confirmedBy: null,
+        confirmedAt: null,
+        notificationId: null,
+      });
+    }
+    
+    // Schedule follow-up reminders (1 day before, 3 hours before)
+    const followup1 = new Date(courtDateTime);
+    followup1.setDate(followup1.getDate() - 1);
+    
+    if (followup1 > now) {
+      await this.createCourtDateReminder({
+        courtDateId,
+        reminderType: 'followup_1',
+        scheduledFor: followup1,
+        sent: false,
+        sentAt: null,
+        confirmed: false,
+        confirmedBy: null,
+        confirmedAt: null,
+        notificationId: null,
+      });
+    }
+    
+    const followup2 = new Date(courtDateTime);
+    followup2.setHours(followup2.getHours() - 3);
+    
+    if (followup2 > now) {
+      await this.createCourtDateReminder({
+        courtDateId,
+        reminderType: 'followup_2',
+        scheduledFor: followup2,
+        sent: false,
+        sentAt: null,
+        confirmed: false,
+        confirmedBy: null,
+        confirmedAt: null,
+        notificationId: null,
+      });
+    }
   }
 
   // Notification preferences operations

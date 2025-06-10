@@ -1509,10 +1509,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/notifications/:id/confirm', isAuthenticated, async (req, res) => {
+  app.patch('/api/notifications/:id/confirm', isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.claims?.sub || "demo-user";
       const notification = await storage.confirmNotification(id, userId);
       res.json(notification);
     } catch (error) {
