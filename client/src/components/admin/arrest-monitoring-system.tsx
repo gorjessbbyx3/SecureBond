@@ -157,15 +157,15 @@ export default function ArrestMonitoringSystem() {
     }
   };
 
-  const filteredRecords = arrestRecords ? arrestRecords.filter((record: ArrestRecord) => {
+  const filteredRecords = (arrestRecords as ArrestRecord[] || []).filter((record: ArrestRecord) => {
     const matchesSearch = record.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          record.charges.some(charge => charge.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          record.bookingNumber.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCounty = selectedCounty === "all" || record.county.toLowerCase() === selectedCounty;
     return matchesSearch && matchesCounty;
-  }) : [];
+  });
 
-  const pendingAlerts = arrestRecords ? arrestRecords.filter((record: ArrestRecord) => record.status === 'pending').length : 0;
+  const pendingAlerts = (arrestRecords as ArrestRecord[] || []).filter((record: ArrestRecord) => record.status === 'pending').length;
 
   return (
     <div className="space-y-6">
@@ -218,7 +218,7 @@ export default function ArrestMonitoringSystem() {
               <User className="h-8 w-8 text-blue-500" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Records</p>
-                <p className="text-2xl font-bold">{arrestRecords?.length || 0}</p>
+                <p className="text-2xl font-bold">{(arrestRecords as ArrestRecord[] || []).length}</p>
               </div>
             </div>
           </CardContent>
@@ -231,7 +231,7 @@ export default function ArrestMonitoringSystem() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Active Clients</p>
                 <p className="text-2xl font-bold">
-                  {arrestRecords ? arrestRecords.filter((r: ArrestRecord) => r.isActive).length : 0}
+                  {(arrestRecords as ArrestRecord[] || []).filter((r: ArrestRecord) => r.isActive).length}
                 </p>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function ArrestMonitoringSystem() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Bond Violations</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {arrestRecords ? arrestRecords.filter((r: ArrestRecord) => r.bondViolation).length : 0}
+                  {(arrestRecords as ArrestRecord[] || []).filter((r: ArrestRecord) => r.bondViolation).length}
                 </p>
               </div>
             </div>
@@ -264,7 +264,7 @@ export default function ArrestMonitoringSystem() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {hawaiiCounties.map((county) => {
-              const config = monitoringConfig?.find((c: MonitoringConfig) => c.county === county.id);
+              const config = (monitoringConfig as MonitoringConfig[] || []).find((c: MonitoringConfig) => c.county === county.id);
               return (
                 <div key={county.id} className="p-4 border rounded-lg">
                   <div className="flex justify-between items-start mb-2">
@@ -457,12 +457,12 @@ export default function ArrestMonitoringSystem() {
                 <div className="space-y-4">
                   {/* County-based sections, starting with Honolulu */}
                   {hawaiiCounties.map((county) => {
-                    const countyLogs = publicArrestLogs ? publicArrestLogs.filter((log: any) => 
+                    const countyLogs = (publicArrestLogs as any[] || []).filter((log: any) => 
                       log.county === county.id && 
                       (publicSearchTerm === "" || 
                        log.name.toLowerCase().includes(publicSearchTerm.toLowerCase()) ||
                        log.charges?.some((charge: string) => charge.toLowerCase().includes(publicSearchTerm.toLowerCase())))
-                    ) : [];
+                    );
 
                     return (
                       <Card key={county.id} className="border-l-4 border-l-blue-500">

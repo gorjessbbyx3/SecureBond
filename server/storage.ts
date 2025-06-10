@@ -106,6 +106,7 @@ export interface IStorage {
 class MemoryStorage implements IStorage {
   private users: User[] = [];
   private clients: Client[] = [];
+  private bonds: Bond[] = [];
   private checkIns: CheckIn[] = [];
   private payments: Payment[] = [];
   private messages: Message[] = [];
@@ -500,6 +501,146 @@ class MemoryStorage implements IStorage {
 
   async getClientFiles(clientId: number): Promise<ClientFile[]> {
     return this.clientFiles.filter(f => f.clientId === clientId);
+  }
+
+  // Bond operations
+  async createBond(bondData: InsertBond): Promise<Bond> {
+    const bond = {
+      ...bondData,
+      id: this.nextId++,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Bond;
+    this.bonds.push(bond);
+    return bond;
+  }
+
+  async getClientBonds(clientId: number): Promise<Bond[]> {
+    return this.bonds.filter(b => b.clientId === clientId);
+  }
+
+  async getAllBonds(): Promise<Bond[]> {
+    return [...this.bonds];
+  }
+
+  async updateBond(id: number, updates: Partial<InsertBond>): Promise<Bond> {
+    const index = this.bonds.findIndex(b => b.id === id);
+    if (index === -1) {
+      throw new Error("Bond not found");
+    }
+    
+    this.bonds[index] = {
+      ...this.bonds[index],
+      ...updates,
+      updatedAt: new Date(),
+    };
+    return this.bonds[index];
+  }
+
+  async deleteBond(id: number): Promise<void> {
+    const index = this.bonds.findIndex(b => b.id === id);
+    if (index >= 0) {
+      this.bonds.splice(index, 1);
+    }
+  }
+
+  async getActiveBonds(): Promise<Bond[]> {
+    return this.bonds.filter(b => b.status === 'active');
+  }
+
+  async getClientActiveBondCount(clientId: number): Promise<number> {
+    return this.bonds.filter(b => b.clientId === clientId && b.status === 'active').length;
+  }
+
+  // Court date reminder operations
+  async getAllCourtDates(): Promise<CourtDate[]> {
+    return [...this.courtDates];
+  }
+
+  async getCourtDateReminders(): Promise<any[]> {
+    const now = new Date();
+    const reminders = [];
+
+    for (const courtDate of this.courtDates) {
+      const courtDateObj = new Date(courtDate.courtDate);
+      const timeDiff = courtDateObj.getTime() - now.getTime();
+      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+      if (daysDiff <= 7 && daysDiff >= 0) {
+        let priority = 'low';
+        if (daysDiff === 0) priority = 'critical';
+        else if (daysDiff === 1) priority = 'high';
+        else if (daysDiff <= 3) priority = 'medium';
+
+        const type = daysDiff === 0 ? 'today' : daysDiff < 0 ? 'overdue' : 'upcoming';
+
+        reminders.push({
+          id: `reminder-${courtDate.id}-${Date.now()}`,
+          courtDateId: courtDate.id,
+          clientId: courtDate.clientId,
+          clientName: 'Unknown Client',
+          courtDate: courtDate.courtDate,
+          courtLocation: courtDate.courtLocation,
+          daysUntil: daysDiff,
+          priority,
+          type,
+          isAcknowledged: false
+        });
+      }
+    }
+
+    return reminders;
+  }
+
+  async acknowledgeReminder(reminderId: string): Promise<any> {
+    return { id: reminderId, acknowledged: true, acknowledgedAt: new Date() };
+  }
+
+  // Arrest monitoring operations
+  async getArrestRecords(): Promise<any[]> {
+    return [];
+  }
+
+  async getMonitoringConfig(): Promise<any[]> {
+    const hawaiiCounties = [
+      { id: 'honolulu', name: 'Honolulu County', agency: 'Honolulu Police Department' },
+      { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii Police Department' },
+      { id: 'maui', name: 'Maui County', agency: 'Maui Police Department' },
+      { id: 'kauai', name: 'Kauai County', agency: 'Kauai Police Department' }
+    ];
+
+    return hawaiiCounties.map(county => ({
+      id: `config-${county.id}`,
+      county: county.id,
+      agency: county.agency,
+      isEnabled: true,
+      lastChecked: new Date().toISOString(),
+      checkInterval: 30,
+      apiEndpoint: `https://api.${county.id}pd.gov/arrest-logs`,
+      status: 'active'
+    }));
+  }
+
+  async scanArrestLogs(): Promise<any> {
+    return {
+      success: true,
+      newRecords: 0,
+      lastScanned: new Date().toISOString(),
+      sourcesChecked: ['Honolulu PD', 'Hawaii County PD', 'Maui PD', 'Kauai PD']
+    };
+  }
+
+  async acknowledgeArrestRecord(recordId: string): Promise<any> {
+    return {
+      id: recordId,
+      status: 'processed',
+      acknowledgedAt: new Date().toISOString(),
+      acknowledgedBy: 'admin'
+    };
+  }
+
+  async getPublicArrestLogs(): Promise<any[]> {
+    return [];
   }
 }
 
