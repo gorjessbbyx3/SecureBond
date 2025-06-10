@@ -71,10 +71,16 @@ export default function ClientAnalytics() {
       return acc;
     }, { low: 0, medium: 0, high: 0 });
 
-    // Location analysis
+    // Location analysis from actual client addresses
     const locationData = clients.reduce((acc: any, client: any) => {
-      const city = client.address?.split(',')[1]?.trim() || 'Unknown';
-      acc[city] = (acc[city] || 0) + 1;
+      if (client.address) {
+        const addressParts = client.address.split(',');
+        const city = addressParts.length > 1 ? addressParts[1].trim() : addressParts[0].trim();
+        const normalizedCity = city || 'Address Not Specified';
+        acc[normalizedCity] = (acc[normalizedCity] || 0) + 1;
+      } else {
+        acc['No Address Provided'] = (acc['No Address Provided'] || 0) + 1;
+      }
       return acc;
     }, {});
 

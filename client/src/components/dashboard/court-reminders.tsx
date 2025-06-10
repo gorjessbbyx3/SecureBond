@@ -141,7 +141,7 @@ export default function CourtReminders() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Upcoming (30 days)</p>
-                <p className="text-2xl font-bold">{upcomingReminders?.length || 0}</p>
+                <p className="text-2xl font-bold">{Array.isArray(upcomingReminders) ? upcomingReminders.length : 0}</p>
               </div>
               <Calendar className="w-8 h-8 text-blue-500" />
             </div>
@@ -154,7 +154,7 @@ export default function CourtReminders() {
               <div>
                 <p className="text-sm text-muted-foreground">This Week</p>
                 <p className="text-2xl font-bold">
-                  {upcomingReminders?.filter((r: CourtReminder) => r.daysUntil <= 7).length || 0}
+                  {Array.isArray(upcomingReminders) ? upcomingReminders.filter((r: CourtReminder) => r.daysUntil <= 7).length : 0}
                 </p>
               </div>
               <Clock className="w-8 h-8 text-orange-500" />
@@ -167,7 +167,7 @@ export default function CourtReminders() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Overdue</p>
-                <p className="text-2xl font-bold text-red-600">{overdueCourtDates?.length || 0}</p>
+                <p className="text-2xl font-bold text-red-600">{Array.isArray(overdueCourtDates) ? overdueCourtDates.length : 0}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
@@ -194,11 +194,11 @@ export default function CourtReminders() {
                 <Calendar className="mr-2 w-5 h-5" />
                 Upcoming Court Dates
               </div>
-              <Badge variant="outline">{upcomingReminders?.length || 0}</Badge>
+              <Badge variant="outline">{Array.isArray(upcomingReminders) ? upcomingReminders.length : 0}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!upcomingReminders || upcomingReminders.length === 0 ? (
+            {!Array.isArray(upcomingReminders) || upcomingReminders.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No upcoming court dates</p>
             ) : (
               upcomingReminders.map((reminder: CourtReminder) => (
