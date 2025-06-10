@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import type { LoginResponse, ClientCredentials } from "@/lib/types";
-import logoImage from "@assets/download_1749535196337.png";
+import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833870.png";
 
 export default function Landing() {
   const [, setLocation] = useLocation();

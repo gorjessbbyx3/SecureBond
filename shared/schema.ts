@@ -330,6 +330,10 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   id: true,
   createdAt: true,
 });
+export const insertCourtDateReminderSchema = createInsertSchema(courtDateReminders).omit({
+  id: true,
+  createdAt: true,
+});
 export const insertNotificationPreferencesSchema = createInsertSchema(notificationPreferences).omit({
   id: true,
   createdAt: true,
@@ -357,6 +361,8 @@ export type InsertAlert = z.infer<typeof insertAlertSchema>;
 export type Alert = typeof alerts.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
+export type InsertCourtDateReminder = z.infer<typeof insertCourtDateReminderSchema>;
+export type CourtDateReminder = typeof courtDateReminders.$inferSelect;
 export type InsertNotificationPreferences = z.infer<typeof insertNotificationPreferencesSchema>;
 export type NotificationPreferences = typeof notificationPreferences.$inferSelect;
 export type ClientVehicle = typeof clientVehicles.$inferSelect;

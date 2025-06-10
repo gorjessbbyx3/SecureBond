@@ -22,7 +22,7 @@ import DataManagement from "@/components/admin/data-management";
 import TopLocations from "@/components/admin/top-locations";
 import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
 import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
-import logoImage from "@assets/download_1749535196337.png";
+import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833870.png";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();

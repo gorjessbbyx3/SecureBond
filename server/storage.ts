@@ -110,8 +110,14 @@ export interface IStorage {
   getUserNotifications(userId: string): Promise<Notification[]>;
   getUnreadNotifications(userId: string): Promise<Notification[]>;
   markNotificationAsRead(id: number): Promise<Notification>;
+  confirmNotification(id: number, confirmedBy: string): Promise<Notification>;
   markAllNotificationsAsRead(userId: string): Promise<void>;
   deleteNotification(id: number): Promise<void>;
+  
+  // Court date reminder operations
+  createCourtDateReminder(reminder: InsertCourtDateReminder): Promise<CourtDateReminder>;
+  getCourtDateRemindersForDate(courtDateId: number): Promise<CourtDateReminder[]>;
+  scheduleFollowupReminders(courtDateId: number): Promise<void>;
   
   // Notification preferences operations
   getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined>;
@@ -671,6 +677,9 @@ class MemoryStorage implements IStorage {
       type: notificationData.type,
       priority: notificationData.priority || "medium",
       read: notificationData.read || false,
+      confirmed: notificationData.confirmed || false,
+      confirmedAt: notificationData.confirmedAt || null,
+      confirmedBy: notificationData.confirmedBy || null,
       actionUrl: notificationData.actionUrl || null,
       metadata: notificationData.metadata || null,
       expiresAt: notificationData.expiresAt || null,
