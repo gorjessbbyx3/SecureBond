@@ -72,6 +72,8 @@ export default function ClientManagement() {
   const [clientCredentials, setClientCredentials] = useState<{ clientId: string; password: string } | null>(null);
   const [generatedCredentials, setGeneratedCredentials] = useState<{ clientId: string; password: string } | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
+  const [viewingClient, setViewingClient] = useState<Client | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -232,6 +234,11 @@ export default function ClientManagement() {
     }
   };
 
+  const handleViewDetails = (client: Client) => {
+    setViewingClient(client);
+    setIsViewDetailsOpen(true);
+  };
+
   const filteredClients = (clients as Client[])?.filter((client: Client) => {
     if (!searchTerm) return true;
     const searchLower = searchTerm.toLowerCase();
@@ -339,6 +346,14 @@ export default function ClientManagement() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handleViewDetails(client)}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleShowCredentials(client)}
                     >
                       <Key className="w-4 h-4 mr-1" />
@@ -349,7 +364,7 @@ export default function ClientManagement() {
                       size="sm"
                       onClick={() => handleEdit(client)}
                     >
-                      <Eye className="w-4 h-4" />
+                      ✏️ Edit
                     </Button>
                     <Button
                       variant="destructive"
@@ -484,6 +499,135 @@ export default function ClientManagement() {
               </>
             ) : null}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Client Details View Dialog */}
+      <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Client Details - {viewingClient?.fullName}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {viewingClient && (
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-lg border-b pb-2">Basic Information</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Full Name:</span>
+                      <span className="font-medium">{viewingClient.fullName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Client ID:</span>
+                      <span className="font-mono bg-gray-100 px-2 py-1 rounded">{viewingClient.clientId}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <div>{getStatusBadge(viewingClient)}</div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Date of Birth:</span>
+                      <span>{viewingClient.dateOfBirth ? new Date(viewingClient.dateOfBirth).toLocaleDateString() : "Not provided"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-lg border-b pb-2">Contact Information</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Phone:</span>
+                      <span>{viewingClient.phoneNumber || "Not provided"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Address:</span>
+                      <span className="text-right">{viewingClient.address || "Not provided"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Emergency Contact:</span>
+                      <span>{viewingClient.emergencyContact || "Not provided"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Emergency Phone:</span>
+                      <span>{viewingClient.emergencyPhone || "Not provided"}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal Information */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg border-b pb-2">Legal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Court Location:</span>
+                    <span>{viewingClient.courtLocation || "Not provided"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Charges:</span>
+                    <span className="text-right">{viewingClient.charges || "Not provided"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity Information */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg border-b pb-2">Activity Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{viewingClient.missedCheckIns}</div>
+                    <div className="text-sm text-blue-700">Missed Check-ins</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">
+                      {viewingClient.isActive ? "Active" : "Inactive"}
+                    </div>
+                    <div className="text-sm text-green-700">Current Status</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-gray-600">
+                      {new Date(viewingClient.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="text-sm text-gray-700">Created Date</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsViewDetailsOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsViewDetailsOpen(false);
+                    handleEdit(viewingClient);
+                  }}
+                >
+                  Edit Client
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsViewDetailsOpen(false);
+                    handleShowCredentials(viewingClient);
+                  }}
+                >
+                  View Credentials
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
