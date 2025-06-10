@@ -88,9 +88,9 @@ export default function MaintenanceDashboard() {
     const timestamp = new Date().toLocaleTimeString();
     setSshOutput(prev => [
       ...prev,
-      `maintenance@${sshHost}:~$ ${command}`,
+      `webmaster@${sshHost}:~$ ${command}`,
       ...simulateCommandOutput(command),
-      `maintenance@${sshHost}:~$ `,
+      `webmaster@${sshHost}:~$ `,
       ""
     ]);
   };
@@ -206,7 +206,7 @@ export default function MaintenanceDashboard() {
     }
     
     if (cmd === 'whoami') {
-      return ["maintenance"];
+      return ["webmaster"];
     }
     
     if (cmd === 'pwd') {
@@ -714,7 +714,7 @@ export default function MaintenanceDashboard() {
                   className="bg-slate-900 text-green-400 p-4 rounded-lg font-mono text-sm h-96 overflow-y-auto mb-4 whitespace-pre-wrap"
                 >
                   {sshOutput.map((line, index) => (
-                    <div key={index} className={line.startsWith('maintenance@') ? 'text-blue-400' : ''}>
+                    <div key={index} className={line.startsWith('webmaster@') ? 'text-blue-400' : ''}>
                       {line}
                     </div>
                   ))}
@@ -725,12 +725,13 @@ export default function MaintenanceDashboard() {
                   <form onSubmit={handleCommandSubmit} className="flex space-x-2">
                     <div className="flex-1 relative">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 font-mono text-sm">
-                        maintenance@{sshHost}:~$
+                        webmaster@{sshHost}:~$
                       </span>
                       <Input
                         ref={inputRef}
                         value={currentCommand}
                         onChange={(e) => setCurrentCommand(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="Enter command..."
                         className="pl-48 font-mono text-sm bg-slate-800 border-slate-700 text-green-400"
                         autoComplete="off"
