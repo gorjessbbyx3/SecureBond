@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3 } from "lucide-react";
+import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -235,9 +235,13 @@ export default function EnhancedAdminDashboard() {
                     <Download className="h-6 w-6" />
                     Generate Report
                   </Button>
-                  <Button className="h-16 flex-col gap-2" variant="outline">
-                    <Settings className="h-6 w-6" />
-                    System Settings
+                  <Button 
+                    className="h-16 flex-col gap-2" 
+                    variant="outline"
+                    onClick={() => setLocation("/client-portal-preview")}
+                  >
+                    <Eye className="h-6 w-6" />
+                    Client Portal Preview
                   </Button>
                 </div>
               </CardContent>

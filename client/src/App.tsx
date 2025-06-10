@@ -15,6 +15,7 @@ import StaffLogin from "@/pages/staff-login";
 import ClientLogin from "@/pages/client-login";
 import MaintenanceLogin from "@/pages/maintenance-login";
 import TermsOfService from "@/pages/terms-of-service";
+import ClientPortalPreview from "@/pages/client-portal-preview";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -36,6 +37,7 @@ function Router() {
           <Route path="/staff-dashboard" component={StaffDashboard} />
           <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
           <Route path="/admin" component={EnhancedAdminDashboard} />
+          <Route path="/client-portal-preview" component={ClientPortalPreview} />
           <Route path="/maintenance-dashboard" component={MaintenanceDashboard} />
         </>
       )}
