@@ -1139,9 +1139,12 @@ export class LocalFileStorage {
     const acknowledgments = await this.readJsonFile<TermsAcknowledgment>(path.join(this.dataDir, 'terms-acknowledgments.json'));
     
     const acknowledgment: TermsAcknowledgment = {
-      ...acknowledgmentData,
       id: this.nextId++,
+      userId: acknowledgmentData.userId,
+      version: acknowledgmentData.version || "2025-06-01",
       acknowledgedAt: new Date(),
+      ipAddress: acknowledgmentData.ipAddress || null,
+      userAgent: acknowledgmentData.userAgent || null,
     };
     
     acknowledgments.push(acknowledgment);

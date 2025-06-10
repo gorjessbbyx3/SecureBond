@@ -2300,6 +2300,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Terms of Service API routes
+  app.get('/api/terms/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id || 'demo-user';
+      const currentVersion = '2025-06-01';
+      
+      const hasAcknowledged = await storage.checkTermsAcknowledgment(userId, currentVersion);
+      
+      res.json({
+        acknowledged: hasAcknowledged,
+        currentVersion,
+        userId
+      });
+    } catch (error) {
+      console.error('Error checking terms status:', error);
+      res.status(500).json({ message: 'Failed to check terms status' });
+    }
+  });
+
+  app.post('/api/terms/acknowledge', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id || 'demo-user';
+      const { version, userAgent } = req.body;
+      
+      if (!version) {
+        return res.status(400).json({ message: 'Version is required' });
+      }
+
+      // Get client IP address
+      const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+
+      const acknowledgment = await storage.acknowledgeTerms({
+        userId,
+        version,
+        ipAddress,
+        userAgent
+      });
+
+      res.json({
+        success: true,
+        acknowledgment: {
+          id: acknowledgment.id,
+          version: acknowledgment.version,
+          acknowledgedAt: acknowledgment.acknowledgedAt
+        }
+      });
+    } catch (error) {
+      console.error('Error acknowledging terms:', error);
+      res.status(500).json({ message: 'Failed to acknowledge terms' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
