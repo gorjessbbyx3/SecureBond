@@ -401,23 +401,41 @@ export default function ClientManagement() {
                       type="button"
                       disabled={createClientMutation.isPending || updateClientMutation.isPending}
                       onClick={async () => {
-                        console.log("Submit button clicked");
                         const values = form.getValues();
-                        console.log("Form values:", values);
-                        console.log("Form errors:", form.formState.errors);
                         
-                        // Manual validation and submission
-                        const result = await form.trigger();
-                        console.log("Validation result:", result);
-                        
-                        if (result) {
-                          handleSubmit(values);
-                        } else {
-                          console.log("Validation failed");
+                        // Basic validation
+                        if (!values.fullName || values.fullName.trim() === '') {
+                          toast({
+                            title: "Validation Error",
+                            description: "Full name is required",
+                            variant: "destructive",
+                          });
+                          return;
                         }
+                        
+                        if (!values.clientId || values.clientId.trim() === '') {
+                          toast({
+                            title: "Validation Error", 
+                            description: "Client ID is required",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        
+                        if (values.clientId.length < 3) {
+                          toast({
+                            title: "Validation Error",
+                            description: "Client ID must be at least 3 characters",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        
+                        // Submit the form
+                        handleSubmit(values);
                       }}
                     >
-                      {editingClient ? "Update Client" : "Create Client"}
+                      {createClientMutation.isPending ? "Creating..." : editingClient ? "Update Client" : "Create Client"}
                     </Button>
                   </div>
                 </form>
