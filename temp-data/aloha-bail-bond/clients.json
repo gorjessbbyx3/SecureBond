@@ -1,0 +1,19 @@
+[
+  {
+    "fullName": "Kepa Swanson-Neitzel",
+    "clientId": "SB7085114C1F",
+    "password": "$2b$10$CPshgE8LqramCy0foRdi3.cmhbofh8XIp4UMmWO1iAYfCkBN/vW3m",
+    "phoneNumber": "8087675460",
+    "address": "934 Kapahulu Ave",
+    "dateOfBirth": null,
+    "emergencyContact": null,
+    "emergencyPhone": null,
+    "courtLocation": "Honolulu",
+    "charges": null,
+    "isActive": true,
+    "missedCheckIns": 0,
+    "id": 1,
+    "createdAt": "2025-06-10T17:31:48.570Z",
+    "updatedAt": "2025-06-10T17:31:48.570Z"
+  }
+]

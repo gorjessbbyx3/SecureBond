@@ -64,6 +64,8 @@ export default function ArrestMonitoringSystem() {
   const [whitePagesName, setWhitePagesName] = useState("");
   const [whitePagesCity, setWhitePagesCity] = useState("");
   const [whitePagesResults, setWhitePagesResults] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(10);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -134,10 +136,10 @@ export default function ArrestMonitoringSystem() {
       return response;
     },
     onSuccess: (data) => {
-      setWhitePagesResults(data.results || []);
+      setWhitePagesResults(data?.results || []);
       toast({
         title: "Search Complete",
-        description: `Found ${data.results?.length || 0} potential matches`,
+        description: `Found ${data?.results?.length || 0} potential matches`,
       });
     },
     onError: (error: any) => {
@@ -180,13 +182,25 @@ export default function ArrestMonitoringSystem() {
     }
   };
 
-  const filteredRecords = (arrestRecords as ArrestRecord[] || []).filter((record: ArrestRecord) => {
-    const matchesSearch = record.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.charges.some(charge => charge.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                         record.bookingNumber.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCounty = selectedCounty === "all" || record.county.toLowerCase() === selectedCounty;
-    return matchesSearch && matchesCounty;
-  });
+  // Sort and filter records - most recent first
+  const filteredRecords = (arrestRecords as ArrestRecord[] || [])
+    .filter((record: ArrestRecord) => {
+      const matchesSearch = record.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           record.charges.some(charge => charge.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                           record.bookingNumber.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCounty = selectedCounty === "all" || record.county.toLowerCase() === selectedCounty;
+      return matchesSearch && matchesCounty;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  // Sort public arrest logs by date - most recent first
+  const sortedPublicLogs = (publicArrestLogs as any[] || [])
+    .sort((a, b) => new Date(b.arrestDate).getTime() - new Date(a.arrestDate).getTime());
+
+  // Pagination for arrest records
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const paginatedRecords = filteredRecords.slice(startIndex, startIndex + recordsPerPage);
 
   const pendingAlerts = (arrestRecords as ArrestRecord[] || []).filter((record: ArrestRecord) => record.status === 'pending').length;
 
@@ -360,9 +374,9 @@ export default function ArrestMonitoringSystem() {
             <CardContent>
               {recordsLoading ? (
                 <div className="text-center py-8">Loading client arrest records...</div>
-              ) : filteredRecords.length > 0 ? (
+              ) : paginatedRecords.length > 0 ? (
                 <div className="space-y-3">
-                  {filteredRecords.map((record: ArrestRecord) => (
+                  {paginatedRecords.map((record: ArrestRecord) => (
                     <div
                       key={record.id}
                       className={`p-4 rounded-lg border ${
@@ -442,6 +456,46 @@ export default function ArrestMonitoringSystem() {
                   No client arrest records found. The system is actively monitoring for any client appearances in police logs.
                 </div>
               )}
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-between items-center mt-6 pt-4 border-t">
+                  <div className="text-sm text-gray-600">
+                    Showing {startIndex + 1}-{Math.min(startIndex + recordsPerPage, filteredRecords.length)} of {filteredRecords.length} records
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <div className="flex gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={page === currentPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="w-8"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -482,14 +536,14 @@ export default function ArrestMonitoringSystem() {
                 <div className="text-center py-8">Loading public arrest logs from Hawaii counties...</div>
               ) : (
                 <div className="space-y-4">
-                  {/* County-based sections, starting with Honolulu */}
+                  {/* County-based sections, starting with Honolulu - Most Recent First */}
                   {hawaiiCounties.map((county) => {
-                    const countyLogs = (publicArrestLogs as any[] || []).filter((log: any) => 
+                    const countyLogs = sortedPublicLogs.filter((log: any) => 
                       log.county === county.id && 
                       (publicSearchTerm === "" || 
                        log.name.toLowerCase().includes(publicSearchTerm.toLowerCase()) ||
                        log.charges?.some((charge: string) => charge.toLowerCase().includes(publicSearchTerm.toLowerCase())))
-                    );
+                    ).slice(0, 15); // Show most recent 15 records per county
 
                     return (
                       <Card key={county.id} className="border-l-4 border-l-blue-500">
