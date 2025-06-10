@@ -93,6 +93,12 @@ export interface IStorage {
   getCourtDateReminders(): Promise<any[]>;
   acknowledgeReminder(reminderId: string): Promise<any>;
   updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate>;
+  
+  // Arrest monitoring operations
+  getArrestRecords(): Promise<any[]>;
+  getMonitoringConfig(): Promise<any[]>;
+  scanArrestLogs(): Promise<any>;
+  acknowledgeArrestRecord(recordId: string): Promise<any>;
 }
 
 // In-memory storage for development

@@ -479,4 +479,150 @@ export class LocalFileStorage {
   getDataDirectory(): string {
     return this.dataDir;
   }
+
+  // Court date reminder operations
+  async getAllCourtDates(): Promise<CourtDate[]> {
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    return courtDates;
+  }
+
+  async getCourtDateReminders(): Promise<any[]> {
+    const courtDates = await this.getAllCourtDates();
+    const now = new Date();
+    const reminders = [];
+
+    for (const courtDate of courtDates) {
+      if (!courtDate.isActive) continue;
+
+      const courtDateObj = new Date(courtDate.date);
+      const timeDiff = courtDateObj.getTime() - now.getTime();
+      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+      if (daysDiff <= courtDate.reminderDays && daysDiff >= 0) {
+        let priority = 'low';
+        if (daysDiff === 0) priority = 'critical';
+        else if (daysDiff === 1) priority = 'high';
+        else if (daysDiff <= 3) priority = 'medium';
+
+        const type = daysDiff === 0 ? 'today' : daysDiff < 0 ? 'overdue' : 'upcoming';
+
+        reminders.push({
+          id: `reminder-${courtDate.id}-${Date.now()}`,
+          courtDateId: courtDate.id,
+          clientId: courtDate.clientId,
+          clientName: courtDate.clientName || 'Unknown Client',
+          courtDate: courtDate.date,
+          courtLocation: courtDate.courtLocation,
+          daysUntil: daysDiff,
+          priority,
+          type,
+          isAcknowledged: false
+        });
+      }
+    }
+
+    return reminders;
+  }
+
+  async acknowledgeReminder(reminderId: string): Promise<any> {
+    // For file-based storage, we'll just return success
+    // In a real implementation, you'd store acknowledgment state
+    return { id: reminderId, acknowledged: true, acknowledgedAt: new Date() };
+  }
+
+  // Arrest monitoring operations
+  async getArrestRecords(): Promise<any[]> {
+    // Generate sample arrest records for demonstration
+    const clients = await this.getAllClients();
+    const hawaiiCounties = ['honolulu', 'hawaii', 'maui', 'kauai'];
+    const charges = [
+      'DUI', 'Public Intoxication', 'Disorderly Conduct', 'Theft', 
+      'Assault', 'Drug Possession', 'Trespassing', 'Violation of Bond Terms'
+    ];
+
+    const arrestRecords = [];
+    
+    // Create some sample arrest records
+    for (let i = 0; i < 5; i++) {
+      const client = clients[Math.floor(Math.random() * clients.length)];
+      const county = hawaiiCounties[Math.floor(Math.random() * hawaiiCounties.length)];
+      const arrestDate = new Date();
+      arrestDate.setDate(arrestDate.getDate() - Math.floor(Math.random() * 30));
+      
+      const selectedCharges = charges.slice(0, Math.floor(Math.random() * 3) + 1);
+      const bondViolation = selectedCharges.includes('Violation of Bond Terms');
+      
+      let severity = 'low';
+      if (bondViolation) severity = 'critical';
+      else if (selectedCharges.includes('Assault') || selectedCharges.includes('DUI')) severity = 'high';
+      else if (selectedCharges.length > 1) severity = 'medium';
+
+      arrestRecords.push({
+        id: `arrest-${client.id}-${i}-${Date.now()}`,
+        clientId: client.id,
+        clientName: client.fullName,
+        arrestDate: arrestDate.toISOString().split('T')[0],
+        arrestTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+        arrestLocation: `${Math.floor(Math.random() * 9999) + 1000} ${['Ala Moana Blvd', 'King St', 'Beretania St', 'Kapiolani Blvd'][Math.floor(Math.random() * 4)]}, ${county.charAt(0).toUpperCase() + county.slice(1)}, HI`,
+        charges: selectedCharges,
+        arrestingAgency: `${county.charAt(0).toUpperCase() + county.slice(1)} Police Department`,
+        county: county,
+        bookingNumber: `${county.toUpperCase()}-${Date.now().toString().slice(-6)}`,
+        status: Math.random() > 0.7 ? 'processed' : 'pending',
+        isActive: client.status === 'active',
+        bondViolation,
+        severity,
+        createdAt: arrestDate.toISOString()
+      });
+    }
+
+    return arrestRecords;
+  }
+
+  async getMonitoringConfig(): Promise<any[]> {
+    const hawaiiCounties = [
+      { id: 'honolulu', name: 'Honolulu County', agency: 'Honolulu Police Department' },
+      { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii Police Department' },
+      { id: 'maui', name: 'Maui County', agency: 'Maui Police Department' },
+      { id: 'kauai', name: 'Kauai County', agency: 'Kauai Police Department' }
+    ];
+
+    return hawaiiCounties.map(county => ({
+      id: `config-${county.id}`,
+      county: county.id,
+      agency: county.agency,
+      isEnabled: true,
+      lastChecked: new Date(Date.now() - Math.random() * 3600000).toISOString(),
+      checkInterval: 30, // minutes
+      apiEndpoint: `https://api.${county.id}pd.gov/arrest-logs`,
+      status: Math.random() > 0.2 ? 'active' : 'error'
+    }));
+  }
+
+  async scanArrestLogs(): Promise<any> {
+    // Simulate scanning arrest logs
+    await this.delay(2000); // Simulate API call delay
+    
+    const newRecords = Math.floor(Math.random() * 3);
+    return {
+      success: true,
+      newRecords,
+      lastScanned: new Date().toISOString(),
+      sourcesChecked: ['Honolulu PD', 'Hawaii County PD', 'Maui PD', 'Kauai PD']
+    };
+  }
+
+  async acknowledgeArrestRecord(recordId: string): Promise<any> {
+    // In a real implementation, you'd update the record status
+    return {
+      id: recordId,
+      status: 'processed',
+      acknowledgedAt: new Date().toISOString(),
+      acknowledgedBy: 'admin'
+    };
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 }

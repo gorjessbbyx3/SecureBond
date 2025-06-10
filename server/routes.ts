@@ -505,6 +505,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Arrest monitoring routes
+  app.get('/api/arrest-monitoring/records', isAuthenticated, async (req, res) => {
+    try {
+      const records = await storage.getArrestRecords();
+      res.json(records);
+    } catch (error) {
+      console.error('Error fetching arrest records:', error);
+      res.status(500).json({ message: 'Failed to fetch arrest records' });
+    }
+  });
+
+  app.get('/api/arrest-monitoring/config', isAuthenticated, async (req, res) => {
+    try {
+      const config = await storage.getMonitoringConfig();
+      res.json(config);
+    } catch (error) {
+      console.error('Error fetching monitoring config:', error);
+      res.status(500).json({ message: 'Failed to fetch monitoring config' });
+    }
+  });
+
+  app.post('/api/arrest-monitoring/scan', isAuthenticated, async (req, res) => {
+    try {
+      const result = await storage.scanArrestLogs();
+      res.json(result);
+    } catch (error) {
+      console.error('Error scanning arrest logs:', error);
+      res.status(500).json({ message: 'Failed to scan arrest logs' });
+    }
+  });
+
+  app.patch('/api/arrest-monitoring/records/:id/acknowledge', isAuthenticated, async (req, res) => {
+    try {
+      const recordId = req.params.id;
+      const result = await storage.acknowledgeArrestRecord(recordId);
+      res.json(result);
+    } catch (error) {
+      console.error('Error acknowledging arrest record:', error);
+      res.status(500).json({ message: 'Failed to acknowledge arrest record' });
+    }
+  });
+
   // Analytics and advanced features
   app.get('/api/analytics/overview', isAuthenticated, async (req, res) => {
     try {

@@ -19,6 +19,8 @@ import ClientAnalyticsDashboard from "@/components/admin/client-analytics-dashbo
 import NotificationCenter from "@/components/admin/notification-center";
 import DataManagement from "@/components/admin/data-management";
 import TopLocations from "@/components/admin/top-locations";
+import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
+import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -147,7 +149,7 @@ export default function EnhancedAdminDashboard() {
 
         {/* Enhanced Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 h-12">
+          <TabsList className="grid w-full grid-cols-9 h-12 text-xs">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
@@ -165,6 +167,12 @@ export default function EnhancedAdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
               Financial
+            </TabsTrigger>
+            <TabsTrigger value="court-dates" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">
+              Court Dates
+            </TabsTrigger>
+            <TabsTrigger value="arrest-monitoring" className="data-[state=active]:bg-pink-600 data-[state=active]:text-white">
+              Arrest Monitor
             </TabsTrigger>
             <TabsTrigger value="data" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
               Data & Backup
@@ -230,6 +238,14 @@ export default function EnhancedAdminDashboard() {
 
           <TabsContent value="financial" className="space-y-6">
             <FinancialDashboard />
+          </TabsContent>
+
+          <TabsContent value="court-dates" className="space-y-6">
+            <CourtDateReminderSystem />
+          </TabsContent>
+
+          <TabsContent value="arrest-monitoring" className="space-y-6">
+            <ArrestMonitoringSystem />
           </TabsContent>
 
           <TabsContent value="data" className="space-y-6">
