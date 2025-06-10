@@ -156,7 +156,7 @@ export class CourtReminderService {
     // Enrich with client information
     const enriched = [];
     for (const courtDate of upcoming) {
-      const client = await storage.getClient(courtDate.clientId);
+      const client = courtDate.clientId ? await storage.getClient(courtDate.clientId) : null;
       if (client) {
         enriched.push({
           ...courtDate,
@@ -185,7 +185,7 @@ export class CourtReminderService {
     // Enrich with client information
     const enriched = [];
     for (const courtDate of overdue) {
-      const client = await storage.getClient(courtDate.clientId);
+      const client = courtDate.clientId ? await storage.getClient(courtDate.clientId) : null;
       if (client) {
         enriched.push({
           ...courtDate,

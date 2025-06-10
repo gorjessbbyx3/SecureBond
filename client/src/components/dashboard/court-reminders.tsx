@@ -42,12 +42,12 @@ export default function CourtReminders() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: upcomingReminders, isLoading: upcomingLoading } = useQuery({
+  const { data: upcomingReminders = [], isLoading: upcomingLoading } = useQuery({
     queryKey: ["/api/court-reminders/upcoming"],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const { data: overdueCourtDates, isLoading: overdueLoading } = useQuery({
+  const { data: overdueCourtDates = [], isLoading: overdueLoading } = useQuery({
     queryKey: ["/api/court-reminders/overdue"],
     refetchInterval: 30000,
   });
@@ -176,7 +176,7 @@ export default function CourtReminders() {
       </div>
 
       {/* Overdue Court Dates Alert */}
-      {overdueCourtDates && overdueCourtDates.length > 0 && (
+      {Array.isArray(overdueCourtDates) && overdueCourtDates.length > 0 && (
         <Alert className="border-red-200 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
@@ -272,11 +272,11 @@ export default function CourtReminders() {
                 <AlertTriangle className="mr-2 w-5 h-5" />
                 Overdue Court Dates
               </div>
-              <Badge variant="destructive">{overdueCourtDates?.length || 0}</Badge>
+              <Badge variant="destructive">{Array.isArray(overdueCourtDates) ? overdueCourtDates.length : 0}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!overdueCourtDates || overdueCourtDates.length === 0 ? (
+            {!Array.isArray(overdueCourtDates) || overdueCourtDates.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No overdue court dates</p>
             ) : (
               overdueCourtDates.map((overdue: OverdueCourtDate) => (
