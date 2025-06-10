@@ -533,7 +533,11 @@ export default function ClientManagement() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Date of Birth:</span>
-                      <span>{viewingClient.dateOfBirth ? new Date(viewingClient.dateOfBirth).toLocaleDateString() : "Not provided"}</span>
+                      <span>{viewingClient.dateOfBirth ? new Date(viewingClient.dateOfBirth).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : "Not provided"}</span>
                     </div>
                   </div>
                 </div>

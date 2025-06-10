@@ -14,6 +14,7 @@ import FinancialDashboard from "@/components/admin/financial-dashboard";
 import DashboardStats from "@/components/admin/dashboard-stats";
 import RealTimeMap from "@/components/admin/real-time-map";
 import AnalyticsCharts from "@/components/admin/analytics-charts";
+import { CourtDateApprovals } from "@/components/admin/court-date-approvals";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();

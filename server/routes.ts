@@ -1846,6 +1846,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/client/court-dates', async (req, res) => {
+    try {
+      // Get client from session - this should be implemented based on your auth system
+      const clientId = req.session?.clientId || req.headers['x-client-id'];
+      
+      if (!clientId) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+
+      const client = await storage.getClientByClientId(clientId as string);
+      if (!client) {
+        return res.status(404).json({ message: 'Client not found' });
+      }
+
+      // Only return admin-approved court dates to prevent confusion with similar names
+      const courtDates = await storage.getClientApprovedCourtDates(client.id);
+      res.json(courtDates);
+    } catch (error) {
+      console.error('Error fetching client court dates:', error);
+      res.status(500).json({ message: 'Failed to fetch court dates' });
+    }
+  });
+
   // Update court date
   app.patch('/api/court-dates/:id', isAuthenticated, async (req, res) => {
     try {

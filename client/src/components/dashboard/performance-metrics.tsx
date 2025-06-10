@@ -263,16 +263,7 @@ export default function PerformanceMetrics() {
             <div className="space-y-4">
               <h4 className="font-medium">Operational Metrics</h4>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium">Average Response Time</p>
-                    <p className="text-xs text-gray-500">Alert acknowledgment</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold">{kpis.avgResponseTime}h</p>
-                    <Badge variant="default">Target: Under 3h</Badge>
-                  </div>
-                </div>
+
                 
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <div>
