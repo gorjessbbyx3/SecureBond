@@ -631,7 +631,7 @@ function ClientDetailsDialog({ client, isOpen, onClose }: {
   });
 
   const { data: checkIns } = useQuery({
-    queryKey: ["/api/clients", client.id, "checkins"],
+    queryKey: ["/api/clients", client.id, "check-ins"],
     enabled: isOpen,
   });
 
@@ -642,7 +642,7 @@ function ClientDetailsDialog({ client, isOpen, onClose }: {
 
   const totalPaid = (payments as any[])?.reduce((sum, payment) => sum + parseFloat(payment.amount), 0) || 0;
   const checkInCount = (checkIns as any[])?.length || 0;
-  const upcomingCourtDates = (courtDates as any[])?.filter(cd => new Date(cd.date) > new Date()).length || 0;
+  const upcomingCourtDates = (courtDates as any[])?.filter(cd => new Date(cd.courtDate) > new Date()).length || 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -823,9 +823,9 @@ function ClientDetailsDialog({ client, isOpen, onClose }: {
                         <p className="text-sm text-slate-600">{checkIn.notes || "No notes"}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm">{new Date(checkIn.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm">{new Date(checkIn.checkInTime || checkIn.createdAt).toLocaleDateString()}</p>
                         <p className="text-xs text-slate-500">
-                          {new Date(checkIn.createdAt).toLocaleTimeString()}
+                          {new Date(checkIn.checkInTime || checkIn.createdAt).toLocaleTimeString()}
                         </p>
                       </div>
                     </div>
@@ -860,13 +860,11 @@ function ClientDetailsDialog({ client, isOpen, onClose }: {
                         <p className="text-sm text-slate-600">{courtDate.location || "Location TBD"}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm">{new Date(courtDate.date).toLocaleDateString()}</p>
+                        <p className="text-sm">{new Date(courtDate.courtDate).toLocaleDateString()}</p>
                         <Badge variant={
-                          courtDate.status === "attended" ? "default" :
-                          courtDate.status === "missed" ? "destructive" :
-                          "secondary"
+                          courtDate.completed ? "default" : "secondary"
                         }>
-                          {courtDate.status || "Pending"}
+                          {courtDate.completed ? "Completed" : "Pending"}
                         </Badge>
                       </div>
                     </div>
