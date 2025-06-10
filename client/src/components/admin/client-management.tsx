@@ -82,6 +82,7 @@ export default function ClientManagement() {
     resolver: zodResolver(clientFormSchema),
     defaultValues: {
       fullName: "",
+      clientId: "",
       phoneNumber: "",
       address: "",
       dateOfBirth: "",
@@ -207,6 +208,9 @@ export default function ClientManagement() {
   });
 
   const handleSubmit = (data: ClientFormData) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
+    
     if (editingClient) {
       updateClientMutation.mutate({ ...data, id: editingClient.id });
     } else {
