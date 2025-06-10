@@ -131,8 +131,7 @@
     "missedCheckIns": 0,
     "id": 29,
     "createdAt": "2025-06-10T06:34:34.892Z",
-    "updatedAt": "2025-06-10T06:34:35.142Z",
-    "lastCheckIn": "2025-06-10T06:34:35.142Z"
+    "updatedAt": "2025-06-10T06:34:34.892Z"
   },
   {
     "clientId": "SB27493896B6",
@@ -148,7 +147,6 @@
     "missedCheckIns": 0,
     "id": 30,
     "createdAt": "2025-06-10T06:34:34.997Z",
-    "updatedAt": "2025-06-10T06:34:35.182Z",
-    "lastCheckIn": "2025-06-10T06:34:35.182Z"
+    "updatedAt": "2025-06-10T06:34:34.997Z"
   }
 ]

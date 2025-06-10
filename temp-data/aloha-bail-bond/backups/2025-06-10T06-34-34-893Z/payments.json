@@ -48,25 +48,5 @@
     "paymentDate": "2025-06-10T06:33:25.096Z",
     "confirmed": false,
     "createdAt": "2025-06-10T06:33:25.096Z"
-  },
-  {
-    "clientId": 29,
-    "amount": "500.00",
-    "paymentMethod": "credit_card",
-    "notes": "Initial down payment",
-    "id": 35,
-    "paymentDate": "2025-06-10T06:34:35.218Z",
-    "confirmed": false,
-    "createdAt": "2025-06-10T06:34:35.218Z"
-  },
-  {
-    "clientId": 30,
-    "amount": "250.00",
-    "paymentMethod": "cash",
-    "notes": "Down payment",
-    "id": 36,
-    "paymentDate": "2025-06-10T06:34:35.252Z",
-    "confirmed": false,
-    "createdAt": "2025-06-10T06:34:35.252Z"
   }
 ]
