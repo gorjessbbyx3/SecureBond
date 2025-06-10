@@ -30,13 +30,13 @@ import {
 const clientFormSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   clientId: z.string().min(3, "Client ID must be at least 3 characters"),
-  phoneNumber: z.string().optional(),
-  address: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  emergencyContact: z.string().optional(),
-  emergencyPhone: z.string().optional(),
-  courtLocation: z.string().optional(),
-  charges: z.string().optional(),
+  phoneNumber: z.string().optional().or(z.literal("")),
+  address: z.string().optional().or(z.literal("")),
+  dateOfBirth: z.string().optional().or(z.literal("")),
+  emergencyContact: z.string().optional().or(z.literal("")),
+  emergencyPhone: z.string().optional().or(z.literal("")),
+  courtLocation: z.string().optional().or(z.literal("")),
+  charges: z.string().optional().or(z.literal("")),
   isActive: z.boolean().default(true),
   missedCheckIns: z.number().default(0),
 });
@@ -398,13 +398,23 @@ export default function ClientManagement() {
                       Cancel
                     </Button>
                     <Button
-                      type="submit"
+                      type="button"
                       disabled={createClientMutation.isPending || updateClientMutation.isPending}
-                      onClick={() => {
+                      onClick={async () => {
                         console.log("Submit button clicked");
-                        console.log("Form valid:", form.formState.isValid);
+                        const values = form.getValues();
+                        console.log("Form values:", values);
                         console.log("Form errors:", form.formState.errors);
-                        console.log("Form values:", form.getValues());
+                        
+                        // Manual validation and submission
+                        const result = await form.trigger();
+                        console.log("Validation result:", result);
+                        
+                        if (result) {
+                          handleSubmit(values);
+                        } else {
+                          console.log("Validation failed");
+                        }
                       }}
                     >
                       {editingClient ? "Update Client" : "Create Client"}
