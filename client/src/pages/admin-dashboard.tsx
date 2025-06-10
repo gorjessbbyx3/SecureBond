@@ -121,9 +121,10 @@ export default function AdminDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
+            <TabsTrigger value="court-approvals">Court Approvals</TabsTrigger>
             <TabsTrigger value="financial">Financial</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
             <TabsTrigger value="alerts">Alerts</TabsTrigger>
@@ -188,6 +189,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="clients">
             <ClientManagement />
+          </TabsContent>
+
+          <TabsContent value="court-approvals">
+            <CourtDateApprovals />
           </TabsContent>
 
           <TabsContent value="financial">

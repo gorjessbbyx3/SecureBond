@@ -12,6 +12,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import CheckInForm from "@/components/client/check-in-form";
 import PaymentUpload from "@/components/client/payment-upload";
+import { CourtDateNotifications } from "@/components/client/court-date-notifications";
 
 export default function ClientDashboard() {
   const [, setLocation] = useLocation();
@@ -275,6 +276,10 @@ export default function ClientDashboard() {
 
           <TabsContent value="payments">
             <PaymentUpload clientId={dashboardData.id} />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <CourtDateNotifications clientId={dashboardData.id} />
           </TabsContent>
 
           <TabsContent value="messages">
