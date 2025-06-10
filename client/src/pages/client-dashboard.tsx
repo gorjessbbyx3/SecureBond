@@ -100,13 +100,13 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header title={`Welcome, ${clientData.fullName}`} subtitle="Client Dashboard" />
+      <Header title={`Welcome, ${dashboardData.fullName}`} subtitle="Client Dashboard" />
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-slate-600">Client ID: {clientData.clientId}</p>
+            <p className="text-slate-600">Client ID: {dashboardData.clientId}</p>
           </div>
           <Button onClick={handleLogout} variant="outline" className="flex items-center">
             <LogOut className="mr-2 w-4 h-4" />
@@ -122,7 +122,9 @@ export default function ClientDashboard() {
                 <DollarSign className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-600">Bond Amount</p>
-                  <p className="text-2xl font-bold text-slate-900">${clientData.bondAmount}</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {dashboardData.bondAmount > 0 ? `$${dashboardData.bondAmount}` : "No active bonds"}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -135,7 +137,7 @@ export default function ClientDashboard() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-600">Court Date</p>
                   <p className="text-lg font-semibold text-slate-900">
-                    {new Date(clientData.courtDate).toLocaleDateString()}
+                    {dashboardData.courtDate ? new Date(dashboardData.courtDate).toLocaleDateString() : "No upcoming court dates"}
                   </p>
                 </div>
               </div>
@@ -149,7 +151,7 @@ export default function ClientDashboard() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-600">Last Check-in</p>
                   <p className="text-sm text-slate-900">
-                    {new Date(clientData.lastCheckIn).toLocaleDateString()}
+                    {dashboardData.lastCheckIn ? new Date(dashboardData.lastCheckIn).toLocaleDateString() : "No check-ins yet"}
                   </p>
                 </div>
               </div>
@@ -163,7 +165,7 @@ export default function ClientDashboard() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-600">Next Check-in Due</p>
                   <p className="text-sm text-slate-900">
-                    {new Date(clientData.nextCheckInDue).toLocaleDateString()}
+                    {dashboardData.nextCheckInDue ? new Date(dashboardData.nextCheckInDue).toLocaleDateString() : "No schedule set"}
                   </p>
                 </div>
               </div>
@@ -192,28 +194,36 @@ export default function ClientDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                        {new Date(clientData.courtDate).toLocaleDateString('en-US', { 
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center text-slate-600">
-                      <Clock className="mr-2 w-4 h-4" />
-                      <span>{new Date(clientData.courtDate).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}</span>
-                    </div>
-                    <div className="flex items-center text-slate-600">
-                      <MapPin className="mr-2 w-4 h-4" />
-                      <span>{clientData.courtLocation}</span>
-                    </div>
+                    {dashboardData.courtDate ? (
+                      <>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                            {new Date(dashboardData.courtDate).toLocaleDateString('en-US', { 
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center text-slate-600">
+                          <Clock className="mr-2 w-4 h-4" />
+                          <span>{new Date(dashboardData.courtDate).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                        </div>
+                        <div className="flex items-center text-slate-600">
+                          <MapPin className="mr-2 w-4 h-4" />
+                          <span>{dashboardData.courtLocation}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-slate-500 text-center py-4">
+                        No upcoming court dates scheduled
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

@@ -64,6 +64,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client authentication endpoint - returns current logged in client
+  app.get('/api/auth/client', async (req: any, res) => {
+    try {
+      const clientId = (req.session as any)?.clientId;
+      if (!clientId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const client = await storage.getClient(clientId);
+      if (!client) {
+        return res.status(404).json({ message: "Client not found" });
+      }
+
+      res.json({
+        id: client.id,
+        fullName: client.fullName,
+        clientId: client.clientId,
+        phoneNumber: client.phoneNumber,
+        address: client.address,
+        dateOfBirth: client.dateOfBirth,
+        emergencyContact: client.emergencyContact,
+        emergencyPhone: client.emergencyPhone,
+        courtLocation: client.courtLocation,
+        charges: client.charges,
+        isActive: client.isActive,
+        missedCheckIns: client.missedCheckIns,
+        createdAt: client.createdAt
+      });
+    } catch (error) {
+      console.error("Error fetching client:", error);
+      res.status(500).json({ message: "Failed to fetch client" });
+    }
+  });
+
+  // Client-specific data endpoints
+  app.get('/api/client/bonds', async (req: any, res) => {
+    try {
+      const clientId = (req.session as any)?.clientId;
+      if (!clientId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const bonds = await storage.getClientBonds(clientId);
+      res.json(bonds || []);
+    } catch (error) {
+      console.error("Error fetching client bonds:", error);
+      res.status(500).json({ message: "Failed to fetch client bonds" });
+    }
+  });
+
+  app.get('/api/client/court-dates', async (req: any, res) => {
+    try {
+      const clientId = (req.session as any)?.clientId;
+      if (!clientId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const courtDates = await storage.getClientCourtDates(clientId);
+      res.json(courtDates || []);
+    } catch (error) {
+      console.error("Error fetching client court dates:", error);
+      res.status(500).json({ message: "Failed to fetch client court dates" });
+    }
+  });
+
+  app.get('/api/client/checkins', async (req: any, res) => {
+    try {
+      const clientId = (req.session as any)?.clientId;
+      if (!clientId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const checkIns = await storage.getClientCheckIns(clientId);
+      res.json(checkIns || []);
+    } catch (error) {
+      console.error("Error fetching client check-ins:", error);
+      res.status(500).json({ message: "Failed to fetch client check-ins" });
+    }
+  });
+
   // Staff login endpoint
   app.post('/api/staff/login', async (req, res) => {
     try {
