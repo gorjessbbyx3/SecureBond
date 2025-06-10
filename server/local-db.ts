@@ -37,8 +37,8 @@ export class LocalFileStorage {
   private nextId = 1;
 
   constructor() {
-    // Store data in user's Documents folder under "Aloha Bail Bond Data"
-    this.dataDir = path.join(os.homedir(), 'Documents', 'Aloha Bail Bond Data');
+    // Store data in workspace temp folder - completely fresh start
+    this.dataDir = path.join(process.cwd(), 'temp-data', 'aloha-bail-bond');
     this.initializeStorage();
   }
 
