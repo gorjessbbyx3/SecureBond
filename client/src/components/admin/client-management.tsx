@@ -103,8 +103,7 @@ export default function ClientManagement() {
 
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
-      const response = await apiRequest("POST", "/api/clients", data);
-      return response.json();
+      return await apiRequest("POST", "/api/clients", data);
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
@@ -131,8 +130,7 @@ export default function ClientManagement() {
   const updateClientMutation = useMutation({
     mutationFn: async (data: ClientFormData & { id: number }) => {
       const { id, ...updateData } = data;
-      const response = await apiRequest("PATCH", `/api/clients/${id}`, updateData);
-      return response.json();
+      return await apiRequest("PATCH", `/api/clients/${id}`, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
@@ -155,8 +153,7 @@ export default function ClientManagement() {
 
   const deleteClientMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest("DELETE", `/api/clients/${id}`);
-      return response.json();
+      return await apiRequest("DELETE", `/api/clients/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
@@ -176,8 +173,7 @@ export default function ClientManagement() {
 
   const updateCredentialsMutation = useMutation({
     mutationFn: async (data: { role: string; username: string; password: string }) => {
-      const response = await apiRequest("PATCH", "/api/admin/credentials", data);
-      return response.json();
+      return await apiRequest("PATCH", "/api/admin/credentials", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/credentials"] });
