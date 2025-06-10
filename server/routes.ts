@@ -522,14 +522,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const notifications = [];
       
-      // Check for missed court dates automatically
+      // Check for missed court dates from court dates table
       const now = new Date();
       for (const client of clients) {
+        if (client.isActive) {
+          // Get all court dates for this client
+          const clientCourtDates = await storage.getClientCourtDates(client.id);
+          
+          for (const courtDate of clientCourtDates) {
+            // Check if court date is past and not yet marked as attended/missed
+            if (new Date(courtDate.courtDate) < now && courtDate.attendanceStatus === "pending" && !courtDate.completed) {
+              // Create alert for missed court appearance
+              const existingAlert = alerts.find(a => 
+                a.clientId === client.id && 
+                a.alertType === 'court_date' && 
+                a.message.includes(courtDate.courtType) &&
+                !a.acknowledged
+              );
+              
+              if (!existingAlert) {
+                await storage.createAlert({
+                  clientId: client.id,
+                  alertType: 'court_date',
+                  severity: 'critical',
+                  message: `${client.fullName} missed ${courtDate.courtType} scheduled for ${new Date(courtDate.courtDate).toLocaleDateString()} at ${courtDate.courtLocation || 'court'}`,
+                  acknowledged: false
+                });
+              }
+            }
+          }
+        }
+        
+        // Also check legacy single court date field for backward compatibility
         if (client.courtDate && new Date(client.courtDate) < now && client.isActive) {
-          // Create alert for missed court date if one doesn't exist
           const existingAlert = alerts.find(a => 
             a.clientId === client.id && 
             a.alertType === 'court_date' && 
+            a.message.includes('court appearance') &&
             !a.acknowledged
           );
           
@@ -764,13 +793,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         notes: 'Wellness check after missed appointments'
       });
 
-      // Create court dates
+      // Create multiple court dates for different clients showing various types of proceedings
       const courtDate1 = await storage.createCourtDate({
         clientId: client1.id,
         courtDate: new Date('2024-03-15T11:00:00Z'),
+        courtType: 'hearing',
         courtLocation: 'District Court Room 4A',
         caseNumber: 'CR-2024-001234',
         notes: 'Follow-up hearing for compliance review'
+      });
+
+      const courtDate2 = await storage.createCourtDate({
+        clientId: client1.id,
+        courtDate: new Date('2024-04-20T14:00:00Z'),
+        courtType: 'trial',
+        courtLocation: 'Superior Court Room 1',
+        caseNumber: 'CR-2024-001234',
+        notes: 'Jury trial scheduled'
+      });
+
+      const courtDate3 = await storage.createCourtDate({
+        clientId: client2.id,
+        courtDate: new Date('2024-01-15T09:30:00Z'), // Past date
+        courtType: 'arraignment',
+        courtLocation: 'Municipal Court Room 2B',
+        caseNumber: 'TR-2024-005678',
+        attendanceStatus: 'attended',
+        completed: true,
+        notes: 'Plea entered, bail conditions confirmed'
+      });
+
+      const courtDate4 = await storage.createCourtDate({
+        clientId: client2.id,
+        courtDate: new Date('2024-02-28T10:00:00Z'),
+        courtType: 'trial',
+        courtLocation: 'Municipal Court Room 2B',
+        caseNumber: 'TR-2024-005678',
+        notes: 'Bench trial for DUI charges'
+      });
+
+      const courtDate5 = await storage.createCourtDate({
+        clientId: client3.id,
+        courtDate: new Date('2024-01-25T13:00:00Z'), // Past date, missed
+        courtType: 'hearing',
+        courtLocation: 'Superior Court Room 2C',
+        caseNumber: 'CR-2024-009876',
+        attendanceStatus: 'missed',
+        notes: 'Pre-trial motion hearing - client failed to appear'
       });
 
       // Create diverse alerts
@@ -824,7 +893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           expenses: 4,
           alerts: 3,
           checkIns: 2,
-          courtDates: 1
+          courtDates: 5
         }
       });
     } catch (error) {
@@ -833,50 +902,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Mark court appearance status
-  app.post('/api/clients/:id/court-status', isAuthenticated, async (req, res) => {
+  // Mark court appearance status for specific court date
+  app.post('/api/court-dates/:courtDateId/status', isAuthenticated, async (req, res) => {
     try {
-      const clientId = parseInt(req.params.id);
+      const courtDateId = parseInt(req.params.courtDateId);
       const { status, notes } = req.body; // status: 'attended' | 'missed' | 'rescheduled'
       
-      const client = await storage.getClient(clientId);
+      // Update the specific court date attendance status
+      const updatedCourtDate = await storage.updateCourtDate(courtDateId, {
+        attendanceStatus: status,
+        notes: notes ? `${notes}` : undefined,
+        completed: status === 'attended' || status === 'missed'
+      });
+      
+      const client = await storage.getClient(updatedCourtDate.clientId!);
       if (!client) {
         return res.status(404).json({ message: 'Client not found' });
       }
       
       if (status === 'attended') {
-        // Mark as attended - remove any existing court alerts
-        const courtAlerts = await storage.getClientAlerts(clientId);
-        for (const alert of courtAlerts.filter(a => a.alertType === 'court_date' && !a.acknowledged)) {
+        // Remove any existing court alerts for this specific court date
+        const courtAlerts = await storage.getClientAlerts(updatedCourtDate.clientId!);
+        for (const alert of courtAlerts.filter(a => 
+          a.alertType === 'court_date' && 
+          !a.acknowledged &&
+          a.message.includes(updatedCourtDate.courtType!)
+        )) {
           await storage.acknowledgeAlert(alert.id, 'admin');
         }
         
-        // Update client status if needed
-        await storage.updateClient(clientId, { 
-          lastCheckIn: new Date(),
-          missedCheckIns: 0 
-        });
-        
       } else if (status === 'missed') {
-        // Create missed court alert if none exists
-        const existingAlert = (await storage.getClientAlerts(clientId))
-          .find(a => a.alertType === 'court_date' && !a.acknowledged);
-          
-        if (!existingAlert) {
-          await storage.createAlert({
-            clientId,
-            alertType: 'court_date',
-            severity: 'critical',
-            message: `${client.fullName} failed to appear for scheduled court date. ${notes || ''}`,
-            acknowledged: false
-          });
-        }
+        // Create specific alert for this missed court appearance
+        await storage.createAlert({
+          clientId: updatedCourtDate.clientId!,
+          alertType: 'court_date',
+          severity: 'critical',
+          message: `${client.fullName} failed to appear for ${updatedCourtDate.courtType} scheduled for ${new Date(updatedCourtDate.courtDate).toLocaleDateString()}. ${notes || ''}`,
+          acknowledged: false
+        });
       }
       
-      res.json({ success: true, message: `Court status updated to ${status}` });
+      res.json({ 
+        success: true, 
+        message: `${updatedCourtDate.courtType} status updated to ${status}`,
+        courtDate: updatedCourtDate
+      });
     } catch (error) {
       console.error('Error updating court status:', error);
       res.status(500).json({ message: 'Failed to update court status' });
+    }
+  });
+
+  // Get all court dates for a client
+  app.get('/api/clients/:id/court-dates', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const courtDates = await storage.getClientCourtDates(clientId);
+      res.json(courtDates);
+    } catch (error) {
+      console.error('Error fetching court dates:', error);
+      res.status(500).json({ message: 'Failed to fetch court dates' });
     }
   });
 

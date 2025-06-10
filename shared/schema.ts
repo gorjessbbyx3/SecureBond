@@ -138,11 +138,13 @@ export const courtDates = pgTable("court_dates", {
   id: serial("id").primaryKey(),
   clientId: integer("client_id").references(() => clients.id),
   courtDate: timestamp("court_date").notNull(),
+  courtType: varchar("court_type").notNull().default("hearing"), // hearing, trial, arraignment, sentencing, etc.
   courtLocation: text("court_location"),
   caseNumber: varchar("case_number"),
   charges: text("charges"),
   notes: text("notes"),
   completed: boolean("completed").default(false),
+  attendanceStatus: varchar("attendance_status").default("pending"), // pending, attended, missed, rescheduled
   createdAt: timestamp("created_at").defaultNow(),
 });
 
