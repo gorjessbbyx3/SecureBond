@@ -5,6 +5,7 @@ import { storage } from "./storage";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertClientSchema, 
+  insertBondSchema,
   insertCheckInSchema, 
   insertPaymentSchema, 
   insertMessageSchema,
@@ -412,6 +413,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error confirming payment:", error);
       res.status(500).json({ message: "Failed to confirm payment" });
+    }
+  });
+
+  // Bond routes
+  app.get('/api/bonds', isAuthenticated, async (req, res) => {
+    try {
+      const bonds = await storage.getAllBonds();
+      res.json(bonds);
+    } catch (error) {
+      console.error("Error fetching bonds:", error);
+      res.status(500).json({ message: "Failed to fetch bonds" });
+    }
+  });
+
+  app.post('/api/bonds', isAuthenticated, async (req, res) => {
+    try {
+      const bondData = req.body;
+      const bond = await storage.createBond(bondData);
+      res.json(bond);
+    } catch (error) {
+      console.error("Error creating bond:", error);
+      res.status(500).json({ message: "Failed to create bond" });
+    }
+  });
+
+  app.get('/api/clients/:id/bonds', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const bonds = await storage.getClientBonds(clientId);
+      res.json(bonds);
+    } catch (error) {
+      console.error("Error fetching client bonds:", error);
+      res.status(500).json({ message: "Failed to fetch client bonds" });
+    }
+  });
+
+  app.put('/api/bonds/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+      const bond = await storage.updateBond(id, updates);
+      res.json(bond);
+    } catch (error) {
+      console.error("Error updating bond:", error);
+      res.status(500).json({ message: "Failed to update bond" });
+    }
+  });
+
+  app.delete('/api/bonds/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteBond(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting bond:", error);
+      res.status(500).json({ message: "Failed to delete bond" });
+    }
+  });
+
+  app.get('/api/bonds/active', isAuthenticated, async (req, res) => {
+    try {
+      const activeBonds = await storage.getActiveBonds();
+      res.json(activeBonds);
+    } catch (error) {
+      console.error("Error fetching active bonds:", error);
+      res.status(500).json({ message: "Failed to fetch active bonds" });
     }
   });
 
