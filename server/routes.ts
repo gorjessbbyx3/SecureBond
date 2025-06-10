@@ -463,6 +463,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/clients/:id', isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Delete all related court dates first
+      const clientCourtDates = await storage.getClientCourtDates(id);
+      for (const courtDate of clientCourtDates) {
+        await storage.deleteCourtDate(courtDate.id);
+      }
+      
+      // Delete all related bonds
+      const clientBonds = await storage.getClientBonds(id);
+      for (const bond of clientBonds) {
+        await storage.deleteBond(bond.id);
+      }
+      
+      // Delete all related payments
+      const clientPayments = await storage.getClientPayments(id);
+      for (const payment of clientPayments) {
+        await storage.deletePayment(payment.id);
+      }
+      
+      // Delete all related check-ins
+      const clientCheckIns = await storage.getClientCheckIns(id);
+      for (const checkIn of clientCheckIns) {
+        await storage.deleteCheckIn(checkIn.id);
+      }
+      
+      // Finally delete the client
       await storage.deleteClient(id);
       res.json({ success: true });
     } catch (error) {

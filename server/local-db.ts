@@ -319,6 +319,12 @@ export class LocalFileStorage {
     return payments[index];
   }
 
+  async deletePayment(id: number): Promise<void> {
+    const payments = await this.readJsonFile<Payment>(path.join(this.dataDir, 'payments.json'));
+    const filteredPayments = payments.filter(p => p.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'payments.json'), filteredPayments);
+  }
+
   // Check-in operations
   async createCheckIn(checkInData: InsertCheckIn): Promise<CheckIn> {
     const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
@@ -362,6 +368,12 @@ export class LocalFileStorage {
   async getAllCheckIns(): Promise<CheckIn[]> {
     const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
     return checkIns.sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
+  }
+
+  async deleteCheckIn(id: number): Promise<void> {
+    const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
+    const filteredCheckIns = checkIns.filter(c => c.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'checkins.json'), filteredCheckIns);
   }
 
   // Expense operations
@@ -495,6 +507,12 @@ export class LocalFileStorage {
     courtDates[index] = { ...courtDates[index], ...updates };
     await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), courtDates);
     return courtDates[index];
+  }
+
+  async deleteCourtDate(id: number): Promise<void> {
+    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
+    const filteredCourtDates = courtDates.filter(c => c.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), filteredCourtDates);
   }
 
   async getExpensesByDateRange(startDate: Date, endDate: Date): Promise<Expense[]> {
