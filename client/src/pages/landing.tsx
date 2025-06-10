@@ -119,7 +119,7 @@ export default function Landing() {
           </div>
           
           {/* Horizontal security bars spanning full screen */}
-          <div className="absolute inset-0 flex flex-col justify-evenly px-4">
+          <div className="absolute inset-0 flex flex-col justify-evenly">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="h-3 bg-gradient-to-r from-gray-500/70 via-gray-400/70 to-gray-500/70 rounded-full shadow-2xl border border-gray-600 relative jail-bars">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
