@@ -4,56 +4,122 @@ import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
 import { TrendingUp, TrendingDown, DollarSign, Users, Calendar, Activity } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import type { Client, Payment, Expense } from "@shared/schema";
 
 export default function AnalyticsCharts() {
   const { data: analytics } = useQuery({
     queryKey: ['/api/analytics/overview'],
   });
 
-  const { data: payments } = useQuery({
+  const { data: payments = [] } = useQuery<Payment[]>({
     queryKey: ['/api/payments'],
   });
 
-  const { data: clients } = useQuery({
+  const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
   });
 
-  // Revenue trend data
-  const revenueData = [
-    { month: 'Jan', revenue: 45000, expenses: 12000 },
-    { month: 'Feb', revenue: 52000, expenses: 15000 },
-    { month: 'Mar', revenue: 48000, expenses: 13000 },
-    { month: 'Apr', revenue: 61000, expenses: 16000 },
-    { month: 'May', revenue: 55000, expenses: 14000 },
-    { month: 'Jun', revenue: 67000, expenses: 18000 },
-  ];
+  const { data: expenses = [] } = useQuery<Expense[]>({
+    queryKey: ['/api/expenses'],
+  });
 
-  // Client status distribution
-  const clientStatusData = [
-    { name: 'Active', value: 24, color: '#10b981' },
-    { name: 'Inactive', value: 6, color: '#6b7280' },
-    { name: 'Overdue', value: 3, color: '#f59e0b' },
-    { name: 'Missing', value: 1, color: '#ef4444' },
-  ];
+  // Calculate real client status distribution
+  const getClientStatusData = () => {
+    if (!clients.length) return [];
+    
+    const statusCounts = {
+      active: clients.filter(c => c.isActive && (c.missedCheckIns || 0) === 0).length,
+      warning: clients.filter(c => c.isActive && (c.missedCheckIns || 0) > 0 && (c.missedCheckIns || 0) <= 2).length,
+      highrisk: clients.filter(c => c.isActive && (c.missedCheckIns || 0) > 2).length,
+      inactive: clients.filter(c => !c.isActive).length,
+    };
 
-  // Daily check-ins
-  const checkInData = [
-    { day: 'Mon', checkIns: 18 },
-    { day: 'Tue', checkIns: 22 },
-    { day: 'Wed', checkIns: 19 },
-    { day: 'Thu', checkIns: 25 },
-    { day: 'Fri', checkIns: 21 },
-    { day: 'Sat', checkIns: 16 },
-    { day: 'Sun', checkIns: 14 },
-  ];
+    return [
+      { name: 'Active', value: statusCounts.active, color: '#10b981' },
+      { name: 'Warning', value: statusCounts.warning, color: '#f59e0b' },
+      { name: 'High Risk', value: statusCounts.highrisk, color: '#ef4444' },
+      { name: 'Inactive', value: statusCounts.inactive, color: '#6b7280' },
+    ].filter(item => item.value > 0);
+  };
 
-  // Payment methods
-  const paymentMethodData = [
-    { method: 'Bank Transfer', amount: 125000, count: 45 },
-    { method: 'Cash', amount: 89000, count: 67 },
-    { method: 'Credit Card', amount: 156000, count: 123 },
-    { method: 'Check', amount: 43000, count: 28 },
-  ];
+  // Calculate payment method distribution from real data
+  const getPaymentMethodData = () => {
+    if (!payments.length) return [];
+    
+    const methodCounts = payments.reduce((acc, payment) => {
+      const method = payment.paymentMethod || 'Other';
+      if (!acc[method]) {
+        acc[method] = { count: 0, amount: 0 };
+      }
+      acc[method].count += 1;
+      acc[method].amount += parseFloat(payment.amount) || 0;
+      return acc;
+    }, {} as Record<string, { count: number; amount: number }>);
+
+    return Object.entries(methodCounts).map(([method, data]) => ({
+      method,
+      amount: data.amount,
+      count: data.count,
+    }));
+  };
+
+  // Calculate monthly revenue trend from real data
+  const getRevenueData = () => {
+    if (!payments.length && !expenses.length) return [];
+    
+    const monthlyData: Record<string, { month: string; revenue: number; expenses: number }> = {};
+    const currentDate = new Date();
+    
+    // Initialize last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const key = date.toLocaleDateString('en-US', { month: 'short' });
+      monthlyData[key] = { month: key, revenue: 0, expenses: 0 };
+    }
+
+    // Add payment data
+    payments.forEach((payment: Payment) => {
+      if (payment.confirmed && payment.createdAt) {
+        const date = new Date(payment.createdAt);
+        const key = date.toLocaleDateString('en-US', { month: 'short' });
+        if (monthlyData[key]) {
+          monthlyData[key].revenue += parseFloat(payment.amount) || 0;
+        }
+      }
+    });
+
+    // Add expense data
+    expenses.forEach((expense: Expense) => {
+      if (expense.createdAt) {
+        const date = new Date(expense.createdAt);
+        const key = date.toLocaleDateString('en-US', { month: 'short' });
+        if (monthlyData[key]) {
+          monthlyData[key].expenses += parseFloat(expense.amount) || 0;
+        }
+      }
+    });
+
+    return Object.values(monthlyData);
+  };
+
+  // Calculate daily check-in data (placeholder until check-in system is implemented)
+  const getCheckInData = () => {
+    // Return empty data for now since check-ins are not yet implemented with daily tracking
+    return [
+      { day: 'Mon', checkIns: 0 },
+      { day: 'Tue', checkIns: 0 },
+      { day: 'Wed', checkIns: 0 },
+      { day: 'Thu', checkIns: 0 },
+      { day: 'Fri', checkIns: 0 },
+      { day: 'Sat', checkIns: 0 },
+      { day: 'Sun', checkIns: 0 },
+    ];
+  };
+
+  const clientStatusData = getClientStatusData();
+  const paymentMethodData = getPaymentMethodData();
+  const revenueData = getRevenueData();
+  const checkInData = getCheckInData();
 
   return (
     <div className="space-y-6">
