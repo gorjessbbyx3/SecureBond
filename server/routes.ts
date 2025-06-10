@@ -429,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/bonds', isAuthenticated, async (req, res) => {
     try {
-      const bondData = req.body;
+      const bondData = insertBondSchema.parse(req.body);
       const bond = await storage.createBond(bondData);
       res.json(bond);
     } catch (error) {

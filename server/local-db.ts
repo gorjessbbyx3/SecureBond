@@ -6,6 +6,8 @@ import {
   type UpsertUser,
   type Client,
   type InsertClient,
+  type Bond,
+  type InsertBond,
   type CheckIn,
   type InsertCheckIn,
   type Payment,
@@ -192,6 +194,78 @@ export class LocalFileStorage {
     const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
     const filteredClients = clients.filter(c => c.id !== id);
     await this.writeJsonFile(path.join(this.dataDir, 'clients.json'), filteredClients);
+  }
+
+  // Bond operations
+  async createBond(bondData: InsertBond): Promise<Bond> {
+    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    
+    // Generate unique bond number
+    const bondNumber = `SB${Date.now().toString().slice(-6)}${this.nextId.toString().padStart(3, '0')}`;
+    
+    const bond = {
+      ...bondData,
+      id: this.nextId++,
+      bondNumber,
+      status: bondData.status || 'active',
+      issuedDate: bondData.issuedDate || new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Bond;
+    
+    bonds.push(bond);
+    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), bonds);
+    await this.saveIndex();
+    
+    return bond;
+  }
+
+  async getClientBonds(clientId: number): Promise<Bond[]> {
+    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    return bonds
+      .filter(b => b.clientId === clientId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async getAllBonds(): Promise<Bond[]> {
+    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    return bonds.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async updateBond(id: number, updates: Partial<InsertBond>): Promise<Bond> {
+    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    const index = bonds.findIndex(b => b.id === id);
+    
+    if (index === -1) {
+      throw new Error("Bond not found");
+    }
+    
+    bonds[index] = {
+      ...bonds[index],
+      ...updates,
+      updatedAt: new Date(),
+    };
+    
+    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), bonds);
+    return bonds[index];
+  }
+
+  async deleteBond(id: number): Promise<void> {
+    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    const filteredBonds = bonds.filter(b => b.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), filteredBonds);
+  }
+
+  async getActiveBonds(): Promise<Bond[]> {
+    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    return bonds
+      .filter(b => b.status === 'active')
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async getClientActiveBondCount(clientId: number): Promise<number> {
+    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    return bonds.filter(b => b.clientId === clientId && b.status === 'active').length;
   }
 
   // Payment operations
