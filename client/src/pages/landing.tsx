@@ -71,40 +71,13 @@ export default function Landing() {
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Jail Cell Window Background - Waikiki Beach View */}
       <div className="fixed inset-0 z-0">
-        {/* Waikiki Beach background - paradise view */}
-        <div className="w-full h-full bg-gradient-to-b from-sky-400 via-sky-300 to-cyan-300">
-          {/* Ocean waves */}
-          <div className="absolute bottom-0 w-full h-2/3 bg-gradient-to-t from-blue-600 via-blue-400 to-cyan-300">
-            <div className="absolute inset-0 opacity-60">
-              <div className="waikiki-waves absolute bottom-0 w-full h-20 bg-gradient-to-t from-blue-700 to-transparent"></div>
-              <div className="waikiki-waves absolute bottom-16 w-full h-8 bg-gradient-to-t from-blue-500 to-transparent opacity-70"></div>
-              <div className="waikiki-waves absolute bottom-32 w-full h-6 bg-gradient-to-t from-blue-400 to-transparent opacity-50"></div>
-            </div>
-          </div>
-          
-          {/* Diamond Head silhouette */}
-          <div className="absolute bottom-0 right-0 w-96 h-64 bg-gradient-to-t from-green-800 via-green-700 to-green-600 opacity-80" 
-               style={{clipPath: 'polygon(0% 100%, 30% 40%, 60% 60%, 100% 100%)'}}>
-          </div>
-          
-          {/* Palm trees with animation */}
-          <div className="absolute bottom-0 left-20 w-8 h-48 bg-gradient-to-t from-amber-800 to-amber-700"></div>
-          <div className="absolute bottom-36 left-16 w-32 h-4 bg-green-600 rounded-full transform -rotate-12 palm-tree"></div>
-          <div className="absolute bottom-32 left-24 w-28 h-4 bg-green-600 rounded-full transform rotate-12 palm-tree"></div>
-          
-          <div className="absolute bottom-0 right-32 w-6 h-32 bg-gradient-to-t from-amber-800 to-amber-700"></div>
-          <div className="absolute bottom-24 right-28 w-24 h-3 bg-green-600 rounded-full transform -rotate-25 palm-tree"></div>
-          <div className="absolute bottom-28 right-36 w-20 h-3 bg-green-600 rounded-full transform rotate-20 palm-tree"></div>
-          
-          {/* Tropical clouds with animation */}
-          <div className="absolute top-20 left-1/4 w-32 h-16 bg-white rounded-full opacity-70 tropical-cloud"></div>
-          <div className="absolute top-32 right-1/3 w-24 h-12 bg-white rounded-full opacity-60 tropical-cloud"></div>
-          <div className="absolute top-16 right-1/4 w-20 h-10 bg-white rounded-full opacity-50 tropical-cloud"></div>
-          
-          {/* Sunlight rays with animation */}
-          <div className="absolute top-10 right-20 w-2 h-48 bg-yellow-300 opacity-30 transform rotate-45 sun-ray"></div>
-          <div className="absolute top-16 right-32 w-1 h-32 bg-yellow-300 opacity-20 transform rotate-30 sun-ray"></div>
-          <div className="absolute top-12 right-16 w-1 h-40 bg-yellow-300 opacity-25 transform rotate-60 sun-ray"></div>
+        {/* Ocean GIF background */}
+        <div className="w-full h-full">
+          <img 
+            src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjVha2d4amFiZmlwZmxtaW5zaG1lcWQzc3FnYno3b29pMWhsc25xdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2ce7VbC0HrksUwWueh/giphy.gif"
+            alt="Ocean waves"
+            className="w-full h-full object-cover"
+          />
         </div>
         
         {/* Full-screen prison bars overlay */}
