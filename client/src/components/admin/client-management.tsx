@@ -184,7 +184,6 @@ export default function ClientManagement() {
       fullName: client.fullName,
       phoneNumber: client.phoneNumber || "",
       address: client.address || "",
-      bondAmount: client.bondAmount,
       dateOfBirth: "",
       emergencyContact: "",
       emergencyPhone: "",
@@ -198,7 +197,7 @@ export default function ClientManagement() {
 
   const handleViewCredentials = async (client: Client) => {
     try {
-      const response = await apiRequest(`/api/clients/${client.id}/credentials`);
+      const response = await apiRequest(`/api/clients/${client.id}/credentials`, "GET");
       setClientCredentials({
         clientId: response.clientId,
         password: response.password
@@ -294,19 +293,7 @@ export default function ClientManagement() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="bondAmount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Bond Amount</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="number" step="0.01" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+
                     <FormField
                       control={form.control}
                       name="courtLocation"
