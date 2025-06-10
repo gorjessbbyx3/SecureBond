@@ -21,6 +21,7 @@ import { EnhancedNotificationCenter } from "@/components/notifications/enhanced-
 import DataManagement from "@/components/admin/data-management";
 import TopLocations from "@/components/admin/top-locations";
 import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
+import BulkClientUpload from "@/components/admin/bulk-client-upload";
 import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
 import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833870.png";
 
@@ -158,7 +159,7 @@ export default function EnhancedAdminDashboard() {
 
         {/* Enhanced Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 h-12 text-xs">
+          <TabsList className="grid w-full grid-cols-10 h-12 text-xs">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
@@ -173,6 +174,9 @@ export default function EnhancedAdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="clients" className="data-[state=active]:bg-orange-600 data-[state=active]:text-white">
               Clients
+            </TabsTrigger>
+            <TabsTrigger value="bulk-upload" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
+              Bulk Upload
             </TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
               Financial
@@ -243,6 +247,10 @@ export default function EnhancedAdminDashboard() {
 
           <TabsContent value="clients" className="space-y-6">
             <ClientManagement />
+          </TabsContent>
+
+          <TabsContent value="bulk-upload" className="space-y-6">
+            <BulkClientUpload />
           </TabsContent>
 
           <TabsContent value="financial" className="space-y-6">

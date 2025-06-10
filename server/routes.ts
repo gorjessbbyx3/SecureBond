@@ -22,6 +22,21 @@ import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";
 
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only CSV files are allowed'));
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  }
+});
+
 // Simple auth middleware for development
 const isAuthenticated = (req: any, res: any, next: any) => {
   // For demo purposes, always allow access
@@ -327,6 +342,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting client:", error);
       res.status(500).json({ message: "Failed to delete client" });
+    }
+  });
+
+  // Bulk client upload endpoint
+  app.post('/api/clients/bulk-upload', isAuthenticated, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const results: any[] = [];
+      const errors: Array<{row: number, field: string, message: string}> = [];
+      let processed = 0;
+      let created = 0;
+      let updated = 0;
+
+      // Convert buffer to readable stream
+      const stream = Readable.from(req.file.buffer.toString());
+      
+      // Parse CSV data
+      const parsePromise = new Promise<void>((resolve, reject) => {
+        stream
+          .pipe(csv())
+          .on('data', (data) => {
+            results.push(data);
+          })
+          .on('end', () => {
+            resolve();
+          })
+          .on('error', (error) => {
+            reject(error);
+          });
+      });
+
+      await parsePromise;
+
+      // Process each row
+      for (let i = 0; i < results.length; i++) {
+        const row = results[i];
+        const rowNumber = i + 2; // Account for header row
+        processed++;
+
+        try {
+          // Validate required fields
+          if (!row['Full Name'] || !row['Full Name'].trim()) {
+            errors.push({ row: rowNumber, field: 'Full Name', message: 'Full Name is required' });
+            continue;
+          }
+
+          if (!row['Phone Number'] || !row['Phone Number'].trim()) {
+            errors.push({ row: rowNumber, field: 'Phone Number', message: 'Phone Number is required' });
+            continue;
+          }
+
+          if (!row['Email'] || !row['Email'].trim()) {
+            errors.push({ row: rowNumber, field: 'Email', message: 'Email is required' });
+            continue;
+          }
+
+          // Validate date format
+          const dateOfBirth = row['Date of Birth (YYYY-MM-DD)'];
+          if (dateOfBirth && !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
+            errors.push({ row: rowNumber, field: 'Date of Birth', message: 'Date must be in YYYY-MM-DD format' });
+            continue;
+          }
+
+          // Validate isActive field
+          const isActiveText = row['Is Active (TRUE/FALSE)'];
+          let isActive = true;
+          if (isActiveText) {
+            if (isActiveText.toUpperCase() === 'FALSE') {
+              isActive = false;
+            } else if (isActiveText.toUpperCase() !== 'TRUE') {
+              errors.push({ row: rowNumber, field: 'Is Active', message: 'Must be TRUE or FALSE' });
+              continue;
+            }
+          }
+
+          // Generate password and client ID
+          const password = randomBytes(4).toString('hex');
+          const hashedPassword = await bcrypt.hash(password, 10);
+          const clientId = 'SB' + Date.now().toString(36).toUpperCase() + randomBytes(2).toString('hex').toUpperCase();
+
+          // Create client data object
+          const clientData = {
+            clientId: clientId,
+            fullName: row['Full Name'].trim(),
+            phoneNumber: row['Phone Number']?.trim() || null,
+            address: row['Address']?.trim() || null,
+            dateOfBirth: dateOfBirth || null,
+            emergencyContact: row['Emergency Contact Name']?.trim() || null,
+            emergencyPhone: row['Emergency Contact Phone']?.trim() || null,
+            isActive: isActive,
+            password: hashedPassword
+          };
+
+          // Check if client already exists by phone number or email
+          const existingClient = await storage.getClientByClientId(row['Email']?.trim() || '');
+          
+          if (existingClient) {
+            // Update existing client (exclude clientId from updates)
+            const updateData = { ...clientData };
+            delete updateData.clientId;
+            await storage.updateClient(existingClient.id, updateData);
+            updated++;
+          } else {
+            // Create new client
+            await storage.createClient(clientData);
+            created++;
+          }
+
+        } catch (error) {
+          console.error(`Error processing row ${rowNumber}:`, error);
+          errors.push({ 
+            row: rowNumber, 
+            field: 'General', 
+            message: error instanceof Error ? error.message : 'Unknown error occurred'
+          });
+        }
+      }
+
+      // Return results
+      res.json({
+        success: errors.length === 0,
+        processed,
+        created,
+        updated,
+        errors
+      });
+
+    } catch (error) {
+      console.error("Bulk upload error:", error);
+      res.status(500).json({ 
+        message: "Failed to process bulk upload",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
