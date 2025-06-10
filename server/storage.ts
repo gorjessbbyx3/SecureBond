@@ -129,6 +129,8 @@ class MemoryStorage implements IStorage {
   private courtDates: CourtDate[] = [];
   private expenses: Expense[] = [];
   private alerts: Alert[] = [];
+  private notifications: Notification[] = [];
+  private notificationPreferences: NotificationPreferences[] = [];
   private clientVehicles: ClientVehicle[] = [];
   private familyMembers: FamilyMember[] = [];
   private employmentInfo: EmploymentInfo[] = [];
@@ -657,6 +659,104 @@ class MemoryStorage implements IStorage {
 
   async getPublicArrestLogs(): Promise<any[]> {
     return [];
+  }
+
+  // Notification operations
+  async createNotification(notificationData: InsertNotification): Promise<Notification> {
+    const notification: Notification = {
+      id: this.nextId++,
+      userId: notificationData.userId,
+      title: notificationData.title,
+      message: notificationData.message,
+      type: notificationData.type,
+      priority: notificationData.priority || "medium",
+      read: notificationData.read || false,
+      actionUrl: notificationData.actionUrl || null,
+      metadata: notificationData.metadata || null,
+      expiresAt: notificationData.expiresAt || null,
+      createdAt: new Date(),
+    };
+
+    this.notifications.push(notification);
+    return notification;
+  }
+
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    return this.notifications
+      .filter(n => n.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getUnreadNotifications(userId: string): Promise<Notification[]> {
+    return this.notifications.filter(n => n.userId === userId && !n.read);
+  }
+
+  async markNotificationAsRead(id: number): Promise<Notification> {
+    const notification = this.notifications.find(n => n.id === id);
+    if (!notification) {
+      throw new Error(`Notification with id ${id} not found`);
+    }
+    notification.read = true;
+    return notification;
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    this.notifications
+      .filter(n => n.userId === userId)
+      .forEach(n => n.read = true);
+  }
+
+  async deleteNotification(id: number): Promise<void> {
+    const index = this.notifications.findIndex(n => n.id === id);
+    if (index >= 0) {
+      this.notifications.splice(index, 1);
+    }
+  }
+
+  // Notification preferences operations
+  async getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined> {
+    return this.notificationPreferences.find(p => p.userId === userId);
+  }
+
+  async upsertNotificationPreferences(preferencesData: InsertNotificationPreferences): Promise<NotificationPreferences> {
+    const existingIndex = this.notificationPreferences.findIndex(p => p.userId === preferencesData.userId);
+    
+    if (existingIndex >= 0) {
+      const updated: NotificationPreferences = {
+        ...this.notificationPreferences[existingIndex],
+        ...preferencesData,
+        updatedAt: new Date(),
+      };
+      this.notificationPreferences[existingIndex] = updated;
+      return updated;
+    } else {
+      const newPreferences: NotificationPreferences = {
+        id: this.nextId++,
+        userId: preferencesData.userId,
+        emailEnabled: preferencesData.emailEnabled ?? true,
+        courtRemindersEmail: preferencesData.courtRemindersEmail ?? true,
+        paymentDueEmail: preferencesData.paymentDueEmail ?? true,
+        arrestAlertsEmail: preferencesData.arrestAlertsEmail ?? true,
+        bondExpiringEmail: preferencesData.bondExpiringEmail ?? true,
+        inAppEnabled: preferencesData.inAppEnabled ?? true,
+        courtRemindersInApp: preferencesData.courtRemindersInApp ?? true,
+        paymentDueInApp: preferencesData.paymentDueInApp ?? true,
+        arrestAlertsInApp: preferencesData.arrestAlertsInApp ?? true,
+        bondExpiringInApp: preferencesData.bondExpiringInApp ?? true,
+        courtReminderDays: preferencesData.courtReminderDays ?? 3,
+        paymentReminderDays: preferencesData.paymentReminderDays ?? 7,
+        bondExpiringDays: preferencesData.bondExpiringDays ?? 30,
+        soundEnabled: preferencesData.soundEnabled ?? true,
+        desktopNotifications: preferencesData.desktopNotifications ?? false,
+        quietHoursEnabled: preferencesData.quietHoursEnabled ?? false,
+        quietHoursStart: preferencesData.quietHoursStart ?? "22:00",
+        quietHoursEnd: preferencesData.quietHoursEnd ?? "08:00",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.notificationPreferences.push(newPreferences);
+      return newPreferences;
+    }
   }
 }
 

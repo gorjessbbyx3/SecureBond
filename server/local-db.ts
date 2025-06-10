@@ -786,6 +786,123 @@ export class LocalFileStorage {
     });
   }
 
+  // Notification operations
+  async createNotification(notificationData: InsertNotification): Promise<Notification> {
+    const notification: Notification = {
+      id: this.nextId++,
+      userId: notificationData.userId,
+      title: notificationData.title,
+      message: notificationData.message,
+      type: notificationData.type,
+      priority: notificationData.priority || "medium",
+      read: notificationData.read || false,
+      actionUrl: notificationData.actionUrl || null,
+      metadata: notificationData.metadata || null,
+      expiresAt: notificationData.expiresAt || null,
+      createdAt: new Date(),
+    };
+
+    const notifications = await this.readJsonFile<Notification>(path.join(this.dataDir, 'notifications', 'notifications.json'));
+    notifications.push(notification);
+    await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'notifications.json'), notifications);
+    await this.saveIndex();
+
+    return notification;
+  }
+
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    const notifications = await this.readJsonFile<Notification>(path.join(this.dataDir, 'notifications', 'notifications.json'));
+    return notifications
+      .filter(n => n.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getUnreadNotifications(userId: string): Promise<Notification[]> {
+    const notifications = await this.getUserNotifications(userId);
+    return notifications.filter(n => !n.read);
+  }
+
+  async markNotificationAsRead(id: number): Promise<Notification> {
+    const notifications = await this.readJsonFile<Notification>(path.join(this.dataDir, 'notifications', 'notifications.json'));
+    const notification = notifications.find(n => n.id === id);
+    
+    if (!notification) {
+      throw new Error(`Notification with id ${id} not found`);
+    }
+
+    notification.read = true;
+    await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'notifications.json'), notifications);
+    
+    return notification;
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    const notifications = await this.readJsonFile<Notification>(path.join(this.dataDir, 'notifications', 'notifications.json'));
+    const updated = notifications.map(n => 
+      n.userId === userId ? { ...n, read: true } : n
+    );
+    await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'notifications.json'), updated);
+  }
+
+  async deleteNotification(id: number): Promise<void> {
+    const notifications = await this.readJsonFile<Notification>(path.join(this.dataDir, 'notifications', 'notifications.json'));
+    const filtered = notifications.filter(n => n.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'notifications.json'), filtered);
+  }
+
+  // Notification preferences operations
+  async getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined> {
+    const preferences = await this.readJsonFile<NotificationPreferences>(path.join(this.dataDir, 'preferences', 'preferences.json'));
+    return preferences.find(p => p.userId === userId);
+  }
+
+  async upsertNotificationPreferences(preferencesData: InsertNotificationPreferences): Promise<NotificationPreferences> {
+    const preferences = await this.readJsonFile<NotificationPreferences>(path.join(this.dataDir, 'preferences', 'preferences.json'));
+    const existingIndex = preferences.findIndex(p => p.userId === preferencesData.userId);
+    
+    if (existingIndex >= 0) {
+      // Update existing preferences
+      const updated: NotificationPreferences = {
+        ...preferences[existingIndex],
+        ...preferencesData,
+        updatedAt: new Date(),
+      };
+      preferences[existingIndex] = updated;
+      await this.writeJsonFile(path.join(this.dataDir, 'preferences', 'preferences.json'), preferences);
+      return updated;
+    } else {
+      // Create new preferences
+      const newPreferences: NotificationPreferences = {
+        id: this.nextId++,
+        userId: preferencesData.userId,
+        emailEnabled: preferencesData.emailEnabled ?? true,
+        courtRemindersEmail: preferencesData.courtRemindersEmail ?? true,
+        paymentDueEmail: preferencesData.paymentDueEmail ?? true,
+        arrestAlertsEmail: preferencesData.arrestAlertsEmail ?? true,
+        bondExpiringEmail: preferencesData.bondExpiringEmail ?? true,
+        inAppEnabled: preferencesData.inAppEnabled ?? true,
+        courtRemindersInApp: preferencesData.courtRemindersInApp ?? true,
+        paymentDueInApp: preferencesData.paymentDueInApp ?? true,
+        arrestAlertsInApp: preferencesData.arrestAlertsInApp ?? true,
+        bondExpiringInApp: preferencesData.bondExpiringInApp ?? true,
+        courtReminderDays: preferencesData.courtReminderDays ?? 3,
+        paymentReminderDays: preferencesData.paymentReminderDays ?? 7,
+        bondExpiringDays: preferencesData.bondExpiringDays ?? 30,
+        soundEnabled: preferencesData.soundEnabled ?? true,
+        desktopNotifications: preferencesData.desktopNotifications ?? false,
+        quietHoursEnabled: preferencesData.quietHoursEnabled ?? false,
+        quietHoursStart: preferencesData.quietHoursStart ?? "22:00",
+        quietHoursEnd: preferencesData.quietHoursEnd ?? "08:00",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      preferences.push(newPreferences);
+      await this.writeJsonFile(path.join(this.dataDir, 'preferences', 'preferences.json'), preferences);
+      await this.saveIndex();
+      return newPreferences;
+    }
+  }
+
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

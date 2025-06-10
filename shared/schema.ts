@@ -216,11 +216,11 @@ export const notifications = pgTable("notifications", {
   message: text("message").notNull(),
   type: varchar("type").notNull(), // court_reminder, payment_due, arrest_alert, check_in_missed, bond_expiring, system_alert
   priority: varchar("priority").notNull().default("medium"), // low, medium, high, urgent
-  read: boolean("read").default(false),
+  read: boolean("read").notNull().default(false),
   actionUrl: varchar("action_url"), // URL to navigate when clicked
   metadata: jsonb("metadata"), // Additional data for the notification
   expiresAt: timestamp("expires_at"), // Optional expiration for temporary notifications
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 // User notification preferences table
@@ -228,29 +228,29 @@ export const notificationPreferences = pgTable("notification_preferences", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull().unique(),
   // Email preferences
-  emailEnabled: boolean("email_enabled").default(true),
-  courtRemindersEmail: boolean("court_reminders_email").default(true),
-  paymentDueEmail: boolean("payment_due_email").default(true),
-  arrestAlertsEmail: boolean("arrest_alerts_email").default(true),
-  bondExpiringEmail: boolean("bond_expiring_email").default(true),
+  emailEnabled: boolean("email_enabled").notNull().default(true),
+  courtRemindersEmail: boolean("court_reminders_email").notNull().default(true),
+  paymentDueEmail: boolean("payment_due_email").notNull().default(true),
+  arrestAlertsEmail: boolean("arrest_alerts_email").notNull().default(true),
+  bondExpiringEmail: boolean("bond_expiring_email").notNull().default(true),
   // In-app preferences
-  inAppEnabled: boolean("in_app_enabled").default(true),
-  courtRemindersInApp: boolean("court_reminders_in_app").default(true),
-  paymentDueInApp: boolean("payment_due_in_app").default(true),
-  arrestAlertsInApp: boolean("arrest_alerts_in_app").default(true),
-  bondExpiringInApp: boolean("bond_expiring_in_app").default(true),
+  inAppEnabled: boolean("in_app_enabled").notNull().default(true),
+  courtRemindersInApp: boolean("court_reminders_in_app").notNull().default(true),
+  paymentDueInApp: boolean("payment_due_in_app").notNull().default(true),
+  arrestAlertsInApp: boolean("arrest_alerts_in_app").notNull().default(true),
+  bondExpiringInApp: boolean("bond_expiring_in_app").notNull().default(true),
   // Timing preferences
-  courtReminderDays: integer("court_reminder_days").default(3), // Days before court date
-  paymentReminderDays: integer("payment_reminder_days").default(7), // Days before payment due
-  bondExpiringDays: integer("bond_expiring_days").default(30), // Days before bond expires
+  courtReminderDays: integer("court_reminder_days").notNull().default(3), // Days before court date
+  paymentReminderDays: integer("payment_reminder_days").notNull().default(7), // Days before payment due
+  bondExpiringDays: integer("bond_expiring_days").notNull().default(30), // Days before bond expires
   // Sound and visual preferences
-  soundEnabled: boolean("sound_enabled").default(true),
-  desktopNotifications: boolean("desktop_notifications").default(false),
-  quietHoursEnabled: boolean("quiet_hours_enabled").default(false),
-  quietHoursStart: varchar("quiet_hours_start").default("22:00"), // 10 PM
-  quietHoursEnd: varchar("quiet_hours_end").default("08:00"), // 8 AM
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  soundEnabled: boolean("sound_enabled").notNull().default(true),
+  desktopNotifications: boolean("desktop_notifications").notNull().default(false),
+  quietHoursEnabled: boolean("quiet_hours_enabled").notNull().default(false),
+  quietHoursStart: varchar("quiet_hours_start").notNull().default("22:00"), // 10 PM
+  quietHoursEnd: varchar("quiet_hours_end").notNull().default("08:00"), // 8 AM
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 // Insert schemas
