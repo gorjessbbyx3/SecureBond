@@ -217,9 +217,27 @@ export const notifications = pgTable("notifications", {
   type: varchar("type").notNull(), // court_reminder, payment_due, arrest_alert, check_in_missed, bond_expiring, system_alert
   priority: varchar("priority").notNull().default("medium"), // low, medium, high, urgent
   read: boolean("read").notNull().default(false),
+  confirmed: boolean("confirmed").notNull().default(false),
+  confirmedAt: timestamp("confirmed_at"),
+  confirmedBy: varchar("confirmed_by"),
   actionUrl: varchar("action_url"), // URL to navigate when clicked
   metadata: jsonb("metadata"), // Additional data for the notification
   expiresAt: timestamp("expires_at"), // Optional expiration for temporary notifications
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Court date reminder tracking table
+export const courtDateReminders = pgTable("court_date_reminders", {
+  id: serial("id").primaryKey(),
+  courtDateId: integer("court_date_id").references(() => courtDates.id).notNull(),
+  reminderType: varchar("reminder_type").notNull(), // initial, followup_1, followup_2, final
+  scheduledFor: timestamp("scheduled_for").notNull(),
+  sent: boolean("sent").notNull().default(false),
+  sentAt: timestamp("sent_at"),
+  confirmed: boolean("confirmed").notNull().default(false),
+  confirmedAt: timestamp("confirmed_at"),
+  confirmedBy: varchar("confirmed_by"),
+  notificationId: integer("notification_id").references(() => notifications.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
