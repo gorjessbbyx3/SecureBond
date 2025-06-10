@@ -359,6 +359,11 @@ export class LocalFileStorage {
       .sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
   }
 
+  async getAllCheckIns(): Promise<CheckIn[]> {
+    const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
+    return checkIns.sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
+  }
+
   // Expense operations
   async createExpense(expenseData: InsertExpense): Promise<Expense> {
     const expenses = await this.readJsonFile<Expense>(path.join(this.dataDir, 'expenses.json'));

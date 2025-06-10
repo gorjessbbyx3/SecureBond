@@ -56,6 +56,7 @@ export interface IStorage {
   // Check-in operations
   createCheckIn(checkIn: InsertCheckIn): Promise<CheckIn>;
   getClientCheckIns(clientId: number): Promise<CheckIn[]>;
+  getAllCheckIns(): Promise<CheckIn[]>;
   getLastCheckIn(clientId: number): Promise<CheckIn | undefined>;
   
   // Payment operations

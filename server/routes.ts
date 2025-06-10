@@ -984,14 +984,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clients = await storage.getAllClients();
       const payments = await storage.getAllPayments();
       const expenses = await storage.getAllExpenses();
+      const checkIns = await storage.getAllCheckIns();
       
-      const monthlyRevenue = payments
-        .filter(p => p.confirmed)
-        .reduce((acc, payment) => {
-          const month = new Date(payment.paymentDate!).getMonth();
-          acc[month] = (acc[month] || 0) + parseFloat(payment.amount);
-          return acc;
-        }, {} as Record<number, number>);
+      const now = new Date();
+      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      
+      // Calculate monthly revenue for the last 12 months
+      const monthlyRevenue: Record<number, number> = {};
+      for (let i = 0; i < 12; i++) {
+        const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        
+        const monthRevenue = payments
+          .filter(p => {
+            const paymentDate = new Date(p.paymentDate!);
+            return p.confirmed && paymentDate >= monthDate && paymentDate < nextMonth;
+          })
+          .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+        
+        monthlyRevenue[monthDate.getMonth()] = monthRevenue;
+      }
+
+      // Calculate actual client growth (month-over-month)
+      const currentMonthClients = clients.filter(c => 
+        new Date(c.createdAt || now) >= currentMonth
+      ).length;
+      const lastMonthClients = clients.filter(c => {
+        const date = new Date(c.createdAt || now);
+        return date >= lastMonth && date < currentMonth;
+      }).length;
+      
+      const clientGrowthRate = lastMonthClients > 0 ? 
+        ((currentMonthClients - lastMonthClients) / lastMonthClients) * 100 : 
+        (currentMonthClients > 0 ? 100 : 0);
+
+      // Calculate actual check-in compliance from real data
+      const recentCheckIns = checkIns.filter(ci => 
+        new Date(ci.checkInTime) >= lastMonth
+      );
+      
+      const onTimeCheckIns = recentCheckIns.filter(ci => {
+        const scheduled = new Date(ci.scheduledTime || ci.checkInTime);
+        const actual = new Date(ci.checkInTime);
+        return (actual.getTime() - scheduled.getTime()) <= (15 * 60 * 1000); // 15 minutes tolerance
+      });
+
+      const checkInCompliance = recentCheckIns.length > 0 ? 
+        (onTimeCheckIns.length / recentCheckIns.length) * 100 : 100;
 
       const totalExpenses = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
       const totalRevenue = payments
@@ -1003,8 +1043,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalRevenue,
         totalExpenses,
         netProfit: totalRevenue - totalExpenses,
-        clientGrowth: clients.length,
-        checkInCompliance: 95.2
+        clientGrowth: Math.round(clientGrowthRate * 10) / 10, // Round to 1 decimal
+        checkInCompliance: Math.round(checkInCompliance * 10) / 10,
+        clientStats: {
+          total: clients.length,
+          active: clients.filter(c => c.isActive).length,
+          currentMonth: currentMonthClients,
+          lastMonth: lastMonthClients
+        }
       });
     } catch (error) {
       console.error("Error fetching analytics:", error);
