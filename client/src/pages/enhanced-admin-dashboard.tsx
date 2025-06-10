@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -35,6 +36,7 @@ export default function EnhancedAdminDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showSettings, setShowSettings] = useState(false);
 
   const { data: alerts } = useQuery({
     queryKey: ["/api/alerts/unacknowledged"],
@@ -151,7 +153,7 @@ export default function EnhancedAdminDashboard() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => setActiveTab("data")}
+              onClick={() => setShowSettings(true)}
             >
               <Settings className="h-4 w-4" />
             </Button>
@@ -170,7 +172,7 @@ export default function EnhancedAdminDashboard() {
 
         {/* Enhanced Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-11 h-12 text-xs overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-10 h-12 text-xs overflow-x-auto">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
@@ -200,9 +202,6 @@ export default function EnhancedAdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="arrest-monitoring" className="data-[state=active]:bg-pink-600 data-[state=active]:text-white">
               Arrest Monitor
-            </TabsTrigger>
-            <TabsTrigger value="data" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-              Settings & Data
             </TabsTrigger>
           </TabsList>
 
@@ -326,6 +325,31 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
         </Tabs>
       </main>
+      
+      {/* Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>System Settings</DialogTitle>
+            <DialogDescription>
+              Configure system settings and manage data imports
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Bulk Client Import</CardTitle>
+                <CardDescription>
+                  Import multiple clients at once using CSV files
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BulkClientUpload />
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>

@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Download, Upload, FileText, AlertCircle, CheckCircle, Users } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FileText, Upload, CheckCircle, AlertCircle, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -26,14 +25,13 @@ interface UploadResult {
 export default function BulkClientUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('csvFile', file);
       
       const response = await fetch('/api/clients/bulk-upload', {
         method: 'POST',
@@ -41,7 +39,7 @@ export default function BulkClientUpload() {
       });
       
       if (!response.ok) {
-        throw new Error('Upload failed');
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
       
       return response.json();
@@ -49,15 +47,24 @@ export default function BulkClientUpload() {
     onSuccess: (result: UploadResult) => {
       setUploadResult(result);
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
-      toast({
-        title: "Upload Complete",
-        description: `Processed ${result.processed} rows. Created ${result.created} clients, updated ${result.updated} clients.`,
-      });
+      
+      if (result.success) {
+        toast({
+          title: "Upload completed successfully",
+          description: `Created ${result.created} clients, updated ${result.updated} clients`,
+        });
+      } else {
+        toast({
+          title: "Upload completed with errors",
+          description: `${result.errors.length} errors found in your data`,
+          variant: "destructive",
+        });
+      }
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
-        title: "Upload Failed",
-        description: "There was an error processing your file. Please check the format and try again.",
+        title: "Upload failed",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -66,32 +73,74 @@ export default function BulkClientUpload() {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select a CSV file",
+          variant: "destructive",
+        });
+        return;
+      }
       setSelectedFile(file);
       setUploadResult(null);
     }
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-    
-    setIsProcessing(true);
-    try {
-      await uploadMutation.mutateAsync(selectedFile);
-    } finally {
-      setIsProcessing(false);
+  const handleUpload = () => {
+    if (selectedFile) {
+      uploadMutation.mutate(selectedFile);
     }
   };
 
+  const isProcessing = uploadMutation.isPending;
+
   const downloadTemplate = () => {
+    const csvContent = `firstName,lastName,email,phone,address,city,state,zipCode,dateOfBirth,emergencyContact,emergencyPhone
+John,Doe,john.doe@email.com,555-0123,123 Main St,Honolulu,HI,96813,1990-01-15,Jane Doe,555-0124
+Jane,Smith,jane.smith@email.com,555-0456,456 Oak Ave,Hilo,HI,96720,1985-05-20,John Smith,555-0457`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = '/templates/bulk-client-upload-template.csv';
-    link.download = 'aloha-bail-bond-client-template.csv';
+    link.href = url;
+    link.download = 'client-upload-template.csv';
     link.click();
   };
 
   const downloadInstructions = () => {
+    const instructions = `BULK CLIENT UPLOAD INSTRUCTIONS
+
+Required Fields:
+- firstName: Client's first name
+- lastName: Client's last name  
+- email: Valid email address
+- phone: Phone number (any format)
+- address: Street address
+- city: City name
+- state: State abbreviation (e.g., HI)
+- zipCode: ZIP code
+- dateOfBirth: Date in YYYY-MM-DD format
+- emergencyContact: Emergency contact name
+- emergencyPhone: Emergency contact phone
+
+Optional Fields:
+- All fields are required for this upload
+
+Notes:
+- Use CSV format only
+- First row must contain column headers
+- Date format must be YYYY-MM-DD  
+- Phone numbers can be in any format
+- Empty rows will be skipped
+- Duplicate emails will update existing clients
+
+File Size Limit: 10MB
+Maximum Records: 1000 per upload`;
+
+    const blob = new Blob([instructions], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = '/templates/bulk-client-upload-instructions.txt';
+    link.href = url;
     link.download = 'upload-instructions.txt';
     link.click();
   };
@@ -147,12 +196,14 @@ export default function BulkClientUpload() {
                   {(selectedFile.size / 1024).toFixed(1)} KB
                 </Badge>
               </div>
-              <Button 
-                onClick={handleUpload} 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleUpload}
                 disabled={isProcessing}
-                className="ml-4"
               >
-                {isProcessing ? "Processing..." : "Upload & Process"}
+                <Upload className="h-4 w-4 mr-2" />
+                {isProcessing ? 'Uploading...' : 'Upload'}
               </Button>
             </div>
           )}
@@ -171,18 +222,15 @@ export default function BulkClientUpload() {
 
       {/* Upload Results */}
       {uploadResult && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {uploadResult.success ? (
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              ) : (
-                <AlertCircle className="h-5 w-5 text-red-600" />
-              )}
-              Upload Results
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-medium">
+              3
+            </div>
+            <h4 className="font-medium">Upload Results</h4>
+          </div>
+          
+          <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{uploadResult.processed}</div>
@@ -199,30 +247,40 @@ export default function BulkClientUpload() {
             </div>
 
             {uploadResult.errors.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-semibold text-red-600">Errors Found:</h4>
-                <div className="max-h-40 overflow-y-auto space-y-1">
-                  {uploadResult.errors.map((error, index) => (
-                    <Alert key={index} variant="destructive">
-                      <AlertDescription>
-                        Row {error.row}, {error.field}: {error.message}
-                      </AlertDescription>
-                    </Alert>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {uploadResult.success && uploadResult.errors.length === 0 && (
               <Alert>
-                <CheckCircle className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  All clients have been successfully processed with no errors.
+                  <div className="space-y-2">
+                    <div className="font-medium">
+                      {uploadResult.errors.length} errors found:
+                    </div>
+                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                      {uploadResult.errors.slice(0, 10).map((error, index) => (
+                        <div key={index} className="text-sm">
+                          Row {error.row}: {error.field} - {error.message}
+                        </div>
+                      ))}
+                      {uploadResult.errors.length > 10 && (
+                        <div className="text-sm font-medium">
+                          ... and {uploadResult.errors.length - 10} more errors
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </AlertDescription>
               </Alert>
             )}
-          </CardContent>
-        </Card>
+
+            {uploadResult.success && (
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Upload completed successfully! All client data has been imported.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
