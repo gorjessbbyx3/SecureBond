@@ -17,6 +17,10 @@ import {
   type InsertExpense,
   type Alert,
   type InsertAlert,
+  type Notification,
+  type InsertNotification,
+  type NotificationPreferences,
+  type InsertNotificationPreferences,
   type ClientVehicle,
   type FamilyMember,
   type EmploymentInfo,
@@ -100,6 +104,18 @@ export interface IStorage {
   scanArrestLogs(): Promise<any>;
   acknowledgeArrestRecord(recordId: string): Promise<any>;
   getPublicArrestLogs(): Promise<any[]>;
+  
+  // Notification operations
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  getUserNotifications(userId: string): Promise<Notification[]>;
+  getUnreadNotifications(userId: string): Promise<Notification[]>;
+  markNotificationAsRead(id: number): Promise<Notification>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
+  deleteNotification(id: number): Promise<void>;
+  
+  // Notification preferences operations
+  getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined>;
+  upsertNotificationPreferences(preferences: InsertNotificationPreferences): Promise<NotificationPreferences>;
 }
 
 // In-memory storage for development

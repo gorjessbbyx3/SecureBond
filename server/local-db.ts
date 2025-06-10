@@ -20,6 +20,10 @@ import {
   type InsertExpense,
   type Alert,
   type InsertAlert,
+  type Notification,
+  type InsertNotification,
+  type NotificationPreferences,
+  type InsertNotificationPreferences,
   type ClientVehicle,
   type FamilyMember,
   type EmploymentInfo,
@@ -41,7 +45,7 @@ export class LocalFileStorage {
       await fs.mkdir(this.dataDir, { recursive: true });
       
       // Create subdirectories for organized storage
-      const subdirs = ['clients', 'payments', 'checkins', 'messages', 'expenses', 'alerts', 'backups'];
+      const subdirs = ['clients', 'payments', 'checkins', 'messages', 'expenses', 'alerts', 'notifications', 'preferences', 'backups'];
       for (const subdir of subdirs) {
         await fs.mkdir(path.join(this.dataDir, subdir), { recursive: true });
       }
