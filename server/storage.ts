@@ -58,12 +58,14 @@ export interface IStorage {
   getClientCheckIns(clientId: number): Promise<CheckIn[]>;
   getAllCheckIns(): Promise<CheckIn[]>;
   getLastCheckIn(clientId: number): Promise<CheckIn | undefined>;
+  deleteCheckIn(id: number): Promise<void>;
   
   // Payment operations
   createPayment(payment: InsertPayment): Promise<Payment>;
   getClientPayments(clientId: number): Promise<Payment[]>;
   getAllPayments(): Promise<Payment[]>;
   confirmPayment(id: number, confirmedBy: string): Promise<Payment>;
+  deletePayment(id: number): Promise<void>;
   
   // Message operations
   createMessage(message: InsertMessage): Promise<Message>;
@@ -75,6 +77,7 @@ export interface IStorage {
   getClientCourtDates(clientId: number): Promise<CourtDate[]>;
   getAllUpcomingCourtDates(): Promise<CourtDate[]>;
   updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate>;
+  deleteCourtDate(id: number): Promise<void>;
   
   // Expense operations
   createExpense(expense: InsertExpense): Promise<Expense>;
