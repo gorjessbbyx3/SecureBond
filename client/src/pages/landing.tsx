@@ -74,7 +74,7 @@ export default function Landing() {
         {/* Hawaii GIF background */}
         <div className="w-full h-full">
           <img 
-            src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZm1sZGVmeXMwdzRoYmdzcGh0ajNvZ254MDYwbTNvNmJjaHVhMjVzbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEduWido2h7nEBuAo/giphy.gif"
+            src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXNkbXR6Z3FjNzh5NHpjNmxlMmltbHFmdTNzejJlY280MzN4NW90MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/495RYn0Q6fjhBZPUDu/giphy.gif"
             alt="Hawaii paradise view"
             className="w-full h-full object-cover"
           />
