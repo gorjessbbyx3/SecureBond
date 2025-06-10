@@ -871,9 +871,9 @@ function ClientDetailsContent({ client }: { client: Client }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {payments && payments.length > 0 ? (
+          {(payments as any[] || []).length > 0 ? (
             <div className="space-y-2">
-              {payments.map((payment: any) => (
+              {(payments as any[] || []).map((payment: any) => (
                 <div key={payment.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                   <div>
                     <p className="font-medium">${parseFloat(payment.amount).toLocaleString()}</p>
@@ -905,9 +905,9 @@ function ClientDetailsContent({ client }: { client: Client }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {courtDates && courtDates.length > 0 ? (
+          {(courtDates as any[] || []).length > 0 ? (
             <div className="space-y-2">
-              {courtDates.map((courtDate: any) => (
+              {(courtDates as any[] || []).map((courtDate: any) => (
                 <div key={courtDate.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                   <div>
                     <p className="font-medium">{courtDate.courtLocation || 'Location TBD'}</p>

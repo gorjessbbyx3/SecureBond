@@ -241,9 +241,9 @@ export default function PaymentUpload({ clientId }: PaymentUploadProps) {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
               <p className="text-sm text-slate-500 mt-2">Loading payment history...</p>
             </div>
-          ) : payments?.length > 0 ? (
+          ) : (payments as any[] || []).length > 0 ? (
             <div className="space-y-4">
-              {payments.map((payment: any) => (
+              {(payments as any[] || []).map((payment: any) => (
                 <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div>
                     <p className="font-medium">${payment.amount}</p>

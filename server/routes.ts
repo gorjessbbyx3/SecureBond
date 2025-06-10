@@ -779,25 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Also check legacy single court date field for backward compatibility
-        if (client.courtDate && new Date(client.courtDate) < now && client.isActive) {
-          const existingAlert = alerts.find(a => 
-            a.clientId === client.id && 
-            a.alertType === 'court_date' && 
-            a.message.includes('court appearance') &&
-            !a.acknowledged
-          );
-          
-          if (!existingAlert) {
-            await storage.createAlert({
-              clientId: client.id,
-              alertType: 'court_date',
-              severity: 'critical',
-              message: `${client.fullName} missed court appearance scheduled for ${new Date(client.courtDate).toLocaleDateString()}`,
-              acknowledged: false
-            });
-          }
-        }
+        // Court dates are now handled via the courtDates table
       }
       
       // Refresh alerts after potential new ones were created

@@ -227,16 +227,16 @@ export default function CourtDateReminderSystem() {
     }
   };
 
-  const filteredCourtDates = courtDates ? courtDates.filter((courtDate: CourtDate) =>
+  const filteredCourtDates = (courtDates as CourtDate[] || []).filter((courtDate: CourtDate) =>
     courtDate.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     courtDate.courtLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
     courtDate.caseNumber?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) : [];
+  );
 
-  const filteredReminders = reminders ? reminders.filter((reminder: ReminderNotification) => {
+  const filteredReminders = (reminders as ReminderNotification[] || []).filter((reminder: ReminderNotification) => {
     if (selectedView === 'all') return true;
     return reminder.type === selectedView;
-  }) : [];
+  });
 
   return (
     <div className="space-y-6">
@@ -462,7 +462,7 @@ export default function CourtDateReminderSystem() {
                             <SelectValue placeholder="Select client" />
                           </SelectTrigger>
                           <SelectContent>
-                            {clients?.map((client: any) => (
+                            {(clients as any[] || []).map((client: any) => (
                               <SelectItem key={client.id} value={client.id.toString()}>
                                 {client.fullName}
                               </SelectItem>
