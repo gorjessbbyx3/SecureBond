@@ -125,20 +125,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/clients', isAuthenticated, async (req, res) => {
     try {
-      const clientData = insertClientSchema.parse(req.body);
+      // Convert date strings to Date objects before validation
+      const requestData = { ...req.body };
+      if (requestData.dateOfBirth) {
+        requestData.dateOfBirth = new Date(requestData.dateOfBirth);
+      }
+      if (requestData.courtDate) {
+        requestData.courtDate = new Date(requestData.courtDate);
+      }
       
-      // Generate unique client ID
+      // Generate unique client ID and password before validation
       const clientId = `SB${Date.now().toString().slice(-6)}${randomBytes(2).toString('hex').toUpperCase()}`;
-      
-      // Generate random password
       const password = randomBytes(8).toString('base64').slice(0, 8);
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      const client = await storage.createClient({
-        ...clientData,
-        clientId,
-        password: hashedPassword,
-      });
+      // Add required fields to request data
+      requestData.clientId = clientId;
+      requestData.password = hashedPassword;
+      
+      const clientData = insertClientSchema.parse(requestData);
+      
+      const client = await storage.createClient(clientData);
 
       res.json({ 
         client, 
