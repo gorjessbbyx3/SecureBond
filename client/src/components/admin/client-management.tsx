@@ -29,6 +29,7 @@ import {
 
 const clientFormSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
+  clientId: z.string().min(3, "Client ID must be at least 3 characters"),
   phoneNumber: z.string().optional(),
   address: z.string().optional(),
   dateOfBirth: z.string().optional(),
@@ -217,6 +218,7 @@ export default function ClientManagement() {
     setEditingClient(client);
     form.reset({
       fullName: client.fullName,
+      clientId: client.clientId,
       phoneNumber: client.phoneNumber || "",
       address: client.address || "",
       dateOfBirth: "",
@@ -311,6 +313,19 @@ export default function ClientManagement() {
                           <FormLabel>Full Name</FormLabel>
                           <FormControl>
                             <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="clientId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Client ID</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., SB123456789" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

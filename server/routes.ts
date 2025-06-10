@@ -398,15 +398,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const requestData = { ...req.body };
       
-      // Generate unique client ID and password
-      const clientId = `SB${Date.now().toString().slice(-6)}${randomBytes(2).toString('hex').toUpperCase()}`;
+      // Validate that client ID is provided
+      if (!requestData.clientId) {
+        return res.status(400).json({ message: "Client ID is required" });
+      }
+      
+      // Check if client ID already exists
+      const existingClient = await storage.getClientByClientId(requestData.clientId);
+      if (existingClient) {
+        return res.status(400).json({ message: "Client ID already exists" });
+      }
+      
+      // Generate only the password
       const password = randomBytes(8).toString('base64').slice(0, 8);
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      // Prepare client data with generated credentials
+      // Prepare client data with custom client ID and generated password
       const clientData = {
         fullName: requestData.fullName,
-        clientId: clientId,
+        clientId: requestData.clientId,
         password: hashedPassword,
         phoneNumber: requestData.phoneNumber || null,
         address: requestData.address || null,
@@ -424,7 +434,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Return client data with credentials for the UI
       res.json({ 
         ...client,
-        clientId: clientId, 
+        clientId: requestData.clientId, 
         password: password // Return plain password for display
       });
     } catch (error) {

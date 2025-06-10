@@ -275,6 +275,9 @@ export const notificationPreferences = pgTable("notification_preferences", {
 export const insertUserSchema = createInsertSchema(users);
 export const insertClientSchema = createInsertSchema(clients).omit({
   id: true,
+  password: true,
+  userId: true,
+  lastCheckIn: true,
   createdAt: true,
   updatedAt: true,
 });
