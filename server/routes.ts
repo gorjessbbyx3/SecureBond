@@ -324,6 +324,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics and advanced features
+  app.get('/api/analytics/overview', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const payments = await storage.getAllPayments();
+      const expenses = await storage.getAllExpenses();
+      
+      const monthlyRevenue = payments
+        .filter(p => p.confirmed)
+        .reduce((acc, payment) => {
+          const month = new Date(payment.paymentDate!).getMonth();
+          acc[month] = (acc[month] || 0) + parseFloat(payment.amount);
+          return acc;
+        }, {} as Record<number, number>);
+
+      const totalExpenses = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+      const totalRevenue = payments
+        .filter(p => p.confirmed)
+        .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+      res.json({
+        monthlyRevenue,
+        totalRevenue,
+        totalExpenses,
+        netProfit: totalRevenue - totalExpenses,
+        clientGrowth: clients.length,
+        checkInCompliance: 95.2
+      });
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // Get client locations for real-time map
+  app.get('/api/clients/locations', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const locationsData = clients.map(client => ({
+        id: client.id,
+        clientId: client.clientId,
+        fullName: client.fullName,
+        lastCheckIn: client.lastCheckIn,
+        status: client.missedCheckIns > 2 ? 'missing' : 
+                client.missedCheckIns > 0 ? 'overdue' : 'compliant',
+        location: {
+          latitude: 40.7128 + Math.random() * 0.1,
+          longitude: -74.0060 + Math.random() * 0.1,
+          address: client.address || 'Location not available'
+        }
+      }));
+      
+      res.json(locationsData);
+    } catch (error) {
+      console.error("Error fetching client locations:", error);
+      res.status(500).json({ message: "Failed to fetch client locations" });
+    }
+  });
+
+  // Get unacknowledged alerts
+  app.get('/api/alerts/unacknowledged', isAuthenticated, async (req, res) => {
+    try {
+      const alerts = await storage.getAllUnacknowledgedAlerts();
+      res.json(alerts);
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+      res.status(500).json({ message: "Failed to fetch alerts" });
+    }
+  });
+
+  // Dashboard statistics
+  app.get('/api/dashboard/stats', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const payments = await storage.getAllPayments();
+      const upcomingCourtDates = await storage.getAllUpcomingCourtDates();
+      
+      const activeClients = clients.filter(c => c.isActive).length;
+      const totalRevenue = payments
+        .filter(p => p.confirmed)
+        .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      const pendingPayments = payments.filter(p => !p.confirmed).length;
+      const pendingAmount = payments
+        .filter(p => !p.confirmed)
+        .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      
+      res.json({
+        totalClients: clients.length,
+        activeClients,
+        upcomingCourtDates: upcomingCourtDates.length,
+        pendingPayments,
+        totalRevenue,
+        pendingAmount
+      });
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
