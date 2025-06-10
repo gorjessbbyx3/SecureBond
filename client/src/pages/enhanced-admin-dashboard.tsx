@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle } from "lucide-react";
+import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
