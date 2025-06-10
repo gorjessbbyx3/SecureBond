@@ -39,26 +39,26 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
   const statCards = [
     {
       title: "Total Clients",
-      value: stats.totalClients || 1,
-      description: `${stats.activeClients || 1} active`,
+      value: stats.totalClients || 0,
+      description: `${stats.activeClients || 0} active`,
       icon: Users,
-      trend: "+12% from last month",
+      trend: stats.totalClients > 0 ? "+12% from last month" : "No clients yet",
       color: "text-blue-600",
     },
     {
       title: "Revenue",
-      value: `$${(stats.totalRevenue || 25000).toLocaleString()}`,
+      value: `$${(stats.totalRevenue || 0).toLocaleString()}`,
       description: "This month",
       icon: DollarSign,
-      trend: "+8.2% from last month",
+      trend: stats.totalRevenue > 0 ? "+8.2% from last month" : "No revenue yet",
       color: "text-green-600",
     },
     {
       title: "Court Dates",
-      value: stats.upcomingCourtDates || 1,
+      value: stats.upcomingCourtDates || 0,
       description: "Next 30 days",
       icon: Calendar,
-      trend: "3 this week",
+      trend: stats.upcomingCourtDates > 0 ? "3 this week" : "No upcoming dates",
       color: "text-orange-600",
     },
     {
@@ -66,7 +66,7 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
       value: stats.pendingPayments || 0,
       description: `$${(stats.pendingAmount || 0).toLocaleString()} total`,
       icon: AlertTriangle,
-      trend: "-2 from yesterday",
+      trend: stats.pendingPayments > 0 ? "-2 from yesterday" : "No pending payments",
       color: "text-red-600",
     },
   ];
