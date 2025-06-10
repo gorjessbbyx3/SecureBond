@@ -61,6 +61,9 @@ export default function ArrestMonitoringSystem() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("client-alerts");
   const [publicSearchTerm, setPublicSearchTerm] = useState("");
+  const [whitePagesName, setWhitePagesName] = useState("");
+  const [whitePagesCity, setWhitePagesCity] = useState("");
+  const [whitePagesResults, setWhitePagesResults] = useState<any[]>([]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -124,11 +127,31 @@ export default function ArrestMonitoringSystem() {
     },
   });
 
+  // White Pages search mutation
+  const whitePagesSearchMutation = useMutation({
+    mutationFn: async (searchData: { name: string; city: string }) => {
+      const response = await apiRequest("POST", "/api/white-pages/search", searchData);
+      return response;
+    },
+    onSuccess: (data) => {
+      setWhitePagesResults(data.results || []);
+      toast({
+        title: "Search Complete",
+        description: `Found ${data.results?.length || 0} potential matches`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Search Failed",
+        description: error.message || "Failed to search White Pages",
+        variant: "destructive",
+      });
+    },
+  });
+
   const hawaiiCounties = [
     { id: "honolulu", name: "Honolulu County", agency: "Honolulu Police Department" },
-    { id: "hawaii", name: "Hawaii County", agency: "Hawaii Police Department" },
-    { id: "maui", name: "Maui County", agency: "Maui Police Department" },
-    { id: "kauai", name: "Kauai County", agency: "Kauai Police Department" },
+    { id: "hawaii", name: "Hawaii County", agency: "Hawaii Police Department" }
   ];
 
   const getSeverityBadge = (severity: string) => {
@@ -288,14 +311,18 @@ export default function ArrestMonitoringSystem() {
 
       {/* Enhanced Tabbed Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="client-alerts" className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             Client Alerts ({pendingAlerts})
           </TabsTrigger>
           <TabsTrigger value="public-logs" className="flex items-center gap-2">
             <UserPlus className="w-4 h-4" />
-            Public Arrest Logs (New Opportunities)
+            Public Arrest Logs
+          </TabsTrigger>
+          <TabsTrigger value="white-pages" className="flex items-center gap-2">
+            <Building className="w-4 h-4" />
+            White Pages Search
           </TabsTrigger>
         </TabsList>
 
