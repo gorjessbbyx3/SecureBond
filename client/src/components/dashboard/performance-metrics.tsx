@@ -122,7 +122,14 @@ export default function PerformanceMetrics() {
       ((monthlyRevenue - prevMonthRevenue) / prevMonthRevenue) * 100 : 0;
 
     // Response time calculation from actual data
-    const avgResponseTime = 2.1; // Placeholder until alerts have timestamps
+    const avgResponseTime = (alerts as any[])?.length > 0 ? 
+      (alerts as any[]).reduce((total: number, alert: any) => {
+        if (alert.acknowledgedAt && alert.createdAt) {
+          const responseTime = (new Date(alert.acknowledgedAt).getTime() - new Date(alert.createdAt).getTime()) / (1000 * 60 * 60); // hours
+          return total + responseTime;
+        }
+        return total;
+      }, 0) / (alerts as any[]).filter((a: any) => a.acknowledgedAt).length || 0.5 : 0.5; // Default to 0.5 hours if no data
 
     return {
       retentionRate: Math.round(retentionRate),
