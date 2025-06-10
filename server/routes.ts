@@ -259,42 +259,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/clients', isAuthenticated, async (req, res) => {
     try {
-      // Convert date strings to Date objects before validation
       const requestData = { ...req.body };
-      // Generate unique client ID and password before validation
+      
+      // Generate unique client ID and password
       const clientId = `SB${Date.now().toString().slice(-6)}${randomBytes(2).toString('hex').toUpperCase()}`;
       const password = randomBytes(8).toString('base64').slice(0, 8);
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      // Calculate remaining balance
-      const totalOwed = parseFloat(requestData.totalOwed || '0');
-      const downPayment = parseFloat(requestData.downPayment || '0');
-      const remainingBalance = totalOwed - downPayment;
-      
-      // Add required fields to request data
-      requestData.clientId = clientId;
-      requestData.password = hashedPassword;
-      requestData.remainingBalance = remainingBalance.toString();
-      
-      // Handle date conversion for storage
-      if (requestData.courtDate) {
-        requestData.courtDate = new Date(requestData.courtDate).toISOString();
-      }
-      
-      const clientData = insertClientSchema.parse(requestData);
+      // Prepare client data with generated credentials
+      const clientData = {
+        fullName: requestData.fullName,
+        clientId: clientId,
+        password: hashedPassword,
+        phoneNumber: requestData.phoneNumber || null,
+        address: requestData.address || null,
+        dateOfBirth: requestData.dateOfBirth || null,
+        emergencyContact: requestData.emergencyContact || null,
+        emergencyPhone: requestData.emergencyPhone || null,
+        courtLocation: requestData.courtLocation || null,
+        charges: requestData.charges || null,
+        isActive: requestData.isActive !== undefined ? requestData.isActive : true,
+        missedCheckIns: requestData.missedCheckIns || 0,
+      };
       
       const client = await storage.createClient(clientData);
 
+      // Return client data with credentials for the UI
       res.json({ 
-        client, 
-        credentials: { 
-          clientId, 
-          password // Return plain password only on creation
-        } 
+        ...client,
+        clientId: clientId, 
+        password: password // Return plain password for display
       });
     } catch (error) {
       console.error("Error creating client:", error);
-      res.status(500).json({ message: "Failed to create client" });
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to create client" });
+      }
     }
   });
 

@@ -27,8 +27,17 @@ import {
   Eye
 } from "lucide-react";
 
-const clientFormSchema = insertClientSchema.extend({
-  bondAmount: z.string().min(1, "Bond amount is required"),
+const clientFormSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  phoneNumber: z.string().optional(),
+  address: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  emergencyContact: z.string().optional(),
+  emergencyPhone: z.string().optional(),
+  courtLocation: z.string().optional(),
+  charges: z.string().optional(),
+  isActive: z.boolean().default(true),
+  missedCheckIns: z.number().default(0),
 });
 
 type ClientFormData = z.infer<typeof clientFormSchema>;
@@ -72,7 +81,6 @@ export default function ClientManagement() {
       fullName: "",
       phoneNumber: "",
       address: "",
-      bondAmount: "",
       dateOfBirth: "",
       emergencyContact: "",
       emergencyPhone: "",
@@ -93,13 +101,10 @@ export default function ClientManagement() {
 
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
-      const response = await apiRequest("/api/clients", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest("/api/clients", "POST", data);
       return response;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
       setGeneratedCredentials({
         clientId: data.clientId,
@@ -124,10 +129,7 @@ export default function ClientManagement() {
   const updateClientMutation = useMutation({
     mutationFn: async (data: ClientFormData & { id: number }) => {
       const { id, ...updateData } = data;
-      return await apiRequest(`/api/clients/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(updateData),
-      });
+      return await apiRequest(`/api/clients/${id}`, "PATCH", updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
@@ -150,10 +152,7 @@ export default function ClientManagement() {
 
   const updateCredentialsMutation = useMutation({
     mutationFn: async (data: { role: string; username: string; password: string }) => {
-      return await apiRequest("/api/admin/credentials", {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      });
+      return await apiRequest("/api/admin/credentials", "PATCH", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/credentials"] });
