@@ -98,60 +98,35 @@ export default function BulkClientUpload() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Bulk Client Upload</h2>
-          <p className="text-muted-foreground">
-            Upload multiple clients at once using a CSV file
-          </p>
+      {/* Step 1: Download Template */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
+            1
+          </div>
+          <h4 className="font-medium">Download CSV Template</h4>
+        </div>
+        <div className="flex gap-4">
+          <Button onClick={downloadTemplate} variant="outline">
+            <FileText className="h-4 w-4 mr-2" />
+            Download CSV Template
+          </Button>
+          <Button onClick={downloadInstructions} variant="outline">
+            <FileText className="h-4 w-4 mr-2" />
+            Download Instructions
+          </Button>
         </div>
       </div>
 
-      {/* Template Downloads */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5" />
-            Download Template & Instructions
-          </CardTitle>
-          <CardDescription>
-            Download the CSV template and instructions before uploading your data
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <Button onClick={downloadTemplate} variant="outline">
-              <FileText className="h-4 w-4 mr-2" />
-              Download CSV Template
-            </Button>
-            <Button onClick={downloadInstructions} variant="outline">
-              <FileText className="h-4 w-4 mr-2" />
-              Download Instructions
-            </Button>
+      {/* Step 2: Upload File */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-medium">
+            2
           </div>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Please download and review the template and instructions before uploading your data. 
-              The CSV must include all required fields in the correct format.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-
-      {/* File Upload */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Upload Client Data
-          </CardTitle>
-          <CardDescription>
-            Select your CSV file containing client data
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          <h4 className="font-medium">Upload Your CSV File</h4>
+        </div>
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="csv-file">CSV File</Label>
             <Input
@@ -191,8 +166,8 @@ export default function BulkClientUpload() {
               <Progress value={undefined} className="w-full" />
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Upload Results */}
       {uploadResult && (

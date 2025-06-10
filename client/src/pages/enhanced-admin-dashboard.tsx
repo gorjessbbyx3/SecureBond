@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -285,25 +285,42 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="data" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-6">
+            <div className="grid gap-6">
+              {/* Settings Header */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    System Settings & Data Management
+                  </CardTitle>
+                  <CardDescription>
+                    Configure system settings, import data, and manage backups
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              {/* Two Column Layout */}
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Bulk Upload Section */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Download className="h-5 w-5" />
-                      Bulk Client Upload
+                      Bulk Client Import
                     </CardTitle>
                     <CardDescription>
-                      Import multiple clients at once using a CSV file
+                      Import multiple clients at once using CSV files
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <BulkClientUpload />
                   </CardContent>
                 </Card>
-              </div>
-              <div className="space-y-6">
-                <DataManagement />
+
+                {/* Data Management Section */}
+                <div className="space-y-6">
+                  <DataManagement />
+                </div>
               </div>
             </div>
           </TabsContent>
