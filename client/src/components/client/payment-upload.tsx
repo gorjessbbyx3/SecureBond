@@ -137,11 +137,12 @@ export default function PaymentUpload({ clientId }: PaymentUploadProps) {
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="bank_deposit">Bank Deposit</SelectItem>
                   <SelectItem value="cash">Cash</SelectItem>
+                  <SelectItem value="cashapp">CashApp</SelectItem>
                   <SelectItem value="check">Check</SelectItem>
-                  <SelectItem value="money_order">Money Order</SelectItem>
-                  <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="credit_card">Credit Card</SelectItem>
+                  <SelectItem value="creditcard">Credit Card</SelectItem>
+                  <SelectItem value="venmo">Venmo</SelectItem>
                 </SelectContent>
               </Select>
             </div>

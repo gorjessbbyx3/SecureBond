@@ -280,7 +280,7 @@ export default function ClientAnalyticsDashboard() {
                     <YAxis dataKey="paymentCompliance" name="Compliance %" />
                     <Tooltip 
                       formatter={(value, name) => [
-                        name === 'totalAmount' ? `$${value.toLocaleString()}` : `${value.toFixed(1)}%`,
+                        name === 'totalAmount' ? `$${Number(value).toLocaleString()}` : `${Number(value).toFixed(1)}%`,
                         name === 'totalAmount' ? 'Total Amount' : 'Compliance Rate'
                       ]}
                       labelFormatter={(label) => `Client: ${paymentBehavior.find(c => c.totalAmount === label)?.name || 'Unknown'}`}
