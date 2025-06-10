@@ -84,7 +84,7 @@ export default function StaffDashboard() {
             >
               <Bell className="h-4 w-4 mr-2" />
               Alerts
-              {alerts && alerts.length > 0 && (
+              {alerts.length > 0 && (
                 <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
                   {alerts.length}
                 </Badge>
@@ -136,11 +136,11 @@ export default function StaffDashboard() {
                   <CardContent>
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{stats?.totalClients || 0}</div>
+                        <div className="text-2xl font-bold">{(stats as any)?.totalClients || 0}</div>
                         <div className="text-sm text-gray-600">Total Clients</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{stats?.activeClients || 0}</div>
+                        <div className="text-2xl font-bold">{(stats as any)?.activeClients || 0}</div>
                         <div className="text-sm text-gray-600">Active Clients</div>
                       </div>
                       <div className="text-center">
@@ -281,16 +281,16 @@ export default function StaffDashboard() {
                   <div>
                     <label className="text-sm font-medium">Name</label>
                     <p className="mt-1 text-sm text-gray-600">
-                      {user?.firstName} {user?.lastName}
+                      {(user as any)?.firstName} {(user as any)?.lastName}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Email</label>
-                    <p className="mt-1 text-sm text-gray-600">{user?.email}</p>
+                    <p className="mt-1 text-sm text-gray-600">{(user as any)?.email}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Role</label>
-                    <p className="mt-1 text-sm text-gray-600 capitalize">{user?.role}</p>
+                    <p className="mt-1 text-sm text-gray-600 capitalize">{(user as any)?.role}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Status</label>
