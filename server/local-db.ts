@@ -22,6 +22,8 @@ import {
   type InsertAlert,
   type Notification,
   type InsertNotification,
+  type CourtDateReminder,
+  type InsertCourtDateReminder,
   type NotificationPreferences,
   type InsertNotificationPreferences,
   type ClientVehicle,
