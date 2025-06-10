@@ -30,6 +30,8 @@ import {
   type FamilyMember,
   type EmploymentInfo,
   type ClientFile,
+  type TermsAcknowledgment,
+  type InsertTermsAcknowledgment,
 } from "@shared/schema";
 
 export class LocalFileStorage {
@@ -1125,5 +1127,27 @@ export class LocalFileStorage {
 
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Terms of Service acknowledgment operations
+  async checkTermsAcknowledgment(userId: string, version: string): Promise<boolean> {
+    const acknowledgments = await this.readJsonFile<TermsAcknowledgment>(path.join(this.dataDir, 'terms-acknowledgments.json'));
+    return acknowledgments.some(ack => ack.userId === userId && ack.version === version);
+  }
+
+  async acknowledgeTerms(acknowledgmentData: InsertTermsAcknowledgment): Promise<TermsAcknowledgment> {
+    const acknowledgments = await this.readJsonFile<TermsAcknowledgment>(path.join(this.dataDir, 'terms-acknowledgments.json'));
+    
+    const acknowledgment: TermsAcknowledgment = {
+      ...acknowledgmentData,
+      id: this.nextId++,
+      acknowledgedAt: new Date(),
+    };
+    
+    acknowledgments.push(acknowledgment);
+    await this.writeJsonFile(path.join(this.dataDir, 'terms-acknowledgments.json'), acknowledgments);
+    await this.saveIndex();
+    
+    return acknowledgment;
   }
 }

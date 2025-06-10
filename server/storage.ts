@@ -27,6 +27,8 @@ import {
   type FamilyMember,
   type EmploymentInfo,
   type ClientFile,
+  type TermsAcknowledgment,
+  type InsertTermsAcknowledgment,
 } from "@shared/schema";
 import { LocalFileStorage } from "./local-db";
 
@@ -137,6 +139,10 @@ export interface IStorage {
   // Notification preferences operations
   getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined>;
   upsertNotificationPreferences(preferences: InsertNotificationPreferences): Promise<NotificationPreferences>;
+  
+  // Terms acknowledgment operations
+  checkTermsAcknowledgment(userId: string, version: string): Promise<boolean>;
+  acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment>;
 }
 
 // In-memory storage for development
