@@ -13,6 +13,7 @@ import {
 } from "@shared/schema";
 import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
+import { courtScraper } from "./courtScraper";
 
 // Simple auth middleware for development
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -142,12 +143,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       requestData.password = hashedPassword;
       requestData.remainingBalance = remainingBalance.toString();
       
-      // Convert dates before validation
-      if (requestData.dateOfBirth) {
-        requestData.dateOfBirth = requestData.dateOfBirth; // Keep as string for now
-      }
+      // Handle date conversion for storage
       if (requestData.courtDate) {
-        requestData.courtDate = new Date(requestData.courtDate);
+        requestData.courtDate = new Date(requestData.courtDate).toISOString();
       }
       
       const clientData = insertClientSchema.parse(requestData);
@@ -1115,6 +1113,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching top locations:', error);
       res.status(500).json({ message: 'Failed to fetch location analytics' });
+    }
+  });
+
+  // Court date web scraping endpoint
+  app.post('/api/court-dates/search', isAuthenticated, async (req, res) => {
+    try {
+      const { clientName, state, county } = req.body;
+      
+      if (!clientName) {
+        return res.status(400).json({ message: 'Client name is required for court date search' });
+      }
+
+      console.log(`Starting court date search for: ${clientName}`);
+      
+      const searchOptions = {
+        state: state || 'Hawaii',
+        county: county || 'Honolulu',
+        maxResults: 20
+      };
+
+      const scrapingResult = await courtScraper.searchCourtDates(clientName, searchOptions);
+      
+      res.json({
+        success: scrapingResult.success,
+        clientName,
+        searchOptions,
+        results: {
+          courtDates: scrapingResult.courtDates,
+          totalFound: scrapingResult.courtDates.length,
+          sourcesSearched: scrapingResult.sourcesSearched,
+          errors: scrapingResult.errors
+        },
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Court date search error:', error);
+      res.status(500).json({ 
+        message: 'Failed to search court dates',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
