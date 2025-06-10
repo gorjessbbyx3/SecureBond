@@ -71,9 +71,9 @@ export default function ClientAnalytics() {
     }, {});
 
     // Check-in compliance analysis
-    const recentCheckIns = checkIns?.filter((checkIn: any) => 
+    const recentCheckIns = (Array.isArray(checkIns) ? checkIns : []).filter((checkIn: any) => 
       new Date(checkIn.checkInTime) >= cutoffDate
-    ) || [];
+    );
 
     const checkInStats = recentCheckIns.reduce((acc: any, checkIn: any) => {
       const scheduledTime = new Date(checkIn.scheduledTime || checkIn.checkInTime);
@@ -92,10 +92,10 @@ export default function ClientAnalytics() {
 
     // Upcoming court dates
     const weekFromNow = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
-    const upcomingCourts = courtDates?.filter((court: any) => {
+    const upcomingCourts = (Array.isArray(courtDates) ? courtDates : []).filter((court: any) => {
       const courtDate = new Date(court.courtDate);
       return courtDate >= now && courtDate <= weekFromNow;
-    }).length || 0;
+    }).length;
 
     return {
       totalClients,

@@ -58,7 +58,7 @@ export default function SmartAlerts() {
 
     // Check for overdue check-ins
     clients.forEach((client: any) => {
-      const lastCheckIn = checkIns?.find((ci: any) => ci.clientId === client.id);
+      const lastCheckIn = (Array.isArray(checkIns) ? checkIns : []).find((ci: any) => ci.clientId === client.id);
       if (lastCheckIn) {
         const daysSinceCheckIn = Math.floor(
           (now.getTime() - new Date(lastCheckIn.checkInTime).getTime()) / (1000 * 60 * 60 * 24)
@@ -128,7 +128,7 @@ export default function SmartAlerts() {
   };
 
   const allAlerts = [
-    ...(alerts || []),
+    ...(Array.isArray(alerts) ? alerts : []),
     ...generateSmartAlerts()
   ].sort((a: any, b: any) => {
     const priorityOrder = { high: 3, medium: 2, low: 1 };
