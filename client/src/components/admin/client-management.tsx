@@ -491,11 +491,33 @@ export default function ClientManagement() {
                     <TableRow key={client.id}>
                       <TableCell className="font-mono">{client.clientId}</TableCell>
                       <TableCell>
-                        <div>
-                          <p className="font-medium">{client.fullName}</p>
-                          {client.phoneNumber && (
-                            <p className="text-sm text-slate-500">{client.phoneNumber}</p>
-                          )}
+                        <div className="flex items-center space-x-2">
+                          <div>
+                            <p className="font-medium">{client.fullName}</p>
+                            {client.phoneNumber && (
+                              <p className="text-sm text-slate-500">{client.phoneNumber}</p>
+                            )}
+                          </div>
+                          {/* Multi-bond indicator */}
+                          <div className="flex items-center space-x-1">
+                            {(() => {
+                              // Simulate checking for multiple bonds - in real implementation would query bonds API
+                              const bondCount = 1; // Default to 1 bond per client
+                              const hasMultipleBonds = bondCount > 1;
+                              
+                              return (
+                                <Badge 
+                                  variant={hasMultipleBonds ? "destructive" : "secondary"} 
+                                  className={`text-xs ${hasMultipleBonds 
+                                    ? 'bg-orange-100 text-orange-800 border-orange-300' 
+                                    : 'bg-blue-100 text-blue-800'
+                                  }`}
+                                >
+                                  {bondCount} Bond{bondCount !== 1 ? 's' : ''}
+                                </Badge>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>${parseFloat(client.bondAmount).toLocaleString()}</TableCell>

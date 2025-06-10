@@ -29,8 +29,8 @@ export class LocalFileStorage {
   private nextId = 1;
 
   constructor() {
-    // Store data in user's Documents folder under "SecureBond Data"
-    this.dataDir = path.join(os.homedir(), 'Documents', 'SecureBond Data');
+    // Store data in user's Documents folder under "Aloha Bail Bond Data"
+    this.dataDir = path.join(os.homedir(), 'Documents', 'Aloha Bail Bond Data');
     this.initializeStorage();
   }
 
@@ -54,7 +54,7 @@ export class LocalFileStorage {
         await this.saveIndex();
       }
 
-      console.log(`SecureBond data directory initialized at: ${this.dataDir}`);
+      console.log(`Aloha Bail Bond data directory initialized at: ${this.dataDir}`);
     } catch (error) {
       console.error('Failed to initialize local storage:', error);
       throw new Error('Cannot create data directory. Please check permissions.');
