@@ -85,7 +85,19 @@ export default function Landing() {
 
       </div>
 
-      <Header />
+      {/* Company Header */}
+      <header className="relative z-10 bg-gradient-to-r from-blue-900/90 to-blue-800/90 backdrop-blur-sm border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-wide">
+                ALOHA BAIL BOND
+              </h1>
+              <p className="text-blue-100 text-sm mt-1">Professional Bail Bond Services</p>
+            </div>
+          </div>
+        </div>
+      </header>
       
       <main className="relative z-10 flex-grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
@@ -265,7 +277,22 @@ export default function Landing() {
         </div>
       </main>
 
-      <Footer />
+      {/* Company Footer */}
+      <footer className="relative z-10 bg-gradient-to-r from-blue-900/90 to-blue-800/90 backdrop-blur-sm border-t border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="text-center">
+            <div className="text-white">
+              <p className="text-sm font-medium">1325 Nuuanu Ave. Ste 214, Honolulu, HI 96817</p>
+              <p className="text-sm mt-1">(808) 392-1468</p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/20">
+              <p className="text-blue-100 text-xs">
+                © 2024 Aloha Bail Bond. Licensed and bonded bail bond services in Hawaii.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

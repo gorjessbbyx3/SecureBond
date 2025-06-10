@@ -17,6 +17,7 @@ import RealTimeMap from "@/components/admin/real-time-map";
 import AnalyticsCharts from "@/components/admin/analytics-charts";
 import ClientAnalyticsDashboard from "@/components/admin/client-analytics-dashboard";
 import NotificationCenter from "@/components/admin/notification-center";
+import { NotificationCenter as RealTimeNotificationCenter } from "@/components/notifications/notification-center";
 import DataManagement from "@/components/admin/data-management";
 import TopLocations from "@/components/admin/top-locations";
 import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";

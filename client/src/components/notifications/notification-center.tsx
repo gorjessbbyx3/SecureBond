@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { apiRequest } from '@/lib/queryClient';
-import { NotificationPreferences } from './notification-preferences';
+// import { NotificationPreferences } from './notification-preferences';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Notification {
@@ -292,11 +292,7 @@ export function NotificationCenter() {
         </DialogContent>
       </Dialog>
 
-      <NotificationPreferences
-        open={showPreferences}
-        onOpenChange={setShowPreferences}
-        userId={userId}
-      />
+      {/* Notification Preferences - To be implemented */}
     </>
   );
 }
