@@ -101,8 +101,8 @@ export default function ClientManagement() {
 
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
-      const response = await apiRequest("/api/clients", "POST", data);
-      return response;
+      const response = await apiRequest("POST", "/api/clients", data);
+      return response.json();
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
@@ -129,7 +129,8 @@ export default function ClientManagement() {
   const updateClientMutation = useMutation({
     mutationFn: async (data: ClientFormData & { id: number }) => {
       const { id, ...updateData } = data;
-      return await apiRequest(`/api/clients/${id}`, "PATCH", updateData);
+      const response = await apiRequest("PATCH", `/api/clients/${id}`, updateData);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
@@ -152,7 +153,8 @@ export default function ClientManagement() {
 
   const updateCredentialsMutation = useMutation({
     mutationFn: async (data: { role: string; username: string; password: string }) => {
-      return await apiRequest("/api/admin/credentials", "PATCH", data);
+      const response = await apiRequest("PATCH", "/api/admin/credentials", data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/credentials"] });
@@ -197,10 +199,11 @@ export default function ClientManagement() {
 
   const handleViewCredentials = async (client: Client) => {
     try {
-      const response = await apiRequest(`/api/clients/${client.id}/credentials`, "GET");
+      const response = await apiRequest("GET", `/api/clients/${client.id}/credentials`);
+      const data = await response.json();
       setClientCredentials({
-        clientId: response.clientId,
-        password: response.password
+        clientId: data.clientId,
+        password: data.password
       });
       setIsCredentialsDialogOpen(true);
     } catch (error: any) {
