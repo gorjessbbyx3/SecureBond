@@ -618,7 +618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fullName: 'John Smith',
         phoneNumber: '555-0123',
         address: '123 Main St, Anytown, ST 12345',
-        dateOfBirth: new Date('1985-06-15'),
+        dateOfBirth: '1985-06-15',
         emergencyContact: 'Jane Smith',
         emergencyPhone: '555-0124',
         bondAmount: '25000.00',
@@ -635,7 +635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fullName: 'Maria Garcia',
         phoneNumber: '555-0456',
         address: '456 Oak Ave, Another City, ST 67890',
-        dateOfBirth: new Date('1992-03-20'),
+        dateOfBirth: '1992-03-20',
         emergencyContact: 'Carlos Garcia',
         emergencyPhone: '555-0457',
         bondAmount: '15000.00',
@@ -684,7 +684,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdBy: 'admin'
       });
 
-      // Create test alerts
+      // Create additional test client scenarios
+      const client3 = await storage.createClient({
+        clientId: 'SB345678',
+        password: '$2b$10$example.hash.for.demo.purposes3',
+        fullName: 'Robert Johnson',
+        phoneNumber: '555-0789',
+        address: '789 Pine Street, Metro City, ST 11111',
+        dateOfBirth: '1978-11-10',
+        emergencyContact: 'Sarah Johnson',
+        emergencyPhone: '555-0790',
+        bondAmount: '50000.00',
+        courtDate: new Date('2024-01-30T09:00:00Z'), // Past court date
+        courtLocation: 'Superior Court Room 2C',
+        charges: 'Assault in the second degree',
+        isActive: false, // Inactive client
+        missedCheckIns: 5
+      });
+
+      // Create more payment scenarios
+      const payment3 = await storage.createPayment({
+        clientId: client3.id,
+        amount: '10000.00',
+        paymentMethod: 'Bank Transfer',
+        paymentDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        confirmed: true,
+        confirmedBy: 'admin',
+        confirmedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+        notes: 'Large payment for high-value bond'
+      });
+
+      // Create pending payment
+      const payment4 = await storage.createPayment({
+        clientId: client2.id,
+        amount: '2500.00',
+        paymentMethod: 'Check',
+        paymentDate: new Date(),
+        confirmed: false,
+        notes: 'Payment pending verification'
+      });
+
+      // Create check-ins to show activity
+      const checkin1 = await storage.createCheckIn({
+        clientId: client2.id,
+        location: 'Downtown Office',
+        notes: 'Regular scheduled check-in'
+      });
+
+      const checkin2 = await storage.createCheckIn({
+        clientId: client1.id,
+        location: 'Home Visit',
+        notes: 'Wellness check after missed appointments'
+      });
+
+      // Create court dates
+      const courtDate1 = await storage.createCourtDate({
+        clientId: client1.id,
+        courtDate: new Date('2024-03-15T11:00:00Z'),
+        courtLocation: 'District Court Room 4A',
+        caseNumber: 'CR-2024-001234',
+        notes: 'Follow-up hearing for compliance review'
+      });
+
+      // Create diverse alerts
       const alert1 = await storage.createAlert({
         clientId: client1.id,
         alertType: 'missed_checkin',
@@ -693,14 +755,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         acknowledged: false
       });
 
+      const alert2 = await storage.createAlert({
+        clientId: client3.id,
+        alertType: 'court_date',
+        severity: 'critical',
+        message: `${client3.fullName} missed court appearance on scheduled date`,
+        acknowledged: false
+      });
+
+      const alert3 = await storage.createAlert({
+        clientId: client2.id,
+        alertType: 'payment',
+        severity: 'medium',
+        message: `Payment verification required for ${payment4.amount} from ${client2.fullName}`,
+        acknowledged: false
+      });
+
+      // Create additional expenses
+      const expense3 = await storage.createExpense({
+        description: 'Court filing fees',
+        amount: '150.00',
+        category: 'Legal Fees',
+        expenseDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        createdBy: 'admin'
+      });
+
+      const expense4 = await storage.createExpense({
+        description: 'Vehicle maintenance for client visits',
+        amount: '420.00',
+        category: 'Transportation',
+        expenseDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        createdBy: 'admin'
+      });
+
       res.json({ 
         success: true, 
-        message: 'Test data populated successfully',
+        message: 'Comprehensive test data populated successfully',
         created: {
-          clients: 2,
-          payments: 2,
-          expenses: 2,
-          alerts: 1
+          clients: 3,
+          payments: 4,
+          expenses: 4,
+          alerts: 3,
+          checkIns: 2,
+          courtDates: 1
         }
       });
     } catch (error) {
