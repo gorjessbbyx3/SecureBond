@@ -1,0 +1,12 @@
+[
+  {
+    "clientId": 1,
+    "amount": "500.00",
+    "paymentMethod": "credit_card",
+    "notes": "Initial down payment for bond SB067268003",
+    "id": 7,
+    "paymentDate": "2025-06-10T06:31:25.742Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:31:25.742Z"
+  }
+]
