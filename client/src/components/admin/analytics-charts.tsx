@@ -180,13 +180,17 @@ export default function AnalyticsCharts() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                    <p className="text-2xl font-bold">$328,000</p>
+                    <p className="text-2xl font-bold">
+                      ${(analytics as any)?.totalRevenue?.toLocaleString() || '0'}
+                    </p>
                   </div>
                   <DollarSign className="h-8 w-8 text-green-600" />
                 </div>
                 <div className="flex items-center gap-1 mt-2">
                   <TrendingUp className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-green-600">+12.5% from last month</span>
+                  <span className="text-sm text-green-600">
+                    {payments.filter(p => p.confirmed).length} confirmed payments
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -196,13 +200,17 @@ export default function AnalyticsCharts() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Net Profit</p>
-                    <p className="text-2xl font-bold">$240,000</p>
+                    <p className="text-2xl font-bold">
+                      ${(analytics as any)?.netProfit?.toLocaleString() || '0'}
+                    </p>
                   </div>
                   <Activity className="h-8 w-8 text-blue-600" />
                 </div>
                 <div className="flex items-center gap-1 mt-2">
                   <TrendingUp className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-green-600">+8.2% profit margin</span>
+                  <span className="text-sm text-green-600">
+                    Revenue minus expenses
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -211,16 +219,18 @@ export default function AnalyticsCharts() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Avg Bond Amount</p>
-                    <p className="text-2xl font-bold">$42,500</p>
+                    <p className="text-sm font-medium text-muted-foreground">Active Clients</p>
+                    <p className="text-2xl font-bold">
+                      {clients.filter(c => c.isActive).length}
+                    </p>
                   </div>
-                  <Badge variant="outline" className="text-lg px-3 py-1">
-                    AVG
-                  </Badge>
+                  <Users className="h-8 w-8 text-purple-600" />
                 </div>
                 <div className="flex items-center gap-1 mt-2">
-                  <TrendingDown className="h-4 w-4 text-red-600" />
-                  <span className="text-sm text-red-600">-3.1% from last month</span>
+                  <Activity className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm text-blue-600">
+                    {clients.length} total clients
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -232,27 +242,33 @@ export default function AnalyticsCharts() {
             <Card>
               <CardHeader>
                 <CardTitle>Client Status Distribution</CardTitle>
-                <CardDescription>Current status of all clients</CardDescription>
+                <CardDescription>Current status breakdown of all clients</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={clientStatusData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}`}
-                    >
-                      {clientStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                {clientStatusData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={clientStatusData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}`}
+                      >
+                        {clientStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                    No client data available
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -268,28 +284,28 @@ export default function AnalyticsCharts() {
                       <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                       <span className="font-medium">Active Clients</span>
                     </div>
-                    <Badge variant="secondary">24</Badge>
+                    <Badge variant="secondary">{clients.filter(c => c.isActive).length}</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <span className="font-medium">Overdue Check-ins</span>
+                      <span className="font-medium">Warning Status</span>
                     </div>
-                    <Badge variant="outline">3</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      <span className="font-medium">New This Month</span>
-                    </div>
-                    <Badge className="bg-blue-100 text-blue-800">7</Badge>
+                    <Badge variant="outline">{clients.filter(c => c.isActive && (c.missedCheckIns || 0) > 0 && (c.missedCheckIns || 0) <= 2).length}</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                       <span className="font-medium">High Risk</span>
                     </div>
-                    <Badge variant="destructive">1</Badge>
+                    <Badge variant="destructive">{clients.filter(c => c.isActive && (c.missedCheckIns || 0) > 2).length}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                      <span className="font-medium">Inactive</span>
+                    </div>
+                    <Badge className="bg-gray-100 text-gray-800">{clients.filter(c => !c.isActive).length}</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -324,15 +340,21 @@ export default function AnalyticsCharts() {
               <CardDescription>Breakdown by payment method and volume</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={paymentMethodData} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="method" type="category" width={100} />
-                  <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Amount']} />
-                  <Bar dataKey="amount" fill="#10b981" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {paymentMethodData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={paymentMethodData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="method" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Amount']} />
+                    <Bar dataKey="amount" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                  No payment data available
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

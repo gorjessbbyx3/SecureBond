@@ -15,6 +15,7 @@ import FinancialDashboard from "@/components/admin/financial-dashboard";
 import DashboardStats from "@/components/admin/dashboard-stats";
 import RealTimeMap from "@/components/admin/real-time-map";
 import AnalyticsCharts from "@/components/admin/analytics-charts";
+import ClientAnalyticsDashboard from "@/components/admin/client-analytics-dashboard";
 import NotificationCenter from "@/components/admin/notification-center";
 import DataManagement from "@/components/admin/data-management";
 import TopLocations from "@/components/admin/top-locations";
