@@ -68,13 +68,68 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      {/* Animated Jail Door Background */}
+      <div className="fixed inset-0 z-0">
+        {/* Dark concrete background */}
+        <div className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-black"></div>
+        
+        {/* Jail door container */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {/* Door frame */}
+          <div className="relative w-96 h-[600px] bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded-lg shadow-2xl border-4 border-gray-800">
+            
+            {/* Animated door that slams shut */}
+            <div className="jail-door absolute inset-2 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded border-2 border-gray-900 overflow-hidden">
+              
+              {/* Vertical bars */}
+              <div className="absolute inset-0 grid grid-cols-8 gap-2 p-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="bg-gradient-to-b from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-lg border border-gray-400"></div>
+                ))}
+              </div>
+              
+              {/* Horizontal bars */}
+              <div className="absolute inset-0 flex flex-col justify-evenly px-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-3 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-lg border border-gray-400"></div>
+                ))}
+              </div>
+              
+              {/* Lock mechanism */}
+              <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+                <div className="lock-mechanism w-8 h-8 bg-gradient-to-br from-yellow-600 via-yellow-500 to-yellow-700 rounded-full border-2 border-yellow-800 shadow-lg">
+                  <div className="w-3 h-3 bg-yellow-800 rounded-full mx-auto mt-2.5"></div>
+                </div>
+              </div>
+              
+              {/* Sound effect waves when door slams */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="sound-effect absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-4 border-red-500 rounded-full opacity-0"></div>
+                <div className="sound-effect absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-3 border-orange-500 rounded-full opacity-0" style={{animationDelay: '0.1s'}}></div>
+                <div className="sound-effect absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-yellow-500 rounded-full opacity-0" style={{animationDelay: '0.2s'}}></div>
+              </div>
+            </div>
+            
+            {/* Heavy duty hinges */}
+            <div className="absolute left-0 top-16 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
+            <div className="absolute left-0 top-40 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
+            <div className="absolute left-0 bottom-40 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
+            <div className="absolute left-0 bottom-16 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
+          </div>
+        </div>
+        
+        {/* Dramatic lighting effects */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl"></div>
+      </div>
+
       <Header />
       
-      <main className="flex-grow flex items-center justify-center px-4 py-12">
+      <main className="relative z-10 flex-grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           {/* Main Sign In Card */}
-          <Card className="secure-card overflow-hidden">
+          <Card className="secure-card overflow-hidden backdrop-blur-sm bg-white/95 shadow-2xl border-2 border-gray-300">
             {/* Card Header */}
             <div className="professional-gradient px-8 py-6 text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">

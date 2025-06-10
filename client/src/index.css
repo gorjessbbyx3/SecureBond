@@ -34,6 +34,122 @@
   --bg-dark: hsl(222, 47%, 11%);
 }
 
+/* Jail Door Animation Keyframes */
+@keyframes jailDoorSlam {
+  0% {
+    transform: translateX(-100%) rotateY(-90deg);
+    opacity: 0;
+  }
+  20% {
+    transform: translateX(-60%) rotateY(-60deg);
+    opacity: 0.3;
+  }
+  60% {
+    transform: translateX(-10%) rotateY(-10deg);
+    opacity: 0.8;
+  }
+  80% {
+    transform: translateX(5%) rotateY(5deg);
+    opacity: 0.95;
+  }
+  90% {
+    transform: translateX(-2%) rotateY(-2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes lockMechanismTurn {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes dramaticShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes metalClink {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes shadowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 0, 0, 1), inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Jail Door Styles */
+.jail-door {
+  animation: jailDoorSlam 2.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards,
+             dramaticShake 0.3s ease-in-out 2.2s,
+             shadowPulse 3s ease-in-out 2.5s infinite;
+  transform-origin: left center;
+  perspective: 1000px;
+}
+
+.lock-mechanism {
+  animation: lockMechanismTurn 1s ease-in-out 3s forwards,
+             metalClink 0.2s ease-in-out 3.5s;
+}
+
+/* Enhanced metal bar effects */
+.jail-door .bg-gradient-to-b,
+.jail-door .bg-gradient-to-r {
+  animation: metalClink 0.1s ease-in-out 2.2s;
+}
+
+/* Sound effect visual representation */
+@keyframes soundWave {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.sound-effect {
+  animation: soundWave 0.5s ease-out 2.2s;
+}
+
 .dark {
   --background: hsl(222, 47%, 11%);
   --foreground: hsl(210, 40%, 98%);
