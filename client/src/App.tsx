@@ -28,6 +28,7 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/client-dashboard" component={ClientDashboard} />
           <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
+          <Route path="/admin" component={EnhancedAdminDashboard} />
           <Route path="/maintenance-dashboard" component={MaintenanceDashboard} />
           <Route path="/admin-login" component={AdminLogin} />
           <Route path="/maintenance-login" component={MaintenanceLogin} />
