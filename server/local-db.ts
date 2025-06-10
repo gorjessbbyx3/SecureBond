@@ -207,8 +207,10 @@ export class LocalFileStorage {
       ...bondData,
       id: this.nextId++,
       bondNumber,
-      status: bondData.status || 'active',
-      issuedDate: bondData.issuedDate || new Date(),
+      status: 'active',
+      bondType: 'surety',
+      premiumRate: '0.10',
+      issuedDate: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
     } as Bond;

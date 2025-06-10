@@ -232,6 +232,8 @@ export const insertBondSchema = createInsertSchema(bonds).omit({
 export const insertCheckInSchema = createInsertSchema(checkIns).omit({
   id: true,
   createdAt: true,
+}).extend({
+  checkInTime: z.string().optional().transform((val) => val ? new Date(val) : undefined),
 });
 export const insertPaymentSchema = createInsertSchema(payments).omit({
   id: true,
@@ -244,6 +246,8 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
 export const insertCourtDateSchema = createInsertSchema(courtDates).omit({
   id: true,
   createdAt: true,
+}).extend({
+  courtDate: z.string().transform((val) => new Date(val)),
 });
 export const insertExpenseSchema = createInsertSchema(expenses).omit({
   id: true,
