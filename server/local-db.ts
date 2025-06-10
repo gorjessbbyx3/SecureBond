@@ -721,61 +721,106 @@ export class LocalFileStorage {
   // Arrest monitoring operations
   async getArrestRecords(): Promise<any[]> {
     const clients = await this.getAllClients();
+    const publicArrestLogs = await this.getPublicArrestLogs();
     
     // If no clients exist, return empty array
     if (!clients || clients.length === 0) {
       return [];
     }
 
-    const hawaiiCounties = ['honolulu', 'hawaii'];
-    const charges = [
-      'DUI', 'Public Intoxication', 'Disorderly Conduct', 'Theft', 
-      'Assault', 'Drug Possession', 'Trespassing', 'Violation of Bond Terms'
-    ];
-
     const arrestRecords = [];
     
-    // Create some sample arrest records
-    for (let i = 0; i < Math.min(5, clients.length); i++) {
-      const client = clients[Math.floor(Math.random() * clients.length)];
-      
-      // Ensure client exists and has required properties
-      if (!client || !client.id) {
+    // Match client names with actual arrest logs
+    for (const client of clients) {
+      if (!client || !client.fullName) {
         continue;
       }
 
-      const county = hawaiiCounties[Math.floor(Math.random() * hawaiiCounties.length)];
-      const arrestDate = new Date();
-      arrestDate.setDate(arrestDate.getDate() - Math.floor(Math.random() * 30));
-      
-      const selectedCharges = charges.slice(0, Math.floor(Math.random() * 3) + 1);
-      const bondViolation = selectedCharges.includes('Violation of Bond Terms');
-      
-      let severity = 'low';
-      if (bondViolation) severity = 'critical';
-      else if (selectedCharges.includes('Assault') || selectedCharges.includes('DUI')) severity = 'high';
-      else if (selectedCharges.length > 1) severity = 'medium';
-
-      arrestRecords.push({
-        id: `arrest-${client.id}-${i}-${Date.now()}`,
-        clientId: client.id,
-        clientName: client.fullName || 'Unknown Client',
-        arrestDate: arrestDate.toISOString().split('T')[0],
-        arrestTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-        arrestLocation: `${Math.floor(Math.random() * 9999) + 1000} ${['Ala Moana Blvd', 'King St', 'Beretania St', 'Kapiolani Blvd'][Math.floor(Math.random() * 4)]}, ${county.charAt(0).toUpperCase() + county.slice(1)}, HI`,
-        charges: selectedCharges,
-        arrestingAgency: `${county.charAt(0).toUpperCase() + county.slice(1)} Police Department`,
-        county: county,
-        bookingNumber: `${county.toUpperCase()}-${Date.now().toString().slice(-6)}`,
-        status: Math.random() > 0.7 ? 'processed' : 'pending',
-        isActive: client.isActive === true,
-        bondViolation,
-        severity,
-        createdAt: arrestDate.toISOString()
+      // Look for matches in public arrest logs by name
+      const matchingArrestLogs = publicArrestLogs.filter(log => {
+        // Simple name matching - could be enhanced with fuzzy matching
+        const clientNameLower = client.fullName.toLowerCase();
+        const logNameLower = log.name.toLowerCase();
+        
+        // Check for exact match or partial match of first/last name
+        return logNameLower === clientNameLower || 
+               this.isNameMatch(clientNameLower, logNameLower);
       });
+
+      // Convert matching arrest logs to client arrest records
+      for (const arrestLog of matchingArrestLogs) {
+        const bondViolation = arrestLog.charges.some((charge: string) => 
+          charge.toLowerCase().includes('bond') || 
+          charge.toLowerCase().includes('violation') ||
+          charge.toLowerCase().includes('probation')
+        );
+        
+        let severity = 'low';
+        if (bondViolation) severity = 'critical';
+        else if (arrestLog.charges.some((charge: string) => 
+          charge.toLowerCase().includes('assault') || 
+          charge.toLowerCase().includes('dui') ||
+          charge.toLowerCase().includes('domestic')
+        )) severity = 'high';
+        else if (arrestLog.charges.length > 1) severity = 'medium';
+
+        arrestRecords.push({
+          id: `arrest-match-${client.id}-${arrestLog.id}`,
+          clientId: client.id,
+          clientName: client.fullName,
+          arrestDate: arrestLog.arrestDate,
+          arrestTime: arrestLog.arrestTime,
+          arrestLocation: arrestLog.location,
+          charges: arrestLog.charges,
+          arrestingAgency: arrestLog.agency,
+          county: arrestLog.county,
+          bookingNumber: arrestLog.bookingNumber,
+          status: 'pending',
+          isActive: client.isActive === true,
+          bondViolation,
+          severity,
+          createdAt: arrestLog.createdAt,
+          matchConfidence: this.getMatchConfidence(client.fullName, arrestLog.name)
+        });
+      }
     }
 
-    return arrestRecords;
+    // Sort by severity and date
+    return arrestRecords.sort((a, b) => {
+      const severityOrder = { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 };
+      const severityDiff = severityOrder[b.severity as keyof typeof severityOrder] - severityOrder[a.severity as keyof typeof severityOrder];
+      if (severityDiff !== 0) return severityDiff;
+      return new Date(b.arrestDate).getTime() - new Date(a.arrestDate).getTime();
+    });
+  }
+
+  private isNameMatch(clientName: string, arrestName: string): boolean {
+    const clientParts = clientName.split(/[\s-]+/).filter(part => part.length > 1);
+    const arrestParts = arrestName.split(/[\s-]+/).filter(part => part.length > 1);
+    
+    // Check if at least first and last name match
+    if (clientParts.length >= 2 && arrestParts.length >= 2) {
+      const clientFirst = clientParts[0];
+      const clientLast = clientParts[clientParts.length - 1];
+      const arrestFirst = arrestParts[0];
+      const arrestLast = arrestParts[arrestParts.length - 1];
+      
+      return clientFirst === arrestFirst && clientLast === arrestLast;
+    }
+    
+    return false;
+  }
+
+  private getMatchConfidence(clientName: string, arrestName: string): number {
+    if (clientName.toLowerCase() === arrestName.toLowerCase()) {
+      return 1.0; // Exact match
+    }
+    
+    if (this.isNameMatch(clientName.toLowerCase(), arrestName.toLowerCase())) {
+      return 0.9; // First and last name match
+    }
+    
+    return 0.7; // Partial match
   }
 
   async getMonitoringConfig(): Promise<any[]> {
