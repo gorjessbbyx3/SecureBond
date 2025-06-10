@@ -25,6 +25,8 @@ const clientFormSchema = z.object({
   emergencyContact: z.string().optional(),
   emergencyPhone: z.string().optional(),
   bondAmount: z.string().min(1, "Bond amount is required"),
+  totalOwed: z.string().min(1, "Total amount owed is required"),
+  downPayment: z.string().optional(),
   courtDate: z.string().optional(),
   courtLocation: z.string().optional(),
   charges: z.string().optional(),
@@ -39,6 +41,9 @@ interface Client {
   phoneNumber?: string;
   address?: string;
   bondAmount: string;
+  totalOwed?: string;
+  downPayment?: string;
+  remainingBalance?: string;
   courtDate?: string;
   courtLocation?: string;
   charges?: string;
@@ -67,6 +72,8 @@ export default function ClientManagement() {
       emergencyContact: "",
       emergencyPhone: "",
       bondAmount: "",
+      totalOwed: "",
+      downPayment: "",
       courtDate: "",
       courtLocation: "",
       charges: "",
@@ -84,6 +91,8 @@ export default function ClientManagement() {
       const response = await apiRequest("POST", "/api/clients", {
         ...data,
         bondAmount: parseFloat(data.bondAmount),
+        totalOwed: parseFloat(data.totalOwed),
+        downPayment: data.downPayment ? parseFloat(data.downPayment) : 0,
         courtDate: data.courtDate ? new Date(data.courtDate).toISOString() : null,
       });
       return response.json();
@@ -274,6 +283,34 @@ export default function ClientManagement() {
                   {form.formState.errors.bondAmount && (
                     <p className="text-sm text-red-600">{form.formState.errors.bondAmount.message}</p>
                   )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="totalOwed">Total Amount Owed *</Label>
+                  <Input
+                    id="totalOwed"
+                    type="number"
+                    step="0.01"
+                    {...form.register("totalOwed")}
+                    placeholder="5000.00"
+                  />
+                  {form.formState.errors.totalOwed && (
+                    <p className="text-sm text-red-600">{form.formState.errors.totalOwed.message}</p>
+                  )}
+                  <p className="text-xs text-gray-500">Amount client owes for bail bond services</p>
+                </div>
+                <div>
+                  <Label htmlFor="downPayment">Down Payment</Label>
+                  <Input
+                    id="downPayment"
+                    type="number"
+                    step="0.01"
+                    {...form.register("downPayment")}
+                    placeholder="1000.00"
+                  />
+                  <p className="text-xs text-gray-500">Initial payment made (if any)</p>
                 </div>
               </div>
 

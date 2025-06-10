@@ -139,9 +139,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const password = randomBytes(8).toString('base64').slice(0, 8);
       const hashedPassword = await bcrypt.hash(password, 10);
       
+      // Calculate remaining balance
+      const totalOwed = parseFloat(requestData.totalOwed || '0');
+      const downPayment = parseFloat(requestData.downPayment || '0');
+      const remainingBalance = totalOwed - downPayment;
+      
       // Add required fields to request data
       requestData.clientId = clientId;
       requestData.password = hashedPassword;
+      requestData.remainingBalance = remainingBalance.toString();
       
       const clientData = insertClientSchema.parse(requestData);
       
