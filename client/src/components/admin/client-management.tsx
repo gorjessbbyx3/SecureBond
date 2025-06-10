@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Plus, Edit, Trash2, Eye, Key, Search, Filter, MapPin, Calendar, DollarSign, Clock, Phone, User, Home, AlertTriangle } from "lucide-react";
+import { Users, Plus, Edit, Trash2, Eye, Key, Search, Filter, MapPin, Calendar, DollarSign, Clock, Phone, User, Home, AlertTriangle, Settings, Copy } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -63,6 +63,9 @@ export default function ClientManagement() {
   const [generatedCredentials, setGeneratedCredentials] = useState<{ clientId: string; password: string } | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isClientDetailsOpen, setIsClientDetailsOpen] = useState(false);
+  const [isCredentialsDialogOpen, setIsCredentialsDialogOpen] = useState(false);
+  const [isAdminSettingsOpen, setIsAdminSettingsOpen] = useState(false);
+  const [clientCredentials, setClientCredentials] = useState<{ clientId: string; password: string } | null>(null);
 
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientFormSchema),
@@ -85,6 +88,12 @@ export default function ClientManagement() {
   // Fetch clients
   const { data: clients, isLoading } = useQuery({
     queryKey: ["/api/clients"],
+  });
+
+  // Fetch admin credentials
+  const { data: adminCredentials } = useQuery({
+    queryKey: ["/api/admin/credentials"],
+    enabled: isAdminSettingsOpen,
   });
 
   // Create client mutation
@@ -164,6 +173,46 @@ export default function ClientManagement() {
       toast({
         title: "Failed to Delete Client",
         description: "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update admin credentials mutation
+  const updateCredentialsMutation = useMutation({
+    mutationFn: async ({ role, username, password }: { role: string; username: string; password: string }) => {
+      await apiRequest("PUT", "/api/admin/credentials", { role, username, password });
+    },
+    onSuccess: (_, variables) => {
+      toast({
+        title: "Credentials Updated",
+        description: `${variables.role} credentials have been updated successfully.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/credentials"] });
+    },
+    onError: () => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update credentials. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Fetch client credentials mutation
+  const fetchClientCredentialsMutation = useMutation({
+    mutationFn: async (clientId: string) => {
+      const response = await apiRequest("GET", `/api/admin/client-credentials/${clientId}`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setClientCredentials(data);
+      setIsCredentialsDialogOpen(true);
+    },
+    onError: () => {
+      toast({
+        title: "Failed to Fetch Credentials",
+        description: "Could not retrieve client login information.",
         variant: "destructive",
       });
     },

@@ -78,19 +78,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Store admin credentials - in production this would be in a secure database
+  let adminCredentials = {
+    admin: { username: 'admin', password: 'admin123' },
+    maintenance: { username: 'webmaster', password: 'Camputer69!' }
+  };
+
   // Admin/Maintenance login
   app.post('/api/auth/admin-login', async (req, res) => {
     try {
       const { username, password, role } = req.body;
-      
-      // For demo purposes, using simple hardcoded credentials
-      // In production, this should use proper user authentication
-      const validCredentials = {
-        admin: { username: 'admin', password: 'admin123' },
-        maintenance: { username: 'webmaster', password: 'Camputer69!' }
-      };
 
-      const creds = validCredentials[role as keyof typeof validCredentials];
+      const creds = adminCredentials[role as keyof typeof adminCredentials];
       if (!creds || creds.username !== username || creds.password !== password) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -103,12 +102,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get admin credentials (admin only)
+  app.get('/api/admin/credentials', isAuthenticated, (req, res) => {
+    const adminRole = (req.session as any)?.adminRole;
+    if (adminRole !== 'admin') {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+    res.json(adminCredentials);
+  });
+
+  // Update admin credentials (admin only)
+  app.put('/api/admin/credentials', isAuthenticated, (req, res) => {
+    const adminRole = (req.session as any)?.adminRole;
+    if (adminRole !== 'admin') {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    const { role, username, password } = req.body;
+    if (!role || !username || !password) {
+      return res.status(400).json({ message: "Role, username, and password are required" });
+    }
+
+    if (adminCredentials[role as keyof typeof adminCredentials]) {
+      adminCredentials[role as keyof typeof adminCredentials] = { username, password };
+      res.json({ success: true, message: `${role} credentials updated successfully` });
+    } else {
+      res.status(400).json({ message: "Invalid role" });
+    }
+  });
+
+  // Get client credentials (admin only)
+  app.get('/api/admin/client-credentials/:clientId', isAuthenticated, async (req, res) => {
+    const adminRole = (req.session as any)?.adminRole;
+    if (adminRole !== 'admin') {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    try {
+      const { clientId } = req.params;
+      const client = await storage.getClientByClientId(clientId);
+      if (!client) {
+        return res.status(404).json({ message: "Client not found" });
+      }
+      res.json({ clientId: client.clientId, password: client.password });
+    } catch (error) {
+      console.error("Error fetching client credentials:", error);
+      res.status(500).json({ message: "Failed to fetch client credentials" });
+    }
+  });
+
   // Logout
   app.post('/api/auth/logout', (req, res) => {
     req.session.destroy((err) => {
       if (err) {
+        console.error("Session destroy error:", err);
         return res.status(500).json({ message: "Logout failed" });
       }
+      res.clearCookie('connect.sid');
       res.json({ success: true });
     });
   });
