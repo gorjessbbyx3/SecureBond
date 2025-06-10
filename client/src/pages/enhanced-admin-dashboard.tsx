@@ -91,7 +91,7 @@ export default function EnhancedAdminDashboard() {
             <img 
               src={logoImage} 
               alt="Aloha Bail Bonds" 
-              className="h-10 w-auto object-contain filter grayscale brightness-0 invert"
+              className="h-10 w-auto object-contain"
             />
             <div className="flex items-center gap-4">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -104,7 +104,7 @@ export default function EnhancedAdminDashboard() {
           </div>
           
           <div className="flex items-center gap-2">
-            <RealTimeNotificationCenter />
+            <EnhancedNotificationCenter />
             
             <Button
               variant="outline"

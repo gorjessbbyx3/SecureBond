@@ -94,7 +94,7 @@ export default function Landing() {
               <img 
                 src={logoImage} 
                 alt="Aloha Bail Bonds Logo" 
-                className="h-16 md:h-20 w-auto mb-2 filter drop-shadow-lg grayscale brightness-0 invert"
+                className="h-16 md:h-20 w-auto mb-2 filter drop-shadow-lg"
               />
               <p className="text-blue-100 text-sm">Professional Bail Bond Services</p>
             </div>
@@ -112,7 +112,7 @@ export default function Landing() {
                 <img 
                   src={logoImage} 
                   alt="Aloha Bail Bonds" 
-                  className="h-full w-auto object-contain filter grayscale brightness-0 invert"
+                  className="h-full w-auto object-contain"
                 />
               </div>
               <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>
