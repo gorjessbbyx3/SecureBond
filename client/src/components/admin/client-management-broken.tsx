@@ -1,35 +1,45 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertClientSchema } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Plus, Edit, Trash2, Eye, Key, Search, Filter, MapPin, Calendar, DollarSign, Clock, Phone, User, Home, AlertTriangle, Settings, Copy } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { 
+  Plus, 
+  Search, 
+  Settings, 
+  Key, 
+  Copy, 
+  User, 
+  DollarSign, 
+  Clock, 
+  Calendar, 
+  AlertTriangle,
+  Eye
+} from "lucide-react";
+import NewClientForm from "./new-client-form";
 
 const clientFormSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.string().optional(),
-  address: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  emergencyContact: z.string().optional(),
-  emergencyPhone: z.string().optional(),
-  bondAmount: z.string().min(1, "Bond amount is required"),
-  totalOwed: z.string().min(1, "Total amount owed is required"),
-  downPayment: z.string().optional(),
-  courtDate: z.string().optional(),
-  courtLocation: z.string().optional(),
-  charges: z.string().optional(),
+  clientId: z.string().min(3, "Client ID must be at least 3 characters"),
+  phoneNumber: z.string().optional().or(z.literal("")),
+  address: z.string().optional().or(z.literal("")),
+  dateOfBirth: z.string().optional().or(z.literal("")),
+  emergencyContact: z.string().optional().or(z.literal("")),
+  emergencyPhone: z.string().optional().or(z.literal("")),
+  courtLocation: z.string().optional().or(z.literal("")),
+  charges: z.string().optional().or(z.literal("")),
+  isActive: z.boolean().default(true),
+  missedCheckIns: z.number().default(0),
 });
 
 type ClientFormData = z.infer<typeof clientFormSchema>;
@@ -54,173 +64,156 @@ interface Client {
 }
 
 export default function ClientManagement() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [generatedCredentials, setGeneratedCredentials] = useState<{ clientId: string; password: string } | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isClientDetailsOpen, setIsClientDetailsOpen] = useState(false);
-  const [isCredentialsDialogOpen, setIsCredentialsDialogOpen] = useState(false);
   const [isAdminSettingsOpen, setIsAdminSettingsOpen] = useState(false);
+  const [isCredentialsDialogOpen, setIsCredentialsDialogOpen] = useState(false);
   const [clientCredentials, setClientCredentials] = useState<{ clientId: string; password: string } | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientFormSchema),
     defaultValues: {
       fullName: "",
+      clientId: "",
       phoneNumber: "",
       address: "",
       dateOfBirth: "",
       emergencyContact: "",
       emergencyPhone: "",
-      bondAmount: "",
-      totalOwed: "",
-      downPayment: "",
-      courtDate: "",
       courtLocation: "",
       charges: "",
+      isActive: true,
+      missedCheckIns: 0,
     },
   });
 
-  // Fetch clients
-  const { data: clients, isLoading } = useQuery({
+  const { data: clients, isLoading: clientsLoading } = useQuery({
     queryKey: ["/api/clients"],
   });
 
-  // Fetch admin credentials
   const { data: adminCredentials } = useQuery({
     queryKey: ["/api/admin/credentials"],
-    enabled: isAdminSettingsOpen,
   });
 
-  // Create client mutation
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
-      const response = await apiRequest("POST", "/api/clients", {
-        ...data,
-        bondAmount: parseFloat(data.bondAmount),
-        totalOwed: parseFloat(data.totalOwed),
-        downPayment: data.downPayment ? parseFloat(data.downPayment) : 0,
-        courtDate: data.courtDate ? new Date(data.courtDate).toISOString() : null,
-      });
+      const response = await apiRequest("POST", "/api/clients", data);
       return response.json();
     },
-    onSuccess: (data) => {
-      toast({
-        title: "Client Created",
-        description: `Client ${data.client.fullName} has been created successfully.`,
-      });
-      setGeneratedCredentials(data.credentials);
-      form.reset();
-      setIsAddDialogOpen(false);
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-    },
-    onError: (error) => {
+      console.log("Client creation response:", data); // Debug log
+      
+      if (data && data.clientId && data.password) {
+        setGeneratedCredentials({
+          clientId: data.clientId,
+          password: data.password
+        });
+        console.log("Generated credentials set:", { clientId: data.clientId, password: data.password });
+      } else {
+        console.error("Missing credentials in response:", data);
+        toast({
+          title: "Warning",
+          description: "Client created but credentials not available",
+          variant: "destructive",
+        });
+      }
+      
+      setIsFormOpen(false);
+      form.reset();
       toast({
-        title: "Failed to Create Client",
-        description: "Please check the information and try again.",
+        title: "Success",
+        description: "Client created successfully!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create client",
         variant: "destructive",
       });
     },
   });
 
-  // Update client mutation
   const updateClientMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<ClientFormData> }) => {
-      const response = await apiRequest("PUT", `/api/clients/${id}`, {
-        ...data,
-        bondAmount: data.bondAmount ? parseFloat(data.bondAmount) : undefined,
-        totalOwed: data.totalOwed ? parseFloat(data.totalOwed) : undefined,
-        downPayment: data.downPayment ? parseFloat(data.downPayment) : undefined,
-        courtDate: data.courtDate ? new Date(data.courtDate).toISOString() : undefined,
-      });
-      return response.json();
+    mutationFn: async (data: ClientFormData & { id: number }) => {
+      const { id, ...updateData } = data;
+      return await apiRequest("PATCH", `/api/clients/${id}`, updateData);
     },
     onSuccess: () => {
-      toast({
-        title: "Client Updated",
-        description: "Client information has been updated successfully.",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      setIsFormOpen(false);
       setEditingClient(null);
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-    },
-    onError: (error) => {
       toast({
-        title: "Failed to Update Client",
-        description: "Please try again.",
+        title: "Success",
+        description: "Client updated successfully!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update client",
         variant: "destructive",
       });
     },
   });
 
-  // Delete client mutation
   const deleteClientMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/clients/${id}`);
+      return await apiRequest("DELETE", `/api/clients/${id}`);
     },
     onSuccess: () => {
-      toast({
-        title: "Client Deleted",
-        description: "Client has been removed from the system.",
-      });
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-    },
-    onError: (error) => {
       toast({
-        title: "Failed to Delete Client",
-        description: "Please try again.",
+        title: "Success",
+        description: "Client deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete client",
         variant: "destructive",
       });
     },
   });
 
-  // Update admin credentials mutation
   const updateCredentialsMutation = useMutation({
-    mutationFn: async ({ role, username, password }: { role: string; username: string; password: string }) => {
-      await apiRequest("PUT", "/api/admin/credentials", { role, username, password });
+    mutationFn: async (data: { role: string; username: string; password: string }) => {
+      return await apiRequest("PATCH", "/api/admin/credentials", data);
     },
-    onSuccess: (_, variables) => {
-      toast({
-        title: "Credentials Updated",
-        description: `${variables.role} credentials have been updated successfully.`,
-      });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/credentials"] });
-    },
-    onError: () => {
       toast({
-        title: "Update Failed",
-        description: "Failed to update credentials. Please try again.",
-        variant: "destructive",
+        title: "Success",
+        description: "Credentials updated successfully!",
       });
     },
-  });
-
-  // Fetch client credentials mutation
-  const fetchClientCredentialsMutation = useMutation({
-    mutationFn: async (clientId: string) => {
-      const response = await apiRequest("GET", `/api/admin/client-credentials/${clientId}`);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      setClientCredentials(data);
-      setIsCredentialsDialogOpen(true);
-    },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: "Failed to Fetch Credentials",
-        description: "Could not retrieve client login information.",
+        title: "Error",
+        description: error.message || "Failed to update credentials",
         variant: "destructive",
       });
     },
   });
 
   const handleSubmit = (data: ClientFormData) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
+    
     if (editingClient) {
-      updateClientMutation.mutate({ id: editingClient.id, data });
+      updateClientMutation.mutate({ ...data, id: editingClient.id });
     } else {
       createClientMutation.mutate(data);
     }
@@ -230,396 +223,173 @@ export default function ClientManagement() {
     setEditingClient(client);
     form.reset({
       fullName: client.fullName,
+      clientId: client.clientId,
       phoneNumber: client.phoneNumber || "",
       address: client.address || "",
-      bondAmount: client.bondAmount,
-      totalOwed: client.totalOwed || "",
-      downPayment: client.downPayment || "",
-      courtDate: client.courtDate ? new Date(client.courtDate).toISOString().split('T')[0] : "",
+      dateOfBirth: "",
+      emergencyContact: "",
+      emergencyPhone: "",
       courtLocation: client.courtLocation || "",
       charges: client.charges || "",
+      isActive: client.isActive,
+      missedCheckIns: client.missedCheckIns,
     });
+    setIsFormOpen(true);
   };
 
-  const handleCancelEdit = () => {
-    setEditingClient(null);
-    form.reset();
+  const handleViewCredentials = async (client: Client) => {
+    try {
+      const response = await apiRequest("GET", `/api/clients/${client.id}/credentials`);
+      const data = await response.json();
+      setClientCredentials({
+        clientId: data.clientId,
+        password: data.password
+      });
+      setIsCredentialsDialogOpen(true);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to fetch client credentials",
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredClients = (clients as Client[])?.filter((client: Client) => {
-    const matchesSearch = client.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         client.clientId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || 
-                         (statusFilter === "active" && client.isActive) ||
-                         (statusFilter === "inactive" && !client.isActive);
-    return matchesSearch && matchesStatus;
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      client.fullName.toLowerCase().includes(searchLower) ||
+      client.clientId.toLowerCase().includes(searchLower) ||
+      client.phoneNumber?.toLowerCase().includes(searchLower)
+    );
   }) || [];
 
   const getStatusBadge = (client: Client) => {
     if (!client.isActive) {
       return <Badge variant="secondary">Inactive</Badge>;
     }
+    if (client.missedCheckIns > 2) {
+      return <Badge variant="destructive">High Risk</Badge>;
+    }
     if (client.missedCheckIns > 0) {
-      return <Badge variant="destructive">Missed Check-ins: {client.missedCheckIns}</Badge>;
+      return <Badge className="bg-yellow-100 text-yellow-800">Warning</Badge>;
     }
     return <Badge className="bg-green-100 text-green-800">Active</Badge>;
   };
 
   return (
     <div className="space-y-6">
-      {/* Header and Actions */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Client Management</h2>
-          <p className="text-slate-600">Manage client accounts and information</p>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Client Management</h2>
         <div className="flex gap-2">
-          <Dialog open={isAdminSettingsOpen} onOpenChange={setIsAdminSettingsOpen}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAdminSettingsOpen(true)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Admin Settings
+          </Button>
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center">
-                <Settings className="mr-2 w-4 h-4" />
-                Admin Settings
+              <Button onClick={() => {
+                setEditingClient(null);
+                form.reset();
+              }}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Client
               </Button>
             </DialogTrigger>
-          </Dialog>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center">
-                <Plus className="mr-2 w-4 h-4" />
-                Add New Client
-              </Button>
-            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingClient ? "Edit Client" : "Add New Client"}
+                </DialogTitle>
+              </DialogHeader>
+              <NewClientForm 
+                onSubmit={handleSubmit}
+                onCancel={() => setIsFormOpen(false)}
+                isLoading={createClientMutation.isPending || updateClientMutation.isPending}
+                editingClient={editingClient}
+              />
+            </DialogContent>
           </Dialog>
         </div>
+      </div>
 
-      {/* Add New Client Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingClient ? "Edit Client" : "Add New Client"}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="fullName">Full Name *</Label>
-                  <Input
-                    id="fullName"
-                    {...form.register("fullName")}
-                    placeholder="Enter full name"
-                  />
-                  {form.formState.errors.fullName && (
-                    <p className="text-sm text-red-600">{form.formState.errors.fullName.message}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="phoneNumber">Phone Number</Label>
-                  <Input
-                    id="phoneNumber"
-                    {...form.register("phoneNumber")}
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="address">Address</Label>
-                <Textarea
-                  id="address"
-                  {...form.register("address")}
-                  placeholder="Enter full address"
-                  rows={2}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <Input
-                    id="dateOfBirth"
-                    type="date"
-                    {...form.register("dateOfBirth")}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="bondAmount">Bond Amount *</Label>
-                  <Input
-                    id="bondAmount"
-                    type="number"
-                    step="0.01"
-                    {...form.register("bondAmount")}
-                    placeholder="25000.00"
-                  />
-                  {form.formState.errors.bondAmount && (
-                    <p className="text-sm text-red-600">{form.formState.errors.bondAmount.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="totalOwed">Total Amount Owed *</Label>
-                  <Input
-                    id="totalOwed"
-                    type="number"
-                    step="0.01"
-                    {...form.register("totalOwed")}
-                    placeholder="5000.00"
-                  />
-                  {form.formState.errors.totalOwed && (
-                    <p className="text-sm text-red-600">{form.formState.errors.totalOwed.message}</p>
-                  )}
-                  <p className="text-xs text-gray-500">Amount client owes for bail bond services</p>
-                </div>
-                <div>
-                  <Label htmlFor="downPayment">Down Payment</Label>
-                  <Input
-                    id="downPayment"
-                    type="number"
-                    step="0.01"
-                    {...form.register("downPayment")}
-                    placeholder="1000.00"
-                  />
-                  <p className="text-xs text-gray-500">Initial payment made (if any)</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="emergencyContact">Emergency Contact</Label>
-                  <Input
-                    id="emergencyContact"
-                    {...form.register("emergencyContact")}
-                    placeholder="Contact name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="emergencyPhone">Emergency Phone</Label>
-                  <Input
-                    id="emergencyPhone"
-                    {...form.register("emergencyPhone")}
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="courtDate">Court Date</Label>
-                  <Input
-                    id="courtDate"
-                    type="datetime-local"
-                    {...form.register("courtDate")}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="courtLocation">Court Location</Label>
-                  <Input
-                    id="courtLocation"
-                    {...form.register("courtLocation")}
-                    placeholder="District Court Room 3A"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="charges">Charges</Label>
-                <Textarea
-                  id="charges"
-                  {...form.register("charges")}
-                  placeholder="List of charges"
-                  rows={2}
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-4">
-                {editingClient && (
-                  <Button type="button" variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </Button>
-                )}
-                <Button
-                  type="submit"
-                  disabled={createClientMutation.isPending || updateClientMutation.isPending}
-                >
-                  {(createClientMutation.isPending || updateClientMutation.isPending) ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      {editingClient ? "Updating..." : "Creating..."}
-                    </>
-                  ) : (
-                    editingClient ? "Update Client" : "Create Client"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-      {/* Generated Credentials Dialog */}
-      {generatedCredentials && (
-        <Dialog open={!!generatedCredentials} onOpenChange={() => setGeneratedCredentials(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="flex items-center">
-                <Key className="mr-2 w-5 h-5" />
-                Client Credentials Generated
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm font-medium text-blue-800 mb-2">
-                  Please save these credentials and provide them to the client:
-                </p>
-                <div className="space-y-2">
-                  <div>
-                    <Label className="text-blue-700">Client ID:</Label>
-                    <p className="font-mono text-lg">{generatedCredentials.clientId}</p>
-                  </div>
-                  <div>
-                    <Label className="text-blue-700">Password:</Label>
-                    <p className="font-mono text-lg">{generatedCredentials.password}</p>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-slate-600">
-                ⚠️ This is the only time these credentials will be displayed. Make sure to save them securely.
-              </p>
-            </div>
-            <div className="flex justify-end">
-              <Button onClick={() => setGeneratedCredentials(null)}>
-                I have saved the credentials
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Search and Filter */}
-      <div className="flex space-x-4 items-center">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+      <div className="flex items-center space-x-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Search clients..."
+            placeholder="Search clients by name, ID, or phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <Filter className="mr-2 w-4 h-4" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Clients</SelectItem>
-            <SelectItem value="active">Active Only</SelectItem>
-            <SelectItem value="inactive">Inactive Only</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Clients Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Users className="mr-2 w-5 h-5" />
-            Clients ({filteredClients.length})
-          </CardTitle>
+          <CardTitle>Clients ({filteredClients.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-slate-500 mt-2">Loading clients...</p>
+          {clientsLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="text-sm text-slate-500">Loading clients...</div>
             </div>
-          ) : filteredClients.length > 0 ? (
+          ) : filteredClients.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-slate-500 mb-4">No clients found</p>
+              <Button onClick={() => setIsFormOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add First Client
+              </Button>
+            </div>
+          ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Client ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Bond Amount</TableHead>
-                    <TableHead>Amount Owed</TableHead>
-                    <TableHead>Remaining Balance</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Check-in</TableHead>
-                    <TableHead>Court Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">Name</th>
+                    <th className="text-left p-2">Client ID</th>
+                    <th className="text-left p-2">Bond Amount</th>
+                    <th className="text-left p-2">Status</th>
+                    <th className="text-left p-2">Missed Check-ins</th>
+                    <th className="text-left p-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {filteredClients.map((client: Client) => (
-                    <TableRow key={client.id}>
-                      <TableCell className="font-mono">{client.clientId}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <div>
-                            <p className="font-medium">{client.fullName}</p>
-                            {client.phoneNumber && (
-                              <p className="text-sm text-slate-500">{client.phoneNumber}</p>
-                            )}
-                          </div>
-                          {/* Multi-bond indicator */}
-                          <div className="flex items-center space-x-1">
-                            {(() => {
-                              // Simulate checking for multiple bonds - in real implementation would query bonds API
-                              const bondCount = 1; // Default to 1 bond per client
-                              const hasMultipleBonds = bondCount > 1;
-                              
-                              return (
-                                <Badge 
-                                  variant={hasMultipleBonds ? "destructive" : "secondary"} 
-                                  className={`text-xs ${hasMultipleBonds 
-                                    ? 'bg-orange-100 text-orange-800 border-orange-300' 
-                                    : 'bg-blue-100 text-blue-800'
-                                  }`}
-                                >
-                                  {bondCount} Bond{bondCount !== 1 ? 's' : ''}
-                                </Badge>
-                              );
-                            })()}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>${parseFloat(client.bondAmount).toLocaleString()}</TableCell>
-                      <TableCell>
-                        {client.totalOwed ? (
-                          <span className="font-medium">${parseFloat(client.totalOwed).toLocaleString()}</span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {client.remainingBalance ? (
-                          <span className={`font-medium ${parseFloat(client.remainingBalance) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                            ${parseFloat(client.remainingBalance).toLocaleString()}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(client)}</TableCell>
-                      <TableCell>
-                        {client.lastCheckIn ? (
-                          <span className="text-sm">
-                            {new Date(client.lastCheckIn).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-slate-400">Never</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {client.courtDate ? (
-                          <span className="text-sm">
-                            {new Date(client.courtDate).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-slate-400">Not set</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
+                    <tr key={client.id} className="border-b hover:bg-slate-50">
+                      <td className="p-2 font-medium">{client.fullName}</td>
+                      <td className="p-2 font-mono text-sm">{client.clientId}</td>
+                      <td className="p-2">${parseFloat(client.bondAmount).toLocaleString()}</td>
+                      <td className="p-2">{getStatusBadge(client)}</td>
+                      <td className="p-2">
+                        <span className={client.missedCheckIns > 0 ? "text-red-600 font-medium" : ""}>
+                          {client.missedCheckIns}
+                        </span>
+                      </td>
+                      <td className="p-2">
                         <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(client)}
+                          >
+                            <Settings className="w-3 h-3 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewCredentials(client)}
+                          >
+                            <Key className="w-3 h-3 mr-1" />
+                            Login
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -628,72 +398,82 @@ export default function ClientManagement() {
                               setIsClientDetailsOpen(true);
                             }}
                           >
-                            <Eye className="w-3 h-3" />
+                            <Eye className="w-3 h-3 mr-1" />
+                            Details
                           </Button>
                           <Button
-                            variant="outline"
+                            variant="destructive"
                             size="sm"
                             onClick={() => {
-                              setEditingClient(client);
-                              setIsAddDialogOpen(true);
-                              handleEdit(client);
+                              setClientToDelete(client);
+                              setIsDeleteDialogOpen(true);
                             }}
                           >
-                            <Edit className="w-3 h-3" />
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Delete
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchClientCredentialsMutation.mutate(client.clientId)}
-                            disabled={fetchClientCredentialsMutation.isPending}
-                          >
-                            <Key className="w-3 h-3" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Client</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete {client.fullName}? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteClientMutation.mutate(client.id)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Users className="mx-auto h-12 w-12 text-slate-400" />
-              <h3 className="mt-2 text-sm font-medium text-slate-900">No clients found</h3>
-              <p className="mt-1 text-sm text-slate-500">
-                {searchTerm || statusFilter !== "all" 
-                  ? "Try adjusting your search or filter criteria."
-                  : "Get started by adding your first client."
-                }
-              </p>
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Generated Credentials Dialog */}
+      {generatedCredentials && (
+        <Dialog open={!!generatedCredentials} onOpenChange={() => setGeneratedCredentials(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <Key className="mr-2 w-5 h-5" />
+                Client Login Credentials
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <p className="text-sm font-medium text-green-800 mb-3">
+                  Client account created successfully! Share these credentials:
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-green-700">Client ID:</Label>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm">{generatedCredentials.clientId}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(generatedCredentials.clientId)}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-green-700">Password:</Label>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm">{generatedCredentials.password}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(generatedCredentials.password)}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600">
+                Save these credentials securely. The client will use them to log into their portal.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Admin Settings Dialog */}
       <Dialog open={isAdminSettingsOpen} onOpenChange={setIsAdminSettingsOpen}>
@@ -705,7 +485,7 @@ export default function ClientManagement() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-{adminCredentials && (adminCredentials as any).admin && (adminCredentials as any).maintenance && (
+            {adminCredentials && (adminCredentials as any).admin && (adminCredentials as any).maintenance && (
               <div className="space-y-3">
                 <h3 className="font-medium">Current Admin Credentials</h3>
                 <div className="space-y-2">
@@ -812,241 +592,662 @@ export default function ClientManagement() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Client Details Dialog */}
+      <Dialog open={isClientDetailsOpen} onOpenChange={setIsClientDetailsOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <User className="mr-2 w-5 h-5" />
+                Client Details - {selectedClient?.fullName}
+              </div>
+              {selectedClient && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditingClient(selectedClient);
+                      form.reset({
+                        fullName: selectedClient.fullName,
+                        phoneNumber: selectedClient.phoneNumber || "",
+                        address: selectedClient.address || "",
+                        dateOfBirth: "",
+                        emergencyContact: "",
+                        emergencyPhone: "",
+                        courtLocation: selectedClient.courtLocation || "",
+                        charges: selectedClient.charges || "",
+                        isActive: selectedClient.isActive,
+                        missedCheckIns: selectedClient.missedCheckIns,
+                      });
+                      setIsClientDetailsOpen(false);
+                      setIsFormOpen(true);
+                    }}
+                  >
+                    <Settings className="w-3 h-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      setClientToDelete(selectedClient);
+                      setIsDeleteDialogOpen(true);
+                      setIsClientDetailsOpen(false);
+                    }}
+                  >
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedClient && <ClientDetailsContent client={selectedClient} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Client Form Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingClient ? "Edit Client" : "Add New Client"}</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter full name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(555) 123-4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Street address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Birth</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="emergencyContact"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Emergency Contact</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Contact name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="emergencyPhone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Emergency Phone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(555) 123-4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="courtLocation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Court Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Court address" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="charges"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Charges</FormLabel>
+                    <FormControl>
+                      <Input placeholder="List of charges" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsFormOpen(false);
+                    setEditingClient(null);
+                    form.reset();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createClientMutation.isPending || updateClientMutation.isPending}
+                >
+                  {createClientMutation.isPending || updateClientMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      {editingClient ? "Updating..." : "Creating..."}
+                    </>
+                  ) : (
+                    editingClient ? "Update Client" : "Create Client"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <AlertTriangle className="mr-2 w-5 h-5 text-red-600" />
+              Delete Client
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600 mb-4">
+              Are you sure you want to delete <strong>{clientToDelete?.fullName}</strong>? 
+              This action cannot be undone and will remove all associated data including:
+            </p>
+            <ul className="text-sm text-gray-600 list-disc list-inside space-y-1 ml-4">
+              <li>Client profile and contact information</li>
+              <li>Payment history and records</li>
+              <li>Court dates and appearances</li>
+              <li>Check-in history</li>
+              <li>All associated alerts and messages</li>
+            </ul>
+          </div>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setClientToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (clientToDelete) {
+                  deleteClientMutation.mutate(clientToDelete.id);
+                  setIsDeleteDialogOpen(false);
+                  setClientToDelete(null);
+                }
+              }}
+              disabled={deleteClientMutation.isPending}
+            >
+              {deleteClientMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  Delete Client
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <User className="w-5 h-5" />
-            {client.fullName} - Client Profile
-          </DialogTitle>
-        </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Client Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-green-600" />
-                  <div>
-                    <p className="text-sm text-slate-600">Total Paid</p>
-                    <p className="text-lg font-semibold">${totalPaid.toLocaleString()}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+// Client Details Content Component
+function ClientDetailsContent({ client }: { client: Client }) {
+  const { data: payments } = useQuery({
+    queryKey: ["/api/clients", client.id, "payments"],
+  });
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-600" />
-                  <div>
-                    <p className="text-sm text-slate-600">Check-ins</p>
-                    <p className="text-lg font-semibold">{checkInCount}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+  const { data: courtDates } = useQuery({
+    queryKey: ["/api/clients", client.id, "court-dates"],
+  });
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-purple-600" />
-                  <div>
-                    <p className="text-sm text-slate-600">Upcoming Courts</p>
-                    <p className="text-lg font-semibold">{upcomingCourtDates}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+  const { data: checkIns } = useQuery({
+    queryKey: ["/api/clients", client.id, "check-ins"],
+  });
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-orange-600" />
-                  <div>
-                    <p className="text-sm text-slate-600">Missed Check-ins</p>
-                    <p className="text-lg font-semibold">{client.missedCheckIns}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+  const { data: vehicles } = useQuery({
+    queryKey: ["/api/clients", client.id, "vehicles"],
+  });
 
-          {/* Client Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Client Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-slate-600">Client ID</Label>
-                    <p className="font-mono text-sm bg-slate-100 p-2 rounded">{client.clientId}</p>
-                  </div>
-                  <div>
-                    <Label className="text-slate-600">Full Name</Label>
-                    <p className="font-medium">{client.fullName}</p>
-                  </div>
-                  <div>
-                    <Label className="text-slate-600">Phone Number</Label>
-                    <p className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-slate-500" />
-                      {client.phoneNumber || "Not provided"}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-slate-600">Address</Label>
-                    <p className="flex items-center gap-2">
-                      <Home className="w-4 h-4 text-slate-500" />
-                      {client.address || "Not provided"}
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-slate-600">Bond Amount</Label>
-                    <p className="text-lg font-semibold text-blue-600">${parseFloat(client.bondAmount).toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <Label className="text-slate-600">Total Owed</Label>
-                    <p className="text-lg font-semibold">${client.totalOwed ? parseFloat(client.totalOwed).toLocaleString() : '0'}</p>
-                  </div>
-                  <div>
-                    <Label className="text-slate-600">Remaining Balance</Label>
-                    <p className={`text-lg font-semibold ${client.remainingBalance && parseFloat(client.remainingBalance) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      ${client.remainingBalance ? parseFloat(client.remainingBalance).toLocaleString() : '0'}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-slate-600">Status</Label>
-                    <div className="mt-1">
-                      <Badge variant={client.isActive ? "default" : "secondary"}>
-                        {client.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+  const { data: family } = useQuery({
+    queryKey: ["/api/clients", client.id, "family"],
+  });
+
+  const { data: employment } = useQuery({
+    queryKey: ["/api/clients", client.id, "employment"],
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Client Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <User className="mr-2 w-4 h-4" />
+              Personal Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-slate-600">Full Name</Label>
+              <p className="font-medium">{client.fullName}</p>
+            </div>
+            <div>
+              <Label className="text-slate-600">Client ID</Label>
+              <p className="font-mono text-sm">{client.clientId}</p>
+            </div>
+            {client.phoneNumber && (
+              <div>
+                <Label className="text-slate-600">Phone Number</Label>
+                <p>{client.phoneNumber}</p>
               </div>
-            </CardContent>
-          </Card>
+            )}
+            {client.address && (
+              <div>
+                <Label className="text-slate-600">Address</Label>
+                <p>{client.address}</p>
+              </div>
+            )}
+            <div>
+              <Label className="text-slate-600">Status</Label>
+              <div className="mt-1">
+                <Badge variant={client.isActive ? "default" : "secondary"}>
+                  {client.isActive ? "Active" : "Inactive"}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Payment History */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Payment History
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {payments && (payments as any[]).length > 0 ? (
-                <div className="space-y-2">
-                  {(payments as any[]).slice(0, 5).map((payment: any) => (
-                    <div key={payment.id} className="flex justify-between items-center p-3 bg-slate-50 rounded">
-                      <div>
-                        <p className="font-medium">${parseFloat(payment.amount).toLocaleString()}</p>
-                        <p className="text-sm text-slate-600">{payment.paymentMethod}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm">{new Date(payment.createdAt).toLocaleDateString()}</p>
-                        <Badge variant={payment.isConfirmed ? "default" : "secondary"}>
-                          {payment.isConfirmed ? "Confirmed" : "Pending"}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                  {(payments as any[]).length > 5 && (
-                    <p className="text-sm text-slate-500 text-center">
-                      And {(payments as any[]).length - 5} more payments...
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <DollarSign className="mr-2 w-4 h-4" />
+              Financial Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-slate-600">Bond Amount</Label>
+              <p className="text-lg font-semibold text-blue-600">
+                ${parseFloat(client.bondAmount).toLocaleString()}
+              </p>
+            </div>
+            {client.totalOwed && (
+              <div>
+                <Label className="text-slate-600">Total Owed</Label>
+                <p className="text-lg font-semibold">
+                  ${parseFloat(client.totalOwed).toLocaleString()}
+                </p>
+              </div>
+            )}
+            {client.downPayment && (
+              <div>
+                <Label className="text-slate-600">Down Payment</Label>
+                <p className="text-lg font-semibold text-green-600">
+                  ${parseFloat(client.downPayment).toLocaleString()}
+                </p>
+              </div>
+            )}
+            {client.remainingBalance && (
+              <div>
+                <Label className="text-slate-600">Remaining Balance</Label>
+                <p className={`text-lg font-semibold ${
+                  parseFloat(client.remainingBalance) > 0 ? 'text-red-600' : 'text-green-600'
+                }`}>
+                  ${parseFloat(client.remainingBalance).toLocaleString()}
+                </p>
+              </div>
+            )}
+            <div>
+              <Label className="text-slate-600">Missed Check-ins</Label>
+              <p className={`font-semibold ${client.missedCheckIns > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {client.missedCheckIns}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Case Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Calendar className="mr-2 w-4 h-4" />
+            Case Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {client.charges && (
+            <div>
+              <Label className="text-slate-600">Charges</Label>
+              <p>{client.charges}</p>
+            </div>
+          )}
+          {client.courtLocation && (
+            <div>
+              <Label className="text-slate-600">Court Location</Label>
+              <p>{client.courtLocation}</p>
+            </div>
+          )}
+          <div>
+            <Label className="text-slate-600">Account Created</Label>
+            <p>{new Date(client.createdAt).toLocaleDateString()}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payments Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <DollarSign className="mr-2 w-4 h-4" />
+            Payment History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(payments as any[] || []).length > 0 ? (
+            <div className="space-y-2">
+              {(payments as any[] || []).map((payment: any) => (
+                <div key={payment.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">${parseFloat(payment.amount).toLocaleString()}</p>
+                    <p className="text-sm text-slate-600">{payment.paymentMethod}</p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={payment.isConfirmed ? "default" : "secondary"}>
+                      {payment.isConfirmed ? "Confirmed" : "Pending"}
+                    </Badge>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {new Date(payment.createdAt).toLocaleDateString()}
                     </p>
-                  )}
+                  </div>
                 </div>
-              ) : (
-                <p className="text-slate-500 text-center py-4">No payment history available</p>
-              )}
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No payments recorded</p>
+          )}
+        </CardContent>
+      </Card>
 
-          {/* Recent Check-ins */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Recent Check-ins
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {checkIns && (checkIns as any[]).length > 0 ? (
-                <div className="space-y-2">
-                  {(checkIns as any[]).slice(0, 5).map((checkIn: any) => (
-                    <div key={checkIn.id} className="flex justify-between items-center p-3 bg-slate-50 rounded">
-                      <div>
-                        <p className="font-medium">{checkIn.location || "Location not specified"}</p>
-                        <p className="text-sm text-slate-600">{checkIn.notes || "No notes"}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm">{new Date(checkIn.checkInTime || checkIn.createdAt).toLocaleDateString()}</p>
-                        <p className="text-xs text-slate-500">
-                          {new Date(checkIn.checkInTime || checkIn.createdAt).toLocaleTimeString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  {(checkIns as any[]).length > 5 && (
-                    <p className="text-sm text-slate-500 text-center">
-                      And {(checkIns as any[]).length - 5} more check-ins...
+      {/* Court Dates Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Calendar className="mr-2 w-4 h-4" />
+            Court Dates
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(courtDates as any[] || []).length > 0 ? (
+            <div className="space-y-2">
+              {(courtDates as any[] || []).map((courtDate: any) => (
+                <div key={courtDate.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">{courtDate.courtLocation || 'Location TBD'}</p>
+                    <p className="text-sm text-slate-600">{courtDate.caseType || 'Case type not specified'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">
+                      {new Date(courtDate.date).toLocaleDateString()}
                     </p>
-                  )}
+                    <p className="text-sm text-slate-600">{courtDate.time || 'Time TBD'}</p>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-slate-500 text-center py-4">No check-in history available</p>
-              )}
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No court dates scheduled</p>
+          )}
+        </CardContent>
+      </Card>
 
-          {/* Court Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Court Dates
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {courtDates && (courtDates as any[]).length > 0 ? (
-                <div className="space-y-2">
-                  {(courtDates as any[]).map((courtDate: any) => (
-                    <div key={courtDate.id} className="flex justify-between items-center p-3 bg-slate-50 rounded">
-                      <div>
-                        <p className="font-medium">{courtDate.courtType || "Court Appearance"}</p>
-                        <p className="text-sm text-slate-600">{courtDate.location || "Location TBD"}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm">{new Date(courtDate.courtDate).toLocaleDateString()}</p>
-                        <Badge variant={
-                          courtDate.completed ? "default" : "secondary"
-                        }>
-                          {courtDate.completed ? "Completed" : "Pending"}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+      {/* Check-ins Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Clock className="mr-2 w-4 h-4" />
+            Recent Check-ins
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {checkIns && Array.isArray(checkIns) && checkIns.length > 0 ? (
+            <div className="space-y-2">
+              {checkIns.slice(0, 5).map((checkIn: any) => (
+                <div key={checkIn.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Check-in</p>
+                    <p className="text-sm text-slate-600">
+                      {checkIn.location || 'Location not recorded'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">
+                      {new Date(checkIn.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      {new Date(checkIn.createdAt).toLocaleTimeString()}
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-slate-500 text-center py-4">No court dates scheduled</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </DialogContent>
-    </Dialog>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No check-ins recorded</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Vehicle Information Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <User className="mr-2 w-4 h-4" />
+            Vehicle Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {vehicles && Array.isArray(vehicles) && vehicles.length > 0 ? (
+            <div className="space-y-3">
+              {vehicles.map((vehicle: any) => (
+                <div key={vehicle.id} className="p-3 bg-slate-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-slate-600">Vehicle</Label>
+                      <p className="font-medium">
+                        {vehicle.year} {vehicle.make} {vehicle.model}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Color</Label>
+                      <p>{vehicle.color || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">License Plate</Label>
+                      <p className="font-mono">{vehicle.licensePlate || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">VIN</Label>
+                      <p className="font-mono text-sm">{vehicle.vin || 'Not provided'}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No vehicle information recorded</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Employment Information Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <User className="mr-2 w-4 h-4" />
+            Employment Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {employment && Array.isArray(employment) && employment.length > 0 ? (
+            <div className="space-y-3">
+              {employment.map((job: any) => (
+                <div key={job.id} className="p-3 bg-slate-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-slate-600">Employer</Label>
+                      <p className="font-medium">{job.employerName || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Position</Label>
+                      <p>{job.position || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Phone</Label>
+                      <p>{job.employerPhone || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Start Date</Label>
+                      <p>{job.startDate ? new Date(job.startDate).toLocaleDateString() : 'Not specified'}</p>
+                    </div>
+                    {job.employerAddress && (
+                      <div className="col-span-2">
+                        <Label className="text-slate-600">Address</Label>
+                        <p>{job.employerAddress}</p>
+                      </div>
+                    )}
+                    {job.salary && (
+                      <div>
+                        <Label className="text-slate-600">Salary</Label>
+                        <p className="font-medium">${parseFloat(job.salary).toLocaleString()}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No employment information recorded</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Family & Friends Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <User className="mr-2 w-4 h-4" />
+            Family & Friends
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {family && Array.isArray(family) && family.length > 0 ? (
+            <div className="space-y-3">
+              {family.map((member: any) => (
+                <div key={member.id} className="p-3 bg-slate-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-slate-600">Name</Label>
+                      <p className="font-medium">{member.name}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Relationship</Label>
+                      <p>{member.relationship || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Phone</Label>
+                      <p>{member.phoneNumber || 'Not provided'}</p>
+                    </div>
+                    {member.address && (
+                      <div>
+                        <Label className="text-slate-600">Address</Label>
+                        <p>{member.address}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No family or friends information recorded</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
