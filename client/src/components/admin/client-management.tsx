@@ -122,6 +122,8 @@ export default function ClientManagement() {
       const response = await apiRequest("PUT", `/api/clients/${id}`, {
         ...data,
         bondAmount: data.bondAmount ? parseFloat(data.bondAmount) : undefined,
+        totalOwed: data.totalOwed ? parseFloat(data.totalOwed) : undefined,
+        downPayment: data.downPayment ? parseFloat(data.downPayment) : undefined,
         courtDate: data.courtDate ? new Date(data.courtDate).toISOString() : undefined,
       });
       return response.json();
@@ -180,6 +182,8 @@ export default function ClientManagement() {
       phoneNumber: client.phoneNumber || "",
       address: client.address || "",
       bondAmount: client.bondAmount,
+      totalOwed: client.totalOwed || "",
+      downPayment: client.downPayment || "",
       courtDate: client.courtDate ? new Date(client.courtDate).toISOString().split('T')[0] : "",
       courtLocation: client.courtLocation || "",
       charges: client.charges || "",
@@ -191,7 +195,7 @@ export default function ClientManagement() {
     form.reset();
   };
 
-  const filteredClients = clients?.filter((client: Client) => {
+  const filteredClients = (clients as Client[])?.filter((client: Client) => {
     const matchesSearch = client.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          client.clientId.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || 
@@ -472,6 +476,8 @@ export default function ClientManagement() {
                     <TableHead>Client ID</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Bond Amount</TableHead>
+                    <TableHead>Amount Owed</TableHead>
+                    <TableHead>Remaining Balance</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Last Check-in</TableHead>
                     <TableHead>Court Date</TableHead>
@@ -491,6 +497,22 @@ export default function ClientManagement() {
                         </div>
                       </TableCell>
                       <TableCell>${parseFloat(client.bondAmount).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {client.totalOwed ? (
+                          <span className="font-medium">${parseFloat(client.totalOwed).toLocaleString()}</span>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {client.remainingBalance ? (
+                          <span className={`font-medium ${parseFloat(client.remainingBalance) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            ${parseFloat(client.remainingBalance).toLocaleString()}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>{getStatusBadge(client)}</TableCell>
                       <TableCell>
                         {client.lastCheckIn ? (
