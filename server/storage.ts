@@ -324,6 +324,10 @@ class MemoryStorage implements IStorage {
       .sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
   }
 
+  async getAllCheckIns(): Promise<CheckIn[]> {
+    return [...this.checkIns].sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
+  }
+
   async getLastCheckIn(clientId: number): Promise<CheckIn | undefined> {
     const checkIns = await this.getClientCheckIns(clientId);
     return checkIns[0];
