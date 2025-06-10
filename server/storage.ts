@@ -1,16 +1,4 @@
 import {
-  users,
-  clients,
-  checkIns,
-  payments,
-  messages,
-  courtDates,
-  expenses,
-  alerts,
-  clientVehicles,
-  familyMembers,
-  employmentInfo,
-  clientFiles,
   type User,
   type UpsertUser,
   type Client,
@@ -32,8 +20,6 @@ import {
   type EmploymentInfo,
   type ClientFile,
 } from "@shared/schema";
-// import { db } from "./db";
-import { eq, desc, and, gte, lte } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -105,6 +91,38 @@ class MemoryStorage implements IStorage {
   private familyMembers: FamilyMember[] = [];
   private employmentInfo: EmploymentInfo[] = [];
   private clientFiles: ClientFile[] = [];
+  private nextId = 1;
+
+  constructor() {
+    this.seedData();
+  }
+
+  private seedData() {
+    // Add sample client data
+    const sampleClient = {
+      id: 1,
+      clientId: "SB123456",
+      password: "$2b$10$example.hash", // bcrypt hash of "password123"
+      fullName: "John Smith",
+      phoneNumber: "(555) 123-4567",
+      address: "123 Main St, Anytown, ST 12345",
+      dateOfBirth: "1985-06-15",
+      emergencyContact: "Jane Smith",
+      emergencyPhone: "(555) 987-6543",
+      bondAmount: "25000.00",
+      courtDate: new Date("2024-02-15T10:00:00Z"),
+      courtLocation: "District Court Room 3A",
+      charges: "Driving under the influence",
+      isActive: true,
+      lastCheckIn: new Date("2024-01-10T14:30:00Z"),
+      missedCheckIns: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: null,
+    };
+    this.clients.push(sampleClient);
+    this.nextId = 2;
+  }
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
@@ -116,7 +134,7 @@ class MemoryStorage implements IStorage {
     const user = {
       ...userData,
       updatedAt: new Date(),
-      createdAt: new Date(),
+      createdAt: userData.createdAt || new Date(),
     } as User;
     
     if (existingIndex >= 0) {
@@ -129,237 +147,288 @@ class MemoryStorage implements IStorage {
 
   // Client operations
   async getClient(id: number): Promise<Client | undefined> {
-    const [client] = await db.select().from(clients).where(eq(clients.id, id));
-    return client;
+    return this.clients.find(c => c.id === id);
   }
 
   async getClientByClientId(clientId: string): Promise<Client | undefined> {
-    const [client] = await db.select().from(clients).where(eq(clients.clientId, clientId));
-    return client;
+    return this.clients.find(c => c.clientId === clientId);
   }
 
   async getAllClients(): Promise<Client[]> {
-    return await db.select().from(clients).orderBy(desc(clients.createdAt));
+    return [...this.clients].sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
   }
 
   async createClient(clientData: InsertClient): Promise<Client> {
-    const [client] = await db.insert(clients).values(clientData).returning();
+    const client = {
+      ...clientData,
+      id: this.nextId++,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Client;
+    this.clients.push(client);
     return client;
   }
 
   async updateClient(id: number, updates: Partial<InsertClient>): Promise<Client> {
-    const [client] = await db
-      .update(clients)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(clients.id, id))
-      .returning();
-    return client;
+    const index = this.clients.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error("Client not found");
+    }
+    
+    this.clients[index] = {
+      ...this.clients[index],
+      ...updates,
+      updatedAt: new Date(),
+    };
+    return this.clients[index];
   }
 
   async deleteClient(id: number): Promise<void> {
-    await db.delete(clients).where(eq(clients.id, id));
+    const index = this.clients.findIndex(c => c.id === id);
+    if (index >= 0) {
+      this.clients.splice(index, 1);
+    }
   }
 
   // Check-in operations
   async createCheckIn(checkInData: InsertCheckIn): Promise<CheckIn> {
-    const [checkIn] = await db.insert(checkIns).values(checkInData).returning();
+    const checkIn = {
+      ...checkInData,
+      id: this.nextId++,
+      checkInTime: checkInData.checkInTime || new Date(),
+      createdAt: new Date(),
+    } as CheckIn;
+    
+    this.checkIns.push(checkIn);
     
     // Update client's last check-in time
     if (checkInData.clientId) {
-      await db
-        .update(clients)
-        .set({ 
+      const clientIndex = this.clients.findIndex(c => c.id === checkInData.clientId);
+      if (clientIndex >= 0) {
+        this.clients[clientIndex] = {
+          ...this.clients[clientIndex],
           lastCheckIn: new Date(),
-          missedCheckIns: 0, // Reset missed check-ins on successful check-in
-          updatedAt: new Date() 
-        })
-        .where(eq(clients.id, checkInData.clientId));
+          missedCheckIns: 0,
+          updatedAt: new Date(),
+        };
+      }
     }
     
     return checkIn;
   }
 
   async getClientCheckIns(clientId: number): Promise<CheckIn[]> {
-    return await db
-      .select()
-      .from(checkIns)
-      .where(eq(checkIns.clientId, clientId))
-      .orderBy(desc(checkIns.checkInTime));
+    return this.checkIns
+      .filter(c => c.clientId === clientId)
+      .sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
   }
 
   async getLastCheckIn(clientId: number): Promise<CheckIn | undefined> {
-    const [checkIn] = await db
-      .select()
-      .from(checkIns)
-      .where(eq(checkIns.clientId, clientId))
-      .orderBy(desc(checkIns.checkInTime))
-      .limit(1);
-    return checkIn;
+    const checkIns = await this.getClientCheckIns(clientId);
+    return checkIns[0];
   }
 
   // Payment operations
   async createPayment(paymentData: InsertPayment): Promise<Payment> {
-    const [payment] = await db.insert(payments).values(paymentData).returning();
+    const payment = {
+      ...paymentData,
+      id: this.nextId++,
+      paymentDate: paymentData.paymentDate || new Date(),
+      confirmed: false,
+      createdAt: new Date(),
+    } as Payment;
+    this.payments.push(payment);
     return payment;
   }
 
   async getClientPayments(clientId: number): Promise<Payment[]> {
-    return await db
-      .select()
-      .from(payments)
-      .where(eq(payments.clientId, clientId))
-      .orderBy(desc(payments.paymentDate));
+    return this.payments
+      .filter(p => p.clientId === clientId)
+      .sort((a, b) => new Date(b.paymentDate!).getTime() - new Date(a.paymentDate!).getTime());
   }
 
   async getAllPayments(): Promise<Payment[]> {
-    return await db.select().from(payments).orderBy(desc(payments.paymentDate));
+    return [...this.payments].sort((a, b) => new Date(b.paymentDate!).getTime() - new Date(a.paymentDate!).getTime());
   }
 
   async confirmPayment(id: number, confirmedBy: string): Promise<Payment> {
-    const [payment] = await db
-      .update(payments)
-      .set({ 
-        confirmed: true, 
-        confirmedBy, 
-        confirmedAt: new Date() 
-      })
-      .where(eq(payments.id, id))
-      .returning();
-    return payment;
+    const index = this.payments.findIndex(p => p.id === id);
+    if (index === -1) {
+      throw new Error("Payment not found");
+    }
+    
+    this.payments[index] = {
+      ...this.payments[index],
+      confirmed: true,
+      confirmedBy,
+      confirmedAt: new Date(),
+    };
+    return this.payments[index];
   }
 
   // Message operations
   async createMessage(messageData: InsertMessage): Promise<Message> {
-    const [message] = await db.insert(messages).values(messageData).returning();
+    const message = {
+      ...messageData,
+      id: this.nextId++,
+      isRead: false,
+      createdAt: new Date(),
+    } as Message;
+    this.messages.push(message);
     return message;
   }
 
   async getClientMessages(clientId: number): Promise<Message[]> {
-    return await db
-      .select()
-      .from(messages)
-      .where(eq(messages.clientId, clientId))
-      .orderBy(desc(messages.createdAt));
+    return this.messages
+      .filter(m => m.clientId === clientId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
   }
 
   async markMessageAsRead(id: number): Promise<void> {
-    await db.update(messages).set({ isRead: true }).where(eq(messages.id, id));
+    const index = this.messages.findIndex(m => m.id === id);
+    if (index >= 0) {
+      this.messages[index].isRead = true;
+    }
   }
 
   // Court date operations
   async createCourtDate(courtDateData: InsertCourtDate): Promise<CourtDate> {
-    const [courtDate] = await db.insert(courtDates).values(courtDateData).returning();
+    const courtDate = {
+      ...courtDateData,
+      id: this.nextId++,
+      completed: false,
+      createdAt: new Date(),
+    } as CourtDate;
+    this.courtDates.push(courtDate);
     return courtDate;
   }
 
   async getClientCourtDates(clientId: number): Promise<CourtDate[]> {
-    return await db
-      .select()
-      .from(courtDates)
-      .where(eq(courtDates.clientId, clientId))
-      .orderBy(desc(courtDates.courtDate));
+    return this.courtDates
+      .filter(c => c.clientId === clientId)
+      .sort((a, b) => new Date(b.courtDate).getTime() - new Date(a.courtDate).getTime());
   }
 
   async getAllUpcomingCourtDates(): Promise<CourtDate[]> {
     const now = new Date();
-    return await db
-      .select()
-      .from(courtDates)
-      .where(and(gte(courtDates.courtDate, now), eq(courtDates.completed, false)))
-      .orderBy(courtDates.courtDate);
+    return this.courtDates
+      .filter(c => new Date(c.courtDate) >= now && !c.completed)
+      .sort((a, b) => new Date(a.courtDate).getTime() - new Date(b.courtDate).getTime());
   }
 
   async updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate> {
-    const [courtDate] = await db
-      .update(courtDates)
-      .set(updates)
-      .where(eq(courtDates.id, id))
-      .returning();
-    return courtDate;
+    const index = this.courtDates.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error("Court date not found");
+    }
+    
+    this.courtDates[index] = {
+      ...this.courtDates[index],
+      ...updates,
+    };
+    return this.courtDates[index];
   }
 
   // Expense operations
   async createExpense(expenseData: InsertExpense): Promise<Expense> {
-    const [expense] = await db.insert(expenses).values(expenseData).returning();
+    const expense = {
+      ...expenseData,
+      id: this.nextId++,
+      expenseDate: expenseData.expenseDate || new Date(),
+      createdAt: new Date(),
+    } as Expense;
+    this.expenses.push(expense);
     return expense;
   }
 
   async getAllExpenses(): Promise<Expense[]> {
-    return await db.select().from(expenses).orderBy(desc(expenses.expenseDate));
+    return [...this.expenses].sort((a, b) => new Date(b.expenseDate!).getTime() - new Date(a.expenseDate!).getTime());
   }
 
   async getExpensesByDateRange(startDate: Date, endDate: Date): Promise<Expense[]> {
-    return await db
-      .select()
-      .from(expenses)
-      .where(and(gte(expenses.expenseDate, startDate), lte(expenses.expenseDate, endDate)))
-      .orderBy(desc(expenses.expenseDate));
+    return this.expenses
+      .filter(e => {
+        const expenseDate = new Date(e.expenseDate!);
+        return expenseDate >= startDate && expenseDate <= endDate;
+      })
+      .sort((a, b) => new Date(b.expenseDate!).getTime() - new Date(a.expenseDate!).getTime());
   }
 
   async updateExpense(id: number, updates: Partial<InsertExpense>): Promise<Expense> {
-    const [expense] = await db
-      .update(expenses)
-      .set(updates)
-      .where(eq(expenses.id, id))
-      .returning();
-    return expense;
+    const index = this.expenses.findIndex(e => e.id === id);
+    if (index === -1) {
+      throw new Error("Expense not found");
+    }
+    
+    this.expenses[index] = {
+      ...this.expenses[index],
+      ...updates,
+    };
+    return this.expenses[index];
   }
 
   async deleteExpense(id: number): Promise<void> {
-    await db.delete(expenses).where(eq(expenses.id, id));
+    const index = this.expenses.findIndex(e => e.id === id);
+    if (index >= 0) {
+      this.expenses.splice(index, 1);
+    }
   }
 
   // Alert operations
   async createAlert(alertData: InsertAlert): Promise<Alert> {
-    const [alert] = await db.insert(alerts).values(alertData).returning();
+    const alert = {
+      ...alertData,
+      id: this.nextId++,
+      acknowledged: false,
+      createdAt: new Date(),
+    } as Alert;
+    this.alerts.push(alert);
     return alert;
   }
 
   async getClientAlerts(clientId: number): Promise<Alert[]> {
-    return await db
-      .select()
-      .from(alerts)
-      .where(eq(alerts.clientId, clientId))
-      .orderBy(desc(alerts.createdAt));
+    return this.alerts
+      .filter(a => a.clientId === clientId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
   }
 
   async getAllUnacknowledgedAlerts(): Promise<Alert[]> {
-    return await db
-      .select()
-      .from(alerts)
-      .where(eq(alerts.acknowledged, false))
-      .orderBy(desc(alerts.createdAt));
+    return this.alerts
+      .filter(a => !a.acknowledged)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
   }
 
   async acknowledgeAlert(id: number, acknowledgedBy: string): Promise<Alert> {
-    const [alert] = await db
-      .update(alerts)
-      .set({ 
-        acknowledged: true, 
-        acknowledgedBy, 
-        acknowledgedAt: new Date() 
-      })
-      .where(eq(alerts.id, id))
-      .returning();
-    return alert;
+    const index = this.alerts.findIndex(a => a.id === id);
+    if (index === -1) {
+      throw new Error("Alert not found");
+    }
+    
+    this.alerts[index] = {
+      ...this.alerts[index],
+      acknowledged: true,
+      acknowledgedBy,
+      acknowledgedAt: new Date(),
+    };
+    return this.alerts[index];
   }
 
   // Additional client info operations
   async getClientVehicles(clientId: number): Promise<ClientVehicle[]> {
-    return await db.select().from(clientVehicles).where(eq(clientVehicles.clientId, clientId));
+    return this.clientVehicles.filter(v => v.clientId === clientId);
   }
 
   async getClientFamily(clientId: number): Promise<FamilyMember[]> {
-    return await db.select().from(familyMembers).where(eq(familyMembers.clientId, clientId));
+    return this.familyMembers.filter(f => f.clientId === clientId);
   }
 
   async getClientEmployment(clientId: number): Promise<EmploymentInfo[]> {
-    return await db.select().from(employmentInfo).where(eq(employmentInfo.clientId, clientId));
+    return this.employmentInfo.filter(e => e.clientId === clientId);
   }
 
   async getClientFiles(clientId: number): Promise<ClientFile[]> {
-    return await db.select().from(clientFiles).where(eq(clientFiles.clientId, clientId));
+    return this.clientFiles.filter(f => f.clientId === clientId);
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemoryStorage();
