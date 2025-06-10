@@ -69,59 +69,88 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Animated Jail Door Background */}
+      {/* Jail Cell Window Background - Waikiki Beach View */}
       <div className="fixed inset-0 z-0">
-        {/* Dark concrete background */}
-        <div className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-black"></div>
+        {/* Waikiki Beach background - paradise view */}
+        <div className="w-full h-full bg-gradient-to-b from-sky-400 via-sky-300 to-cyan-300">
+          {/* Ocean waves */}
+          <div className="absolute bottom-0 w-full h-2/3 bg-gradient-to-t from-blue-600 via-blue-400 to-cyan-300">
+            <div className="waikiki-waves absolute inset-0 opacity-60">
+              <div className="absolute bottom-0 w-full h-20 bg-gradient-to-t from-blue-700 to-transparent"></div>
+              <div className="absolute bottom-16 w-full h-8 bg-gradient-to-t from-blue-500 to-transparent opacity-70"></div>
+              <div className="absolute bottom-32 w-full h-6 bg-gradient-to-t from-blue-400 to-transparent opacity-50"></div>
+            </div>
+          </div>
+          
+          {/* Diamond Head silhouette */}
+          <div className="absolute bottom-0 right-0 w-96 h-64 bg-gradient-to-t from-green-800 via-green-700 to-green-600 opacity-80" 
+               style={{clipPath: 'polygon(0% 100%, 30% 40%, 60% 60%, 100% 100%)'}}>
+          </div>
+          
+          {/* Palm trees */}
+          <div className="absolute bottom-0 left-20 w-8 h-48 bg-gradient-to-t from-amber-800 to-amber-700"></div>
+          <div className="absolute bottom-36 left-16 w-32 h-4 bg-green-600 rounded-full transform -rotate-12"></div>
+          <div className="absolute bottom-32 left-24 w-28 h-4 bg-green-600 rounded-full transform rotate-12"></div>
+          
+          <div className="absolute bottom-0 right-32 w-6 h-32 bg-gradient-to-t from-amber-800 to-amber-700"></div>
+          <div className="absolute bottom-24 right-28 w-24 h-3 bg-green-600 rounded-full transform -rotate-25"></div>
+          <div className="absolute bottom-28 right-36 w-20 h-3 bg-green-600 rounded-full transform rotate-20"></div>
+          
+          {/* Tropical clouds */}
+          <div className="absolute top-20 left-1/4 w-32 h-16 bg-white rounded-full opacity-70"></div>
+          <div className="absolute top-32 right-1/3 w-24 h-12 bg-white rounded-full opacity-60"></div>
+          <div className="absolute top-16 right-1/4 w-20 h-10 bg-white rounded-full opacity-50"></div>
+          
+          {/* Sunlight rays */}
+          <div className="absolute top-10 right-20 w-2 h-48 bg-yellow-300 opacity-30 transform rotate-45"></div>
+          <div className="absolute top-16 right-32 w-1 h-32 bg-yellow-300 opacity-20 transform rotate-30"></div>
+          <div className="absolute top-12 right-16 w-1 h-40 bg-yellow-300 opacity-25 transform rotate-60"></div>
+        </div>
         
-        {/* Jail door container */}
+        {/* Jail cell window frame and bars overlay */}
         <div className="absolute inset-0 flex items-center justify-center">
-          {/* Door frame */}
-          <div className="relative w-96 h-[600px] bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded-lg shadow-2xl border-4 border-gray-800">
+          {/* Window frame - concrete cell wall */}
+          <div className="relative w-[800px] h-[600px] bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 shadow-2xl">
             
-            {/* Animated door that slams shut */}
-            <div className="jail-door absolute inset-2 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded border-2 border-gray-900 overflow-hidden">
+            {/* Window opening */}
+            <div className="absolute inset-8 bg-black/20 shadow-inner">
               
-              {/* Vertical bars */}
-              <div className="absolute inset-0 grid grid-cols-8 gap-2 p-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-gradient-to-b from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-lg border border-gray-400"></div>
+              {/* Heavy prison bars */}
+              <div className="jail-bars absolute inset-0 grid grid-cols-7 gap-4 p-6">
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <div key={i} className="bg-gradient-to-b from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
+                  </div>
                 ))}
               </div>
               
-              {/* Horizontal bars */}
-              <div className="absolute inset-0 flex flex-col justify-evenly px-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-3 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-lg border border-gray-400"></div>
+              {/* Horizontal security bars */}
+              <div className="absolute inset-0 flex flex-col justify-evenly px-6">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-4 bg-gradient-to-r from-gray-500 via-gray-400 to-gray-500 rounded-full shadow-2xl border-2 border-gray-600 relative">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
+                  </div>
                 ))}
               </div>
               
-              {/* Lock mechanism */}
-              <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
-                <div className="lock-mechanism w-8 h-8 bg-gradient-to-br from-yellow-600 via-yellow-500 to-yellow-700 rounded-full border-2 border-yellow-800 shadow-lg">
-                  <div className="w-3 h-3 bg-yellow-800 rounded-full mx-auto mt-2.5"></div>
-                </div>
-              </div>
+              {/* Window ledge */}
+              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-gray-800 to-gray-700 border-t-2 border-gray-600"></div>
               
-              {/* Sound effect waves when door slams */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="sound-effect absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-4 border-red-500 rounded-full opacity-0"></div>
-                <div className="sound-effect absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-3 border-orange-500 rounded-full opacity-0" style={{animationDelay: '0.1s'}}></div>
-                <div className="sound-effect absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-yellow-500 rounded-full opacity-0" style={{animationDelay: '0.2s'}}></div>
+              {/* Cell number plate */}
+              <div className="absolute top-4 right-4 bg-yellow-600 text-black font-bold text-sm px-2 py-1 rounded shadow-lg">
+                CELL 808
               </div>
             </div>
             
-            {/* Heavy duty hinges */}
-            <div className="absolute left-0 top-16 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
-            <div className="absolute left-0 top-40 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
-            <div className="absolute left-0 bottom-40 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
-            <div className="absolute left-0 bottom-16 w-6 h-12 bg-gradient-to-r from-gray-800 to-gray-600 rounded-r border border-gray-900 shadow-lg"></div>
+            {/* Window frame depth and shadows */}
+            <div className="absolute -inset-2 bg-gradient-to-br from-gray-800 to-gray-900 -z-10 rounded"></div>
+            <div className="absolute -inset-4 bg-gradient-to-br from-gray-900 to-black -z-20 rounded-lg"></div>
           </div>
         </div>
         
-        {/* Dramatic lighting effects */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl"></div>
+        {/* Interior cell lighting */}
+        <div className="absolute inset-0 bg-gradient-radial from-transparent via-gray-900/30 to-gray-900/60"></div>
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-orange-400/10 rounded-full blur-3xl"></div>
       </div>
 
       <Header />
