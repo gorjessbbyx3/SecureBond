@@ -49,22 +49,5 @@
     "id": 3,
     "createdAt": "2025-06-10T17:54:59.973Z",
     "updatedAt": "2025-06-10T17:54:59.973Z"
-  },
-  {
-    "fullName": "James Thompson",
-    "clientId": "SB1039897C39",
-    "password": "$2b$10$q7BF3C3cF0R61crV0G0oDOV5nV7b92gf5c2M3Vho.b6xnyc/wxYLy",
-    "phoneNumber": "(808) 555-0456",
-    "address": "789 Kona Street, Hilo, HI 96720",
-    "dateOfBirth": null,
-    "emergencyContact": null,
-    "emergencyPhone": null,
-    "courtLocation": null,
-    "charges": null,
-    "isActive": true,
-    "missedCheckIns": 1,
-    "id": 4,
-    "createdAt": "2025-06-10T17:55:04.047Z",
-    "updatedAt": "2025-06-10T17:55:04.047Z"
   }
 ]
