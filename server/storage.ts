@@ -87,6 +87,12 @@ export interface IStorage {
   getClientFamily(clientId: number): Promise<FamilyMember[]>;
   getClientEmployment(clientId: number): Promise<EmploymentInfo[]>;
   getClientFiles(clientId: number): Promise<ClientFile[]>;
+  
+  // Court date reminder operations
+  getAllCourtDates(): Promise<CourtDate[]>;
+  getCourtDateReminders(): Promise<any[]>;
+  acknowledgeReminder(reminderId: string): Promise<any>;
+  updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate>;
 }
 
 // In-memory storage for development

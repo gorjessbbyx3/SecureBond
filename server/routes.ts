@@ -1171,6 +1171,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all court dates
+  app.get('/api/court-dates', isAuthenticated, async (req, res) => {
+    try {
+      const courtDates = await storage.getAllCourtDates();
+      res.json(courtDates);
+    } catch (error) {
+      console.error('Error fetching court dates:', error);
+      res.status(500).json({ message: 'Failed to fetch court dates' });
+    }
+  });
+
+  // Get court date reminders
+  app.get('/api/court-dates/reminders', isAuthenticated, async (req, res) => {
+    try {
+      const reminders = await storage.getCourtDateReminders();
+      res.json(reminders);
+    } catch (error) {
+      console.error('Error fetching reminders:', error);
+      res.status(500).json({ message: 'Failed to fetch reminders' });
+    }
+  });
+
+  // Acknowledge reminder
+  app.patch('/api/court-dates/reminders/:id/acknowledge', isAuthenticated, async (req, res) => {
+    try {
+      const reminderId = req.params.id;
+      const result = await storage.acknowledgeReminder(reminderId);
+      res.json(result);
+    } catch (error) {
+      console.error('Error acknowledging reminder:', error);
+      res.status(500).json({ message: 'Failed to acknowledge reminder' });
+    }
+  });
+
+  // Update court date
+  app.patch('/api/court-dates/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+      const courtDate = await storage.updateCourtDate(id, updates);
+      res.json(courtDate);
+    } catch (error) {
+      console.error('Error updating court date:', error);
+      res.status(500).json({ message: 'Failed to update court date' });
+    }
+  });
+
   // Get all court dates for a client
   app.get('/api/clients/:id/court-dates', isAuthenticated, async (req, res) => {
     try {

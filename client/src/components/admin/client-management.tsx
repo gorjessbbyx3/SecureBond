@@ -71,6 +71,8 @@ export default function ClientManagement() {
   const [isAdminSettingsOpen, setIsAdminSettingsOpen] = useState(false);
   const [isCredentialsDialogOpen, setIsCredentialsDialogOpen] = useState(false);
   const [clientCredentials, setClientCredentials] = useState<{ clientId: string; password: string } | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -467,9 +469,8 @@ export default function ClientManagement() {
                             variant="destructive"
                             size="sm"
                             onClick={() => {
-                              if (window.confirm(`Are you sure you want to delete client ${client.fullName}? This action cannot be undone.`)) {
-                                deleteClientMutation.mutate(client.id);
-                              }
+                              setClientToDelete(client);
+                              setIsDeleteDialogOpen(true);
                             }}
                           >
                             <AlertTriangle className="w-3 h-3 mr-1" />
@@ -695,10 +696,9 @@ export default function ClientManagement() {
                     variant="destructive"
                     size="sm"
                     onClick={() => {
-                      if (window.confirm(`Are you sure you want to delete client ${selectedClient.fullName}? This action cannot be undone.`)) {
-                        deleteClientMutation.mutate(selectedClient.id);
-                        setIsClientDetailsOpen(false);
-                      }
+                      setClientToDelete(selectedClient);
+                      setIsDeleteDialogOpen(true);
+                      setIsClientDetailsOpen(false);
                     }}
                   >
                     <AlertTriangle className="w-3 h-3 mr-1" />
