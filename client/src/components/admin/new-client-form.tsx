@@ -88,118 +88,139 @@ export default function NewClientForm({ onSubmit, onCancel, isLoading, editingCl
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name *</Label>
+    <div className="space-y-3">
+      {/* Required Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="fullName" className="text-sm">Full Name *</Label>
           <Input
             id="fullName"
             placeholder="Enter full name"
             value={formData.fullName}
             onChange={(e) => handleInputChange("fullName", e.target.value)}
+            className="h-9"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="clientId">Client ID *</Label>
+        <div className="space-y-1">
+          <Label htmlFor="clientId" className="text-sm">Client ID *</Label>
           <Input
             id="clientId"
-            placeholder="Enter custom client ID (e.g., SB123456)"
+            placeholder="e.g., SB123456"
             value={formData.clientId}
             onChange={(e) => handleInputChange("clientId", e.target.value)}
+            className="h-9"
           />
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
+      {/* Contact Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="phoneNumber" className="text-sm">Phone Number</Label>
           <Input
             id="phoneNumber"
             placeholder="(808) 555-1234"
             value={formData.phoneNumber}
             onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+            className="h-9"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="address">Address</Label>
-          <Input
-            id="address"
-            placeholder="Enter address"
-            value={formData.address}
-            onChange={(e) => handleInputChange("address", e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">Date of Birth</Label>
+        <div className="space-y-1">
+          <Label htmlFor="dateOfBirth" className="text-sm">Date of Birth</Label>
           <Input
             id="dateOfBirth"
             type="date"
             value={formData.dateOfBirth}
             onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+            className="h-9"
           />
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="emergencyContact">Emergency Contact</Label>
+      {/* Address */}
+      <div className="space-y-1">
+        <Label htmlFor="address" className="text-sm">Address</Label>
+        <Input
+          id="address"
+          placeholder="Enter address"
+          value={formData.address}
+          onChange={(e) => handleInputChange("address", e.target.value)}
+          className="h-9"
+        />
+      </div>
+
+      {/* Emergency Contact */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="emergencyContact" className="text-sm">Emergency Contact</Label>
           <Input
             id="emergencyContact"
             placeholder="Contact name"
             value={formData.emergencyContact}
             onChange={(e) => handleInputChange("emergencyContact", e.target.value)}
+            className="h-9"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="emergencyPhone">Emergency Phone</Label>
+        <div className="space-y-1">
+          <Label htmlFor="emergencyPhone" className="text-sm">Emergency Phone</Label>
           <Input
             id="emergencyPhone"
             placeholder="(808) 555-1234"
             value={formData.emergencyPhone}
             onChange={(e) => handleInputChange("emergencyPhone", e.target.value)}
+            className="h-9"
           />
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="courtLocation">Court Location</Label>
+      {/* Legal Information */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="courtLocation" className="text-sm">Court Location</Label>
           <Input
             id="courtLocation"
             placeholder="Court location"
             value={formData.courtLocation}
             onChange={(e) => handleInputChange("courtLocation", e.target.value)}
+            className="h-9"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="charges">Charges</Label>
+        <div className="space-y-1">
+          <Label htmlFor="charges" className="text-sm">Charges</Label>
           <Input
             id="charges"
             placeholder="Legal charges"
             value={formData.charges}
             onChange={(e) => handleInputChange("charges", e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-0.5">
-            <Label className="text-base">Active Status</Label>
-            <p className="text-sm text-muted-foreground">
-              Client is currently active in the system
-            </p>
-          </div>
-          <Switch
-            checked={formData.isActive}
-            onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+            className="h-9"
           />
         </div>
       </div>
 
-      <div className="flex justify-end space-x-2 pt-4">
+      {/* Active Status */}
+      <div className="flex items-center justify-between rounded-lg border p-3">
+        <div>
+          <Label className="text-sm font-medium">Active Status</Label>
+          <p className="text-xs text-muted-foreground">Client is currently active</p>
+        </div>
+        <Switch
+          checked={formData.isActive}
+          onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+        />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-2 pt-2">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={isLoading}
+          size="sm"
         >
           Cancel
         </Button>
@@ -207,6 +228,7 @@ export default function NewClientForm({ onSubmit, onCancel, isLoading, editingCl
           type="button"
           onClick={handleSubmit}
           disabled={isLoading}
+          size="sm"
         >
           {isLoading ? "Creating..." : editingClient ? "Update Client" : "Create Client"}
         </Button>
