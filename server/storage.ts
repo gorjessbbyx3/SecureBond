@@ -3,6 +3,8 @@ import {
   type UpsertUser,
   type Client,
   type InsertClient,
+  type Bond,
+  type InsertBond,
   type CheckIn,
   type InsertCheckIn,
   type Payment,
@@ -35,6 +37,15 @@ export interface IStorage {
   createClient(client: InsertClient): Promise<Client>;
   updateClient(id: number, updates: Partial<InsertClient>): Promise<Client>;
   deleteClient(id: number): Promise<void>;
+  
+  // Bond operations
+  createBond(bond: InsertBond): Promise<Bond>;
+  getClientBonds(clientId: number): Promise<Bond[]>;
+  getAllBonds(): Promise<Bond[]>;
+  updateBond(id: number, updates: Partial<InsertBond>): Promise<Bond>;
+  deleteBond(id: number): Promise<void>;
+  getActiveBonds(): Promise<Bond[]>;
+  getClientActiveBondCount(clientId: number): Promise<number>;
   
   // Check-in operations
   createCheckIn(checkIn: InsertCheckIn): Promise<CheckIn>;
