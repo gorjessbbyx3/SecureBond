@@ -1955,6 +1955,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get client vehicles
+  app.get('/api/clients/:id/vehicles', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const vehicles = await storage.getClientVehicles(clientId);
+      res.json(vehicles);
+    } catch (error) {
+      console.error('Error fetching client vehicles:', error);
+      res.status(500).json({ message: 'Failed to fetch client vehicles' });
+    }
+  });
+
+  // Add client vehicle
+  app.post('/api/clients/:id/vehicles', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const vehicleData = { ...req.body, clientId };
+      const vehicle = await storage.createClientVehicle(vehicleData);
+      res.json(vehicle);
+    } catch (error) {
+      console.error('Error adding vehicle:', error);
+      res.status(500).json({ message: 'Failed to add vehicle' });
+    }
+  });
+
+  // Get client family members
+  app.get('/api/clients/:id/family', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const family = await storage.getClientFamily(clientId);
+      res.json(family);
+    } catch (error) {
+      console.error('Error fetching client family:', error);
+      res.status(500).json({ message: 'Failed to fetch client family' });
+    }
+  });
+
+  // Add family member
+  app.post('/api/clients/:id/family', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const familyData = { ...req.body, clientId };
+      const family = await storage.createFamilyMember(familyData);
+      res.json(family);
+    } catch (error) {
+      console.error('Error adding family member:', error);
+      res.status(500).json({ message: 'Failed to add family member' });
+    }
+  });
+
+  // Get client employment
+  app.get('/api/clients/:id/employment', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const employment = await storage.getClientEmployment(clientId);
+      res.json(employment);
+    } catch (error) {
+      console.error('Error fetching client employment:', error);
+      res.status(500).json({ message: 'Failed to fetch client employment' });
+    }
+  });
+
+  // Add employment information
+  app.post('/api/clients/:id/employment', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const employmentData = { ...req.body, clientId };
+      const employment = await storage.createEmploymentInfo(employmentData);
+      res.json(employment);
+    } catch (error) {
+      console.error('Error adding employment:', error);
+      res.status(500).json({ message: 'Failed to add employment' });
+    }
+  });
+
+  // Get client files
+  app.get('/api/clients/:id/files', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const files = await storage.getClientFiles(clientId);
+      res.json(files);
+    } catch (error) {
+      console.error('Error fetching client files:', error);
+      res.status(500).json({ message: 'Failed to fetch client files' });
+    }
+  });
+
+  // Get client location analytics
+  app.get('/api/clients/:id/locations', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const checkIns = await storage.getClientCheckIns(clientId);
+      
+      // Aggregate location data
+      const locationCounts = new Map<string, number>();
+      const locationDetails = new Map<string, { address: string; city: string; state: string; count: number }>();
+      
+      checkIns.forEach(checkIn => {
+        if (checkIn.location && checkIn.location.trim()) {
+          const location = checkIn.location.trim();
+          locationCounts.set(location, (locationCounts.get(location) || 0) + 1);
+          
+          // Parse location into components (basic parsing)
+          const parts = location.split(',').map(p => p.trim());
+          const address = parts[0] || location;
+          const city = parts[1] || 'Unknown';
+          const state = parts[2] || 'HI';
+          
+          locationDetails.set(location, {
+            address,
+            city,
+            state,
+            count: locationCounts.get(location) || 1
+          });
+        }
+      });
+      
+      // Convert to array and sort by frequency
+      const topLocations = Array.from(locationDetails.values())
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+      
+      res.json(topLocations);
+    } catch (error) {
+      console.error('Error fetching client locations:', error);
+      res.status(500).json({ message: 'Failed to fetch client locations' });
+    }
+  });
+
+  // Get client payment summary
+  app.get('/api/clients/:id/payment-summary', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const payments = await storage.getClientPayments(clientId);
+      
+      const totalAmount = payments.reduce((sum, payment) => sum + parseFloat(payment.amount || '0'), 0);
+      const confirmedAmount = payments
+        .filter(payment => payment.confirmed)
+        .reduce((sum, payment) => sum + parseFloat(payment.amount || '0'), 0);
+      const pendingAmount = payments
+        .filter(payment => !payment.confirmed)
+        .reduce((sum, payment) => sum + parseFloat(payment.amount || '0'), 0);
+      
+      const sortedPayments = payments.sort((a, b) => 
+        new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime()
+      );
+      const lastPaymentDate = sortedPayments[0]?.paymentDate || null;
+      
+      res.json({
+        totalAmount,
+        confirmedAmount,
+        pendingAmount,
+        lastPaymentDate,
+        paymentCount: payments.length
+      });
+    } catch (error) {
+      console.error('Error fetching payment summary:', error);
+      res.status(500).json({ message: 'Failed to fetch payment summary' });
+    }
+  });
+
   // Get top frequent locations from check-ins
   app.get('/api/analytics/top-locations', isAuthenticated, async (req, res) => {
     try {

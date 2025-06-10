@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import ClientDashboard from "@/pages/client-dashboard";
+import ClientDetails from "@/pages/client-details";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 import StaffDashboard from "@/pages/staff-dashboard";
 import MaintenanceDashboard from "@/pages/maintenance-dashboard";
@@ -29,6 +30,7 @@ function Router() {
       {!isLoading && isAuthenticated && (
         <>
           <Route path="/client-dashboard" component={ClientDashboard} />
+          <Route path="/client/:id" component={ClientDetails} />
           <Route path="/staff-dashboard" component={StaffDashboard} />
           <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
           <Route path="/admin" component={EnhancedAdminDashboard} />
