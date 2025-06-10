@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   Eye
 } from "lucide-react";
+import NewClientForm from "./new-client-form";
 
 const clientFormSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -306,140 +307,12 @@ export default function ClientManagement() {
                   {editingClient ? "Edit Client" : "Add New Client"}
                 </DialogTitle>
               </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="clientId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Client ID</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="e.g., SB123456789" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="courtLocation"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Court Location</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="charges"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Charges</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsFormOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="button"
-                      disabled={createClientMutation.isPending || updateClientMutation.isPending}
-                      onClick={async () => {
-                        const values = form.getValues();
-                        
-                        // Basic validation
-                        if (!values.fullName || values.fullName.trim() === '') {
-                          toast({
-                            title: "Validation Error",
-                            description: "Full name is required",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        
-                        if (!values.clientId || values.clientId.trim() === '') {
-                          toast({
-                            title: "Validation Error", 
-                            description: "Client ID is required",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        
-                        if (values.clientId.length < 3) {
-                          toast({
-                            title: "Validation Error",
-                            description: "Client ID must be at least 3 characters",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        
-                        // Submit the form
-                        handleSubmit(values);
-                      }}
-                    >
-                      {createClientMutation.isPending ? "Creating..." : editingClient ? "Update Client" : "Create Client"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
+              <NewClientForm 
+                onSubmit={handleSubmit}
+                onCancel={() => setIsFormOpen(false)}
+                isLoading={createClientMutation.isPending || updateClientMutation.isPending}
+                editingClient={editingClient}
+              />
             </DialogContent>
           </Dialog>
         </div>
