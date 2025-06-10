@@ -518,8 +518,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clients = await storage.getAllClients();
       const payments = await storage.getAllPayments();
       const alerts = await storage.getAllUnacknowledgedAlerts();
+      const upcomingCourtDates = await storage.getAllUpcomingCourtDates();
       
       const notifications = [];
+      
+      // Check for missed court dates automatically
+      const now = new Date();
+      for (const client of clients) {
+        if (client.courtDate && new Date(client.courtDate) < now && client.isActive) {
+          // Create alert for missed court date if one doesn't exist
+          const existingAlert = alerts.find(a => 
+            a.clientId === client.id && 
+            a.alertType === 'court_date' && 
+            !a.acknowledged
+          );
+          
+          if (!existingAlert) {
+            await storage.createAlert({
+              clientId: client.id,
+              alertType: 'court_date',
+              severity: 'critical',
+              message: `${client.fullName} missed court appearance scheduled for ${new Date(client.courtDate).toLocaleDateString()}`,
+              acknowledged: false
+            });
+          }
+        }
+      }
+      
+      // Refresh alerts after potential new ones were created
+      const updatedAlerts = await storage.getAllUnacknowledgedAlerts();
       
       // Create notifications from unconfirmed payments
       const unconfirmedPayments = payments.filter(p => !p.confirmed);
@@ -556,13 +583,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Add system alerts
-      for (const alert of alerts) {
+      // Add system alerts (use updated alerts list)
+      for (const alert of updatedAlerts) {
         notifications.push({
           id: `alert-${alert.id}`,
           type: 'alert',
-          priority: alert.alertType === 'critical' ? 'critical' : 'medium',
-          title: alert.alertType.charAt(0).toUpperCase() + alert.alertType.slice(1) + ' Alert',
+          priority: alert.severity === 'critical' ? 'critical' : alert.severity === 'high' ? 'high' : 'medium',
+          title: alert.alertType.charAt(0).toUpperCase() + alert.alertType.slice(1).replace('_', ' ') + ' Alert',
           message: alert.message,
           timestamp: alert.createdAt,
           read: false,
@@ -803,6 +830,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error populating test data:', error);
       res.status(500).json({ message: 'Failed to populate test data' });
+    }
+  });
+
+  // Mark court appearance status
+  app.post('/api/clients/:id/court-status', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const { status, notes } = req.body; // status: 'attended' | 'missed' | 'rescheduled'
+      
+      const client = await storage.getClient(clientId);
+      if (!client) {
+        return res.status(404).json({ message: 'Client not found' });
+      }
+      
+      if (status === 'attended') {
+        // Mark as attended - remove any existing court alerts
+        const courtAlerts = await storage.getClientAlerts(clientId);
+        for (const alert of courtAlerts.filter(a => a.alertType === 'court_date' && !a.acknowledged)) {
+          await storage.acknowledgeAlert(alert.id, 'admin');
+        }
+        
+        // Update client status if needed
+        await storage.updateClient(clientId, { 
+          lastCheckIn: new Date(),
+          missedCheckIns: 0 
+        });
+        
+      } else if (status === 'missed') {
+        // Create missed court alert if none exists
+        const existingAlert = (await storage.getClientAlerts(clientId))
+          .find(a => a.alertType === 'court_date' && !a.acknowledged);
+          
+        if (!existingAlert) {
+          await storage.createAlert({
+            clientId,
+            alertType: 'court_date',
+            severity: 'critical',
+            message: `${client.fullName} failed to appear for scheduled court date. ${notes || ''}`,
+            acknowledged: false
+          });
+        }
+      }
+      
+      res.json({ success: true, message: `Court status updated to ${status}` });
+    } catch (error) {
+      console.error('Error updating court status:', error);
+      res.status(500).json({ message: 'Failed to update court status' });
     }
   });
 
