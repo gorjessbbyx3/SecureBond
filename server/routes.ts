@@ -127,13 +127,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Convert date strings to Date objects before validation
       const requestData = { ...req.body };
-      if (requestData.dateOfBirth) {
-        requestData.dateOfBirth = new Date(requestData.dateOfBirth);
-      }
-      if (requestData.courtDate) {
-        requestData.courtDate = new Date(requestData.courtDate);
-      }
-      
       // Generate unique client ID and password before validation
       const clientId = `SB${Date.now().toString().slice(-6)}${randomBytes(2).toString('hex').toUpperCase()}`;
       const password = randomBytes(8).toString('base64').slice(0, 8);
@@ -148,6 +141,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       requestData.clientId = clientId;
       requestData.password = hashedPassword;
       requestData.remainingBalance = remainingBalance.toString();
+      
+      // Convert dates before validation
+      if (requestData.dateOfBirth) {
+        requestData.dateOfBirth = requestData.dateOfBirth; // Keep as string for now
+      }
+      if (requestData.courtDate) {
+        requestData.courtDate = new Date(requestData.courtDate);
+      }
       
       const clientData = insertClientSchema.parse(requestData);
       
