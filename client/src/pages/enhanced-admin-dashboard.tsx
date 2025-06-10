@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/header";
@@ -35,6 +35,10 @@ export default function EnhancedAdminDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
+
+  const { data: alerts } = useQuery({
+    queryKey: ["/api/alerts/unacknowledged"],
+  });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -137,9 +141,11 @@ export default function EnhancedAdminDashboard() {
             >
               <Bell className="h-4 w-4 mr-2" />
               Alerts
-              <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
-                3
-              </Badge>
+              {(alerts as any[])?.length > 0 && (
+                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
+                  {(alerts as any[]).length}
+                </Badge>
+              )}
             </Button>
             
             <Button 
