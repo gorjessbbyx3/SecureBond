@@ -80,35 +80,9 @@ export default function Landing() {
           />
         </div>
         
-        {/* Full-screen prison bars overlay */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Vertical prison bars spanning full screen */}
-          <div className="absolute inset-0 grid grid-cols-10 gap-12 px-4">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="w-3 bg-gradient-to-b from-gray-500/70 via-gray-400/70 to-gray-500/70 rounded-full shadow-2xl border border-gray-600 relative jail-bars mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Horizontal security bars spanning full screen */}
-          <div className="absolute inset-0 flex flex-col justify-evenly py-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-3 bg-gradient-to-r from-gray-500/70 via-gray-400/70 to-gray-500/70 rounded-full shadow-2xl border border-gray-600 relative jail-bars">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Cell identification plate */}
-          <div className="absolute top-8 right-8 bg-yellow-600 text-black font-bold text-sm px-3 py-2 rounded shadow-lg cell-plate">
-            ALOHA BAIL BOND
-          </div>
-        </div>
+
         
-        {/* Interior cell lighting */}
-        <div className="absolute inset-0 bg-gradient-radial from-transparent via-gray-900/30 to-gray-900/60"></div>
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-orange-400/10 rounded-full blur-3xl"></div>
+
       </div>
 
       <Header />
