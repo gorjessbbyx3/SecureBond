@@ -104,15 +104,27 @@ export default function ClientManagement() {
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
       const response = await apiRequest("POST", "/api/clients", data);
-      return await response.json();
+      return response.json();
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
       console.log("Client creation response:", data); // Debug log
-      setGeneratedCredentials({
-        clientId: data.clientId,
-        password: data.password
-      });
+      
+      if (data && data.clientId && data.password) {
+        setGeneratedCredentials({
+          clientId: data.clientId,
+          password: data.password
+        });
+        console.log("Generated credentials set:", { clientId: data.clientId, password: data.password });
+      } else {
+        console.error("Missing credentials in response:", data);
+        toast({
+          title: "Warning",
+          description: "Client created but credentials not available",
+          variant: "destructive",
+        });
+      }
+      
       setIsFormOpen(false);
       form.reset();
       toast({

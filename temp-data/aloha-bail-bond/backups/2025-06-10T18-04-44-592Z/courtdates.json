@@ -1,0 +1,22 @@
+[
+  {
+    "clientId": 3,
+    "courtDate": "2025-06-11T09:00:00.000Z",
+    "courtType": "arraignment",
+    "courtLocation": "Honolulu District Court Room 1A",
+    "caseNumber": "CR-2025-001234",
+    "id": 5,
+    "completed": false,
+    "createdAt": "2025-06-10T17:55:09.485Z"
+  },
+  {
+    "clientId": 4,
+    "courtDate": "2025-06-10T14:30:00.000Z",
+    "courtType": "hearing",
+    "courtLocation": "Hilo Circuit Court Room 2B",
+    "caseNumber": "CR-2025-005678",
+    "id": 6,
+    "completed": false,
+    "createdAt": "2025-06-10T17:55:15.307Z"
+  }
+]
