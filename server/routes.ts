@@ -86,8 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dateOfBirth: client.dateOfBirth,
         emergencyContact: client.emergencyContact,
         emergencyPhone: client.emergencyPhone,
-        courtLocation: client.courtLocation,
-        charges: client.charges,
+
         isActive: client.isActive,
         missedCheckIns: client.missedCheckIns,
         createdAt: client.createdAt

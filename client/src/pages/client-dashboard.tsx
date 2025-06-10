@@ -38,22 +38,22 @@ export default function ClientDashboard() {
   };
 
   // Fetch actual client data from session/auth
-  const { data: clientData, isLoading: clientLoading } = useQuery({
+  const { data: clientData, isLoading: clientLoading } = useQuery<any>({
     queryKey: ["/api/auth/client"],
     retry: false,
   });
 
-  const { data: clientBonds } = useQuery({
+  const { data: clientBonds = [] } = useQuery<any[]>({
     queryKey: ["/api/client/bonds"],
     enabled: !!clientData?.id,
   });
 
-  const { data: clientCourtDates } = useQuery({
+  const { data: clientCourtDates = [] } = useQuery<any[]>({
     queryKey: ["/api/client/court-dates"],
     enabled: !!clientData?.id,
   });
 
-  const { data: clientCheckIns } = useQuery({
+  const { data: clientCheckIns = [] } = useQuery<any[]>({
     queryKey: ["/api/client/checkins"],
     enabled: !!clientData?.id,
   });
@@ -62,16 +62,16 @@ export default function ClientDashboard() {
   const dashboardData = useMemo(() => {
     if (!clientData) return null;
 
-    const activeBonds = clientBonds?.filter((bond: any) => bond.isActive) || [];
+    const activeBonds = clientBonds.filter((bond: any) => bond.isActive);
     const totalBondAmount = activeBonds.reduce((sum: number, bond: any) => sum + parseFloat(bond.amount || "0"), 0);
     
-    const upcomingCourtDates = clientCourtDates?.filter((court: any) => 
+    const upcomingCourtDates = clientCourtDates.filter((court: any) => 
       new Date(court.courtDate) > new Date() && !court.completed
-    ).sort((a: any, b: any) => new Date(a.courtDate).getTime() - new Date(b.courtDate).getTime()) || [];
+    ).sort((a: any, b: any) => new Date(a.courtDate).getTime() - new Date(b.courtDate).getTime());
     
-    const recentCheckIns = clientCheckIns?.sort((a: any, b: any) => 
+    const recentCheckIns = clientCheckIns.sort((a: any, b: any) => 
       new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime()
-    ) || [];
+    );
 
     const lastCheckIn = recentCheckIns[0];
     const nextCourtDate = upcomingCourtDates[0];
@@ -84,7 +84,7 @@ export default function ClientDashboard() {
       courtDate: nextCourtDate?.courtDate || null,
       courtLocation: nextCourtDate?.courtLocation || "No upcoming court dates",
       lastCheckIn: lastCheckIn?.checkInTime || null,
-      nextCheckInDue: null, // Would need to calculate based on check-in schedule
+      nextCheckInDue: null,
       createdAt: clientData.createdAt,
       isActive: clientData.isActive,
     };
@@ -123,7 +123,7 @@ export default function ClientDashboard() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-600">Bond Amount</p>
                   <p className="text-2xl font-bold text-slate-900">
-                    {dashboardData.bondAmount > 0 ? `$${dashboardData.bondAmount}` : "No active bonds"}
+                    {parseFloat(dashboardData.bondAmount) > 0 ? `$${dashboardData.bondAmount}` : "No active bonds"}
                   </p>
                 </div>
               </div>
@@ -235,20 +235,32 @@ export default function ClientDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div>
-                        <p className="text-sm font-medium">Check-in completed</p>
-                        <p className="text-xs text-slate-500">
-                          {new Date(clientData.lastCheckIn).toLocaleDateString()}
-                        </p>
+                    {dashboardData.lastCheckIn ? (
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div>
+                          <p className="text-sm font-medium">Check-in completed</p>
+                          <p className="text-xs text-slate-500">
+                            {new Date(dashboardData.lastCheckIn).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <div>
+                          <p className="text-sm font-medium">No check-ins yet</p>
+                          <p className="text-xs text-slate-500">Complete your first check-in</p>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       <div>
                         <p className="text-sm font-medium">Account created</p>
-                        <p className="text-xs text-slate-500">January 1, 2024</p>
+                        <p className="text-xs text-slate-500">
+                          {dashboardData.createdAt ? new Date(dashboardData.createdAt).toLocaleDateString() : "Unknown"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -258,11 +270,11 @@ export default function ClientDashboard() {
           </TabsContent>
 
           <TabsContent value="checkin">
-            <CheckInForm clientId={clientData.id} />
+            <CheckInForm clientId={dashboardData.id} />
           </TabsContent>
 
           <TabsContent value="payments">
-            <PaymentUpload clientId={clientData.id} />
+            <PaymentUpload clientId={dashboardData.id} />
           </TabsContent>
 
           <TabsContent value="messages">
