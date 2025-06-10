@@ -27,6 +27,9 @@ export default function MaintenanceDashboard() {
     ""
   ]);
   const [currentCommand, setCurrentCommand] = useState("");
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [currentDir, setCurrentDir] = useState("/home/maintenance");
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -53,10 +56,10 @@ export default function MaintenanceDashboard() {
     setSshConnected(true);
     setSshOutput(prev => [
       ...prev,
-      `$ ssh maintenance@${sshHost}`,
+      `$ ssh webmaster@${sshHost}`,
       "Connecting to Aloha Bail Bond Server...",
       "Authentication successful.",
-      `maintenance@${sshHost}:~$ `,
+      `webmaster@${sshHost}:~$ `,
       ""
     ]);
     toast({
@@ -96,17 +99,45 @@ export default function MaintenanceDashboard() {
     const cmd = command.toLowerCase().trim();
     
     if (cmd === 'ls' || cmd === 'ls -la') {
-      return [
-        "total 48",
-        "drwxr-xr-x 8 maintenance maintenance 4096 Jan 10 15:30 .",
-        "drwxr-xr-x 3 root       root       4096 Jan  1 12:00 ..",
-        "-rw-r--r-- 1 maintenance maintenance  220 Jan  1 12:00 .bash_logout",
-        "-rw-r--r-- 1 maintenance maintenance 3526 Jan  1 12:00 .bashrc",
-        "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:30 aloha-bail-bond",
-        "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 14:00 backups",
-        "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:25 logs",
-        "-rw-r--r-- 1 maintenance maintenance  807 Jan  1 12:00 .profile"
-      ];
+      if (currentDir === "/home/maintenance") {
+        return [
+          "total 48",
+          "drwxr-xr-x 8 maintenance maintenance 4096 Jan 10 15:30 .",
+          "drwxr-xr-x 3 root       root       4096 Jan  1 12:00 ..",
+          "-rw-r--r-- 1 maintenance maintenance  220 Jan  1 12:00 .bash_logout",
+          "-rw-r--r-- 1 maintenance maintenance 3526 Jan  1 12:00 .bashrc",
+          "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:30 aloha-bail-bond",
+          "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 14:00 backups",
+          "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:25 logs",
+          "-rw-r--r-- 1 maintenance maintenance  807 Jan  1 12:00 .profile"
+        ];
+      } else if (currentDir === "/home/maintenance/aloha-bail-bond") {
+        return [
+          "total 24",
+          "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:30 .",
+          "drwxr-xr-x 8 maintenance maintenance 4096 Jan 10 15:30 ..",
+          "-rw-r--r-- 1 maintenance maintenance 1234 Jan 10 15:30 app.js",
+          "-rw-r--r-- 1 maintenance maintenance  654 Jan 10 14:45 config.json",
+          "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:25 node_modules",
+          "-rw-r--r-- 1 maintenance maintenance  892 Jan 10 15:20 package.json"
+        ];
+      } else if (currentDir === "/home/maintenance/logs") {
+        return [
+          "total 32",
+          "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:25 .",
+          "drwxr-xr-x 8 maintenance maintenance 4096 Jan 10 15:30 ..",
+          "-rw-r--r-- 1 maintenance maintenance 8192 Jan 10 15:45 app.log",
+          "-rw-r--r-- 1 maintenance maintenance 4096 Jan 10 15:30 error.log",
+          "-rw-r--r-- 1 maintenance maintenance 2048 Jan 10 14:00 access.log",
+          "-rw-r--r-- 1 maintenance maintenance 1024 Jan 10 12:00 system.log"
+        ];
+      } else {
+        return [
+          "total 8",
+          "drwxr-xr-x 2 maintenance maintenance 4096 Jan 10 15:30 .",
+          "drwxr-xr-x 3 root       root       4096 Jan  1 12:00 .."
+        ];
+      }
     }
     
     if (cmd === 'ps aux' || cmd === 'ps') {
@@ -179,11 +210,32 @@ export default function MaintenanceDashboard() {
     }
     
     if (cmd === 'pwd') {
-      return ["/home/maintenance"];
+      return [currentDir];
     }
     
     if (cmd.startsWith('cd ')) {
-      return [`Changed directory to ${cmd.substring(3)}`];
+      const targetDir = cmd.substring(3).trim();
+      if (targetDir === '' || targetDir === '~') {
+        setCurrentDir('/home/maintenance');
+        return [];
+      } else if (targetDir === '..') {
+        if (currentDir !== '/home/maintenance') {
+          const parentDir = currentDir.substring(0, currentDir.lastIndexOf('/'));
+          setCurrentDir(parentDir || '/home/maintenance');
+        }
+        return [];
+      } else if (targetDir === 'aloha-bail-bond' && currentDir === '/home/maintenance') {
+        setCurrentDir('/home/maintenance/aloha-bail-bond');
+        return [];
+      } else if (targetDir === 'logs' && currentDir === '/home/maintenance') {
+        setCurrentDir('/home/maintenance/logs');
+        return [];
+      } else if (targetDir === 'backups' && currentDir === '/home/maintenance') {
+        setCurrentDir('/home/maintenance/backups');
+        return [];
+      } else {
+        return [`bash: cd: ${targetDir}: No such file or directory`];
+      }
     }
     
     if (cmd === 'clear') {
@@ -193,18 +245,193 @@ export default function MaintenanceDashboard() {
     if (cmd === 'help' || cmd === '--help') {
       return [
         "Available commands:",
-        "  ls, ls -la     - List directory contents",
-        "  ps aux         - Show running processes",
-        "  df -h          - Show disk space usage",
-        "  free -h        - Show memory usage",
-        "  systemctl status nginx - Check nginx status",
-        "  tail -f /var/log/aloha-bail-bond/app.log - View application logs",
-        "  uptime         - Show system uptime",
-        "  whoami         - Show current user",
-        "  pwd            - Show current directory",
-        "  clear          - Clear terminal",
-        "  help           - Show this help message"
+        "  Navigation:",
+        "    ls, ls -la     - List directory contents",
+        "    cd <dir>       - Change directory",
+        "    pwd            - Show current directory",
+        "  System Monitor:",
+        "    ps aux         - Show running processes",
+        "    df -h          - Show disk space usage",
+        "    free -h        - Show memory usage",
+        "    uptime         - Show system uptime",
+        "    top            - Show live system processes",
+        "    netstat -an    - Show network connections",
+        "  Services:",
+        "    systemctl status nginx - Check nginx status",
+        "    systemctl status aloha-bail-bond - Check app status",
+        "    service --status-all - List all services",
+        "  Logs & Files:",
+        "    tail -f <file> - View file contents in real time",
+        "    cat <file>     - Display file contents",
+        "    grep <pattern> <file> - Search in files",
+        "  Aloha Bail Bond:",
+        "    aloha-status   - Show application status",
+        "    aloha-clients  - Show client count",
+        "    aloha-backup   - Create database backup",
+        "    aloha-restart  - Restart application service",
+        "  Utility:",
+        "    whoami         - Show current user",
+        "    history        - Show command history",
+        "    clear          - Clear terminal",
+        "    help           - Show this help message"
       ];
+    }
+    
+    // Aloha Bail Bond specific commands
+    if (cmd === 'aloha-status') {
+      return [
+        "Aloha Bail Bond System Status:",
+        "================================",
+        "Application:     RUNNING (PID: 1234)",
+        "Database:        CONNECTED",
+        "Web Server:      ACTIVE",
+        "Court Scraper:   ENABLED",
+        "SMS Service:     OPERATIONAL",
+        "Email Service:   OPERATIONAL",
+        "Backup Service:  SCHEDULED",
+        "Last Restart:    2024-01-10 14:30:15",
+        "Uptime:          1 day, 1 hour, 16 minutes"
+      ];
+    }
+    
+    if (cmd === 'aloha-clients') {
+      return [
+        "Active Clients:     0",
+        "Total Clients:      0", 
+        "Pending Check-ins:  0",
+        "Overdue Check-ins:  0",
+        "Court Dates Today:  0",
+        "Court Dates This Week: 0",
+        "Recent Registrations: 0 (last 24h)"
+      ];
+    }
+    
+    if (cmd === 'aloha-backup') {
+      return [
+        "Creating database backup...",
+        "Backing up client data...",
+        "Backing up payment records...",
+        "Backing up court dates...",
+        "Compressing backup files...",
+        "Backup completed successfully!",
+        "Backup saved to: /home/maintenance/backups/aloha-backup-2024-01-10-15:51.tar.gz",
+        "Backup size: 2.3 MB"
+      ];
+    }
+    
+    if (cmd === 'aloha-restart') {
+      return [
+        "Stopping Aloha Bail Bond service...",
+        "Waiting for graceful shutdown...",
+        "Service stopped.",
+        "Starting Aloha Bail Bond service...",
+        "Loading configuration...",
+        "Connecting to database...",
+        "Initializing court scraper...",
+        "Starting web server on port 5000...",
+        "Service started successfully!",
+        "New PID: 2345"
+      ];
+    }
+    
+    if (cmd === 'top') {
+      return [
+        "top - 15:51:23 up 1 day,  1:21,  2 users,  load average: 0.42, 0.35, 0.38",
+        "Tasks: 127 total,   1 running, 126 sleeping,   0 stopped,   0 zombie",
+        "%Cpu(s):  2.1 us,  0.8 sy,  0.0 ni, 96.8 id,  0.3 wa,  0.0 hi,  0.0 si,  0.0 st",
+        "MiB Mem :   7924.2 total,   3201.5 free,   2145.8 used,   2576.9 buff/cache",
+        "MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   5312.1 avail Mem",
+        "",
+        "  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND",
+        " 1234 maint     20   0  987654 125000  25000 S   2.1  15.4   0:45.23 node",
+        " 5678 postgres  20   0  445566  67890  12000 S   0.8   8.2   0:12.45 postgres",
+        " 9012 www-data  20   0  123456   8901   4000 S   0.2   1.1   0:03.12 nginx"
+      ];
+    }
+    
+    if (cmd === 'netstat -an' || cmd === 'netstat') {
+      return [
+        "Active Internet connections (servers and established)",
+        "Proto Recv-Q Send-Q Local Address           Foreign Address         State",
+        "tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN",
+        "tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN",
+        "tcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN",
+        "tcp        0      0 0.0.0.0:5000            0.0.0.0:*               LISTEN",
+        "tcp        0      0 127.0.0.1:5432          0.0.0.0:*               LISTEN",
+        "tcp        0      0 192.168.1.100:5000     192.168.1.50:45234      ESTABLISHED",
+        "tcp        0      0 192.168.1.100:22       192.168.1.25:52341      ESTABLISHED"
+      ];
+    }
+    
+    if (cmd === 'systemctl status aloha-bail-bond' || cmd.includes('aloha-bail-bond')) {
+      return [
+        "● aloha-bail-bond.service - Aloha Bail Bond Management System",
+        "   Loaded: loaded (/etc/systemd/system/aloha-bail-bond.service; enabled)",
+        "   Active: active (running) since Wed 2024-01-10 14:30:15 UTC; 1h 21min ago",
+        "     Docs: https://aloha-bail-bond.com/docs",
+        "  Process: 1234 ExecStart=/usr/bin/node /app/server/index.js (code=exited, status=0/SUCCESS)",
+        " Main PID: 1234 (node)",
+        "    Tasks: 11 (limit: 4915)",
+        "   Memory: 125.0M",
+        "   CGroup: /system.slice/aloha-bail-bond.service",
+        "           └─1234 node /app/server/index.js",
+        "",
+        "Jan 10 15:45:12 server aloha-bail-bond[1234]: [INFO] Client check-in processed",
+        "Jan 10 15:44:33 server aloha-bail-bond[1234]: [INFO] Payment recorded successfully",
+        "Jan 10 15:43:22 server aloha-bail-bond[1234]: [INFO] Database backup completed"
+      ];
+    }
+    
+    if (cmd === 'service --status-all') {
+      return [
+        " [ + ]  acpid",
+        " [ + ]  aloha-bail-bond",
+        " [ + ]  cron",
+        " [ + ]  dbus", 
+        " [ + ]  nginx",
+        " [ + ]  postgresql",
+        " [ + ]  ssh",
+        " [ + ]  systemd-logind",
+        " [ + ]  udev",
+        " [ - ]  apache2",
+        " [ - ]  mysql"
+      ];
+    }
+    
+    if (cmd.startsWith('cat ')) {
+      const filename = cmd.substring(4).trim();
+      if (filename === 'app.log' && currentDir === '/home/maintenance/logs') {
+        return [
+          "[2024-01-10 15:51:12] INFO: SSH connection established from 192.168.1.25",
+          "[2024-01-10 15:50:45] INFO: Court date reminder sent to client SB789012",
+          "[2024-01-10 15:49:33] INFO: Payment processed - Amount: $750.00",
+          "[2024-01-10 15:48:22] INFO: Client check-in recorded - SB123456",
+          "[2024-01-10 15:47:18] WARN: High memory usage detected - 87%",
+          "[2024-01-10 15:46:45] INFO: Database backup completed successfully",
+          "[2024-01-10 15:45:33] INFO: New client registration - SB345678"
+        ];
+      } else if (filename === 'config.json' && currentDir === '/home/maintenance/aloha-bail-bond') {
+        return [
+          "{",
+          '  "port": 5000,',
+          '  "database": {',
+          '    "host": "localhost",',
+          '    "port": 5432,',
+          '    "name": "aloha_bail_bond"',
+          '  },',
+          '  "features": {',
+          '    "courtScraper": true,',
+          '    "smsNotifications": true,',
+          '    "emailAlerts": true',
+          '  }',
+          "}"
+        ];
+      }
+      return [`cat: ${filename}: No such file or directory`];
+    }
+    
+    if (cmd === 'history') {
+      return commandHistory.map((cmd, index) => `${index + 1}  ${cmd}`);
     }
     
     return [`bash: ${command}: command not found`];
@@ -214,9 +441,13 @@ export default function MaintenanceDashboard() {
     e.preventDefault();
     if (!sshConnected || !currentCommand.trim()) return;
     
+    // Add to command history
+    setCommandHistory(prev => [...prev, currentCommand]);
+    setHistoryIndex(-1);
+    
     if (currentCommand.toLowerCase().trim() === 'clear') {
       setSshOutput([
-        `maintenance@${sshHost}:~$ `,
+        `webmaster@${sshHost}:~$ `,
         ""
       ]);
     } else {
@@ -224,6 +455,29 @@ export default function MaintenanceDashboard() {
     }
     
     setCurrentCommand("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (commandHistory.length > 0) {
+        const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
+        setHistoryIndex(newIndex);
+        setCurrentCommand(commandHistory[newIndex]);
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex >= 0) {
+        const newIndex = historyIndex + 1;
+        if (newIndex >= commandHistory.length) {
+          setHistoryIndex(-1);
+          setCurrentCommand("");
+        } else {
+          setHistoryIndex(newIndex);
+          setCurrentCommand(commandHistory[newIndex]);
+        }
+      }
+    }
   };
 
   // Auto-scroll terminal to bottom
