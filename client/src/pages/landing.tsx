@@ -110,8 +110,8 @@ export default function Landing() {
         {/* Full-screen prison bars overlay */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Vertical prison bars spanning full screen */}
-          <div className="absolute inset-0 grid grid-cols-12 gap-8 px-4">
-            {Array.from({ length: 12 }).map((_, i) => (
+          <div className="absolute inset-0 grid grid-cols-10 gap-12 px-4">
+            {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="w-3 bg-gradient-to-b from-gray-500/70 via-gray-400/70 to-gray-500/70 rounded-full shadow-2xl border border-gray-600 relative jail-bars mx-auto">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
               </div>
@@ -119,8 +119,8 @@ export default function Landing() {
           </div>
           
           {/* Horizontal security bars spanning full screen */}
-          <div className="absolute inset-0 flex flex-col justify-evenly">
-            {Array.from({ length: 8 }).map((_, i) => (
+          <div className="absolute inset-0 flex flex-col justify-evenly py-8">
+            {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-3 bg-gradient-to-r from-gray-500/70 via-gray-400/70 to-gray-500/70 rounded-full shadow-2xl border border-gray-600 relative jail-bars">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent rounded-full"></div>
               </div>
