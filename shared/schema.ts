@@ -238,10 +238,14 @@ export const insertCheckInSchema = createInsertSchema(checkIns).omit({
 export const insertPaymentSchema = createInsertSchema(payments).omit({
   id: true,
   createdAt: true,
+}).extend({
+  paymentDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
 });
 export const insertMessageSchema = createInsertSchema(messages).omit({
   id: true,
   createdAt: true,
+}).extend({
+  senderType: z.string().default("admin"),
 });
 export const insertCourtDateSchema = createInsertSchema(courtDates).omit({
   id: true,
@@ -252,6 +256,8 @@ export const insertCourtDateSchema = createInsertSchema(courtDates).omit({
 export const insertExpenseSchema = createInsertSchema(expenses).omit({
   id: true,
   createdAt: true,
+}).extend({
+  expenseDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
 });
 export const insertAlertSchema = createInsertSchema(alerts).omit({
   id: true,
