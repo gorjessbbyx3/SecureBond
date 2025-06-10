@@ -80,12 +80,20 @@ export default function ClientAnalyticsDashboard() {
     return monthlyGrowth;
   };
 
-  // Geographic Distribution (mock data since location tracking isn't fully implemented)
+  // Geographic Distribution from actual client addresses
   const getGeographicData = () => {
+    if (!clients || clients.length === 0) {
+      return [];
+    }
+
     const locations = clients.reduce((acc, client) => {
       if (client.address) {
-        const city = client.address.split(',')[1]?.trim() || 'Unknown';
-        acc[city] = (acc[city] || 0) + 1;
+        const addressParts = client.address.split(',');
+        const city = addressParts.length > 1 ? addressParts[1].trim() : addressParts[0].trim();
+        const normalizedCity = city || 'Address Not Specified';
+        acc[normalizedCity] = (acc[normalizedCity] || 0) + 1;
+      } else {
+        acc['No Address Provided'] = (acc['No Address Provided'] || 0) + 1;
       }
       return acc;
     }, {} as Record<string, number>);

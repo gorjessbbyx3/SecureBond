@@ -53,12 +53,20 @@ export default function ClientAnalytics() {
     const cutoffDate = new Date(now.getTime() - (daysBack * 24 * 60 * 60 * 1000));
 
     // Client status analysis
-    const activeClients = clients.filter((client: any) => client.status === 'active');
+    const activeClients = clients.filter((client: any) => client.isActive === true);
     const totalClients = clients.length;
 
-    // Risk level distribution
+    // Risk analysis based on actual data (missed check-ins, bond violations)
     const riskDistribution = clients.reduce((acc: any, client: any) => {
-      const risk = client.riskLevel || 'medium';
+      const missedCheckIns = client.missedCheckIns || 0;
+      let risk = 'low';
+      
+      if (missedCheckIns >= 3) {
+        risk = 'high';
+      } else if (missedCheckIns >= 1) {
+        risk = 'medium';
+      }
+      
       acc[risk] = (acc[risk] || 0) + 1;
       return acc;
     }, { low: 0, medium: 0, high: 0 });

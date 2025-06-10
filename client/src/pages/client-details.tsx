@@ -141,9 +141,9 @@ export default function ClientDetails() {
     return <Badge variant="secondary">Inactive</Badge>;
   };
 
-  const activeBonds = bonds.filter((bond: any) => bond.isActive);
+  const activeBonds = Array.isArray(bonds) ? bonds.filter((bond: any) => bond.isActive) : [];
   const totalBondAmount = activeBonds.reduce((sum: number, bond: any) => sum + parseFloat(bond.amount || "0"), 0);
-  const upcomingCourtDates = courtDates.filter((court: any) => new Date(court.courtDate) > new Date() && !court.completed);
+  const upcomingCourtDates = Array.isArray(courtDates) ? courtDates.filter((court: any) => new Date(court.courtDate) > new Date() && !court.completed) : [];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -161,8 +161,8 @@ export default function ClientDetails() {
             Back to Dashboard
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">{client.fullName}</h1>
-            <p className="text-slate-600">Client ID: {client.clientId}</p>
+            <h1 className="text-3xl font-bold text-slate-900">{client?.fullName || 'Unknown Client'}</h1>
+            <p className="text-slate-600">Client ID: {client?.clientId || 'N/A'}</p>
           </div>
           <div className="ml-auto">
             {getStatusBadge(client)}
