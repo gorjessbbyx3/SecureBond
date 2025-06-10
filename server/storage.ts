@@ -100,8 +100,11 @@ export interface IStorage {
   
   // Additional client info operations
   getClientVehicles(clientId: number): Promise<ClientVehicle[]>;
+  createClientVehicle(vehicle: any): Promise<ClientVehicle>;
   getClientFamily(clientId: number): Promise<FamilyMember[]>;
+  createFamilyMember(family: any): Promise<FamilyMember>;
   getClientEmployment(clientId: number): Promise<EmploymentInfo[]>;
+  createEmploymentInfo(employment: any): Promise<EmploymentInfo>;
   getClientFiles(clientId: number): Promise<ClientFile[]>;
   
   // Court date reminder operations

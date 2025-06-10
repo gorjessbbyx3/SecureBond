@@ -1,0 +1,60 @@
+Terms of Service
+Effective Date: [Insert Date]
+Developer: [Your Name / Entity Name]
+
+This Terms of Service ("Agreement") governs your use of the software application ("Application") developed by [Developer Name] for use by licensed bail bond companies and their clients. By accessing or using the Application, you ("User") agree to be bound by the terms of this Agreement. If you do not agree with these terms, you may not use the Application.
+
+1. Acceptance of Terms
+By installing, accessing, or using the Application, the User agrees to comply with and be bound by this Agreement. This includes the Company (bail bond business) and any third-party Clients who interact with the Application.
+
+2. Purpose of the Application
+The Application is intended solely as a digital tool to assist licensed bail bond companies in managing operations such as check-ins, notifications, location tracking, document uploads, and communication. It is not a legal service, nor is it a substitute for professional legal advice or obligations.
+
+3. User Responsibilities
+The Company is responsible for ensuring the Application is used in accordance with all applicable local, state, and federal laws.
+
+Clients are responsible for complying with their own legal obligations, including but not limited to court appearances, reporting conditions, and communication with their bail bond agent.
+
+The Developer is not responsible for configuring or maintaining the Company’s internal workflows, settings, or policies.
+
+4. No Legal Advice
+The Application does not provide legal advice, legal representation, or compliance assurance. Any information presented is for administrative convenience only and should not be relied upon as legal guidance.
+
+5. Limitation of Liability
+The Application is provided "as is," without warranties of any kind, express or implied. The Developer makes no guarantees regarding uptime, accuracy, performance, or reliability.
+
+By using this Application, both the Company and its Clients agree to the following:
+
+The Developer shall not be held liable for any damages, including but not limited to missed court appearances, arrests, incarceration, lost revenue, legal consequences, or business disruptions resulting from the use or misuse of the Application.
+
+The Developer is not responsible for any data input errors, missed alerts, or failures in location tracking, notifications, or submissions.
+
+Use of the Application is entirely at the User’s own risk.
+
+6. Client Acknowledgment
+Clients using this Application understand that:
+
+It is a third-party tool not owned or operated by any government entity.
+
+The Developer is not affiliated with the court system, law enforcement, or the bail bond company beyond the technical provision of the Application.
+
+Any issues related to bond, court dates, or check-ins must be directed to the bail bond company.
+
+7. Indemnification
+Users agree to indemnify and hold harmless the Developer from any and all claims, damages, liabilities, costs, or expenses (including attorney's fees) arising from their use or misuse of the Application.
+
+8. Modifications to the Agreement
+The Developer reserves the right to update or modify this Agreement at any time without prior notice. Continued use of the Application after such changes constitutes acceptance of the updated Agreement.
+
+9. Termination
+The Developer reserves the right to suspend or terminate access to the Application at their discretion, without liability, for any reason including breach of this Agreement.
+
+10. Governing Law
+This Agreement shall be governed by and construed in accordance with the laws of the State of [Insert State], without regard to its conflict of laws principles.
+
+11. Contact
+For questions or concerns about this Agreement, please contact:
+
+[Your Full Name]
+[Your Business Name, if applicable]
+[Your Email Address]

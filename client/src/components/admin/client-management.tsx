@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -316,7 +317,11 @@ export default function ClientManagement() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">{client.fullName}</h3>
+                      <Link href={`/client/${client.id}`}>
+                        <h3 className="text-lg font-semibold text-blue-600 hover:text-blue-800 cursor-pointer hover:underline">
+                          {client.fullName}
+                        </h3>
+                      </Link>
                       {getStatusBadge(client)}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
