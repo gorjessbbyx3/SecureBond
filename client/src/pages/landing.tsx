@@ -91,9 +91,9 @@ export default function Landing() {
           <div className="flex items-center justify-center">
             <div className="text-center flex flex-col items-center">
               <img 
-                src="/attached_assets/download_1749535196337.png" 
+                src="@assets/download_1749535196337.png" 
                 alt="Aloha Bail Bonds Logo" 
-                className="h-16 md:h-20 w-auto mb-2"
+                className="h-16 md:h-20 w-auto mb-2 filter drop-shadow-lg"
               />
               <p className="text-blue-100 text-sm">Professional Bail Bond Services</p>
             </div>
@@ -107,11 +107,11 @@ export default function Landing() {
           <Card className="secure-card overflow-hidden backdrop-blur-sm bg-white/95 shadow-2xl border-2 border-gray-300">
             {/* Card Header */}
             <div className="professional-gradient px-8 py-6 text-center">
-              <div className="w-20 h-16 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-4 p-2">
+              <div className="w-24 h-20 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-4 p-3">
                 <img 
-                  src="/attached_assets/download_1749535196337.png" 
+                  src="@assets/download_1749535196337.png" 
                   alt="Aloha Bail Bonds" 
-                  className="h-full w-auto"
+                  className="h-full w-auto object-contain"
                 />
               </div>
               <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>

@@ -88,9 +88,9 @@ export default function EnhancedAdminDashboard() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <img 
-              src="/attached_assets/download_1749535196337.png" 
+              src="@assets/download_1749535196337.png" 
               alt="Aloha Bail Bonds" 
-              className="h-10 w-auto"
+              className="h-10 w-auto object-contain"
             />
             <div className="flex items-center gap-4">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
