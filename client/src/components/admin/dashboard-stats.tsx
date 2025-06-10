@@ -1,8 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Users, DollarSign, Calendar, AlertTriangle, TrendingUp, Clock } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Users, DollarSign, Calendar, AlertTriangle, TrendingUp, Clock, ExternalLink } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { DashboardStats as DashboardStatsType, Alert } from "@/lib/types";
 
 interface DashboardStatsProps {
@@ -10,12 +13,30 @@ interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { data: stats } = useQuery<DashboardStatsType>({
     queryKey: ['/api/dashboard/stats'],
   });
 
   const { data: alerts } = useQuery<Alert[]>({
     queryKey: ['/api/alerts/unacknowledged'],
+  });
+
+  const acknowledgeAlertMutation = useMutation({
+    mutationFn: async (alertId: number) => {
+      return await apiRequest(`/api/alerts/${alertId}/acknowledge`, "PATCH", {
+        acknowledgedBy: "admin"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/alerts'] });
+      toast({
+        title: "Alert Acknowledged",
+        description: "The alert has been marked as acknowledged.",
+      });
+    },
   });
 
   // Provide default values for stats to prevent type errors
@@ -140,25 +161,68 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
   return (
     <div className="space-y-4">
       {safeAlerts && safeAlerts.length > 0 && (
-        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 cursor-pointer hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle className="text-red-800 dark:text-red-200 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Active Alerts ({safeAlerts.length})
+            <CardTitle className="text-red-800 dark:text-red-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Active Alerts ({safeAlerts.length})
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Navigate to alerts tab or show alerts modal
+                  const alertsTab = document.querySelector('[data-value="alerts"]') as HTMLElement;
+                  if (alertsTab) {
+                    alertsTab.click();
+                  }
+                }}
+                className="text-xs"
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                View All
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {safeAlerts.slice(0, 3).map((alert: any) => (
-                <div key={alert.id} className="flex items-center justify-between">
-                  <span className="text-sm text-red-700 dark:text-red-300">{alert.message}</span>
-                  <Badge variant="destructive">{alert.alertType || alert.type || 'Alert'}</Badge>
+                <div key={alert.id} className="flex items-center justify-between p-2 rounded border border-red-200 bg-white dark:bg-red-950 hover:bg-red-25 dark:hover:bg-red-900 transition-colors">
+                  <span className="text-sm text-red-700 dark:text-red-300 flex-1">{alert.message}</span>
+                  <div className="flex items-center gap-2 ml-2">
+                    <Badge variant="destructive" className="text-xs">
+                      {alert.alertType || alert.type || 'Alert'}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        acknowledgeAlertMutation.mutate(alert.id);
+                      }}
+                      disabled={acknowledgeAlertMutation.isPending}
+                      className="h-6 px-2 text-xs text-red-600 hover:text-red-800"
+                    >
+                      Acknowledge
+                    </Button>
+                  </div>
                 </div>
               ))}
               {safeAlerts.length > 3 && (
-                <p className="text-xs text-red-600 dark:text-red-400">
-                  +{safeAlerts.length - 3} more alerts
-                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const alertsTab = document.querySelector('[data-value="alerts"]') as HTMLElement;
+                    if (alertsTab) {
+                      alertsTab.click();
+                    }
+                  }}
+                  className="w-full text-xs text-red-600 hover:text-red-800"
+                >
+                  +{safeAlerts.length - 3} more alerts - Click to view all
+                </Button>
               )}
             </div>
           </CardContent>
