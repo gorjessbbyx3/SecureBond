@@ -164,33 +164,5 @@
     "id": 41,
     "createdAt": "2025-06-10T06:42:46.597Z",
     "updatedAt": "2025-06-10T06:42:46.597Z"
-  },
-  {
-    "clientId": "SBMBQ5M4G0192B",
-    "fullName": "Maria Rodriguez",
-    "phoneNumber": "(808) 555-0201",
-    "address": "456 Ocean Ave, Kailua, HI 96734",
-    "dateOfBirth": "1990-07-22",
-    "emergencyContact": "Carlos Rodriguez",
-    "emergencyPhone": "(808) 555-0202",
-    "isActive": true,
-    "password": "$2b$10$463ZCjU1i808WH8HsqicNuBaADGbU/vadTPrggrO96fMKRsHkXaam",
-    "id": 42,
-    "createdAt": "2025-06-10T06:42:46.657Z",
-    "updatedAt": "2025-06-10T06:42:46.657Z"
-  },
-  {
-    "clientId": "SBMBQ5M4HW5CF5",
-    "fullName": "Robert Johnson",
-    "phoneNumber": "(808) 555-0301",
-    "address": "789 Beach Rd, Waikiki, HI 96815",
-    "dateOfBirth": "1988-11-10",
-    "emergencyContact": "Linda Johnson",
-    "emergencyPhone": "(808) 555-0302",
-    "isActive": false,
-    "password": "$2b$10$dbrG2PeX5JkzynBH9kd1hus0tDbKN91kZmZ59xk7UFsu2QI79s2jK",
-    "id": 43,
-    "createdAt": "2025-06-10T06:42:46.724Z",
-    "updatedAt": "2025-06-10T06:42:46.724Z"
   }
 ]

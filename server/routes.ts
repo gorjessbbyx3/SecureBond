@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import session from "express-session";
 import { storage } from "./storage";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
+import bcrypt from 'bcrypt';
 import { 
   insertClientSchema, 
   insertBondSchema,
@@ -15,7 +16,6 @@ import {
   insertNotificationSchema,
   insertNotificationPreferencesSchema
 } from "@shared/schema";
-import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 import { courtScraper } from "./courtScraper";
 import multer from "multer";
@@ -60,6 +60,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Staff login endpoint
+  app.post('/api/staff/login', async (req, res) => {
+    try {
+      const { email, password, role } = req.body;
+      
+      // Demo staff credentials
+      const staffCredentials = {
+        'admin@alohabailbond.com': { password: 'admin123', role: 'admin', firstName: 'Admin', lastName: 'User' },
+        'staff@alohabailbond.com': { password: 'staff123', role: 'staff', firstName: 'Staff', lastName: 'Member' },
+      };
+
+      const staff = staffCredentials[email as keyof typeof staffCredentials];
+      
+      if (!staff || staff.password !== password || staff.role !== role) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Store session
+      (req.session as any).user = {
+        id: email,
+        email,
+        role: staff.role,
+        firstName: staff.firstName,
+        lastName: staff.lastName
+      };
+
+      res.json({
+        id: email,
+        email,
+        role: staff.role,
+        firstName: staff.firstName,
+        lastName: staff.lastName
+      });
+    } catch (error) {
+      console.error("Staff login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  // Client login endpoints
+  app.post('/api/client/login', async (req, res) => {
+    try {
+      const { clientId, password } = req.body;
+      
+      // Find client by clientId
+      const clients = await storage.getAllClients();
+      const client = clients.find(c => c.clientId === clientId);
+      
+      if (!client) {
+        return res.status(401).json({ message: "Invalid client ID" });
+      }
+
+      // Verify password
+      const passwordMatch = await bcrypt.compare(password, client.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: "Invalid password" });
+      }
+
+      // Store session
+      (req.session as any).user = {
+        id: client.id,
+        clientId: client.clientId,
+        role: 'client',
+        fullName: client.fullName
+      };
+
+      res.json({
+        id: client.id,
+        clientId: client.clientId,
+        role: 'client',
+        fullName: client.fullName
+      });
+    } catch (error) {
+      console.error("Client login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.post('/api/client/login-phone', async (req, res) => {
+    try {
+      const { phoneNumber, password } = req.body;
+      
+      // Find client by phone number
+      const clients = await storage.getAllClients();
+      const client = clients.find(c => c.phoneNumber === phoneNumber);
+      
+      if (!client) {
+        return res.status(401).json({ message: "Invalid phone number" });
+      }
+
+      // Verify password
+      const passwordMatch = await bcrypt.compare(password, client.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: "Invalid password" });
+      }
+
+      // Store session
+      (req.session as any).user = {
+        id: client.id,
+        clientId: client.clientId,
+        role: 'client',
+        fullName: client.fullName
+      };
+
+      res.json({
+        id: client.id,
+        clientId: client.clientId,
+        role: 'client',
+        fullName: client.fullName
+      });
+    } catch (error) {
+      console.error("Client phone login error:", error);
+      res.status(500).json({ message: "Login failed" });
     }
   });
 
@@ -443,8 +559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (existingClient) {
             // Update existing client (exclude clientId from updates)
-            const updateData = { ...clientData };
-            delete updateData.clientId;
+            const { clientId: _, ...updateData } = clientData;
             await storage.updateClient(existingClient.id, updateData);
             updated++;
           } else {

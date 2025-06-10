@@ -1,0 +1,92 @@
+[
+  {
+    "clientId": 1,
+    "amount": "500.00",
+    "paymentMethod": "credit_card",
+    "notes": "Initial down payment for bond SB067268003",
+    "id": 7,
+    "paymentDate": "2025-06-10T06:31:25.742Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:31:25.742Z"
+  },
+  {
+    "clientId": 8,
+    "amount": "500.00",
+    "paymentMethod": "credit_card",
+    "notes": "Initial down payment for bond SB119375010",
+    "id": 14,
+    "paymentDate": "2025-06-10T06:32:09.915Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:32:09.915Z"
+  },
+  {
+    "clientId": 9,
+    "amount": "250.00",
+    "paymentMethod": "cash",
+    "notes": "Down payment for bond SB119423011",
+    "id": 15,
+    "paymentDate": "2025-06-10T06:32:09.947Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:32:09.947Z"
+  },
+  {
+    "clientId": 19,
+    "amount": "500.00",
+    "paymentMethod": "credit_card",
+    "notes": "Initial down payment for bond SB195366021",
+    "id": 25,
+    "paymentDate": "2025-06-10T06:33:25.064Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:33:25.064Z"
+  },
+  {
+    "clientId": 20,
+    "amount": "250.00",
+    "paymentMethod": "cash",
+    "notes": "Down payment for bond SB195399022",
+    "id": 26,
+    "paymentDate": "2025-06-10T06:33:25.096Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:33:25.096Z"
+  },
+  {
+    "clientId": 29,
+    "amount": "500.00",
+    "paymentMethod": "credit_card",
+    "notes": "Initial down payment",
+    "id": 35,
+    "paymentDate": "2025-06-10T06:34:35.218Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:34:35.218Z"
+  },
+  {
+    "clientId": 30,
+    "amount": "250.00",
+    "paymentMethod": "cash",
+    "notes": "Down payment",
+    "id": 36,
+    "paymentDate": "2025-06-10T06:34:35.252Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:34:35.252Z"
+  },
+  {
+    "clientId": 29,
+    "amount": "100.00",
+    "paymentMethod": "comp",
+    "notes": "Complimentary payment for client services",
+    "id": 39,
+    "paymentDate": "2025-06-10T06:36:14.671Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:36:14.671Z"
+  },
+  {
+    "clientId": 30,
+    "amount": "75.00",
+    "paymentMethod": "other",
+    "notes": "Alternative payment method used",
+    "id": 40,
+    "paymentDate": "2025-06-10T06:36:14.711Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:36:14.711Z"
+  }
+]
