@@ -357,6 +357,19 @@ export const insertNotificationPreferencesSchema = createInsertSchema(notificati
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+// Terms of Service acknowledgment tracking
+export const termsAcknowledgments = pgTable("terms_acknowledgments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  version: varchar("version").notNull().default("2025-06-01"),
+  acknowledgedAt: timestamp("acknowledged_at").defaultNow(),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+});
+
+export type TermsAcknowledgment = typeof termsAcknowledgments.$inferSelect;
+export type InsertTermsAcknowledgment = typeof termsAcknowledgments.$inferInsert;
 export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Client = typeof clients.$inferSelect;
 export type InsertBond = z.infer<typeof insertBondSchema>;
