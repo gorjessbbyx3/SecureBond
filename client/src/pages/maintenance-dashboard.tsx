@@ -35,15 +35,32 @@ export default function MaintenanceDashboard() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/auth/logout");
+      // Clear session and redirect to login
+      return fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     },
     onSuccess: () => {
       queryClient.clear();
-      setLocation("/");
+      // Clear any stored authentication
+      localStorage.clear();
+      sessionStorage.clear();
+      // Redirect to main login page
+      window.location.href = "/";
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
       });
+    },
+    onError: () => {
+      // Even if logout fails, clear local storage and redirect
+      queryClient.clear();
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "/";
     },
   });
 

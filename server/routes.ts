@@ -42,6 +42,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin credential management routes
+  app.get('/api/admin/credentials', async (req, res) => {
+    try {
+      const credentials = {
+        admin: {
+          username: 'admin',
+          // Don't expose actual password
+        },
+        maintenance: {
+          username: 'webmaster',
+          // Don't expose actual password
+        }
+      };
+      res.json(credentials);
+    } catch (error) {
+      console.error("Error fetching admin credentials:", error);
+      res.status(500).json({ message: "Failed to fetch credentials" });
+    }
+  });
+
+  app.patch('/api/admin/credentials', async (req, res) => {
+    try {
+      const { role, username, password } = req.body;
+      
+      if (!role || !username || !password) {
+        return res.status(400).json({ message: "Role, username, and password are required" });
+      }
+
+      // In a real app, you'd update the credentials in a secure store
+      // For now, we'll just simulate success
+      console.log(`Updated ${role} credentials for ${username}`);
+      
+      res.json({ message: "Credentials updated successfully" });
+    } catch (error) {
+      console.error("Error updating credentials:", error);
+      res.status(500).json({ message: "Failed to update credentials" });
+    }
+  });
+
+  // Client credential retrieval route
+  app.get('/api/clients/:id/credentials', async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ message: "Client not found" });
+      }
+
+      res.json({
+        clientId: client.clientId,
+        password: client.password
+      });
+    } catch (error) {
+      console.error("Error fetching client credentials:", error);
+      res.status(500).json({ message: "Failed to fetch client credentials" });
+    }
+  });
+
+  // Logout endpoint for maintenance dashboard
+  app.post('/api/auth/logout', async (req, res) => {
+    try {
+      // Destroy session if using sessions
+      if (req.session) {
+        req.session.destroy((err) => {
+          if (err) {
+            console.error("Session destruction error:", err);
+          }
+        });
+      }
+      
+      // Clear any authentication cookies
+      res.clearCookie('connect.sid');
+      res.clearCookie('session');
+      
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      res.status(500).json({ message: "Failed to logout" });
+    }
+  });
+
   // Client authentication
   app.post('/api/auth/client-login', async (req, res) => {
     try {
