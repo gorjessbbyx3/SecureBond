@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,17 +37,66 @@ export default function ClientDashboard() {
     logoutMutation.mutate();
   };
 
-  // Mock client data - in real app this would come from session/auth
-  const clientData = {
-    id: 1,
-    fullName: "John Smith",
-    clientId: "SB123456",
-    bondAmount: "25000.00",
-    courtDate: "2024-02-15T10:00:00Z",
-    courtLocation: "District Court Room 3A",
-    lastCheckIn: "2024-01-10T14:30:00Z",
-    nextCheckInDue: "2024-01-12T23:59:59Z",
-  };
+  // Fetch actual client data from session/auth
+  const { data: clientData, isLoading: clientLoading } = useQuery({
+    queryKey: ["/api/auth/client"],
+    retry: false,
+  });
+
+  const { data: clientBonds } = useQuery({
+    queryKey: ["/api/client/bonds"],
+    enabled: !!clientData?.id,
+  });
+
+  const { data: clientCourtDates } = useQuery({
+    queryKey: ["/api/client/court-dates"],
+    enabled: !!clientData?.id,
+  });
+
+  const { data: clientCheckIns } = useQuery({
+    queryKey: ["/api/client/checkins"],
+    enabled: !!clientData?.id,
+  });
+
+  // Calculate real client dashboard data
+  const dashboardData = useMemo(() => {
+    if (!clientData) return null;
+
+    const activeBonds = clientBonds?.filter((bond: any) => bond.isActive) || [];
+    const totalBondAmount = activeBonds.reduce((sum: number, bond: any) => sum + parseFloat(bond.amount || "0"), 0);
+    
+    const upcomingCourtDates = clientCourtDates?.filter((court: any) => 
+      new Date(court.courtDate) > new Date() && !court.completed
+    ).sort((a: any, b: any) => new Date(a.courtDate).getTime() - new Date(b.courtDate).getTime()) || [];
+    
+    const recentCheckIns = clientCheckIns?.sort((a: any, b: any) => 
+      new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime()
+    ) || [];
+
+    const lastCheckIn = recentCheckIns[0];
+    const nextCourtDate = upcomingCourtDates[0];
+
+    return {
+      id: clientData.id,
+      fullName: clientData.fullName,
+      clientId: clientData.clientId,
+      bondAmount: totalBondAmount.toFixed(2),
+      courtDate: nextCourtDate?.courtDate || null,
+      courtLocation: nextCourtDate?.courtLocation || "No upcoming court dates",
+      lastCheckIn: lastCheckIn?.checkInTime || null,
+      nextCheckInDue: null, // Would need to calculate based on check-in schedule
+      createdAt: clientData.createdAt,
+      isActive: clientData.isActive,
+    };
+  }, [clientData, clientBonds, clientCourtDates, clientCheckIns]);
+
+  if (clientLoading || !dashboardData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
