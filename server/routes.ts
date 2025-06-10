@@ -608,6 +608,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test data endpoint for demonstration
+  app.post('/api/test/populate-data', isAuthenticated, async (req, res) => {
+    try {
+      // Create test clients
+      const client1 = await storage.createClient({
+        clientId: 'SB123456',
+        password: '$2b$10$example.hash.for.demo.purposes',
+        fullName: 'John Smith',
+        phoneNumber: '555-0123',
+        address: '123 Main St, Anytown, ST 12345',
+        dateOfBirth: new Date('1985-06-15'),
+        emergencyContact: 'Jane Smith',
+        emergencyPhone: '555-0124',
+        bondAmount: '25000.00',
+        courtDate: new Date('2024-02-15T10:00:00Z'),
+        courtLocation: 'District Court Room 3A',
+        charges: 'Theft in the third degree',
+        isActive: true,
+        missedCheckIns: 2 // This will trigger notifications
+      });
+
+      const client2 = await storage.createClient({
+        clientId: 'SB789012',
+        password: '$2b$10$example.hash.for.demo.purposes2',
+        fullName: 'Maria Garcia',
+        phoneNumber: '555-0456',
+        address: '456 Oak Ave, Another City, ST 67890',
+        dateOfBirth: new Date('1992-03-20'),
+        emergencyContact: 'Carlos Garcia',
+        emergencyPhone: '555-0457',
+        bondAmount: '15000.00',
+        courtDate: new Date('2024-02-28T14:00:00Z'),
+        courtLocation: 'Municipal Court Room 1B',
+        charges: 'DUI',
+        isActive: true,
+        missedCheckIns: 0
+      });
+
+      // Create test payments
+      const payment1 = await storage.createPayment({
+        clientId: client1.id,
+        amount: '5000.00',
+        paymentMethod: 'Cash',
+        paymentDate: new Date(),
+        confirmed: false, // This will appear in pending notifications
+        notes: 'Initial payment for John Smith bond'
+      });
+
+      const payment2 = await storage.createPayment({
+        clientId: client2.id,
+        amount: '3000.00',
+        paymentMethod: 'Credit Card',
+        paymentDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        confirmed: true,
+        confirmedBy: 'admin',
+        confirmedAt: new Date(Date.now() - 23 * 60 * 60 * 1000),
+        notes: 'Payment confirmed for Maria Garcia'
+      });
+
+      // Create test expenses
+      const expense1 = await storage.createExpense({
+        description: 'Office rent payment',
+        amount: '2500.00',
+        category: 'Operating Expenses',
+        expenseDate: new Date(),
+        createdBy: 'admin'
+      });
+
+      const expense2 = await storage.createExpense({
+        description: 'Legal consultation fees',
+        amount: '800.00',
+        category: 'Professional Services',
+        expenseDate: new Date(Date.now() - 48 * 60 * 60 * 1000),
+        createdBy: 'admin'
+      });
+
+      // Create test alerts
+      const alert1 = await storage.createAlert({
+        clientId: client1.id,
+        alertType: 'missed_checkin',
+        severity: 'high',
+        message: `${client1.fullName} has missed 2 consecutive check-ins`,
+        acknowledged: false
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Test data populated successfully',
+        created: {
+          clients: 2,
+          payments: 2,
+          expenses: 2,
+          alerts: 1
+        }
+      });
+    } catch (error) {
+      console.error('Error populating test data:', error);
+      res.status(500).json({ message: 'Failed to populate test data' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
