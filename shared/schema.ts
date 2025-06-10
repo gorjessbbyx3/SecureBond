@@ -61,7 +61,7 @@ export const clients = pgTable("clients", {
 export const bonds = pgTable("bonds", {
   id: serial("id").primaryKey(),
   clientId: integer("client_id").references(() => clients.id).notNull(),
-  bondNumber: varchar("bond_number").unique().notNull(), // Auto-generated bond contract number
+  bondNumber: varchar("bond_number").unique(), // Auto-generated bond contract number
   bondAmount: decimal("bond_amount", { precision: 10, scale: 2 }).notNull(),
   totalOwed: decimal("total_owed", { precision: 10, scale: 2 }).notNull(),
   downPayment: decimal("down_payment", { precision: 10, scale: 2 }).default("0.00"),
@@ -217,8 +217,17 @@ export const insertClientSchema = createInsertSchema(clients).omit({
 });
 export const insertBondSchema = createInsertSchema(bonds).omit({
   id: true,
+  bondNumber: true,
+  status: true,
+  bondType: true,
+  premiumRate: true,
+  issuedDate: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  courtDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+  expirationDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+  completedDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
 });
 export const insertCheckInSchema = createInsertSchema(checkIns).omit({
   id: true,
