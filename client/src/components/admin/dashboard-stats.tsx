@@ -8,14 +8,42 @@ interface DashboardStatsProps {
   role?: 'admin' | 'maintenance' | 'client';
 }
 
+interface DashboardStats {
+  totalClients: number;
+  activeClients: number;
+  upcomingCourtDates: number;
+  pendingPayments: number;
+  totalRevenue: number;
+  pendingAmount: number;
+}
+
+interface Alert {
+  id: string | number;
+  message: string;
+  alertType?: string;
+  type?: string;
+}
+
 export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) {
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<DashboardStats>({
     queryKey: ['/api/dashboard/stats'],
   });
 
-  const { data: alerts } = useQuery({
+  const { data: alerts } = useQuery<Alert[]>({
     queryKey: ['/api/alerts/unacknowledged'],
   });
+
+  // Provide default values for stats to prevent type errors
+  const safeStats: DashboardStats = stats || {
+    totalClients: 0,
+    activeClients: 0,
+    upcomingCourtDates: 0,
+    pendingPayments: 0,
+    totalRevenue: 0,
+    pendingAmount: 0
+  };
+
+  const safeAlerts: Alert[] = alerts || [];
 
   if (!stats) {
     return (
@@ -39,34 +67,34 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
   const statCards = [
     {
       title: "Total Clients",
-      value: stats.totalClients || 0,
-      description: `${stats.activeClients || 0} active`,
+      value: safeStats.totalClients,
+      description: `${safeStats.activeClients} active`,
       icon: Users,
-      trend: stats.totalClients > 0 ? "+12% from last month" : "No clients yet",
+      trend: safeStats.totalClients > 0 ? "+12% from last month" : "No clients yet",
       color: "text-blue-600",
     },
     {
       title: "Revenue",
-      value: `$${(stats.totalRevenue || 0).toLocaleString()}`,
+      value: `$${safeStats.totalRevenue.toLocaleString()}`,
       description: "This month",
       icon: DollarSign,
-      trend: stats.totalRevenue > 0 ? "+8.2% from last month" : "No revenue yet",
+      trend: safeStats.totalRevenue > 0 ? "+8.2% from last month" : "No revenue yet",
       color: "text-green-600",
     },
     {
       title: "Court Dates",
-      value: stats.upcomingCourtDates || 0,
+      value: safeStats.upcomingCourtDates,
       description: "Next 30 days",
       icon: Calendar,
-      trend: stats.upcomingCourtDates > 0 ? "3 this week" : "No upcoming dates",
+      trend: safeStats.upcomingCourtDates > 0 ? "3 this week" : "No upcoming dates",
       color: "text-orange-600",
     },
     {
       title: "Pending Payments",
-      value: stats.pendingPayments || 0,
-      description: `$${(stats.pendingAmount || 0).toLocaleString()} total`,
+      value: safeStats.pendingPayments,
+      description: `$${safeStats.pendingAmount.toLocaleString()} total`,
       icon: AlertTriangle,
-      trend: stats.pendingPayments > 0 ? "-2 from yesterday" : "No pending payments",
+      trend: safeStats.pendingPayments > 0 ? "-2 from yesterday" : "No pending payments",
       color: "text-red-600",
     },
   ];
@@ -125,25 +153,25 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
 
   return (
     <div className="space-y-4">
-      {alerts && alerts.length > 0 && (
+      {safeAlerts && safeAlerts.length > 0 && (
         <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
           <CardHeader>
             <CardTitle className="text-red-800 dark:text-red-200 flex items-center gap-2">
               <AlertTriangle className="h-5 w-5" />
-              Active Alerts ({alerts.length})
+              Active Alerts ({safeAlerts.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {alerts.slice(0, 3).map((alert: any) => (
+              {safeAlerts.slice(0, 3).map((alert: any) => (
                 <div key={alert.id} className="flex items-center justify-between">
                   <span className="text-sm text-red-700 dark:text-red-300">{alert.message}</span>
-                  <Badge variant="destructive">{alert.type}</Badge>
+                  <Badge variant="destructive">{alert.alertType || alert.type || 'Alert'}</Badge>
                 </div>
               ))}
-              {alerts.length > 3 && (
+              {safeAlerts.length > 3 && (
                 <p className="text-xs text-red-600 dark:text-red-400">
-                  +{alerts.length - 3} more alerts
+                  +{safeAlerts.length - 3} more alerts
                 </p>
               )}
             </div>

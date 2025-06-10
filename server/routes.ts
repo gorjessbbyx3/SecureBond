@@ -362,19 +362,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/clients/locations', isAuthenticated, async (req, res) => {
     try {
       const clients = await storage.getAllClients();
-      const locationsData = clients.map(client => ({
-        id: client.id,
-        clientId: client.clientId,
-        fullName: client.fullName,
-        lastCheckIn: client.lastCheckIn,
-        status: client.missedCheckIns > 2 ? 'missing' : 
-                client.missedCheckIns > 0 ? 'overdue' : 'compliant',
-        location: {
-          latitude: 40.7128 + Math.random() * 0.1,
-          longitude: -74.0060 + Math.random() * 0.1,
-          address: client.address || 'Location not available'
-        }
-      }));
+      const locationsData = clients.map(client => {
+        const missedCount = client.missedCheckIns || 0;
+        return {
+          id: client.id,
+          clientId: client.clientId,
+          fullName: client.fullName,
+          lastCheckIn: client.lastCheckIn,
+          status: missedCount > 2 ? 'missing' : 
+                  missedCount > 0 ? 'overdue' : 'compliant',
+          location: {
+            latitude: 40.7128 + Math.random() * 0.1,
+            longitude: -74.0060 + Math.random() * 0.1,
+            address: client.address || 'Location not available'
+          }
+        };
+      });
       
       res.json(locationsData);
     } catch (error) {
@@ -499,6 +502,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Cleanup error:", error);
       res.status(500).json({ message: "Failed to cleanup data" });
+    }
+  });
+
+  // Notifications endpoint
+  app.get('/api/notifications', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const payments = await storage.getAllPayments();
+      const alerts = await storage.getAllUnacknowledgedAlerts();
+      
+      const notifications = [];
+      
+      // Create notifications from unconfirmed payments
+      const unconfirmedPayments = payments.filter(p => !p.confirmed);
+      for (const payment of unconfirmedPayments) {
+        notifications.push({
+          id: `payment-${payment.id}`,
+          type: 'payment',
+          priority: 'high',
+          title: 'Payment Received',
+          message: `New payment of $${payment.amount} needs confirmation`,
+          clientId: payment.clientId,
+          timestamp: payment.paymentDate,
+          read: false,
+          actionRequired: true,
+        });
+      }
+      
+      // Create notifications from missed check-ins
+      const missedCheckInClients = clients.filter(c => (c.missedCheckIns || 0) > 0);
+      for (const client of missedCheckInClients) {
+        const missedCount = client.missedCheckIns || 0;
+        const priority = missedCount > 2 ? 'critical' : 'high';
+        notifications.push({
+          id: `checkin-${client.id}`,
+          type: 'alert',
+          priority,
+          title: 'Client Missing Check-in',
+          message: `${client.fullName} has missed ${missedCount} consecutive check-ins`,
+          clientId: client.clientId,
+          clientName: client.fullName,
+          timestamp: new Date().toISOString(),
+          read: false,
+          actionRequired: true,
+        });
+      }
+      
+      // Add system alerts
+      for (const alert of alerts) {
+        notifications.push({
+          id: `alert-${alert.id}`,
+          type: 'alert',
+          priority: alert.alertType === 'critical' ? 'critical' : 'medium',
+          title: alert.alertType.charAt(0).toUpperCase() + alert.alertType.slice(1) + ' Alert',
+          message: alert.message,
+          timestamp: alert.createdAt,
+          read: false,
+          actionRequired: true,
+        });
+      }
+      
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  // Mark notification as read
+  app.post('/api/notifications/:id/read', isAuthenticated, async (req, res) => {
+    try {
+      const notificationId = req.params.id;
+      // In a real implementation, you'd store read status
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  // Handle notification actions
+  app.post('/api/notifications/:id/action', isAuthenticated, async (req, res) => {
+    try {
+      const notificationId = req.params.id;
+      const { action } = req.body;
+      
+      // Process different actions based on notification type
+      if (notificationId.startsWith('payment-') && action === 'confirm') {
+        const paymentId = parseInt(notificationId.replace('payment-', ''));
+        await storage.confirmPayment(paymentId, 'admin');
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error handling notification action:", error);
+      res.status(500).json({ message: "Failed to handle notification action" });
     }
   });
 
