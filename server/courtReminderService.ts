@@ -62,7 +62,7 @@ export class CourtReminderService {
       const courtDate = await this.getCourtDateById(reminder.courtDateId);
       if (!courtDate) return;
 
-      const client = await storage.getClient(courtDate.clientId);
+      const client = courtDate.clientId ? await storage.getClient(courtDate.clientId) : null;
       if (!client) return;
 
       // Create notification
@@ -109,7 +109,7 @@ export class CourtReminderService {
 
   private getReminderMessage(reminderType: string, courtDate: CourtDate, client: any): string {
     const courtDateStr = new Date(courtDate.courtDate!).toLocaleDateString();
-    const courtTimeStr = courtDate.courtTime || 'TBD';
+    const courtTimeStr = courtDate.courtLocation || 'TBD';
     const location = courtDate.courtLocation || 'TBD';
 
     const messageMap: Record<string, string> = {

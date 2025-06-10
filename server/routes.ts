@@ -1455,7 +1455,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create test clients
       const client1 = await storage.createClient({
         clientId: 'SB123456',
-        password: '$2b$10$example.hash.for.demo.purposes',
         fullName: 'John Smith',
         phoneNumber: '555-0123',
         address: '123 Main St, Anytown, ST 12345',
@@ -1468,7 +1467,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const client2 = await storage.createClient({
         clientId: 'SB789012',
-        password: '$2b$10$example.hash.for.demo.purposes2',
         fullName: 'Maria Garcia',
         phoneNumber: '555-0456',
         address: '456 Oak Ave, Another City, ST 67890',
@@ -1520,7 +1518,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create additional test client scenarios
       const client3 = await storage.createClient({
         clientId: 'SB345678',
-        password: '$2b$10$example.hash.for.demo.purposes3',
         fullName: 'Robert Johnson',
         phoneNumber: '555-0789',
         address: '789 Pine Street, Metro City, ST 11111',
@@ -1818,7 +1815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/court-dates/:id/approve', isAuthenticated, async (req, res) => {
     try {
       const courtDateId = parseInt(req.params.id);
-      const userId = req.user?.claims?.sub || 'admin';
+      const userId = req.user?.id || 'admin';
       
       const approvedCourtDate = await storage.approveCourtDate(courtDateId, userId);
       res.json(approvedCourtDate);

@@ -767,6 +767,12 @@ class MemoryStorage implements IStorage {
       id: this.nextId++,
       ...reminderData,
       createdAt: new Date(),
+      confirmed: reminderData.confirmed ?? false,
+      sent: reminderData.sent ?? false,
+      confirmedBy: reminderData.confirmedBy ?? null,
+      confirmedAt: reminderData.confirmedAt ?? null,
+      sentAt: reminderData.sentAt ?? null,
+      notificationId: reminderData.notificationId ?? null,
     };
     
     this.courtDateReminders.push(reminder);
