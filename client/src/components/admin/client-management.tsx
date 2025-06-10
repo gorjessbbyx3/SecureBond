@@ -652,6 +652,18 @@ function ClientDetailsContent({ client }: { client: Client }) {
     queryKey: ["/api/clients", client.id, "check-ins"],
   });
 
+  const { data: vehicles } = useQuery({
+    queryKey: ["/api/clients", client.id, "vehicles"],
+  });
+
+  const { data: family } = useQuery({
+    queryKey: ["/api/clients", client.id, "family"],
+  });
+
+  const { data: employment } = useQuery({
+    queryKey: ["/api/clients", client.id, "employment"],
+  });
+
   return (
     <div className="space-y-6">
       {/* Client Overview */}
@@ -848,7 +860,7 @@ function ClientDetailsContent({ client }: { client: Client }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {checkIns && checkIns.length > 0 ? (
+          {checkIns && Array.isArray(checkIns) && checkIns.length > 0 ? (
             <div className="space-y-2">
               {checkIns.slice(0, 5).map((checkIn: any) => (
                 <div key={checkIn.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
@@ -871,6 +883,142 @@ function ClientDetailsContent({ client }: { client: Client }) {
             </div>
           ) : (
             <p className="text-slate-500">No check-ins recorded</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Vehicle Information Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <User className="mr-2 w-4 h-4" />
+            Vehicle Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {vehicles && Array.isArray(vehicles) && vehicles.length > 0 ? (
+            <div className="space-y-3">
+              {vehicles.map((vehicle: any) => (
+                <div key={vehicle.id} className="p-3 bg-slate-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-slate-600">Vehicle</Label>
+                      <p className="font-medium">
+                        {vehicle.year} {vehicle.make} {vehicle.model}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Color</Label>
+                      <p>{vehicle.color || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">License Plate</Label>
+                      <p className="font-mono">{vehicle.licensePlate || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">VIN</Label>
+                      <p className="font-mono text-sm">{vehicle.vin || 'Not provided'}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No vehicle information recorded</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Employment Information Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <User className="mr-2 w-4 h-4" />
+            Employment Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {employment && Array.isArray(employment) && employment.length > 0 ? (
+            <div className="space-y-3">
+              {employment.map((job: any) => (
+                <div key={job.id} className="p-3 bg-slate-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-slate-600">Employer</Label>
+                      <p className="font-medium">{job.employerName || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Position</Label>
+                      <p>{job.position || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Phone</Label>
+                      <p>{job.employerPhone || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Start Date</Label>
+                      <p>{job.startDate ? new Date(job.startDate).toLocaleDateString() : 'Not specified'}</p>
+                    </div>
+                    {job.employerAddress && (
+                      <div className="col-span-2">
+                        <Label className="text-slate-600">Address</Label>
+                        <p>{job.employerAddress}</p>
+                      </div>
+                    )}
+                    {job.salary && (
+                      <div>
+                        <Label className="text-slate-600">Salary</Label>
+                        <p className="font-medium">${parseFloat(job.salary).toLocaleString()}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No employment information recorded</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Family & Friends Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <User className="mr-2 w-4 h-4" />
+            Family & Friends
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {family && Array.isArray(family) && family.length > 0 ? (
+            <div className="space-y-3">
+              {family.map((member: any) => (
+                <div key={member.id} className="p-3 bg-slate-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-slate-600">Name</Label>
+                      <p className="font-medium">{member.name}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Relationship</Label>
+                      <p>{member.relationship || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-600">Phone</Label>
+                      <p>{member.phoneNumber || 'Not provided'}</p>
+                    </div>
+                    {member.address && (
+                      <div>
+                        <Label className="text-slate-600">Address</Label>
+                        <p>{member.address}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No family or friends information recorded</p>
           )}
         </CardContent>
       </Card>

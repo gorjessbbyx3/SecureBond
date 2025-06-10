@@ -134,6 +134,53 @@ class MemoryStorage implements IStorage {
     };
     this.clients.push(sampleClient);
     this.nextId = 2;
+    
+    // Add sample vehicle data
+    this.clientVehicles.push({
+      id: 1,
+      clientId: 1,
+      make: "Honda",
+      model: "Civic",
+      year: 2019,
+      color: "Blue",
+      licensePlate: "ABC123",
+      vin: "1HGBH41JXMN109186",
+      createdAt: new Date(),
+    });
+    
+    // Add sample family data
+    this.familyMembers.push({
+      id: 1,
+      clientId: 1,
+      name: "Jane Smith",
+      relationship: "Sister",
+      phoneNumber: "(555) 987-6543",
+      address: "456 Oak Ave, Anytown, ST 12345",
+      createdAt: new Date(),
+    });
+    
+    this.familyMembers.push({
+      id: 2,
+      clientId: 1,
+      name: "Robert Johnson",
+      relationship: "Emergency Contact",
+      phoneNumber: "(555) 123-7890",
+      address: "789 Pine St, Anytown, ST 12345",
+      createdAt: new Date(),
+    });
+    
+    // Add sample employment data
+    this.employmentInfo.push({
+      id: 1,
+      clientId: 1,
+      employerName: "ABC Construction Co.",
+      position: "Heavy Equipment Operator",
+      employerPhone: "(555) 456-7890",
+      employerAddress: "100 Industrial Blvd, Anytown, ST 12345",
+      startDate: "2020-03-15",
+      salary: "52000.00",
+      createdAt: new Date(),
+    });
   }
 
   // User operations

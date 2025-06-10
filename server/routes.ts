@@ -324,6 +324,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client additional info routes
+  app.get('/api/clients/:id/vehicles', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const vehicles = await storage.getClientVehicles(clientId);
+      res.json(vehicles);
+    } catch (error) {
+      console.error("Error fetching client vehicles:", error);
+      res.status(500).json({ message: "Failed to fetch client vehicles" });
+    }
+  });
+
+  app.get('/api/clients/:id/family', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const family = await storage.getClientFamily(clientId);
+      res.json(family);
+    } catch (error) {
+      console.error("Error fetching client family:", error);
+      res.status(500).json({ message: "Failed to fetch client family" });
+    }
+  });
+
+  app.get('/api/clients/:id/employment', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const employment = await storage.getClientEmployment(clientId);
+      res.json(employment);
+    } catch (error) {
+      console.error("Error fetching client employment:", error);
+      res.status(500).json({ message: "Failed to fetch client employment" });
+    }
+  });
+
   // Check-in routes
   app.post('/api/check-ins', async (req, res) => {
     try {
