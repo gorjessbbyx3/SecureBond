@@ -124,9 +124,9 @@ export default function Landing() {
             <div className="absolute inset-8">
               
               {/* Heavy prison bars - semi-transparent */}
-              <div className="absolute inset-0 grid grid-cols-7 gap-4 p-6">
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <div key={i} className="bg-gradient-to-b from-gray-500/80 via-gray-400/80 to-gray-500/80 rounded-full shadow-2xl border-2 border-gray-600 relative jail-bars">
+              <div className="absolute inset-0 grid grid-cols-9 gap-6 p-6">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} className="w-3 bg-gradient-to-b from-gray-500/80 via-gray-400/80 to-gray-500/80 rounded-full shadow-2xl border border-gray-600 relative jail-bars mx-auto">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
                   </div>
                 ))}
