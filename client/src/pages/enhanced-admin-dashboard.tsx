@@ -16,6 +16,7 @@ import DashboardStats from "@/components/admin/dashboard-stats";
 import RealTimeMap from "@/components/admin/real-time-map";
 import AnalyticsCharts from "@/components/admin/analytics-charts";
 import NotificationCenter from "@/components/admin/notification-center";
+import DataManagement from "@/components/admin/data-management";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();

@@ -20,6 +20,7 @@ import {
   type EmploymentInfo,
   type ClientFile,
 } from "@shared/schema";
+import { LocalFileStorage } from "./local-db";
 
 // Interface for storage operations
 export interface IStorage {
@@ -431,4 +432,5 @@ class MemoryStorage implements IStorage {
   }
 }
 
-export const storage = new MemoryStorage();
+// Use local file storage for data persistence on bondsman's computer
+export const storage = new LocalFileStorage();
