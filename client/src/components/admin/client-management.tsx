@@ -621,6 +621,259 @@ export default function ClientManagement() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Client Details Dialog */}
+      <Dialog open={isClientDetailsOpen} onOpenChange={setIsClientDetailsOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <User className="mr-2 w-5 h-5" />
+              Client Details - {selectedClient?.fullName}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedClient && <ClientDetailsContent client={selectedClient} />}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// Client Details Content Component
+function ClientDetailsContent({ client }: { client: Client }) {
+  const { data: payments } = useQuery({
+    queryKey: ["/api/clients", client.id, "payments"],
+  });
+
+  const { data: courtDates } = useQuery({
+    queryKey: ["/api/clients", client.id, "court-dates"],
+  });
+
+  const { data: checkIns } = useQuery({
+    queryKey: ["/api/clients", client.id, "check-ins"],
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Client Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <User className="mr-2 w-4 h-4" />
+              Personal Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-slate-600">Full Name</Label>
+              <p className="font-medium">{client.fullName}</p>
+            </div>
+            <div>
+              <Label className="text-slate-600">Client ID</Label>
+              <p className="font-mono text-sm">{client.clientId}</p>
+            </div>
+            {client.phoneNumber && (
+              <div>
+                <Label className="text-slate-600">Phone Number</Label>
+                <p>{client.phoneNumber}</p>
+              </div>
+            )}
+            {client.address && (
+              <div>
+                <Label className="text-slate-600">Address</Label>
+                <p>{client.address}</p>
+              </div>
+            )}
+            <div>
+              <Label className="text-slate-600">Status</Label>
+              <div className="mt-1">
+                <Badge variant={client.isActive ? "default" : "secondary"}>
+                  {client.isActive ? "Active" : "Inactive"}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <DollarSign className="mr-2 w-4 h-4" />
+              Financial Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-slate-600">Bond Amount</Label>
+              <p className="text-lg font-semibold text-blue-600">
+                ${parseFloat(client.bondAmount).toLocaleString()}
+              </p>
+            </div>
+            {client.totalOwed && (
+              <div>
+                <Label className="text-slate-600">Total Owed</Label>
+                <p className="text-lg font-semibold">
+                  ${parseFloat(client.totalOwed).toLocaleString()}
+                </p>
+              </div>
+            )}
+            {client.downPayment && (
+              <div>
+                <Label className="text-slate-600">Down Payment</Label>
+                <p className="text-lg font-semibold text-green-600">
+                  ${parseFloat(client.downPayment).toLocaleString()}
+                </p>
+              </div>
+            )}
+            {client.remainingBalance && (
+              <div>
+                <Label className="text-slate-600">Remaining Balance</Label>
+                <p className={`text-lg font-semibold ${
+                  parseFloat(client.remainingBalance) > 0 ? 'text-red-600' : 'text-green-600'
+                }`}>
+                  ${parseFloat(client.remainingBalance).toLocaleString()}
+                </p>
+              </div>
+            )}
+            <div>
+              <Label className="text-slate-600">Missed Check-ins</Label>
+              <p className={`font-semibold ${client.missedCheckIns > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {client.missedCheckIns}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Case Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Calendar className="mr-2 w-4 h-4" />
+            Case Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {client.charges && (
+            <div>
+              <Label className="text-slate-600">Charges</Label>
+              <p>{client.charges}</p>
+            </div>
+          )}
+          {client.courtLocation && (
+            <div>
+              <Label className="text-slate-600">Court Location</Label>
+              <p>{client.courtLocation}</p>
+            </div>
+          )}
+          <div>
+            <Label className="text-slate-600">Account Created</Label>
+            <p>{new Date(client.createdAt).toLocaleDateString()}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payments Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <DollarSign className="mr-2 w-4 h-4" />
+            Payment History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {payments && payments.length > 0 ? (
+            <div className="space-y-2">
+              {payments.map((payment: any) => (
+                <div key={payment.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">${parseFloat(payment.amount).toLocaleString()}</p>
+                    <p className="text-sm text-slate-600">{payment.paymentMethod}</p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={payment.isConfirmed ? "default" : "secondary"}>
+                      {payment.isConfirmed ? "Confirmed" : "Pending"}
+                    </Badge>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {new Date(payment.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No payments recorded</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Court Dates Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Calendar className="mr-2 w-4 h-4" />
+            Court Dates
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {courtDates && courtDates.length > 0 ? (
+            <div className="space-y-2">
+              {courtDates.map((courtDate: any) => (
+                <div key={courtDate.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">{courtDate.courtLocation || 'Location TBD'}</p>
+                    <p className="text-sm text-slate-600">{courtDate.caseType || 'Case type not specified'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">
+                      {new Date(courtDate.date).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-slate-600">{courtDate.time || 'Time TBD'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No court dates scheduled</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Check-ins Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Clock className="mr-2 w-4 h-4" />
+            Recent Check-ins
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {checkIns && checkIns.length > 0 ? (
+            <div className="space-y-2">
+              {checkIns.slice(0, 5).map((checkIn: any) => (
+                <div key={checkIn.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Check-in</p>
+                    <p className="text-sm text-slate-600">
+                      {checkIn.location || 'Location not recorded'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">
+                      {new Date(checkIn.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      {new Date(checkIn.createdAt).toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500">No check-ins recorded</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
