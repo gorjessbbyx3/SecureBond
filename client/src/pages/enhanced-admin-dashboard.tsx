@@ -22,6 +22,7 @@ import DataManagement from "@/components/admin/data-management";
 import TopLocations from "@/components/admin/top-locations";
 import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
 import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
+import logoImage from "@assets/download_1749535196337.png";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -88,9 +89,9 @@ export default function EnhancedAdminDashboard() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <img 
-              src="@assets/download_1749535196337.png" 
+              src={logoImage} 
               alt="Aloha Bail Bonds" 
-              className="h-10 w-auto object-contain"
+              className="h-10 w-auto object-contain filter grayscale brightness-0 invert"
             />
             <div className="flex items-center gap-4">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">

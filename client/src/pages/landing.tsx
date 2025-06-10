@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import type { LoginResponse, ClientCredentials } from "@/lib/types";
+import logoImage from "@assets/download_1749535196337.png";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
@@ -91,9 +92,9 @@ export default function Landing() {
           <div className="flex items-center justify-center">
             <div className="text-center flex flex-col items-center">
               <img 
-                src="@assets/download_1749535196337.png" 
+                src={logoImage} 
                 alt="Aloha Bail Bonds Logo" 
-                className="h-16 md:h-20 w-auto mb-2 filter drop-shadow-lg"
+                className="h-16 md:h-20 w-auto mb-2 filter drop-shadow-lg grayscale brightness-0 invert"
               />
               <p className="text-blue-100 text-sm">Professional Bail Bond Services</p>
             </div>
@@ -109,9 +110,9 @@ export default function Landing() {
             <div className="professional-gradient px-8 py-6 text-center">
               <div className="w-24 h-20 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-4 p-3">
                 <img 
-                  src="@assets/download_1749535196337.png" 
+                  src={logoImage} 
                   alt="Aloha Bail Bonds" 
-                  className="h-full w-auto object-contain"
+                  className="h-full w-auto object-contain filter grayscale brightness-0 invert"
                 />
               </div>
               <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>
