@@ -629,7 +629,7 @@ export class LocalFileStorage {
       return [];
     }
 
-    const hawaiiCounties = ['honolulu', 'hawaii', 'maui', 'kauai'];
+    const hawaiiCounties = ['honolulu', 'hawaii'];
     const charges = [
       'DUI', 'Public Intoxication', 'Disorderly Conduct', 'Theft', 
       'Assault', 'Drug Possession', 'Trespassing', 'Violation of Bond Terms'
@@ -683,9 +683,7 @@ export class LocalFileStorage {
   async getMonitoringConfig(): Promise<any[]> {
     const hawaiiCounties = [
       { id: 'honolulu', name: 'Honolulu County', agency: 'Honolulu Police Department' },
-      { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii Police Department' },
-      { id: 'maui', name: 'Maui County', agency: 'Maui Police Department' },
-      { id: 'kauai', name: 'Kauai County', agency: 'Kauai Police Department' }
+      { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii Police Department' }
     ];
 
     return hawaiiCounties.map(county => ({
@@ -725,7 +723,7 @@ export class LocalFileStorage {
 
   async getPublicArrestLogs(): Promise<any[]> {
     // Generate sample public arrest logs prioritizing Honolulu County
-    const hawaiiCounties = ['honolulu', 'hawaii', 'maui', 'kauai'];
+    const hawaiiCounties = ['honolulu', 'hawaii'];
     const commonNames = [
       'John Smith', 'Michael Johnson', 'David Williams', 'Christopher Brown', 'Matthew Jones',
       'Anthony Garcia', 'Mark Miller', 'Donald Davis', 'Steven Rodriguez', 'Paul Martinez',
