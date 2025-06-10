@@ -1509,6 +1509,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/notifications/:id/confirm', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userId = req.user?.claims?.sub;
+      const notification = await storage.confirmNotification(id, userId);
+      res.json(notification);
+    } catch (error) {
+      console.error("Error confirming notification:", error);
+      res.status(500).json({ message: "Failed to confirm notification" });
+    }
+  });
+
   app.patch('/api/notifications/user/:userId/read-all', isAuthenticated, async (req, res) => {
     try {
       const userId = req.params.userId;

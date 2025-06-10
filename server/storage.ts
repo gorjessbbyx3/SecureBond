@@ -19,6 +19,8 @@ import {
   type InsertAlert,
   type Notification,
   type InsertNotification,
+  type CourtDateReminder,
+  type InsertCourtDateReminder,
   type NotificationPreferences,
   type InsertNotificationPreferences,
   type ClientVehicle,
@@ -136,6 +138,7 @@ class MemoryStorage implements IStorage {
   private expenses: Expense[] = [];
   private alerts: Alert[] = [];
   private notifications: Notification[] = [];
+  private courtDateReminders: CourtDateReminder[] = [];
   private notificationPreferences: NotificationPreferences[] = [];
   private clientVehicles: ClientVehicle[] = [];
   private familyMembers: FamilyMember[] = [];
@@ -715,10 +718,96 @@ class MemoryStorage implements IStorage {
       .forEach(n => n.read = true);
   }
 
+  async confirmNotification(id: number, confirmedBy: string): Promise<Notification> {
+    const notification = this.notifications.find(n => n.id === id);
+    if (!notification) {
+      throw new Error("Notification not found");
+    }
+    
+    notification.confirmed = true;
+    notification.confirmedAt = new Date();
+    notification.confirmedBy = confirmedBy;
+    
+    return notification;
+  }
+
   async deleteNotification(id: number): Promise<void> {
     const index = this.notifications.findIndex(n => n.id === id);
     if (index >= 0) {
       this.notifications.splice(index, 1);
+    }
+  }
+
+  // Court date reminder operations
+  async createCourtDateReminder(reminderData: InsertCourtDateReminder): Promise<CourtDateReminder> {
+    const reminder: CourtDateReminder = {
+      id: this.nextId++,
+      ...reminderData,
+      createdAt: new Date(),
+    };
+    
+    this.courtDateReminders.push(reminder);
+    return reminder;
+  }
+
+  async getCourtDateRemindersForDate(courtDateId: number): Promise<CourtDateReminder[]> {
+    return this.courtDateReminders.filter(r => r.courtDateId === courtDateId);
+  }
+
+  async scheduleFollowupReminders(courtDateId: number): Promise<void> {
+    const courtDate = this.courtDates.find(cd => cd.id === courtDateId);
+    if (!courtDate || !courtDate.courtDate) return;
+
+    const courtDateTime = new Date(courtDate.courtDate);
+    const now = new Date();
+    
+    // Schedule initial reminder (3 days before)
+    const initialReminder = new Date(courtDateTime);
+    initialReminder.setDate(initialReminder.getDate() - 3);
+    
+    if (initialReminder > now) {
+      await this.createCourtDateReminder({
+        courtDateId,
+        reminderType: 'initial',
+        scheduledFor: initialReminder,
+        sent: false,
+        sentAt: null,
+        confirmed: false,
+        confirmedBy: null,
+        confirmedAt: null,
+        notificationId: null,
+      });
+    }
+    
+    // Schedule follow-up reminders (1 day before, 3 hours before)
+    const followup1 = new Date(courtDateTime);
+    followup1.setDate(followup1.getDate() - 1);
+    
+    if (followup1 > now) {
+      await this.createCourtDateReminder({
+        courtDateId,
+        reminderType: 'followup_1',
+        scheduledFor: followup1,
+        sent: false,
+        confirmed: false,
+        confirmedBy: null,
+        notificationId: null,
+      });
+    }
+    
+    const followup2 = new Date(courtDateTime);
+    followup2.setHours(followup2.getHours() - 3);
+    
+    if (followup2 > now) {
+      await this.createCourtDateReminder({
+        courtDateId,
+        reminderType: 'followup_2',
+        scheduledFor: followup2,
+        sent: false,
+        confirmed: false,
+        confirmedBy: null,
+        notificationId: null,
+      });
     }
   }
 
