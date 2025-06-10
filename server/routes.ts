@@ -519,6 +519,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/court-dates', isAuthenticated, async (req, res) => {
+    try {
+      const courtDates = await storage.getAllCourtDates();
+      res.json(courtDates);
+    } catch (error) {
+      console.error("Error fetching all court dates:", error);
+      res.status(500).json({ message: "Failed to fetch court dates" });
+    }
+  });
+
   app.get('/api/court-dates/upcoming', isAuthenticated, async (req, res) => {
     try {
       const courtDates = await storage.getAllUpcomingCourtDates();

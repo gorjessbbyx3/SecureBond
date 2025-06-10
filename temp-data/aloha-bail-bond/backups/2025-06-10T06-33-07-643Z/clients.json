@@ -97,24 +97,6 @@
     "missedCheckIns": 0,
     "id": 19,
     "createdAt": "2025-06-10T06:33:07.641Z",
-    "updatedAt": "2025-06-10T06:33:20.046Z",
-    "lastCheckIn": "2025-06-10T06:33:20.046Z"
-  },
-  {
-    "clientId": "SB1877075EC5",
-    "password": "$2b$10$B9oo3JxBTIqr0.ycA3GX6OxooKRpHFT08N2oyTiL2Zl.D/EGkQ.3q",
-    "phoneNumber": null,
-    "address": "456 Ocean Ave, Kailua, HI 96734",
-    "dateOfBirth": "1990-07-22",
-    "emergencyContact": "Carlos Rodriguez - (808) 555-0202",
-    "emergencyPhone": null,
-    "courtLocation": null,
-    "charges": null,
-    "isActive": true,
-    "missedCheckIns": 0,
-    "id": 20,
-    "createdAt": "2025-06-10T06:33:07.783Z",
-    "updatedAt": "2025-06-10T06:33:20.090Z",
-    "lastCheckIn": "2025-06-10T06:33:20.090Z"
+    "updatedAt": "2025-06-10T06:33:07.641Z"
   }
 ]

@@ -30,21 +30,5 @@
     "id": 13,
     "checkInTime": "2025-06-10T06:32:04.089Z",
     "createdAt": "2025-06-10T06:32:04.089Z"
-  },
-  {
-    "clientId": 19,
-    "location": "Honolulu Police Station",
-    "notes": "Weekly mandatory check-in completed successfully",
-    "id": 23,
-    "checkInTime": "2025-06-10T06:33:20.045Z",
-    "createdAt": "2025-06-10T06:33:20.045Z"
-  },
-  {
-    "clientId": 20,
-    "location": "Kailua Community Center",
-    "notes": "Client checked in on time, no issues reported",
-    "id": 24,
-    "checkInTime": "2025-06-10T06:33:20.088Z",
-    "createdAt": "2025-06-10T06:33:20.088Z"
   }
 ]

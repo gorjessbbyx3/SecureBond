@@ -28,25 +28,5 @@
     "paymentDate": "2025-06-10T06:32:09.947Z",
     "confirmed": false,
     "createdAt": "2025-06-10T06:32:09.947Z"
-  },
-  {
-    "clientId": 19,
-    "amount": "500.00",
-    "paymentMethod": "credit_card",
-    "notes": "Initial down payment for bond SB195366021",
-    "id": 25,
-    "paymentDate": "2025-06-10T06:33:25.064Z",
-    "confirmed": false,
-    "createdAt": "2025-06-10T06:33:25.064Z"
-  },
-  {
-    "clientId": 20,
-    "amount": "250.00",
-    "paymentMethod": "cash",
-    "notes": "Down payment for bond SB195399022",
-    "id": 26,
-    "paymentDate": "2025-06-10T06:33:25.096Z",
-    "confirmed": false,
-    "createdAt": "2025-06-10T06:33:25.096Z"
   }
 ]
