@@ -141,7 +141,9 @@ export default function PaymentUpload({ clientId }: PaymentUploadProps) {
                   <SelectItem value="cash">Cash</SelectItem>
                   <SelectItem value="cashapp">CashApp</SelectItem>
                   <SelectItem value="check">Check</SelectItem>
+                  <SelectItem value="comp">Comp</SelectItem>
                   <SelectItem value="creditcard">Credit Card</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                   <SelectItem value="venmo">Venmo</SelectItem>
                 </SelectContent>
               </Select>

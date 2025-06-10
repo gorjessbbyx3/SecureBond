@@ -68,5 +68,25 @@
     "paymentDate": "2025-06-10T06:34:35.252Z",
     "confirmed": false,
     "createdAt": "2025-06-10T06:34:35.252Z"
+  },
+  {
+    "clientId": 29,
+    "amount": "100.00",
+    "paymentMethod": "comp",
+    "notes": "Complimentary payment for client services",
+    "id": 39,
+    "paymentDate": "2025-06-10T06:36:14.671Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:36:14.671Z"
+  },
+  {
+    "clientId": 30,
+    "amount": "75.00",
+    "paymentMethod": "other",
+    "notes": "Alternative payment method used",
+    "id": 40,
+    "paymentDate": "2025-06-10T06:36:14.711Z",
+    "confirmed": false,
+    "createdAt": "2025-06-10T06:36:14.711Z"
   }
 ]
