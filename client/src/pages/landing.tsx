@@ -71,10 +71,10 @@ export default function Landing() {
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Jail Cell Window Background - Waikiki Beach View */}
       <div className="fixed inset-0 z-0">
-        {/* Hawaii GIF background */}
+        {/* Hawaii background */}
         <div className="w-full h-full">
           <img 
-            src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXNkbXR6Z3FjNzh5NHpjNmxlMmltbHFmdTNzejJlY280MzN4NW90MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/495RYn0Q6fjhBZPUDu/giphy.gif"
+            src="https://www.limaone.com/wp-content/uploads/iStock-624711274-scaled-1-1707x1707.jpg"
             alt="Hawaii paradise view"
             className="w-full h-full object-cover"
           />

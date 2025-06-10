@@ -11,7 +11,9 @@ import {
   insertMessageSchema,
   insertCourtDateSchema,
   insertExpenseSchema,
-  insertAlertSchema 
+  insertAlertSchema,
+  insertNotificationSchema,
+  insertNotificationPreferencesSchema
 } from "@shared/schema";
 import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
@@ -1459,6 +1461,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Failed to search court dates',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  });
+
+  // Real-time notification API routes
+  app.get('/api/notifications/user/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const notifications = await storage.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching user notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.get('/api/notifications/user/:userId/unread', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const notifications = await storage.getUnreadNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+      res.status(500).json({ message: "Failed to fetch unread notifications" });
+    }
+  });
+
+  app.post('/api/notifications', isAuthenticated, async (req, res) => {
+    try {
+      const notificationData = insertNotificationSchema.parse(req.body);
+      const notification = await storage.createNotification(notificationData);
+      res.json(notification);
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      res.status(500).json({ message: "Failed to create notification" });
+    }
+  });
+
+  app.patch('/api/notifications/:id/read', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const notification = await storage.markNotificationAsRead(id);
+      res.json(notification);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  app.patch('/api/notifications/user/:userId/read-all', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      await storage.markAllNotificationsAsRead(userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      res.status(500).json({ message: "Failed to mark all notifications as read" });
+    }
+  });
+
+  app.delete('/api/notifications/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteNotification(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      res.status(500).json({ message: "Failed to delete notification" });
+    }
+  });
+
+  // Notification preferences API routes
+  app.get('/api/notification-preferences/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const preferences = await storage.getUserNotificationPreferences(userId);
+      res.json(preferences);
+    } catch (error) {
+      console.error("Error fetching notification preferences:", error);
+      res.status(500).json({ message: "Failed to fetch notification preferences" });
+    }
+  });
+
+  app.post('/api/notification-preferences', isAuthenticated, async (req, res) => {
+    try {
+      const preferencesData = insertNotificationPreferencesSchema.parse(req.body);
+      const preferences = await storage.upsertNotificationPreferences(preferencesData);
+      res.json(preferences);
+    } catch (error) {
+      console.error("Error updating notification preferences:", error);
+      res.status(500).json({ message: "Failed to update notification preferences" });
     }
   });
 
