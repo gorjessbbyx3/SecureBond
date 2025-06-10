@@ -780,17 +780,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         notes: 'Payment pending verification'
       });
 
-      // Create check-ins to show activity
-      const checkin1 = await storage.createCheckIn({
-        clientId: client2.id,
+      // Create diverse check-ins to show location analytics
+      const locations = [
+        'Downtown Office',
+        'Police Station - Main',
+        'County Courthouse',
+        'Home Visit',
+        'Probation Office',
+        'Community Center',
+        'Employer Verification',
+        'Hospital - Emergency',
+        'Police Station - East',
+        'City Hall'
+      ];
+
+      // Create multiple check-ins across different locations and dates
+      for (let i = 0; i < 15; i++) {
+        const randomClient = [client1, client2, client3][Math.floor(Math.random() * 3)];
+        const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+        const daysAgo = Math.floor(Math.random() * 30);
+        
+        await storage.createCheckIn({
+          clientId: randomClient.id,
+          location: randomLocation,
+          notes: `Check-in at ${randomLocation}`,
+          checkInTime: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
+        });
+      }
+
+      // Add some specific frequent locations for better analytics
+      await storage.createCheckIn({
+        clientId: client1.id,
         location: 'Downtown Office',
-        notes: 'Regular scheduled check-in'
+        notes: 'Weekly mandatory check-in',
+        checkInTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
       });
 
-      const checkin2 = await storage.createCheckIn({
+      await storage.createCheckIn({
+        clientId: client2.id,
+        location: 'Downtown Office',
+        notes: 'Regular compliance check',
+        checkInTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+      });
+
+      await storage.createCheckIn({
+        clientId: client3.id,
+        location: 'Police Station - Main',
+        notes: 'Required police check-in',
+        checkInTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+      });
+
+      await storage.createCheckIn({
         clientId: client1.id,
-        location: 'Home Visit',
-        notes: 'Wellness check after missed appointments'
+        location: 'County Courthouse',
+        notes: 'Pre-trial conference attendance',
+        checkInTime: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
       });
 
       // Create multiple court dates for different clients showing various types of proceedings
@@ -892,7 +936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           payments: 4,
           expenses: 4,
           alerts: 3,
-          checkIns: 2,
+          checkIns: 19, // 15 random + 4 specific locations
           courtDates: 5
         }
       });
@@ -986,6 +1030,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching client check-ins:', error);
       res.status(500).json({ message: 'Failed to fetch client check-ins' });
+    }
+  });
+
+  // Update client status and profile
+  app.patch('/api/clients/:id', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      // Convert date strings to Date objects if needed
+      if (updates.dateOfBirth && typeof updates.dateOfBirth === 'string') {
+        updates.dateOfBirth = updates.dateOfBirth;
+      }
+      if (updates.courtDate && typeof updates.courtDate === 'string') {
+        updates.courtDate = new Date(updates.courtDate);
+      }
+      
+      const updatedClient = await storage.updateClient(clientId, updates);
+      res.json(updatedClient);
+    } catch (error) {
+      console.error('Error updating client:', error);
+      res.status(500).json({ message: 'Failed to update client' });
+    }
+  });
+
+  // Get single client details
+  app.get('/api/clients/:id', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const client = await storage.getClient(clientId);
+      if (!client) {
+        return res.status(404).json({ message: 'Client not found' });
+      }
+      res.json(client);
+    } catch (error) {
+      console.error('Error fetching client:', error);
+      res.status(500).json({ message: 'Failed to fetch client' });
     }
   });
 

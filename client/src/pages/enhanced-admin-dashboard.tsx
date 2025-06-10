@@ -198,7 +198,10 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <AnalyticsCharts />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <AnalyticsCharts />
+              <TopLocations />
+            </div>
           </TabsContent>
 
           <TabsContent value="tracking" className="space-y-6">
