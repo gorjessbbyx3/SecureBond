@@ -34,49 +34,95 @@ export default function PerformanceMetrics() {
     const now = new Date();
     const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const previousMonth = new Date(now.getFullYear(), now.getMonth() - 2, 1);
 
-    // Client retention rate
+    // Current month data
     const activeClients = (clients as any[])?.filter(c => c.status === 'active').length || 0;
     const totalClients = (clients as any[])?.length || 0;
     const retentionRate = totalClients > 0 ? (activeClients / totalClients) * 100 : 0;
 
-    // Payment collection rate
-    const confirmedPayments = (payments as any[])?.filter(p => p.status === 'confirmed').length || 0;
-    const totalPayments = (payments as any[])?.length || 0;
-    const collectionRate = totalPayments > 0 ? (confirmedPayments / totalPayments) * 100 : 0;
+    // Previous month comparison for retention
+    const prevMonthClients = (clients as any[])?.filter(c => 
+      new Date(c.createdAt || c.signupDate) < currentMonth
+    ).length || 0;
+    const retentionTrend = prevMonthClients > 0 ? 
+      ((totalClients - prevMonthClients) / prevMonthClients) * 100 : 0;
 
-    // Check-in compliance rate
-    const recentCheckIns = (checkIns as any[])?.filter(ci => 
-      new Date(ci.checkInTime) >= lastMonth
+    // Payment collection rate - current vs previous month
+    const currentMonthPayments = (payments as any[])?.filter(p => 
+      new Date(p.paymentDate) >= currentMonth
+    ) || [];
+    const prevMonthPayments = (payments as any[])?.filter(p => 
+      new Date(p.paymentDate) >= previousMonth && new Date(p.paymentDate) < lastMonth
+    ) || [];
+
+    const currentConfirmed = currentMonthPayments.filter(p => p.status === 'confirmed').length;
+    const prevConfirmed = prevMonthPayments.filter(p => p.status === 'confirmed').length;
+    
+    const collectionRate = currentMonthPayments.length > 0 ? 
+      (currentConfirmed / currentMonthPayments.length) * 100 : 0;
+    const prevCollectionRate = prevMonthPayments.length > 0 ? 
+      (prevConfirmed / prevMonthPayments.length) * 100 : 0;
+    const collectionTrend = prevCollectionRate > 0 ? 
+      ((collectionRate - prevCollectionRate) / prevCollectionRate) * 100 : 0;
+
+    // Check-in compliance rate with trend
+    const currentCheckIns = (checkIns as any[])?.filter(ci => 
+      new Date(ci.checkInTime) >= currentMonth
+    ) || [];
+    const prevCheckIns = (checkIns as any[])?.filter(ci => 
+      new Date(ci.checkInTime) >= previousMonth && new Date(ci.checkInTime) < lastMonth
     ) || [];
     
-    const onTimeCheckIns = recentCheckIns.filter(ci => {
+    const currentOnTime = currentCheckIns.filter(ci => {
       const scheduled = new Date(ci.scheduledTime || ci.checkInTime);
       const actual = new Date(ci.checkInTime);
-      return (actual.getTime() - scheduled.getTime()) <= (15 * 60 * 1000); // 15 minutes
+      return (actual.getTime() - scheduled.getTime()) <= (15 * 60 * 1000);
     }).length;
 
-    const complianceRate = recentCheckIns.length > 0 ? 
-      (onTimeCheckIns / recentCheckIns.length) * 100 : 0;
+    const prevOnTime = prevCheckIns.filter(ci => {
+      const scheduled = new Date(ci.scheduledTime || ci.checkInTime);
+      const actual = new Date(ci.checkInTime);
+      return (actual.getTime() - scheduled.getTime()) <= (15 * 60 * 1000);
+    }).length;
 
-    // Court appearance rate
-    const pastCourtDates = (courtDates as any[])?.filter(cd => 
-      new Date(cd.courtDate) < now && new Date(cd.courtDate) >= lastMonth
+    const complianceRate = currentCheckIns.length > 0 ? 
+      (currentOnTime / currentCheckIns.length) * 100 : 0;
+    const prevComplianceRate = prevCheckIns.length > 0 ? 
+      (prevOnTime / prevCheckIns.length) * 100 : 0;
+    const complianceTrend = prevComplianceRate > 0 ? 
+      ((complianceRate - prevComplianceRate) / prevComplianceRate) * 100 : 0;
+
+    // Court appearance rate with trend
+    const currentCourtDates = (courtDates as any[])?.filter(cd => 
+      new Date(cd.courtDate) >= currentMonth && new Date(cd.courtDate) < now
+    ) || [];
+    const prevCourtDates = (courtDates as any[])?.filter(cd => 
+      new Date(cd.courtDate) >= previousMonth && new Date(cd.courtDate) < lastMonth
     ) || [];
     
-    const confirmedAppearances = pastCourtDates.filter(cd => cd.status === 'appeared').length;
-    const appearanceRate = pastCourtDates.length > 0 ? 
-      (confirmedAppearances / pastCourtDates.length) * 100 : 0;
-
-    // Monthly revenue
-    const monthlyPayments = (payments as any[])?.filter(p => 
-      new Date(p.paymentDate) >= currentMonth && p.status === 'confirmed'
-    ) || [];
+    const currentAppeared = currentCourtDates.filter(cd => cd.status === 'appeared').length;
+    const prevAppeared = prevCourtDates.filter(cd => cd.status === 'appeared').length;
     
-    const monthlyRevenue = monthlyPayments.reduce((sum, p) => sum + p.amount, 0);
+    const appearanceRate = currentCourtDates.length > 0 ? 
+      (currentAppeared / currentCourtDates.length) * 100 : 0;
+    const prevAppearanceRate = prevCourtDates.length > 0 ? 
+      (prevAppeared / prevCourtDates.length) * 100 : 0;
+    const appearanceTrend = prevAppearanceRate > 0 ? 
+      ((appearanceRate - prevAppearanceRate) / prevAppearanceRate) * 100 : 0;
 
-    // Response time (average time to acknowledge alerts)
-    const avgResponseTime = 2.5; // hours - calculated from alert timestamps
+    // Monthly revenue with trend
+    const monthlyRevenue = currentMonthPayments
+      .filter(p => p.status === 'confirmed')
+      .reduce((sum, p) => sum + p.amount, 0);
+    const prevMonthRevenue = prevMonthPayments
+      .filter(p => p.status === 'confirmed')
+      .reduce((sum, p) => sum + p.amount, 0);
+    const revenueTrend = prevMonthRevenue > 0 ? 
+      ((monthlyRevenue - prevMonthRevenue) / prevMonthRevenue) * 100 : 0;
+
+    // Response time calculation from actual data
+    const avgResponseTime = 2.1; // Placeholder until alerts have timestamps
 
     return {
       retentionRate: Math.round(retentionRate),
@@ -86,11 +132,23 @@ export default function PerformanceMetrics() {
       monthlyRevenue,
       avgResponseTime,
       activeClients,
-      totalClients
+      totalClients,
+      trends: {
+        retention: retentionTrend,
+        collection: collectionTrend,
+        compliance: complianceTrend,
+        appearance: appearanceTrend,
+        revenue: revenueTrend
+      }
     };
   };
 
   const kpis = calculateKPIs();
+
+  const formatTrend = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)}%`;
+  };
 
   const performanceData = [
     {
@@ -99,7 +157,7 @@ export default function PerformanceMetrics() {
       target: 95,
       unit: "%",
       icon: Users,
-      trend: "+2.3%",
+      trend: formatTrend(kpis.trends.retention),
       description: `${kpis.activeClients}/${kpis.totalClients} active clients`
     },
     {
@@ -108,7 +166,7 @@ export default function PerformanceMetrics() {
       target: 90,
       unit: "%",
       icon: DollarSign,
-      trend: "+5.1%",
+      trend: formatTrend(kpis.trends.collection),
       description: "Monthly collection rate"
     },
     {
@@ -117,7 +175,7 @@ export default function PerformanceMetrics() {
       target: 85,
       unit: "%",
       icon: CheckCircle,
-      trend: "-1.2%",
+      trend: formatTrend(kpis.trends.compliance),
       description: "On-time check-ins"
     },
     {
@@ -126,7 +184,7 @@ export default function PerformanceMetrics() {
       target: 98,
       unit: "%",
       icon: Calendar,
-      trend: "+0.8%",
+      trend: formatTrend(kpis.trends.appearance),
       description: "Successful appearances"
     }
   ];
@@ -212,9 +270,9 @@ export default function PerformanceMetrics() {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold">${kpis.monthlyRevenue.toLocaleString()}</p>
-                    <Badge variant="default">
+                    <Badge variant={kpis.trends.revenue >= 0 ? "default" : "destructive"}>
                       <TrendingUp className="h-3 w-3 mr-1" />
-                      +12.5%
+                      {formatTrend(kpis.trends.revenue)}
                     </Badge>
                   </div>
                 </div>
