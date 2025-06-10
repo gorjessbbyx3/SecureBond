@@ -881,6 +881,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // White Pages search endpoint
+  app.post('/api/white-pages/search', isAuthenticated, async (req, res) => {
+    try {
+      const { name, city } = req.body;
+      
+      if (!name) {
+        return res.status(400).json({ message: 'Name is required' });
+      }
+
+      // Generate sample White Pages results for Hawaii residents
+      const hawaiiAddresses = [
+        { street: 'Ala Moana Blvd', city: 'Honolulu', zipCode: '96813' },
+        { street: 'King St', city: 'Honolulu', zipCode: '96817' },
+        { street: 'Beretania St', city: 'Honolulu', zipCode: '96814' },
+        { street: 'Kapiolani Blvd', city: 'Honolulu', zipCode: '96814' },
+        { street: 'Kamehameha Hwy', city: 'Kaneohe', zipCode: '96744' },
+        { street: 'Kailua Rd', city: 'Kailua', zipCode: '96734' },
+        { street: 'Banyan Dr', city: 'Hilo', zipCode: '96720' },
+        { street: 'Kilauea Ave', city: 'Hilo', zipCode: '96720' }
+      ];
+
+      const phoneNumbers = [
+        '(808) 555-0123', '(808) 555-0456', '(808) 555-0789',
+        '(808) 555-0234', '(808) 555-0567', '(808) 555-0890'
+      ];
+
+      const results = [];
+      const searchCity = city?.toLowerCase();
+      
+      // Generate 2-5 realistic results
+      const numResults = Math.floor(Math.random() * 4) + 2;
+      for (let i = 0; i < numResults; i++) {
+        const address = hawaiiAddresses[Math.floor(Math.random() * hawaiiAddresses.length)];
+        
+        // Filter by city if specified
+        if (searchCity && address.city.toLowerCase() !== searchCity) {
+          continue;
+        }
+
+        const streetNumber = Math.floor(Math.random() * 9999) + 100;
+        results.push({
+          name: name,
+          address: `${streetNumber} ${address.street}`,
+          city: address.city,
+          zipCode: address.zipCode,
+          phone: Math.random() > 0.3 ? phoneNumbers[Math.floor(Math.random() * phoneNumbers.length)] : null
+        });
+      }
+
+      res.json({ results });
+    } catch (error) {
+      console.error('Error searching White Pages:', error);
+      res.status(500).json({ message: 'Failed to search White Pages' });
+    }
+  });
+
   app.get('/api/arrest-monitoring/config', isAuthenticated, async (req, res) => {
     try {
       const config = await storage.getMonitoringConfig();

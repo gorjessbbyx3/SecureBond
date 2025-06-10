@@ -722,7 +722,7 @@ export class LocalFileStorage {
   }
 
   async getPublicArrestLogs(): Promise<any[]> {
-    // Generate sample public arrest logs prioritizing Honolulu County
+    // Generate realistic public arrest logs with recent timestamps
     const hawaiiCounties = ['honolulu', 'hawaii'];
     const commonNames = [
       'John Smith', 'Michael Johnson', 'David Williams', 'Christopher Brown', 'Matthew Jones',

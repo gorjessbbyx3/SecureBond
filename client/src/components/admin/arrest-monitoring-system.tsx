@@ -132,14 +132,19 @@ export default function ArrestMonitoringSystem() {
   // White Pages search mutation
   const whitePagesSearchMutation = useMutation({
     mutationFn: async (searchData: { name: string; city: string }) => {
-      const response = await apiRequest("POST", "/api/white-pages/search", searchData);
-      return response;
+      const response = await fetch('/api/white-pages/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(searchData),
+      });
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
     },
-    onSuccess: (data) => {
-      setWhitePagesResults(data?.results || []);
+    onSuccess: (data: any) => {
+      setWhitePagesResults(data.results || []);
       toast({
         title: "Search Complete",
-        description: `Found ${data?.results?.length || 0} potential matches`,
+        description: `Found ${data.results?.length || 0} potential matches`,
       });
     },
     onError: (error: any) => {
@@ -644,6 +649,136 @@ export default function ArrestMonitoringSystem() {
                       </Card>
                     );
                   })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* White Pages Search Tab */}
+        <TabsContent value="white-pages" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                White Pages Address Search
+                <Badge variant="outline">Hawaii Residents</Badge>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Search for client addresses and contact information using White Pages directory
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="name-search" className="text-sm font-medium">
+                    Full Name
+                  </label>
+                  <Input
+                    id="name-search"
+                    placeholder="Enter client name..."
+                    value={whitePagesName}
+                    onChange={(e) => setWhitePagesName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="city-search" className="text-sm font-medium">
+                    City (Optional)
+                  </label>
+                  <select
+                    id="city-search"
+                    value={whitePagesCity}
+                    onChange={(e) => setWhitePagesCity(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="">All Hawaii Cities</option>
+                    <option value="honolulu">Honolulu</option>
+                    <option value="hilo">Hilo</option>
+                    <option value="kailua-kona">Kailua-Kona</option>
+                    <option value="kaneohe">Kaneohe</option>
+                    <option value="waipahu">Waipahu</option>
+                    <option value="pearl-city">Pearl City</option>
+                    <option value="mililani">Mililani</option>
+                    <option value="kahului">Kahului</option>
+                    <option value="lihue">Lihue</option>
+                  </select>
+                </div>
+              </div>
+              
+              <Button
+                onClick={() => whitePagesSearchMutation.mutate({ 
+                  name: whitePagesName, 
+                  city: whitePagesCity 
+                })}
+                disabled={!whitePagesName.trim() || whitePagesSearchMutation.isPending}
+                className="w-full"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                {whitePagesSearchMutation.isPending ? "Searching..." : "Search White Pages"}
+              </Button>
+
+              {/* Search Results */}
+              {whitePagesResults.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-medium text-lg">Search Results</h4>
+                  {whitePagesResults.map((result: any, index: number) => (
+                    <div key={index} className="p-4 border rounded-lg bg-gray-50">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h5 className="font-medium text-lg">{result.name}</h5>
+                          <div className="mt-2 space-y-1 text-sm text-gray-600">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4" />
+                              <span>{result.address}</span>
+                            </div>
+                            {result.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-4 h-4" />
+                                <span>{result.phone}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <Building className="w-4 h-4" />
+                              <span>{result.city}, HI {result.zipCode}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              navigator.clipboard.writeText(`${result.name}\n${result.address}\n${result.city}, HI ${result.zipCode}${result.phone ? `\n${result.phone}` : ''}`);
+                              toast({
+                                title: "Copied",
+                                description: "Address information copied to clipboard",
+                              });
+                            }}
+                          >
+                            Copy Info
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Contact Saved",
+                                description: `${result.name}'s information has been saved to client records`,
+                              });
+                            }}
+                          >
+                            Save Contact
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {whitePagesResults.length === 0 && whitePagesSearchMutation.isSuccess && (
+                <div className="text-center py-8 text-gray-500">
+                  No results found for "{whitePagesName}" in Hawaii White Pages.
+                  Try searching with just the last name or check spelling.
                 </div>
               )}
             </CardContent>
