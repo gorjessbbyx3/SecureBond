@@ -137,7 +137,7 @@ export default function EnhancedAdminDashboard() {
 
         {/* Enhanced Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 h-12">
+          <TabsList className="grid w-full grid-cols-6 h-12">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
@@ -152,6 +152,9 @@ export default function EnhancedAdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
               Financial
+            </TabsTrigger>
+            <TabsTrigger value="data" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+              Data & Backup
             </TabsTrigger>
           </TabsList>
 
@@ -207,6 +210,10 @@ export default function EnhancedAdminDashboard() {
 
           <TabsContent value="financial" className="space-y-6">
             <FinancialDashboard />
+          </TabsContent>
+
+          <TabsContent value="data" className="space-y-6">
+            <DataManagement />
           </TabsContent>
         </Tabs>
       </main>
