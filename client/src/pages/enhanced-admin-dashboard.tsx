@@ -88,15 +88,13 @@ export default function EnhancedAdminDashboard() {
         {/* Top Action Bar */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <img 
-              src={logoImage} 
-              alt="Aloha Bail Bonds" 
-              className="h-10 w-auto object-contain"
-            />
+            <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100 tracking-wide">
+              ALOHA BAIL BOND
+            </h1>
             <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                 Admin Dashboard
-              </h1>
+              </h2>
               <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                 Live System
               </Badge>

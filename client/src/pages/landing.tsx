@@ -91,11 +91,9 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-center">
             <div className="text-center flex flex-col items-center">
-              <img 
-                src={logoImage} 
-                alt="Aloha Bail Bonds Logo" 
-                className="h-16 md:h-20 w-auto mb-2 filter drop-shadow-lg"
-              />
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-wide">
+                ALOHA BAIL BOND
+              </h1>
               <p className="text-blue-100 text-sm">Professional Bail Bond Services</p>
             </div>
           </div>
