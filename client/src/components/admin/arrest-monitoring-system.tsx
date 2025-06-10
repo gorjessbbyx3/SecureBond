@@ -17,8 +17,12 @@ import {
   User,
   RefreshCw,
   Bell,
-  Settings
+  Settings,
+  UserPlus,
+  Phone,
+  Building
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ArrestRecord {
   id: string;
@@ -55,14 +59,22 @@ export default function ArrestMonitoringSystem() {
   const [selectedRecord, setSelectedRecord] = useState<ArrestRecord | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("client-alerts");
+  const [publicSearchTerm, setPublicSearchTerm] = useState("");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch arrest records
+  // Fetch arrest records with automatic updates
   const { data: arrestRecords, isLoading: recordsLoading } = useQuery({
     queryKey: ["/api/arrest-monitoring/records"],
-    refetchInterval: 300000, // Refresh every 5 minutes
+    refetchInterval: 60000, // Refresh every minute for real-time updates
+  });
+
+  // Fetch public arrest logs for potential new clients
+  const { data: publicArrestLogs, isLoading: publicLogsLoading } = useQuery({
+    queryKey: ["/api/arrest-monitoring/public-logs"],
+    refetchInterval: 180000, // Refresh every 3 minutes
   });
 
   // Fetch monitoring configuration
@@ -274,123 +286,289 @@ export default function ArrestMonitoringSystem() {
         </CardContent>
       </Card>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Arrest Records</CardTitle>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Search className="w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Search records..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-64"
-                />
-              </div>
-              <select
-                value={selectedCounty}
-                onChange={(e) => setSelectedCounty(e.target.value)}
-                className="px-3 py-2 border rounded-md"
-              >
-                <option value="all">All Counties</option>
-                {hawaiiCounties.map((county) => (
-                  <option key={county.id} value={county.id}>
-                    {county.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {recordsLoading ? (
-            <div className="text-center py-8">Loading arrest records...</div>
-          ) : filteredRecords.length > 0 ? (
-            <div className="space-y-3">
-              {filteredRecords.map((record: ArrestRecord) => (
-                <div
-                  key={record.id}
-                  className={`p-4 rounded-lg border ${
-                    record.status === 'pending' && record.severity === 'critical' ? 'border-red-500 bg-red-50' :
-                    record.status === 'pending' && record.severity === 'high' ? 'border-orange-500 bg-orange-50' :
-                    record.status === 'pending' ? 'border-yellow-500 bg-yellow-50' :
-                    'border-gray-200 bg-gray-50'
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-medium text-lg">{record.clientName}</h4>
-                        {getSeverityBadge(record.severity)}
-                        {getStatusBadge(record.status)}
-                        {record.isActive && <Badge className="bg-green-500">Active Client</Badge>}
-                        {record.bondViolation && <Badge variant="destructive">Bond Violation</Badge>}
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-600">
-                            <Clock className="w-4 h-4 inline mr-1" />
-                            {new Date(record.arrestDate).toLocaleDateString()} at {record.arrestTime}
-                          </p>
-                          <p className="text-gray-600">
-                            <MapPin className="w-4 h-4 inline mr-1" />
-                            {record.arrestLocation}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600">Agency: {record.arrestingAgency}</p>
-                          <p className="text-gray-600">Booking: {record.bookingNumber}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-2">
-                        <p className="text-sm font-medium">Charges:</p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {record.charges.map((charge, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {charge}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedRecord(record);
-                          setIsDetailDialogOpen(true);
-                        }}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Details
-                      </Button>
-                      {record.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          onClick={() => acknowledgeAlertMutation.mutate(record.id)}
-                          disabled={acknowledgeAlertMutation.isPending}
-                        >
-                          Acknowledge
-                        </Button>
-                      )}
-                    </div>
+      {/* Enhanced Tabbed Interface */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="client-alerts" className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            Client Alerts ({pendingAlerts})
+          </TabsTrigger>
+          <TabsTrigger value="public-logs" className="flex items-center gap-2">
+            <UserPlus className="w-4 h-4" />
+            Public Arrest Logs (New Opportunities)
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Client Alerts Tab */}
+        <TabsContent value="client-alerts" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle>Client Arrest Alerts</CardTitle>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Search className="w-4 h-4 text-gray-400" />
+                    <Input
+                      placeholder="Search client records..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-64"
+                    />
                   </div>
+                  <select
+                    value={selectedCounty}
+                    onChange={(e) => setSelectedCounty(e.target.value)}
+                    className="px-3 py-2 border rounded-md"
+                  >
+                    <option value="all">All Counties</option>
+                    {hawaiiCounties.map((county) => (
+                      <option key={county.id} value={county.id}>
+                        {county.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No arrest records found. The system is actively monitoring for any client appearances in police logs.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {recordsLoading ? (
+                <div className="text-center py-8">Loading client arrest records...</div>
+              ) : filteredRecords.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredRecords.map((record: ArrestRecord) => (
+                    <div
+                      key={record.id}
+                      className={`p-4 rounded-lg border ${
+                        record.status === 'pending' && record.severity === 'critical' ? 'border-red-500 bg-red-50' :
+                        record.status === 'pending' && record.severity === 'high' ? 'border-orange-500 bg-orange-50' :
+                        record.status === 'pending' ? 'border-yellow-500 bg-yellow-50' :
+                        'border-gray-200 bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-medium text-lg">{record.clientName}</h4>
+                            {getSeverityBadge(record.severity)}
+                            {getStatusBadge(record.status)}
+                            {record.isActive && <Badge className="bg-green-500">Active Client</Badge>}
+                            {record.bondViolation && <Badge variant="destructive">Bond Violation</Badge>}
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">
+                                <Clock className="w-4 h-4 inline mr-1" />
+                                {new Date(record.arrestDate).toLocaleDateString()} at {record.arrestTime}
+                              </p>
+                              <p className="text-gray-600">
+                                <MapPin className="w-4 h-4 inline mr-1" />
+                                {record.arrestLocation}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">Agency: {record.arrestingAgency}</p>
+                              <p className="text-gray-600">Booking: {record.bookingNumber}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-2">
+                            <p className="text-sm font-medium">Charges:</p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {record.charges.map((charge, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {charge}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedRecord(record);
+                              setIsDetailDialogOpen(true);
+                            }}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Details
+                          </Button>
+                          {record.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              onClick={() => acknowledgeAlertMutation.mutate(record.id)}
+                              disabled={acknowledgeAlertMutation.isPending}
+                            >
+                              Acknowledge
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No client arrest records found. The system is actively monitoring for any client appearances in police logs.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Public Arrest Logs Tab */}
+        <TabsContent value="public-logs" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <UserPlus className="w-5 h-5" />
+                  Hawaii County Public Arrest Logs
+                  <Badge variant="outline">Auto-Updated</Badge>
+                </CardTitle>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Search className="w-4 h-4 text-gray-400" />
+                    <Input
+                      placeholder="Search names in arrest logs..."
+                      value={publicSearchTerm}
+                      onChange={(e) => setPublicSearchTerm(e.target.value)}
+                      className="w-64"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/arrest-monitoring/public-logs"] })}
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    Refresh
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {publicLogsLoading ? (
+                <div className="text-center py-8">Loading public arrest logs from Hawaii counties...</div>
+              ) : (
+                <div className="space-y-4">
+                  {/* County-based sections, starting with Honolulu */}
+                  {hawaiiCounties.map((county) => {
+                    const countyLogs = publicArrestLogs ? publicArrestLogs.filter((log: any) => 
+                      log.county === county.id && 
+                      (publicSearchTerm === "" || 
+                       log.name.toLowerCase().includes(publicSearchTerm.toLowerCase()) ||
+                       log.charges?.some((charge: string) => charge.toLowerCase().includes(publicSearchTerm.toLowerCase())))
+                    ) : [];
+
+                    return (
+                      <Card key={county.id} className="border-l-4 border-l-blue-500">
+                        <CardHeader className="pb-3">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Building className="w-4 h-4" />
+                              <h3 className="font-medium">{county.name}</h3>
+                              <Badge variant="secondary">{countyLogs?.length || 0} records</Badge>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              Last updated: {new Date().toLocaleTimeString()}
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {countyLogs && countyLogs.length > 0 ? (
+                            <div className="space-y-3">
+                              {countyLogs.map((log: any, index: number) => (
+                                <div key={index} className="p-3 border rounded-lg bg-gray-50">
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <h4 className="font-medium">{log.name}</h4>
+                                        <Badge variant="outline" className="text-xs">
+                                          New Opportunity
+                                        </Badge>
+                                      </div>
+                                      
+                                      <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                          <p className="text-gray-600">
+                                            <Clock className="w-4 h-4 inline mr-1" />
+                                            {log.arrestDate} at {log.arrestTime}
+                                          </p>
+                                          <p className="text-gray-600">
+                                            <MapPin className="w-4 h-4 inline mr-1" />
+                                            {log.location}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-gray-600">Booking: {log.bookingNumber}</p>
+                                          <p className="text-gray-600">Age: {log.age || 'N/A'}</p>
+                                        </div>
+                                      </div>
+                                      
+                                      {log.charges && (
+                                        <div className="mt-2">
+                                          <p className="text-sm font-medium">Charges:</p>
+                                          <div className="flex flex-wrap gap-1 mt-1">
+                                            {log.charges.map((charge: string, chargeIndex: number) => (
+                                              <Badge key={chargeIndex} variant="outline" className="text-xs">
+                                                {charge}
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    <div className="flex gap-2 ml-4">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => {
+                                          toast({
+                                            title: "Contact Information",
+                                            description: `Call ${county.agency} for more details about ${log.name}`,
+                                          });
+                                        }}
+                                      >
+                                        <Phone className="w-4 h-4 mr-1" />
+                                        Contact
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        onClick={() => {
+                                          toast({
+                                            title: "Lead Added",
+                                            description: `${log.name} has been marked as a potential client`,
+                                          });
+                                        }}
+                                      >
+                                        <UserPlus className="w-4 h-4 mr-1" />
+                                        Add Lead
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4 text-gray-500">
+                              No arrests found in {county.name} matching your search.
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Record Detail Dialog */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>

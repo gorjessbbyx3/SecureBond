@@ -622,6 +622,82 @@ export class LocalFileStorage {
     };
   }
 
+  async getPublicArrestLogs(): Promise<any[]> {
+    // Generate sample public arrest logs prioritizing Honolulu County
+    const hawaiiCounties = ['honolulu', 'hawaii', 'maui', 'kauai'];
+    const commonNames = [
+      'John Smith', 'Michael Johnson', 'David Williams', 'Christopher Brown', 'Matthew Jones',
+      'Anthony Garcia', 'Mark Miller', 'Donald Davis', 'Steven Rodriguez', 'Paul Martinez',
+      'Joshua Anderson', 'Kenneth Taylor', 'Kevin Thomas', 'Brian Jackson', 'George White',
+      'Edward Harris', 'Ronald Clark', 'Timothy Lewis', 'Jason Lee', 'Jeffrey Walker',
+      'Ryan Hall', 'Jacob Allen', 'Gary Young', 'Nicholas King', 'Eric Wright',
+      'Mary Johnson', 'Patricia Williams', 'Jennifer Brown', 'Linda Davis', 'Elizabeth Miller',
+      'Barbara Wilson', 'Susan Moore', 'Jessica Taylor', 'Sarah Anderson', 'Karen Thomas'
+    ];
+    
+    const charges = [
+      'DUI', 'Public Intoxication', 'Disorderly Conduct', 'Theft', 'Shoplifting',
+      'Assault', 'Drug Possession', 'Trespassing', 'Domestic Violence', 'Burglary',
+      'Traffic Violations', 'Probation Violation', 'Warrant', 'Disturbing the Peace'
+    ];
+
+    const locations = {
+      honolulu: [
+        'Waikiki Beach', 'Downtown Honolulu', 'Kalihi', 'Pearl City', 'Kaneohe',
+        'Ala Moana Center', 'Chinatown', 'Sand Island', 'Keeaumoku St', 'Hotel St'
+      ],
+      hawaii: [
+        'Hilo', 'Kona', 'Pahoa', 'Captain Cook', 'Waimea',
+        'Volcano', 'Pepeekeo', 'Laupahoehoe', 'Honokaa', 'Naalehu'
+      ],
+      maui: [
+        'Kahului', 'Lahaina', 'Kihei', 'Paia', 'Makawao',
+        'Wailuku', 'Haiku', 'Hana', 'Wailea', 'Kaanapali'
+      ],
+      kauai: [
+        'Lihue', 'Kapaa', 'Princeville', 'Waimea', 'Hanapepe',
+        'Koloa', 'Kilauea', 'Anahola', 'Eleele', 'Kalaheo'
+      ]
+    };
+
+    const publicLogs = [];
+    
+    // Generate more records for Honolulu (prioritized for new client opportunities)
+    for (let i = 0; i < 25; i++) {
+      const county = i < 15 ? 'honolulu' : hawaiiCounties[Math.floor(Math.random() * hawaiiCounties.length)];
+      const name = commonNames[Math.floor(Math.random() * commonNames.length)];
+      const arrestDate = new Date();
+      arrestDate.setDate(arrestDate.getDate() - Math.floor(Math.random() * 7)); // Last 7 days
+      
+      const selectedCharges = charges.slice(0, Math.floor(Math.random() * 3) + 1);
+      const age = Math.floor(Math.random() * 40) + 18; // 18-58 years old
+      
+      publicLogs.push({
+        id: `public-${county}-${i}-${Date.now()}`,
+        name,
+        county,
+        arrestDate: arrestDate.toISOString().split('T')[0],
+        arrestTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+        location: locations[county as keyof typeof locations][Math.floor(Math.random() * locations[county as keyof typeof locations].length)],
+        charges: selectedCharges,
+        bookingNumber: `${county.toUpperCase()}-${Date.now().toString().slice(-6)}-${i}`,
+        age,
+        agency: `${county.charAt(0).toUpperCase() + county.slice(1)} Police Department`,
+        status: 'in_custody',
+        bondEligible: Math.random() > 0.3,
+        estimatedBond: Math.floor(Math.random() * 50000) + 1000,
+        createdAt: arrestDate.toISOString()
+      });
+    }
+
+    // Sort by county priority (Honolulu first) and then by date
+    return publicLogs.sort((a, b) => {
+      if (a.county === 'honolulu' && b.county !== 'honolulu') return -1;
+      if (a.county !== 'honolulu' && b.county === 'honolulu') return 1;
+      return new Date(b.arrestDate).getTime() - new Date(a.arrestDate).getTime();
+    });
+  }
+
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

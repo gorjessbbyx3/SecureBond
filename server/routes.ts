@@ -547,6 +547,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/arrest-monitoring/public-logs', isAuthenticated, async (req, res) => {
+    try {
+      const publicLogs = await storage.getPublicArrestLogs();
+      res.json(publicLogs);
+    } catch (error) {
+      console.error('Error fetching public arrest logs:', error);
+      res.status(500).json({ message: 'Failed to fetch public arrest logs' });
+    }
+  });
+
   // Analytics and advanced features
   app.get('/api/analytics/overview', isAuthenticated, async (req, res) => {
     try {

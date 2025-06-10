@@ -99,6 +99,7 @@ export interface IStorage {
   getMonitoringConfig(): Promise<any[]>;
   scanArrestLogs(): Promise<any>;
   acknowledgeArrestRecord(recordId: string): Promise<any>;
+  getPublicArrestLogs(): Promise<any[]>;
 }
 
 // In-memory storage for development
