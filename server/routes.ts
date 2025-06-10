@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+// import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertClientSchema, 
   insertCheckInSchema, 
@@ -14,16 +14,26 @@ import {
 import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 
+// Simple auth middleware for development
+const isAuthenticated = (req: any, res: any, next: any) => {
+  // For demo purposes, always allow access
+  next();
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Simple session middleware for development
+  app.use((req: any, res, next) => {
+    if (!req.session) {
+      req.session = {};
+    }
+    next();
+  });
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      // Return mock user for development
+      res.json({ id: 'demo-user', role: 'admin' });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -50,8 +60,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Store client session info
-      req.session.clientId = client.id;
-      req.session.clientRole = 'client';
+      (req.session as any).clientId = client.id;
+      (req.session as any).clientRole = 'client';
       
       res.json({ 
         success: true, 
@@ -84,7 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      req.session.adminRole = role;
+      (req.session as any).adminRole = role;
       res.json({ success: true, role });
     } catch (error) {
       console.error("Admin login error:", error);

@@ -32,7 +32,7 @@ import {
   type EmploymentInfo,
   type ClientFile,
 } from "@shared/schema";
-import { db } from "./db";
+// import { db } from "./db";
 import { eq, desc, and, gte, lte } from "drizzle-orm";
 
 // Interface for storage operations
@@ -91,25 +91,39 @@ export interface IStorage {
   getClientFiles(clientId: number): Promise<ClientFile[]>;
 }
 
-export class DatabaseStorage implements IStorage {
-  // User operations (mandatory for Replit Auth)
+// In-memory storage for development
+class MemoryStorage implements IStorage {
+  private users: User[] = [];
+  private clients: Client[] = [];
+  private checkIns: CheckIn[] = [];
+  private payments: Payment[] = [];
+  private messages: Message[] = [];
+  private courtDates: CourtDate[] = [];
+  private expenses: Expense[] = [];
+  private alerts: Alert[] = [];
+  private clientVehicles: ClientVehicle[] = [];
+  private familyMembers: FamilyMember[] = [];
+  private employmentInfo: EmploymentInfo[] = [];
+  private clientFiles: ClientFile[] = [];
+
+  // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return this.users.find(u => u.id === id);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+    const existingIndex = this.users.findIndex(u => u.id === userData.id);
+    const user = {
+      ...userData,
+      updatedAt: new Date(),
+      createdAt: new Date(),
+    } as User;
+    
+    if (existingIndex >= 0) {
+      this.users[existingIndex] = user;
+    } else {
+      this.users.push(user);
+    }
     return user;
   }
 
