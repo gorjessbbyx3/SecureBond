@@ -885,10 +885,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dateOfBirth: '1985-06-15',
         emergencyContact: 'Jane Smith',
         emergencyPhone: '555-0124',
-        bondAmount: '25000.00',
-        courtDate: new Date('2024-02-15T10:00:00Z'),
-        courtLocation: 'District Court Room 3A',
-        charges: 'Theft in the third degree',
         isActive: true,
         missedCheckIns: 2 // This will trigger notifications
       });
@@ -902,10 +898,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dateOfBirth: '1992-03-20',
         emergencyContact: 'Carlos Garcia',
         emergencyPhone: '555-0457',
-        bondAmount: '15000.00',
-        courtDate: new Date('2024-02-28T14:00:00Z'),
-        courtLocation: 'Municipal Court Room 1B',
-        charges: 'DUI',
         isActive: true,
         missedCheckIns: 0
       });
@@ -958,10 +950,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dateOfBirth: '1978-11-10',
         emergencyContact: 'Sarah Johnson',
         emergencyPhone: '555-0790',
-        bondAmount: '50000.00',
-        courtDate: new Date('2024-01-30T09:00:00Z'), // Past court date
-        courtLocation: 'Superior Court Room 2C',
-        charges: 'Assault in the second degree',
         isActive: false, // Inactive client
         missedCheckIns: 5
       });

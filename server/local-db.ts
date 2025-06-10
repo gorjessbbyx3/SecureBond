@@ -492,13 +492,16 @@ export class LocalFileStorage {
     const reminders = [];
 
     for (const courtDate of courtDates) {
-      if (!courtDate.isActive) continue;
+      // Only process active court dates (completed = false)
+      if (courtDate.completed) continue;
 
-      const courtDateObj = new Date(courtDate.date);
+      const courtDateObj = new Date(courtDate.courtDate);
       const timeDiff = courtDateObj.getTime() - now.getTime();
       const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-      if (daysDiff <= courtDate.reminderDays && daysDiff >= 0) {
+      // Default reminder days to 3 if not specified
+      const reminderDays = 3;
+      if (daysDiff <= reminderDays && daysDiff >= 0) {
         let priority = 'low';
         if (daysDiff === 0) priority = 'critical';
         else if (daysDiff === 1) priority = 'high';
@@ -506,12 +509,16 @@ export class LocalFileStorage {
 
         const type = daysDiff === 0 ? 'today' : daysDiff < 0 ? 'overdue' : 'upcoming';
 
+        // Get client name from clients array
+        const client = this.clients.find(c => c.id === courtDate.clientId);
+        const clientName = client ? client.fullName : 'Unknown Client';
+
         reminders.push({
           id: `reminder-${courtDate.id}-${Date.now()}`,
           courtDateId: courtDate.id,
           clientId: courtDate.clientId,
-          clientName: courtDate.clientName || 'Unknown Client',
-          courtDate: courtDate.date,
+          clientName: clientName,
+          courtDate: courtDate.courtDate.toISOString(),
           courtLocation: courtDate.courtLocation,
           daysUntil: daysDiff,
           priority,
@@ -569,7 +576,7 @@ export class LocalFileStorage {
         county: county,
         bookingNumber: `${county.toUpperCase()}-${Date.now().toString().slice(-6)}`,
         status: Math.random() > 0.7 ? 'processed' : 'pending',
-        isActive: client.status === 'active',
+        isActive: client.isActive === true,
         bondViolation,
         severity,
         createdAt: arrestDate.toISOString()
