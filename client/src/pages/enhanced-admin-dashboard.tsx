@@ -147,12 +147,15 @@ export default function EnhancedAdminDashboard() {
 
         {/* Enhanced Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 h-12">
+          <TabsList className="grid w-full grid-cols-7 h-12">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="client-analytics" className="data-[state=active]:bg-teal-600 data-[state=active]:text-white">
+              Client Analytics
             </TabsTrigger>
             <TabsTrigger value="tracking" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               Live Tracking
@@ -211,6 +214,10 @@ export default function EnhancedAdminDashboard() {
               <AnalyticsCharts />
               <TopLocations />
             </div>
+          </TabsContent>
+
+          <TabsContent value="client-analytics" className="space-y-6">
+            <ClientAnalyticsDashboard />
           </TabsContent>
 
           <TabsContent value="tracking" className="space-y-6">
