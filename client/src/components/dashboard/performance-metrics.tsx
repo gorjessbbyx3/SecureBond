@@ -30,6 +30,10 @@ export default function PerformanceMetrics() {
     queryKey: ["/api/court-dates"],
   });
 
+  const { data: alerts } = useQuery({
+    queryKey: ["/api/alerts/unacknowledged"],
+  });
+
   const calculateKPIs = () => {
     const now = new Date();
     const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);

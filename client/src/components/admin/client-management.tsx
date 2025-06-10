@@ -103,10 +103,12 @@ export default function ClientManagement() {
 
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
-      return await apiRequest("POST", "/api/clients", data);
+      const response = await apiRequest("POST", "/api/clients", data);
+      return await response.json();
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      console.log("Client creation response:", data); // Debug log
       setGeneratedCredentials({
         clientId: data.clientId,
         password: data.password
@@ -859,6 +861,65 @@ export default function ClientManagement() {
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <AlertTriangle className="mr-2 w-5 h-5 text-red-600" />
+              Delete Client
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600 mb-4">
+              Are you sure you want to delete <strong>{clientToDelete?.fullName}</strong>? 
+              This action cannot be undone and will remove all associated data including:
+            </p>
+            <ul className="text-sm text-gray-600 list-disc list-inside space-y-1 ml-4">
+              <li>Client profile and contact information</li>
+              <li>Payment history and records</li>
+              <li>Court dates and appearances</li>
+              <li>Check-in history</li>
+              <li>All associated alerts and messages</li>
+            </ul>
+          </div>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setClientToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (clientToDelete) {
+                  deleteClientMutation.mutate(clientToDelete.id);
+                  setIsDeleteDialogOpen(false);
+                  setClientToDelete(null);
+                }
+              }}
+              disabled={deleteClientMutation.isPending}
+            >
+              {deleteClientMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  Delete Client
+                </>
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
