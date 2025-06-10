@@ -400,6 +400,12 @@ export default function ClientManagement() {
                     <Button
                       type="submit"
                       disabled={createClientMutation.isPending || updateClientMutation.isPending}
+                      onClick={() => {
+                        console.log("Submit button clicked");
+                        console.log("Form valid:", form.formState.isValid);
+                        console.log("Form errors:", form.formState.errors);
+                        console.log("Form values:", form.getValues());
+                      }}
                     >
                       {editingClient ? "Update Client" : "Create Client"}
                     </Button>
