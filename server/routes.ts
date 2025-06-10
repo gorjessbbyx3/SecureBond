@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import session from "express-session";
 import { storage } from "./storage";
 import { courtScraper } from "./courtScraper";
+import { courtReminderService } from "./courtReminderService";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import bcrypt from 'bcrypt';
 import { 
