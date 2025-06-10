@@ -112,7 +112,11 @@ export default function EnhancedAdminDashboard() {
               {exportReportMutation.isPending ? 'Exporting...' : 'Export'}
             </Button>
             
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setActiveTab("overview")}
+            >
               <Bell className="h-4 w-4 mr-2" />
               Alerts
               <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
@@ -120,7 +124,11 @@ export default function EnhancedAdminDashboard() {
               </Badge>
             </Button>
             
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setActiveTab("data")}
+            >
               <Settings className="h-4 w-4" />
             </Button>
             
