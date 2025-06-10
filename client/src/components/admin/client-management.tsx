@@ -151,6 +151,27 @@ export default function ClientManagement() {
     },
   });
 
+  const deleteClientMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/clients/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      toast({
+        title: "Success",
+        description: "Client deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete client",
+        variant: "destructive",
+      });
+    },
+  });
+
   const updateCredentialsMutation = useMutation({
     mutationFn: async (data: { role: string; username: string; password: string }) => {
       const response = await apiRequest("PATCH", "/api/admin/credentials", data);
@@ -420,6 +441,7 @@ export default function ClientManagement() {
                             size="sm"
                             onClick={() => handleEdit(client)}
                           >
+                            <Settings className="w-3 h-3 mr-1" />
                             Edit
                           </Button>
                           <Button
@@ -428,7 +450,7 @@ export default function ClientManagement() {
                             onClick={() => handleViewCredentials(client)}
                           >
                             <Key className="w-3 h-3 mr-1" />
-                            View Login
+                            Login
                           </Button>
                           <Button
                             variant="outline"
@@ -440,6 +462,18 @@ export default function ClientManagement() {
                           >
                             <Eye className="w-3 h-3 mr-1" />
                             Details
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              if (window.confirm(`Are you sure you want to delete client ${client.fullName}? This action cannot be undone.`)) {
+                                deleteClientMutation.mutate(client.id);
+                              }
+                            }}
+                          >
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Delete
                           </Button>
                         </div>
                       </td>
@@ -626,9 +660,52 @@ export default function ClientManagement() {
       <Dialog open={isClientDetailsOpen} onOpenChange={setIsClientDetailsOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <User className="mr-2 w-5 h-5" />
-              Client Details - {selectedClient?.fullName}
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <User className="mr-2 w-5 h-5" />
+                Client Details - {selectedClient?.fullName}
+              </div>
+              {selectedClient && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditingClient(selectedClient);
+                      form.reset({
+                        fullName: selectedClient.fullName,
+                        phoneNumber: selectedClient.phoneNumber || "",
+                        address: selectedClient.address || "",
+                        dateOfBirth: "",
+                        emergencyContact: "",
+                        emergencyPhone: "",
+                        courtLocation: selectedClient.courtLocation || "",
+                        charges: selectedClient.charges || "",
+                        isActive: selectedClient.isActive,
+                        missedCheckIns: selectedClient.missedCheckIns,
+                      });
+                      setIsClientDetailsOpen(false);
+                      setIsFormOpen(true);
+                    }}
+                  >
+                    <Settings className="w-3 h-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      if (window.confirm(`Are you sure you want to delete client ${selectedClient.fullName}? This action cannot be undone.`)) {
+                        deleteClientMutation.mutate(selectedClient.id);
+                        setIsClientDetailsOpen(false);
+                      }
+                    }}
+                  >
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              )}
             </DialogTitle>
           </DialogHeader>
           {selectedClient && <ClientDetailsContent client={selectedClient} />}
