@@ -49,16 +49,37 @@ export const clients = pgTable("clients", {
   dateOfBirth: date("date_of_birth"),
   emergencyContact: varchar("emergency_contact"),
   emergencyPhone: varchar("emergency_phone"),
-  bondAmount: decimal("bond_amount", { precision: 10, scale: 2 }),
-  totalOwed: decimal("total_owed", { precision: 10, scale: 2 }),
-  downPayment: decimal("down_payment", { precision: 10, scale: 2 }).default("0.00"),
-  remainingBalance: decimal("remaining_balance", { precision: 10, scale: 2 }),
-  courtDate: timestamp("court_date"),
-  courtLocation: text("court_location"),
-  charges: text("charges"),
+  // Remove individual bond fields - these will be in bonds table
   isActive: boolean("is_active").default(true),
   lastCheckIn: timestamp("last_check_in"),
   missedCheckIns: integer("missed_check_ins").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Bond contracts table - supports multiple bonds per client
+export const bonds = pgTable("bonds", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id).notNull(),
+  bondNumber: varchar("bond_number").unique().notNull(), // Auto-generated bond contract number
+  bondAmount: decimal("bond_amount", { precision: 10, scale: 2 }).notNull(),
+  totalOwed: decimal("total_owed", { precision: 10, scale: 2 }).notNull(),
+  downPayment: decimal("down_payment", { precision: 10, scale: 2 }).default("0.00"),
+  remainingBalance: decimal("remaining_balance", { precision: 10, scale: 2 }).notNull(),
+  courtDate: timestamp("court_date"),
+  courtLocation: text("court_location"),
+  charges: text("charges"),
+  caseNumber: varchar("case_number"),
+  status: varchar("status").notNull().default("active"), // active, completed, forfeited, cancelled
+  bondType: varchar("bond_type").default("surety"), // surety, cash, property, federal
+  premiumRate: decimal("premium_rate", { precision: 5, scale: 4 }).default("0.10"), // 10% default
+  collateral: text("collateral"), // Description of collateral if any
+  cosigner: varchar("cosigner"),
+  cosignerPhone: varchar("cosigner_phone"),
+  issuedDate: timestamp("issued_date").defaultNow(),
+  expirationDate: timestamp("expiration_date"),
+  completedDate: timestamp("completed_date"),
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -190,6 +211,11 @@ export const alerts = pgTable("alerts", {
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertClientSchema = createInsertSchema(clients).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const insertBondSchema = createInsertSchema(bonds).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
