@@ -1,0 +1,18 @@
+[
+  {
+    "clientId": "SB0396133366",
+    "password": "$2b$10$.K7kAU5ZqoHJPyCaYmUXfucN/wy6ZkiS7K2tjCY4JVNmn6sggPmP6",
+    "phoneNumber": null,
+    "address": "123 Main St, Honolulu, HI 96813",
+    "dateOfBirth": "1985-03-15",
+    "emergencyContact": "Jane Smith - (808) 555-0102",
+    "emergencyPhone": null,
+    "courtLocation": null,
+    "charges": null,
+    "isActive": true,
+    "missedCheckIns": 0,
+    "id": 1,
+    "createdAt": "2025-06-10T06:30:39.672Z",
+    "updatedAt": "2025-06-10T06:30:39.672Z"
+  }
+]
