@@ -965,6 +965,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get client payments
+  app.get('/api/clients/:id/payments', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const payments = await storage.getClientPayments(clientId);
+      res.json(payments);
+    } catch (error) {
+      console.error('Error fetching client payments:', error);
+      res.status(500).json({ message: 'Failed to fetch client payments' });
+    }
+  });
+
+  // Get client check-ins
+  app.get('/api/clients/:id/check-ins', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const checkIns = await storage.getClientCheckIns(clientId);
+      res.json(checkIns);
+    } catch (error) {
+      console.error('Error fetching client check-ins:', error);
+      res.status(500).json({ message: 'Failed to fetch client check-ins' });
+    }
+  });
+
+  // Get top frequent locations from check-ins
+  app.get('/api/analytics/top-locations', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const locationCounts = new Map<string, { count: number; clients: Set<string> }>();
+      
+      // Collect location data from all client check-ins
+      for (const client of clients) {
+        const checkIns = await storage.getClientCheckIns(client.id);
+        
+        for (const checkIn of checkIns) {
+          if (checkIn.location && checkIn.location.trim()) {
+            const location = checkIn.location.trim();
+            if (!locationCounts.has(location)) {
+              locationCounts.set(location, { count: 0, clients: new Set() });
+            }
+            const locationData = locationCounts.get(location)!;
+            locationData.count += 1;
+            locationData.clients.add(client.fullName);
+          }
+        }
+      }
+      
+      // Convert to array and sort by frequency
+      const topLocations = Array.from(locationCounts.entries())
+        .map(([location, data]) => ({
+          location,
+          checkInCount: data.count,
+          uniqueClients: data.clients.size,
+          clientNames: Array.from(data.clients)
+        }))
+        .sort((a, b) => b.checkInCount - a.checkInCount)
+        .slice(0, 5);
+      
+      res.json(topLocations);
+    } catch (error) {
+      console.error('Error fetching top locations:', error);
+      res.status(500).json({ message: 'Failed to fetch location analytics' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
