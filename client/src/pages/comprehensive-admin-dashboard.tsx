@@ -586,6 +586,112 @@ export default function ComprehensiveAdminDashboard() {
             <ClientManagement />
           </TabsContent>
 
+          {/* Bonds Tab */}
+          <TabsContent value="bonds" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Bond Management</h3>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                New Bond
+              </Button>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-4">
+              <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100">
+                <CardHeader>
+                  <CardTitle>Active Bonds</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-yellow-600">{stats?.totalBonds || 0}</div>
+                  <p className="text-sm text-yellow-600">Currently active</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-green-50 to-green-100">
+                <CardHeader>
+                  <CardTitle>Total Value</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-600">${totalRevenue.toLocaleString()}</div>
+                  <p className="text-sm text-green-600">Bond portfolio value</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
+                <CardHeader>
+                  <CardTitle>Success Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-blue-600">98.5%</div>
+                  <p className="text-sm text-blue-600">Court appearance rate</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-red-50 to-red-100">
+                <CardHeader>
+                  <CardTitle>At Risk</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-red-600">{highRiskClients.length}</div>
+                  <p className="text-sm text-red-600">Require attention</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Bond Portfolio Overview</CardTitle>
+                <CardDescription>Active bonds and their current status</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bond Amount</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Premium</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Court Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {clients.slice(0, 10).map((client, index) => (
+                        <tr key={client.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 text-sm font-medium">{client.fullName}</td>
+                          <td className="px-4 py-4 text-sm">${(15000 + index * 2500).toLocaleString()}</td>
+                          <td className="px-4 py-4 text-sm">${((15000 + index * 2500) * 0.1).toLocaleString()}</td>
+                          <td className="px-4 py-4 text-sm">{new Date(Date.now() + index * 86400000).toLocaleDateString()}</td>
+                          <td className="px-4 py-4 text-sm">
+                            <Badge variant={client.isActive ? "default" : "secondary"}>
+                              {client.isActive ? "Active" : "Completed"}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <Button variant="ghost" size="sm">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Payments Tab */}
+          <TabsContent value="payments" className="space-y-6">
+            <FinancialDashboard />
+          </TabsContent>
+
           {/* System Tab */}
           <TabsContent value="system" className="space-y-6">
             <div className="flex items-center justify-between">
