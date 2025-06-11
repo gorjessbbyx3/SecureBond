@@ -67,6 +67,7 @@ function Router() {
           <ClientPortalPreview />
         </ProtectedRoute>
       </Route>
+      <Route path="/error-tooltip-demo" component={ErrorTooltipDemo} />
       <Route path="/maintenance-dashboard">
         <ProtectedRoute requiredRole="maintenance">
           <MaintenanceDashboard />
