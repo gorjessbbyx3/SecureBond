@@ -1870,68 +1870,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Recent arrest logs endpoints
+  // Recent arrest logs endpoints - requires authentic police department data integration
   app.get('/api/arrest-logs/recent', isAuthenticated, async (req, res) => {
     try {
-      // Generate recent arrest log data based on real Hawaii sources
-      const recentLogs = [
-        {
-          id: 'arr_001',
-          arrestDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          arrestTime: '14:30',
-          name: 'John Smith',
-          age: 32,
-          address: '123 Main St, Honolulu, HI',
-          charges: ['DUI', 'Reckless Driving'],
-          arrestingAgency: 'Honolulu Police Department',
-          bookingNumber: 'HPD-2024-001234',
-          bondAmount: '$5,000',
-          releaseStatus: 'in_custody',
-          contactStatus: 'not_contacted',
-          priority: 'high',
-          source: 'HPD Arrest Log',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'arr_002', 
-          arrestDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          arrestTime: '22:15',
-          name: 'Maria Rodriguez',
-          age: 28,
-          charges: ['Assault', 'Disorderly Conduct'],
-          arrestingAgency: 'Honolulu Police Department',
-          bookingNumber: 'HPD-2024-001235',
-          bondAmount: '$2,500',
-          releaseStatus: 'bonded_out',
-          contactStatus: 'contacted',
-          contactedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          contactedBy: 'Admin User',
-          contactNotes: 'Spoke with family member, interested in services',
-          priority: 'medium',
-          source: 'HPD Arrest Log',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'arr_003',
-          arrestDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), 
-          arrestTime: '09:45',
-          name: 'David Kim',
-          age: 45,
-          charges: ['Theft', 'Possession of Stolen Property'],
-          arrestingAgency: 'Honolulu Police Department',
-          bookingNumber: 'HPD-2024-001236',
-          bondAmount: '$1,000',
-          releaseStatus: 'released',
-          contactStatus: 'follow_up',
-          contactedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          contactedBy: 'Admin User',
-          contactNotes: 'Initial contact made, scheduling consultation',
-          priority: 'medium',
-          source: 'HPD Arrest Log',
-          createdAt: new Date().toISOString()
-        }
-      ];
-
+      // Only return authentic arrest logs from configured police department APIs
+      const recentLogs = await storage.getPublicArrestLogs();
       res.json(recentLogs);
     } catch (error) {
       console.error('Error fetching recent arrest logs:', error);
@@ -1943,22 +1886,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { recordId } = req.params;
       
-      // Sample contact history data
-      const contactHistory = [
-        {
-          id: 'contact_001',
-          arrestRecordId: recordId,
-          contactType: 'phone',
-          contactedBy: 'Admin User',
-          contactDate: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          notes: 'Initial contact attempt, no answer. Left voicemail with callback information.',
-          outcome: 'no_answer',
-          followUpRequired: true,
-          followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-        }
-      ];
+      // Only return authentic contact history from database
+      const contactHistory = await storage.readJsonFile(path.join(storage.dataDir, 'contact-history.json'), []);
+      const recordHistory = contactHistory.filter((contact: any) => contact.arrestRecordId === recordId);
 
-      res.json(contactHistory);
+      res.json(recordHistory);
     } catch (error) {
       console.error('Error fetching contact history:', error);
       res.status(500).json({ message: 'Failed to fetch contact history' });
