@@ -1,4 +1,5 @@
 import { storage } from './storage';
+import { notificationService } from './services/notificationService';
 import { 
   type CourtDate, 
   type CourtDateReminder, 
@@ -46,8 +47,15 @@ export class CourtReminderService {
     const now = new Date();
     const pendingReminders = await this.getPendingReminders(now);
 
+    console.log(`Processing ${pendingReminders.length} pending court reminders`);
+
     for (const reminder of pendingReminders) {
-      await this.sendReminder(reminder);
+      try {
+        await this.sendReminder(reminder);
+        console.log(`Court reminder sent successfully: ${reminder.reminderType} for court date ${reminder.courtDateId}`);
+      } catch (error) {
+        console.error(`Failed to send court reminder ${reminder.id}:`, error);
+      }
     }
   }
 
