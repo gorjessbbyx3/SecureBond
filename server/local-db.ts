@@ -292,8 +292,6 @@ export class LocalFileStorage implements IStorage {
       emergencyContact: clientData.emergencyContact || null,
       emergencyPhone: clientData.emergencyPhone || null,
       isActive: clientData.isActive || true,
-      userId: clientData.userId || null,
-      password: clientData.password || 'temp123',
       lastCheckIn: null,
       missedCheckIns: 0,
       createdAt: new Date(),
@@ -454,7 +452,6 @@ export class LocalFileStorage implements IStorage {
       confirmed: true,
       confirmedBy,
       confirmedAt: new Date(),
-      updatedAt: new Date(),
     };
     
     await this.writeJsonFile('payments.json', payments);
@@ -577,7 +574,6 @@ export class LocalFileStorage implements IStorage {
       acknowledged: true,
       acknowledgedBy,
       acknowledgedAt: new Date(),
-      updatedAt: new Date(),
     };
     
     await this.writeJsonFile('alerts.json', alerts);
@@ -622,8 +618,9 @@ export class LocalFileStorage implements IStorage {
   async createCourtDate(courtDateData: InsertCourtDate): Promise<CourtDate> {
     const courtDate: CourtDate = {
       id: this.nextId++,
-      ...courtDateData,
+      createdAt: new Date(),
       clientId: courtDateData.clientId || null,
+      courtDate: courtDateData.courtDate,
       courtType: courtDateData.courtType || "hearing",
       courtLocation: courtDateData.courtLocation || null,
       charges: courtDateData.charges || null,
@@ -633,12 +630,11 @@ export class LocalFileStorage implements IStorage {
       attendanceStatus: courtDateData.attendanceStatus || "pending",
       adminApproved: courtDateData.adminApproved || false,
       approvedBy: courtDateData.approvedBy || null,
-      approvedAt: courtDateData.approvedAt || null,
+      approvedAt: null,
       clientAcknowledged: courtDateData.clientAcknowledged || false,
-      acknowledgedAt: courtDateData.acknowledgedAt || null,
+      acknowledgedAt: null,
       source: courtDateData.source || "manual",
       sourceVerified: courtDateData.sourceVerified || false,
-      createdAt: new Date(),
     };
     
     const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');

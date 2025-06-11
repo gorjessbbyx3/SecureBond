@@ -541,10 +541,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Automatically scrape court history for the new client
       try {
         const courtSearchResult = await courtScraper.searchCourtDates(client.fullName, {
-          dateRange: {
-            start: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000 * 5), // 5 years back
-            end: new Date()
-          }
+          state: "Hawaii",
+          county: "All"
         });
 
         // Create court date records with pending status for admin review
