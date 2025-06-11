@@ -42,26 +42,13 @@ interface PredictiveInsights {
 }
 
 export function AIEnhancedOverview() {
+  // Real-time metrics calculated from actual data
   const [realTimeMetrics, setRealTimeMetrics] = useState({
     activeMonitoring: 0,
     criticalAlerts: 0,
     revenueToday: 0,
-    operationalScore: 95
+    operationalScore: 0
   });
-
-  // Simulated real-time data updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRealTimeMetrics(prev => ({
-        activeMonitoring: prev.activeMonitoring + Math.floor(Math.random() * 3),
-        criticalAlerts: Math.floor(Math.random() * 5),
-        revenueToday: prev.revenueToday + Math.floor(Math.random() * 1000),
-        operationalScore: 92 + Math.floor(Math.random() * 8)
-      }));
-    }, 30000); // Update every 30 seconds
-
-    return () => clearInterval(interval);
-  }, []);
 
   const { data: clients = [] } = useQuery({
     queryKey: ["/api/clients"],
@@ -71,12 +58,12 @@ export function AIEnhancedOverview() {
     queryKey: ["/api/payments"],
   });
 
-  // Calculate risk metrics from real data
+  // Calculate risk metrics from actual client data
   const riskMetrics: RiskMetrics = {
-    criticalRisk: 0,
-    highRisk: 1, // Kepa as example
-    mediumRisk: 0,
-    lowRisk: 0,
+    criticalRisk: clients.filter((c: any) => c.riskLevel === 'critical').length,
+    highRisk: clients.filter((c: any) => c.riskLevel === 'high').length,
+    mediumRisk: clients.filter((c: any) => c.riskLevel === 'medium').length,
+    lowRisk: clients.filter((c: any) => c.riskLevel === 'low').length,
     totalClients: clients.length
   };
 

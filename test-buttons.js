@@ -1,22 +1,11 @@
 // Comprehensive button and functionality test script
+// This file is for development testing only and should not be used in production
+// All test data has been removed to ensure production readiness
+
 const testEndpoints = [
-  // Authentication tests
-  { method: 'POST', url: '/api/auth/admin-login', data: { username: 'admin', password: 'admin123', role: 'admin' }, description: 'Admin login' },
-  { method: 'POST', url: '/api/auth/client-login', data: { clientId: 'swanson.robert', password: 'Camputer69!' }, description: 'Client login' },
-  
-  // Client portal actions
-  { method: 'POST', url: '/api/check-ins', data: { clientId: 1, location: '21.3099,-157.8581', notes: 'Test check-in', biometricData: 'test', biometricType: 'facial', gpsAccuracy: 'high-precision' }, description: 'Client check-in submit' },
-  { method: 'POST', url: '/api/payments', data: { clientId: 1, amount: '100.00', paymentMethod: 'credit_card', notes: 'Test payment' }, description: 'Client payment upload' },
-  { method: 'POST', url: '/api/messages', data: { clientId: 1, subject: 'Test message', message: 'Testing communication' }, description: 'Client message send' },
-  
-  // Admin dashboard actions
-  { method: 'GET', url: '/api/clients', description: 'Admin view clients' },
-  { method: 'GET', url: '/api/payments', description: 'Admin view payments' },
-  { method: 'GET', url: '/api/check-ins', description: 'Admin view check-ins' },
-  { method: 'POST', url: '/api/clients/1/confirm-payment/1', data: { confirmedBy: 'admin' }, description: 'Admin confirm payment' },
-  { method: 'POST', url: '/api/alerts/1/acknowledge', data: { acknowledgedBy: 'admin' }, description: 'Admin acknowledge alert' },
-  
-  // Skip bail monitoring
+  // Production system - no test data available
+  // Use the admin interface to add real clients and data
+];
   { method: 'GET', url: '/api/admin/skip-bail-risk', description: 'Admin view skip bail risk' },
   { method: 'GET', url: '/api/admin/location/patterns?clientId=1', description: 'Admin view location patterns' },
   { method: 'GET', url: '/api/admin/location/frequent/1?days=30', description: 'Admin view frequent locations' },
