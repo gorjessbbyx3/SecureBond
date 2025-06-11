@@ -31,6 +31,12 @@ export class CourtDateScraper {
       enabled: true
     },
     {
+      name: 'Hawaii Federal District Court',
+      url: 'https://www.hid.uscourts.gov',
+      searchPath: '/home/cm-ecf-resources/written-opinions',
+      enabled: true
+    },
+    {
       name: 'Honolulu County Court',
       url: 'https://www.honolulucourt.org',
       searchPath: '/case-search',
