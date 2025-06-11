@@ -37,7 +37,7 @@ export default function SmartAlerts() {
 
   const acknowledgeAlertMutation = useMutation({
     mutationFn: async (alertId: number) => {
-      return await apiRequest(`/api/alerts/${alertId}/acknowledge`, "POST", {
+      return await apiRequest("POST", `/api/alerts/${alertId}/acknowledge`, {
         acknowledgedBy: "current-user"
       });
     },
@@ -48,6 +48,13 @@ export default function SmartAlerts() {
         description: "Alert has been marked as handled.",
       });
     },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to acknowledge alert. Please try again.",
+        variant: "destructive"
+      });
+    }
   });
 
   const generateSmartAlerts = () => {

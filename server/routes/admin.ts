@@ -1,5 +1,6 @@
 import { Express, Request, Response } from "express";
 import { storage } from "../local-db";
+import { sendGridService } from "../services/sendgrid";
 
 export function registerAdminRoutes(app: Express) {
   // Business Profile Management
@@ -248,6 +249,62 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error("Error running security audit:", error);
       res.status(500).json({ error: "Failed to run security audit" });
+    }
+  });
+
+  // SendGrid Configuration
+  app.put("/api/admin/sendgrid-config", async (req: Request, res: Response) => {
+    try {
+      const { apiKey, fromEmail, fromName } = req.body;
+      
+      if (!apiKey || !apiKey.startsWith('SG.')) {
+        return res.status(400).json({ error: "Invalid SendGrid API key format" });
+      }
+
+      // Configure SendGrid service
+      sendGridService.configure(apiKey);
+      
+      // In production, save these settings to database/config
+      process.env.SENDGRID_API_KEY = apiKey;
+      process.env.SENDGRID_FROM_EMAIL = fromEmail;
+      process.env.SENDGRID_FROM_NAME = fromName;
+      
+      console.log("SendGrid configuration updated");
+      
+      res.json({ 
+        success: true, 
+        message: "SendGrid configuration saved successfully" 
+      });
+    } catch (error) {
+      console.error("Error saving SendGrid config:", error);
+      res.status(500).json({ error: "Failed to save SendGrid configuration" });
+    }
+  });
+
+  app.post("/api/admin/test-sendgrid", async (req: Request, res: Response) => {
+    try {
+      const { testEmail } = req.body;
+      
+      if (!testEmail) {
+        return res.status(400).json({ error: "Test email address required" });
+      }
+
+      const result = await sendGridService.testConnection(testEmail);
+      
+      if (result.success) {
+        res.json({ 
+          success: true, 
+          message: "Test email sent successfully. Check your inbox." 
+        });
+      } else {
+        res.status(400).json({ 
+          success: false, 
+          error: result.message 
+        });
+      }
+    } catch (error) {
+      console.error("Error testing SendGrid:", error);
+      res.status(500).json({ error: "Failed to test SendGrid connection" });
     }
   });
 }

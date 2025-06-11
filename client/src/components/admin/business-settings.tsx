@@ -22,7 +22,8 @@ import {
   Save,
   Plus,
   Trash2,
-  Edit
+  Edit,
+  Bell
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,6 +75,13 @@ interface StaffMember {
 export function BusinessSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  const [sendGridConfig, setSendGridConfig] = useState({
+    apiKey: "",
+    fromEmail: "",
+    fromName: "",
+    testEmail: ""
+  });
   
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>({
     companyName: "SecureBond Services",
@@ -183,6 +191,66 @@ export function BusinessSettings() {
       return;
     }
     createStaffMutation.mutate(newStaffMember);
+  };
+
+  const saveSendGridMutation = useMutation({
+    mutationFn: (config: any) => 
+      apiRequest("PUT", "/api/admin/sendgrid-config", config),
+    onSuccess: () => {
+      toast({
+        title: "SendGrid Configuration Saved",
+        description: "Email settings have been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Configuration Error",
+        description: "Failed to save SendGrid settings. Please check your API key.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const testSendGridMutation = useMutation({
+    mutationFn: (testEmail: string) => 
+      apiRequest("POST", "/api/admin/test-sendgrid", { testEmail }),
+    onSuccess: () => {
+      toast({
+        title: "Test Email Sent",
+        description: "Check your inbox for the test email.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Test Failed",
+        description: "Failed to send test email. Check your SendGrid configuration.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSaveSendGridConfig = () => {
+    if (!sendGridConfig.apiKey || !sendGridConfig.fromEmail) {
+      toast({
+        title: "Missing Configuration",
+        description: "Please provide SendGrid API key and from email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    saveSendGridMutation.mutate(sendGridConfig);
+  };
+
+  const handleTestSendGrid = () => {
+    if (!sendGridConfig.testEmail) {
+      toast({
+        title: "Missing Test Email",
+        description: "Please provide a test email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    testSendGridMutation.mutate(sendGridConfig.testEmail);
   };
 
   const handleToggleStaffActive = (staff: StaffMember) => {
@@ -620,86 +688,114 @@ export function BusinessSettings() {
 
         {/* System Configuration Tab */}
         <TabsContent value="system" className="space-y-6">
-          {/* Email Configuration */}
+          {/* Email Configuration - SendGrid Integration */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                Email Configuration
+                SendGrid Email Configuration
               </CardTitle>
               <p className="text-sm text-gray-600">
-                Configure SMTP settings for email notifications and alerts
+                Configure SendGrid API for professional email delivery and notifications
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="smtpServer">SMTP Server</Label>
-                  <Input
-                    id="smtpServer"
-                    placeholder="smtp.gmail.com"
-                    defaultValue=""
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="smtpPort">SMTP Port</Label>
-                  <Input
-                    id="smtpPort"
-                    type="number"
-                    placeholder="587"
-                    defaultValue="587"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="emailUsername">Email Username</Label>
-                  <Input
-                    id="emailUsername"
-                    type="email"
-                    placeholder="your-email@company.com"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="emailPassword">Email Password/App Password</Label>
-                  <Input
-                    id="emailPassword"
-                    type="password"
-                    placeholder="••••••••••••"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="fromEmail">From Email Address</Label>
-                  <Input
-                    id="fromEmail"
-                    type="email"
-                    placeholder="alerts@yourbailbond.com"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="fromName">From Name</Label>
-                  <Input
-                    id="fromName"
-                    placeholder="SecureBond Alerts"
-                  />
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h5 className="font-medium text-blue-900 mb-2">SendGrid Setup Required</h5>
+                <div className="text-sm text-blue-800 space-y-1">
+                  <p>1. Create account at <strong>sendgrid.com</strong></p>
+                  <p>2. Generate API key in Settings → API Keys</p>
+                  <p>3. Verify your sender domain/email</p>
+                  <p>4. Enter your API key below</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch id="enableTLS" defaultChecked />
-                <Label htmlFor="enableTLS">Enable TLS/SSL Encryption</Label>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="sendgridApiKey">SendGrid API Key *</Label>
+                  <Input
+                    id="sendgridApiKey"
+                    type="password"
+                    placeholder="SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    value={sendGridConfig.apiKey}
+                    onChange={(e) => setSendGridConfig({ ...sendGridConfig, apiKey: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Your SendGrid API key (starts with "SG.")
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="fromEmail">Verified From Email *</Label>
+                    <Input
+                      id="fromEmail"
+                      type="email"
+                      placeholder="alerts@yourdomain.com"
+                      value={sendGridConfig.fromEmail}
+                      onChange={(e) => setSendGridConfig({ ...sendGridConfig, fromEmail: e.target.value })}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Must be verified in SendGrid
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="fromName">From Name</Label>
+                    <Input
+                      id="fromName"
+                      placeholder="Your Bail Bond Company"
+                      value={sendGridConfig.fromName}
+                      onChange={(e) => setSendGridConfig({ ...sendGridConfig, fromName: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="testEmail">Test Email Address</Label>
+                    <Input
+                      id="testEmail"
+                      type="email"
+                      placeholder="test@yourdomain.com"
+                      value={sendGridConfig.testEmail}
+                      onChange={(e) => setSendGridConfig({ ...sendGridConfig, testEmail: e.target.value })}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Email address to test SendGrid connection
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="templateId">SendGrid Template ID (Optional)</Label>
+                    <Input
+                      id="templateId"
+                      placeholder="d-1234567890abcdef1234567890abcdef"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={handleTestSendGrid}
+                  disabled={testSendGridMutation.isPending}
+                >
                   <Mail className="h-4 w-4 mr-2" />
-                  Test Email Configuration
+                  {testSendGridMutation.isPending ? "Testing..." : "Test SendGrid Connection"}
                 </Button>
-                <Button>
+                <Button 
+                  onClick={handleSaveSendGridConfig}
+                  disabled={saveSendGridMutation.isPending}
+                >
                   <Save className="h-4 w-4 mr-2" />
-                  Save Email Settings
+                  {saveSendGridMutation.isPending ? "Saving..." : "Save Email Settings"}
                 </Button>
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm text-amber-800">
+                  <strong>Important:</strong> No emails will be sent until SendGrid API key is configured and verified.
+                </p>
               </div>
             </CardContent>
           </Card>

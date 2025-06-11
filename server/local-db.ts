@@ -979,25 +979,33 @@ export class LocalFileStorage implements IStorage {
   }
 
   async scanArrestLogs(): Promise<any> {
-    await this.delay(2000);
-    
-    const newRecords = Math.floor(Math.random() * 2) + 1; // 1-2 new records from HPD
+    // Real implementation would check actual police department APIs
+    // Currently returns no records since no real APIs are configured
     return {
       success: true,
-      newRecords,
+      newRecords: 0,
       lastScanned: new Date().toISOString(),
-      sourcesChecked: ['Honolulu Police Department'],
-      primarySource: 'Honolulu Police Department',
+      sourcesChecked: ['No sources configured'],
+      primarySource: 'None',
       recordsFound: {
-        'Honolulu Police Department': newRecords,
+        'Honolulu Police Department': 0,
         'Hawaii County PD': 0,
         'Maui PD': 0,
         'Kauai PD': 0
-      }
+      },
+      message: 'No arrest monitoring APIs configured. Contact your system administrator to set up police department data feeds.'
     };
   }
 
   async acknowledgeArrestRecord(recordId: string): Promise<any> {
+    // Only acknowledge if record actually exists
+    const arrestRecords = await this.readJsonFile(path.join(this.dataDir, 'arrest-records.json'), []);
+    const record = arrestRecords.find((r: any) => r.id === recordId);
+    
+    if (!record) {
+      throw new Error('Arrest record not found');
+    }
+    
     return {
       id: recordId,
       status: 'processed',
