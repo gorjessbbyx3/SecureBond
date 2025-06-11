@@ -186,6 +186,13 @@ export function MillionDollarClientManagement() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1"
             />
+            <Button 
+              onClick={() => setIsAddClientOpen(true)}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add New Client
+            </Button>
             <Button variant="outline">
               <Brain className="h-4 w-4 mr-2" />
               AI Analysis
@@ -415,6 +422,20 @@ export function MillionDollarClientManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add New Client Dialog */}
+      <Dialog open={isAddClientOpen} onOpenChange={setIsAddClientOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Client</DialogTitle>
+          </DialogHeader>
+          <NewClientForm 
+            onSubmit={handleCreateClient}
+            onCancel={() => setIsAddClientOpen(false)}
+            isLoading={createClientMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
