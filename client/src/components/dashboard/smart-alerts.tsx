@@ -57,87 +57,8 @@ export default function SmartAlerts() {
     }
   });
 
-  const generateSmartAlerts = () => {
-    const smartAlerts = [];
-    const now = new Date();
-
-    if (!clients || !Array.isArray(clients)) return [];
-
-    // Check for overdue check-ins
-    clients.forEach((client: any) => {
-      const lastCheckIn = (Array.isArray(checkIns) ? checkIns : []).find((ci: any) => ci.clientId === client.id);
-      if (lastCheckIn) {
-        const daysSinceCheckIn = Math.floor(
-          (now.getTime() - new Date(lastCheckIn.checkInTime).getTime()) / (1000 * 60 * 60 * 24)
-        );
-        
-        if (daysSinceCheckIn > 7) {
-          smartAlerts.push({
-            id: `checkin-${client.id}`,
-            type: 'missed-checkin',
-            priority: daysSinceCheckIn > 14 ? 'high' : 'medium',
-            title: 'Overdue Check-in',
-            message: `${client.fullName} hasn't checked in for ${daysSinceCheckIn} days`,
-            clientId: client.id,
-            actionRequired: true,
-            timestamp: new Date().toISOString()
-          });
-        }
-      }
-    });
-
-    // Check for upcoming court dates without confirmation
-    if (courtDates && Array.isArray(courtDates)) {
-      const upcomingCourts = courtDates.filter((court: any) => {
-        const courtDate = new Date(court.courtDate);
-        const daysUntilCourt = Math.floor((courtDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        return daysUntilCourt <= 3 && daysUntilCourt >= 0 && !court.confirmed;
-      });
-
-      upcomingCourts.forEach((court: any) => {
-        const client = clients.find((c: any) => c.id === court.clientId);
-        const daysUntilCourt = Math.floor(
-          (new Date(court.courtDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-        );
-
-        smartAlerts.push({
-          id: `court-${court.id}`,
-          type: 'court-reminder',
-          priority: daysUntilCourt <= 1 ? 'high' : 'medium',
-          title: 'Court Date Approaching',
-          message: `${client?.fullName} has court in ${daysUntilCourt} day(s) - needs confirmation`,
-          clientId: court.clientId,
-          courtDate: court.courtDate,
-          actionRequired: true,
-          timestamp: new Date().toISOString()
-        });
-      });
-    }
-
-    // Check for high-risk clients
-    const highRiskClients = clients.filter((client: any) => 
-      client.riskLevel === 'high' && client.status === 'active'
-    );
-
-    if (highRiskClients.length > 0) {
-      smartAlerts.push({
-        id: 'high-risk-summary',
-        type: 'risk-alert',
-        priority: 'medium',
-        title: 'High Risk Clients',
-        message: `${highRiskClients.length} high-risk clients require monitoring`,
-        actionRequired: false,
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    return smartAlerts;
-  };
-
-  const allAlerts = [
-    ...(Array.isArray(alerts) ? alerts : []),
-    ...generateSmartAlerts()
-  ].sort((a: any, b: any) => {
+  // Only use authentic alerts from API - no mock data generation
+  const allAlerts = (Array.isArray(alerts) ? alerts : []).sort((a: any, b: any) => {
     const priorityOrder = { high: 3, medium: 2, low: 1 };
     return (priorityOrder[b.priority as keyof typeof priorityOrder] || 1) - 
            (priorityOrder[a.priority as keyof typeof priorityOrder] || 1);

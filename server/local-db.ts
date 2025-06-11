@@ -1052,64 +1052,10 @@ export class LocalFileStorage implements IStorage {
   }
 
   async getPublicArrestLogs(): Promise<any[]> {
-    // Most recent arrest log entries from Honolulu Police Department
-    const honoluluArrestLogs = [
-      {
-        id: 'honolulu-2024-006792',
-        name: 'Kepa Swanson-Neitzel',
-        arrestDate: '2024-06-11',
-        arrestTime: '02:30:00',
-        location: 'Kalakaua Avenue, Waikiki',
-        charges: ['Public Intoxication', 'Disorderly Conduct', 'Resisting Arrest'],
-        agency: 'Honolulu Police Department',
-        county: 'Honolulu',
-        bookingNumber: 'HPD-2024-006792',
-        createdAt: new Date('2024-06-11T02:30:00'),
-        status: 'Booked',
-        severity: 'medium'
-      },
-      {
-        id: 'honolulu-2024-006789',
-        name: 'Maria Elena Santos',
-        arrestDate: '2024-06-10',
-        arrestTime: '23:15:00',
-        location: 'University Avenue, Manoa',
-        charges: ['DUI', 'Reckless Driving'],
-        agency: 'Honolulu Police Department',
-        county: 'Honolulu',
-        bookingNumber: 'HPD-2024-006789',
-        createdAt: new Date('2024-06-10T23:15:00'),
-        status: 'Released on Bail',
-        severity: 'high'
-      },
-      {
-        id: 'honolulu-2024-006785',
-        name: 'James Robert Thompson',
-        arrestDate: '2024-06-10',
-        arrestTime: '18:45:00',
-        location: 'Chinatown, Downtown Honolulu',
-        charges: ['Bond Violation', 'Failure to Appear'],
-        agency: 'Honolulu Police Department',
-        county: 'Honolulu',
-        bookingNumber: 'HPD-2024-006785',
-        createdAt: new Date('2024-06-10T18:45:00'),
-        status: 'Booked',
-        severity: 'critical'
-      },
-      {
-        id: 'honolulu-2024-006782',
-        name: 'Sarah Michelle Davis',
-        arrestDate: '2024-06-09',
-        arrestTime: '20:10:00',
-        location: 'Ala Moana Boulevard',
-        charges: ['Assault in the Third Degree', 'Criminal Property Damage'],
-        agency: 'Honolulu Police Department',
-        county: 'Honolulu',
-        bookingNumber: 'HPD-2024-006782',
-        createdAt: new Date('2024-06-09T20:10:00'),
-        status: 'Booked',
-        severity: 'high'
-      },
+    // Return only authentic arrest logs from configured data sources
+    // No mock data - system requires real police department integration
+    return await this.readJsonFile(path.join(this.dataDir, 'public-arrest-logs.json'), []);
+  }
       {
         id: 'honolulu-2024-006778',
         name: 'Robert Chen Williams',
