@@ -197,6 +197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For now, use hardcoded admin credentials until database authentication is set up
       if (email === 'admin@alohabailbond.com' && password === 'admin123' && role === 'admin') {
         // Store session
+        (req.session as any).adminRole = 'admin';
         (req.session as any).user = {
           id: email,
           email,
@@ -1978,9 +1979,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .reduce((sum, payment) => sum + parseFloat(payment.amount || '0'), 0);
       
       const sortedPayments = payments.sort((a, b) => {
-        const dateA = a.paymentDate ? new Date(a.paymentDate).getTime() : 0;
-        const dateB = b.paymentDate ? new Date(b.paymentDate).getTime() : 0;
-        return dateB - dateA;
+        if (!a.paymentDate) return 1;
+        if (!b.paymentDate) return -1;
+        return new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime();
       });
       const lastPaymentDate = sortedPayments[0]?.paymentDate || null;
       
