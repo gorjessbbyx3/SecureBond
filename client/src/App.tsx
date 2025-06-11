@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ErrorContextProvider from "@/components/ErrorContextProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { BrandingProvider } from "@/contexts/BrandingContext";
 import Landing from "@/pages/landing";
 import ClientDashboard from "@/pages/client-dashboard";
 import ClientDetails from "@/pages/client-details";
@@ -83,12 +84,14 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ErrorContextProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </ErrorContextProvider>
+        <BrandingProvider>
+          <ErrorContextProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </ErrorContextProvider>
+        </BrandingProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

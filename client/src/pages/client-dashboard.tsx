@@ -15,6 +15,7 @@ import { CourtDateNotifications } from "@/components/client/court-date-notificat
 import { MobileNavigation } from "@/components/mobile/mobile-navigation";
 import { MobileCard, MobileStatCard, MobileListItem } from "@/components/mobile/mobile-card";
 import InitialPrivacyConsent from "@/components/privacy/InitialPrivacyConsent";
+import { BrandedHeader } from "@/components/ui/branded-header";
 
 export default function ClientDashboard() {
   const [, setLocation] = useLocation();
@@ -171,6 +172,9 @@ export default function ClientDashboard() {
 
   return (
     <div className="mobile-dashboard">
+      {/* Branded Header */}
+      <BrandedHeader title="Client Portal" subtitle="Secure Access to Your Account" />
+      
       {/* Mobile Navigation */}
       <MobileNavigation userRole="client" />
       

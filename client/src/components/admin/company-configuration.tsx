@@ -13,6 +13,7 @@ import { Building2, Save, Upload, Globe, Clock, Settings, Users, MapPin } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { CompanyConfiguration, InsertCompanyConfiguration } from "@shared/schema";
+import { LogoUpload } from "@/components/admin/logo-upload";
 
 const TIMEZONES = [
   { value: "America/New_York", label: "Eastern Time (ET)" },
