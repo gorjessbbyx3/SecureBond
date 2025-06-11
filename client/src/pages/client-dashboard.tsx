@@ -13,6 +13,8 @@ import Footer from "@/components/layout/footer";
 import CheckInForm from "@/components/client/check-in-form";
 import PaymentUpload from "@/components/client/payment-upload";
 import { CourtDateNotifications } from "@/components/client/court-date-notifications";
+import { MobileNavigation } from "@/components/mobile/mobile-navigation";
+import { MobileCard, MobileStatCard, MobileListItem } from "@/components/mobile/mobile-card";
 
 export default function ClientDashboard() {
   const [, setLocation] = useLocation();
@@ -100,114 +102,88 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header title={`Welcome, ${dashboardData.fullName}`} subtitle="Client Dashboard" />
+    <div className="mobile-dashboard">
+      {/* Mobile Navigation */}
+      <MobileNavigation userRole="client" />
       
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-slate-600">Client ID: {dashboardData.clientId}</p>
+      {/* Desktop Header - Hidden on Mobile */}
+      <div className="desktop-only">
+        <Header title={`Welcome, ${dashboardData.fullName}`} subtitle="Client Dashboard" />
+      </div>
+      
+      <main className="mobile-content">
+        <div className="mobile-container">
+          {/* Mobile Header Section */}
+          <div className="mobile-section">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h1 className="mobile-heading text-slate-900">Dashboard</h1>
+                <p className="mobile-text text-slate-600">Client ID: {dashboardData.clientId}</p>
+              </div>
+              <Button onClick={handleLogout} variant="outline" size="sm" className="desktop-only">
+                <LogOut className="mr-2 w-4 h-4" />
+                Logout
+              </Button>
+            </div>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="flex items-center">
-            <LogOut className="mr-2 w-4 h-4" />
-            Logout
-          </Button>
-        </div>
 
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <DollarSign className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-600">Bond Amount</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {parseFloat(dashboardData.bondAmount) > 0 ? `$${dashboardData.bondAmount}` : "No active bonds"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Mobile Overview Cards */}
+          <div className="mobile-section">
+            <div className="mobile-grid tablet-grid">
+              <MobileStatCard
+                title="Bond Amount"
+                value={parseFloat(dashboardData.bondAmount) > 0 ? `$${dashboardData.bondAmount}` : "No active bonds"}
+                icon={<DollarSign className="h-6 w-6" />}
+              />
+              
+              <MobileStatCard
+                title="Court Date"
+                value={dashboardData.courtDate ? new Date(dashboardData.courtDate).toLocaleDateString() : "No upcoming court dates"}
+                icon={<Calendar className="h-6 w-6" />}
+              />
+              
+              <MobileStatCard
+                title="Last Check-in"
+                value={dashboardData.lastCheckIn ? new Date(dashboardData.lastCheckIn).toLocaleDateString() : "No check-ins yet"}
+                icon={<CheckCircle className="h-6 w-6" />}
+              />
+              
+              <MobileStatCard
+                title="Next Check-in Due"
+                value={dashboardData.nextCheckInDue ? new Date(dashboardData.nextCheckInDue).toLocaleDateString() : "No schedule set"}
+                icon={<Clock className="h-6 w-6" />}
+              />
+            </div>
+          </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Calendar className="h-8 w-8 text-blue-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-600">Court Date</p>
-                  <p className="text-lg font-semibold text-slate-900">
-                    {dashboardData.courtDate ? new Date(dashboardData.courtDate).toLocaleDateString() : "No upcoming court dates"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Main Content Tabs */}
+          <div className="mobile-section">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mobile-nav-tabs">
+                <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
+                <TabsTrigger value="checkin" className="text-xs">Check-in</TabsTrigger>
+                <TabsTrigger value="payments" className="text-xs">Payments</TabsTrigger>
+                <TabsTrigger value="messages" className="text-xs">Messages</TabsTrigger>
+              </TabsList>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-600">Last Check-in</p>
-                  <p className="text-sm text-slate-900">
-                    {dashboardData.lastCheckIn ? new Date(dashboardData.lastCheckIn).toLocaleDateString() : "No check-ins yet"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Clock className="h-8 w-8 text-orange-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-600">Next Check-in Due</p>
-                  <p className="text-sm text-slate-900">
-                    {dashboardData.nextCheckInDue ? new Date(dashboardData.nextCheckInDue).toLocaleDateString() : "No schedule set"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="checkin">Check-in</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="messages">Messages</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Court Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calendar className="mr-2 w-5 h-5" />
-                    Upcoming Court Date
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+              <TabsContent value="overview" className="space-y-4 mt-4">
+                <div className="mobile-grid">
+                  {/* Court Information */}
+                  <MobileCard
+                    title="Upcoming Court Date"
+                    headerAction={<Calendar className="h-5 w-5 text-blue-600" />}
+                  >
                     {dashboardData.courtDate ? (
-                      <>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                            {new Date(dashboardData.courtDate).toLocaleDateString('en-US', { 
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center text-slate-600">
+                      <div className="space-y-3">
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
+                          {new Date(dashboardData.courtDate).toLocaleDateString('en-US', { 
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </Badge>
+                        <div className="flex items-center text-slate-600 mobile-text">
                           <Clock className="mr-2 w-4 h-4" />
                           <span>{new Date(dashboardData.courtDate).toLocaleTimeString('en-US', {
                             hour: 'numeric',
@@ -215,90 +191,75 @@ export default function ClientDashboard() {
                             hour12: true
                           })}</span>
                         </div>
-                        <div className="flex items-center text-slate-600">
+                        <div className="flex items-center text-slate-600 mobile-text">
                           <MapPin className="mr-2 w-4 h-4" />
                           <span>{dashboardData.courtLocation}</span>
                         </div>
-                      </>
+                      </div>
                     ) : (
-                      <div className="text-slate-500 text-center py-4">
+                      <div className="text-slate-500 text-center py-4 mobile-text">
                         No upcoming court dates scheduled
                       </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </MobileCard>
 
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {dashboardData.lastCheckIn ? (
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <div>
-                          <p className="text-sm font-medium">Check-in completed</p>
-                          <p className="text-xs text-slate-500">
-                            {new Date(dashboardData.lastCheckIn).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                        <div>
-                          <p className="text-sm font-medium">No check-ins yet</p>
-                          <p className="text-xs text-slate-500">Complete your first check-in</p>
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <div>
-                        <p className="text-sm font-medium">Account created</p>
-                        <p className="text-xs text-slate-500">
-                          {dashboardData.createdAt ? new Date(dashboardData.createdAt).toLocaleDateString() : "Unknown"}
-                        </p>
-                      </div>
+                  {/* Recent Activity */}
+                  <MobileCard title="Recent Activity">
+                    <div className="space-y-3">
+                      {dashboardData.lastCheckIn ? (
+                        <MobileListItem
+                          title="Check-in completed"
+                          subtitle={new Date(dashboardData.lastCheckIn).toLocaleDateString()}
+                          status={{ label: "Complete", variant: "success" }}
+                        />
+                      ) : (
+                        <MobileListItem
+                          title="No check-ins yet"
+                          subtitle="Complete your first check-in"
+                          status={{ label: "Pending", variant: "warning" }}
+                        />
+                      )}
+                      <MobileListItem
+                        title="Account created"
+                        subtitle={dashboardData.createdAt ? new Date(dashboardData.createdAt).toLocaleDateString() : "Unknown"}
+                        status={{ label: "Active", variant: "info" }}
+                      />
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                  </MobileCard>
+                </div>
+              </TabsContent>
 
-          <TabsContent value="checkin">
-            <CheckInForm clientId={dashboardData.id} />
-          </TabsContent>
+              <TabsContent value="checkin">
+                <div className="mobile-section">
+                  <CheckInForm clientId={dashboardData.id} />
+                </div>
+              </TabsContent>
 
-          <TabsContent value="payments">
-            <PaymentUpload clientId={dashboardData.id} />
-          </TabsContent>
+              <TabsContent value="payments">
+                <div className="mobile-section">
+                  <PaymentUpload clientId={dashboardData.id} />
+                </div>
+              </TabsContent>
 
-          <TabsContent value="notifications">
-            <CourtDateNotifications clientId={dashboardData.id} />
-          </TabsContent>
-
-          <TabsContent value="messages">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MessageSquare className="mr-2 w-5 h-5" />
-                  Messages
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-500">No messages at this time.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="messages">
+                <div className="mobile-section">
+                  <MobileCard
+                    title="Messages"
+                    headerAction={<MessageSquare className="h-5 w-5 text-blue-600" />}
+                  >
+                    <p className="mobile-text text-slate-500 text-center py-4">No messages at this time.</p>
+                  </MobileCard>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </main>
 
-      <Footer />
+      {/* Desktop Footer - Hidden on Mobile */}
+      <div className="desktop-only">
+        <Footer />
+      </div>
     </div>
   );
 }
