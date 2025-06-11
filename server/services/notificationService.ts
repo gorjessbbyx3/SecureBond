@@ -1,4 +1,4 @@
-import { sendEmail } from './sendgrid';
+import { sendGridService } from './sendgrid';
 import { storage } from '../storage';
 import type { Client, CourtDate, Notification } from '@shared/schema';
 
@@ -39,10 +39,10 @@ export class NotificationService {
     }
 
     // Send email notification if available
-    if (client.email && process.env.SENDGRID_API_KEY) {
+    if (sendGridService.isReady()) {
       try {
-        await sendEmail(process.env.SENDGRID_API_KEY, {
-          to: client.email,
+        await sendGridService.sendEmail({
+          to: client.phoneNumber || 'client@example.com', // Use phone as fallback until email field added
           from: 'notifications@securebond.com',
           subject: `Court Date Reminder - ${this.getReminderSubject(reminderType)}`,
           text: message,
@@ -50,7 +50,7 @@ export class NotificationService {
         });
         console.log(`Court reminder email sent to ${client.fullName}: ${reminderType}`);
       } catch (error) {
-        console.error(`Failed to send email to ${client.email}:`, error);
+        console.error(`Failed to send email notification:`, error);
       }
     }
 
@@ -142,13 +142,12 @@ export class NotificationService {
   ): Promise<void> {
     try {
       await storage.createNotification({
-        clientId: client.id!,
+        userId: client.clientId,
         type,
         title: `${type.replace('_', ' ').toUpperCase()}`,
         message,
         priority: type.includes('final') || type.includes('critical') ? 'critical' : 'medium',
         read: false,
-        sentAt: new Date(),
         metadata: courtDate ? JSON.stringify({ courtDateId: courtDate.id }) : null
       });
     } catch (error) {

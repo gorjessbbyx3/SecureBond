@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { courtReminderService } from "./courtReminderService";
 
 const app = express();
 app.use(express.json());
@@ -66,5 +67,27 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Start automated court reminder processing
+    log('Starting automated court reminder scheduler...');
+    
+    // Process reminders every 30 minutes
+    setInterval(async () => {
+      try {
+        await courtReminderService.processPendingReminders();
+      } catch (error) {
+        console.error('Error processing court reminders:', error);
+      }
+    }, 30 * 60 * 1000); // 30 minutes
+
+    // Initial run after 10 seconds
+    setTimeout(async () => {
+      try {
+        log('Running initial court reminder check...');
+        await courtReminderService.processPendingReminders();
+      } catch (error) {
+        console.error('Error in initial reminder processing:', error);
+      }
+    }, 10000);
   });
 })();

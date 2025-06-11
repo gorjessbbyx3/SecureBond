@@ -73,9 +73,12 @@ export class CourtReminderService {
       const client = courtDate.clientId ? await storage.getClient(courtDate.clientId) : null;
       if (!client) return;
 
-      // Create notification
+      // Send SMS and email notifications via NotificationService
+      await notificationService.sendCourtDateReminder(client, courtDate, reminder.reminderType);
+
+      // Create notification record in database
       const notificationData: InsertNotification = {
-        userId: `system-${Date.now()}`,
+        userId: client.clientId,
         title: this.getReminderTitle(reminder.reminderType, courtDate),
         message: this.getReminderMessage(reminder.reminderType, courtDate, client),
         type: 'court_reminder',
