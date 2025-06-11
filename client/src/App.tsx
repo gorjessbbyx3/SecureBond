@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "@/pages/landing";
 import ClientDashboard from "@/pages/client-dashboard";
 import ClientDetails from "@/pages/client-details";
-import AdminDashboard from "@/pages/admin-dashboard-clean";
+import AdminDashboard from "@/pages/comprehensive-admin-dashboard";
 import StaffDashboard from "@/pages/staff-dashboard";
 import MaintenanceDashboard from "@/pages/maintenance-dashboard";
 import AdminLogin from "@/pages/admin-login";
