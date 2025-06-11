@@ -620,11 +620,259 @@ export function BusinessSettings() {
 
         {/* System Configuration Tab */}
         <TabsContent value="system" className="space-y-6">
+          {/* Email Configuration */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                System Configuration
+                <Mail className="h-5 w-5" />
+                Email Configuration
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Configure SMTP settings for email notifications and alerts
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smtpServer">SMTP Server</Label>
+                  <Input
+                    id="smtpServer"
+                    placeholder="smtp.gmail.com"
+                    defaultValue=""
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="smtpPort">SMTP Port</Label>
+                  <Input
+                    id="smtpPort"
+                    type="number"
+                    placeholder="587"
+                    defaultValue="587"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="emailUsername">Email Username</Label>
+                  <Input
+                    id="emailUsername"
+                    type="email"
+                    placeholder="your-email@company.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="emailPassword">Email Password/App Password</Label>
+                  <Input
+                    id="emailPassword"
+                    type="password"
+                    placeholder="••••••••••••"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="fromEmail">From Email Address</Label>
+                  <Input
+                    id="fromEmail"
+                    type="email"
+                    placeholder="alerts@yourbailbond.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="fromName">From Name</Label>
+                  <Input
+                    id="fromName"
+                    placeholder="SecureBond Alerts"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch id="enableTLS" defaultChecked />
+                <Label htmlFor="enableTLS">Enable TLS/SSL Encryption</Label>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Test Email Configuration
+                </Button>
+                <Button>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Email Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* SMS Configuration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Phone className="h-5 w-5" />
+                SMS Configuration
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Configure SMS service for text message alerts and notifications
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="mb-4">
+                <Label htmlFor="smsProvider">SMS Provider</Label>
+                <select 
+                  id="smsProvider" 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select SMS Provider</option>
+                  <option value="twilio">Twilio</option>
+                  <option value="nexmo">Vonage (Nexmo)</option>
+                  <option value="textmagic">TextMagic</option>
+                  <option value="clicksend">ClickSend</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smsAccountSid">Account SID / API Key</Label>
+                  <Input
+                    id="smsAccountSid"
+                    placeholder="Enter your account SID"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="smsAuthToken">Auth Token / API Secret</Label>
+                  <Input
+                    id="smsAuthToken"
+                    type="password"
+                    placeholder="••••••••••••"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smsFromNumber">From Phone Number</Label>
+                  <Input
+                    id="smsFromNumber"
+                    placeholder="+1234567890"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="smsSignature">SMS Signature</Label>
+                  <Input
+                    id="smsSignature"
+                    placeholder="- SecureBond"
+                  />
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h5 className="font-medium text-blue-900 mb-2">SMS Usage Guidelines</h5>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• Court date reminders are sent 24-48 hours before scheduled dates</li>
+                  <li>• Emergency alerts are sent immediately when violations occur</li>
+                  <li>• Check-in reminders are sent for overdue clients</li>
+                  <li>• All SMS messages include opt-out instructions per regulations</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Test SMS Configuration
+                </Button>
+                <Button>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save SMS Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notification Rules */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="h-5 w-5" />
+                Notification Rules & Emergency Alerts
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Court Date Notifications</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="courtEmail">Email Reminders</Label>
+                      <Switch id="courtEmail" defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="courtSMS">SMS Reminders</Label>
+                      <Switch id="courtSMS" defaultChecked />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="courtDays">Days Before Court Date</Label>
+                      <Input id="courtDays" type="number" value="2" className="w-20" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-medium">Emergency Alerts</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="missedCheckin">Missed Check-in Alert</Label>
+                      <Switch id="missedCheckin" defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="bondViolation">Bond Violation Alert</Label>
+                      <Switch id="bondViolation" defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="courtNoShow">Court No-Show Alert</Label>
+                      <Switch id="courtNoShow" defaultChecked />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <h4 className="font-medium mb-4">Emergency Broadcast System</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="emergencyEmail">Emergency Contact Email</Label>
+                    <Input
+                      id="emergencyEmail"
+                      type="email"
+                      placeholder="emergency@yourbailbond.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="emergencyPhone">Emergency Contact Phone</Label>
+                    <Input
+                      id="emergencyPhone"
+                      placeholder="+1234567890"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="alertEscalation">Alert Escalation (minutes)</Label>
+                    <Input
+                      id="alertEscalation"
+                      type="number"
+                      value="15"
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* System Security */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Security & Backup Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -638,7 +886,7 @@ export function BusinessSettings() {
                     </div>
                     <div className="flex items-center justify-between">
                       <Label htmlFor="sessionTimeout">Auto-logout (minutes)</Label>
-                      <Input type="number" value="30" className="w-20" />
+                      <Input type="number" defaultValue="30" className="w-20" />
                     </div>
                     <div className="flex items-center justify-between">
                       <Label htmlFor="auditLogging">Audit Logging</Label>
@@ -648,34 +896,42 @@ export function BusinessSettings() {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="font-medium">Notification Settings</h4>
+                  <h4 className="font-medium">Backup Settings</h4>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="emailNotifs">Email Notifications</Label>
-                      <Switch id="emailNotifs" defaultChecked />
+                      <Label htmlFor="autoBackup">Automatic Backups</Label>
+                      <Switch id="autoBackup" defaultChecked />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="smsNotifs">SMS Notifications</Label>
-                      <Switch id="smsNotifs" />
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="backupFreq">Backup Frequency</Label>
+                      <select className="px-2 py-1 border rounded text-sm">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="courtReminders">Court Date Reminders</Label>
-                      <Switch id="courtReminders" defaultChecked />
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="retentionDays">Retention (days)</Label>
+                      <Input type="number" defaultValue="90" className="w-20" />
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="pt-4 border-t">
-                <h4 className="font-medium mb-4">Data Backup & Recovery</h4>
+                <h4 className="font-medium mb-4">System Actions</h4>
                 <div className="flex gap-2">
                   <Button variant="outline">
                     <Upload className="h-4 w-4 mr-2" />
-                    Backup Data
+                    Manual Backup
                   </Button>
                   <Button variant="outline">
                     <Shield className="h-4 w-4 mr-2" />
                     Security Audit
+                  </Button>
+                  <Button variant="outline">
+                    <Settings className="h-4 w-4 mr-2" />
+                    System Health Check
                   </Button>
                 </div>
               </div>
