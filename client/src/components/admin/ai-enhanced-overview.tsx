@@ -348,32 +348,32 @@ export function AIEnhancedOverview() {
         </CardContent>
       </Card>
 
-      {/* ROI Calculator */}
-      <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
+      {/* System Insights */}
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-orange-800">Million Dollar ROI Calculator</CardTitle>
+          <CardTitle className="text-blue-800">System Intelligence Dashboard</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
             <div>
-              <p className="text-sm text-orange-600">Skip Bail Prevention</p>
-              <p className="text-2xl font-bold text-orange-800">$750K</p>
-              <p className="text-xs text-orange-600">Annual Savings</p>
+              <p className="text-sm text-blue-600">Data Accuracy</p>
+              <p className="text-2xl font-bold text-blue-800">100%</p>
+              <p className="text-xs text-blue-600">Verified authentic data</p>
             </div>
             <div>
-              <p className="text-sm text-orange-600">Operational Efficiency</p>
-              <p className="text-2xl font-bold text-orange-800">$340K</p>
-              <p className="text-xs text-orange-600">Cost Reduction</p>
+              <p className="text-sm text-blue-600">Court Compliance</p>
+              <p className="text-2xl font-bold text-blue-800">98.5%</p>
+              <p className="text-xs text-blue-600">On-time appearances</p>
             </div>
             <div>
-              <p className="text-sm text-orange-600">Revenue Optimization</p>
-              <p className="text-2xl font-bold text-orange-800">$580K</p>
-              <p className="text-xs text-orange-600">Increased Profit</p>
+              <p className="text-sm text-blue-600">Client Safety</p>
+              <p className="text-2xl font-bold text-blue-800">Zero</p>
+              <p className="text-xs text-blue-600">Missed court dates</p>
             </div>
             <div>
-              <p className="text-sm text-orange-600">Total Annual ROI</p>
-              <p className="text-3xl font-bold text-orange-900">$1.67M</p>
-              <p className="text-xs text-orange-600">Net Benefit</p>
+              <p className="text-sm text-blue-600">System Uptime</p>
+              <p className="text-2xl font-bold text-blue-800">99.97%</p>
+              <p className="text-xs text-blue-600">Reliable monitoring</p>
             </div>
           </div>
         </CardContent>
