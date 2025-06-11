@@ -521,17 +521,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Admin/Maintenance login
   app.post('/api/auth/admin-login', async (req, res) => {
+    const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+    
     try {
       const { username, password, role } = req.body;
 
+      await auditLogger.log({
+        eventType: 'ADMIN_LOGIN_ATTEMPT',
+        category: 'AUTHENTICATION',
+        severity: 'HIGH',
+        ipAddress,
+        userAgent,
+        action: 'Admin login attempt',
+        details: {
+          username: username || 'not_provided',
+          role: role || 'not_provided',
+          hasPassword: !!password,
+        },
+        complianceRelevant: true,
+      });
+
       const creds = adminCredentials[role as keyof typeof adminCredentials];
       if (!creds || creds.username !== username || creds.password !== password) {
+        await auditLogger.log({
+          eventType: 'ADMIN_LOGIN_FAILED',
+          category: 'AUTHENTICATION',
+          severity: 'CRITICAL',
+          ipAddress,
+          userAgent,
+          action: 'Admin login failed - invalid credentials',
+          details: {
+            attemptedUsername: username || 'not_provided',
+            attemptedRole: role || 'not_provided',
+            reason: 'Invalid credentials',
+          },
+          complianceRelevant: true,
+        });
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       (req.session as any).adminRole = role;
+      
+      await auditLogger.log({
+        eventType: 'ADMIN_LOGIN_SUCCESS',
+        category: 'AUTHENTICATION',
+        severity: 'HIGH',
+        userId: `admin-${username}`,
+        sessionId: req.session.id,
+        ipAddress,
+        userAgent,
+        action: 'Admin login successful',
+        details: {
+          username,
+          role,
+          sessionId: req.session.id,
+        },
+        complianceRelevant: true,
+      });
+      
       res.json({ success: true, role });
     } catch (error) {
+      await auditLogger.log({
+        eventType: 'SYSTEM_ERROR',
+        category: 'AUTHENTICATION',
+        severity: 'CRITICAL',
+        ipAddress,
+        userAgent,
+        action: 'Admin login system error',
+        details: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : 'No stack trace',
+        },
+        complianceRelevant: true,
+      });
+      
       console.error("Admin login error:", error);
       res.status(500).json({ message: "Login failed" });
     }
