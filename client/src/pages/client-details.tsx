@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft, User, Phone, MapPin, Calendar, DollarSign, Car, Users, 
-  Briefcase, FileText, AlertTriangle, CheckCircle, Clock, Plus, Edit2, Trash2
+  Briefcase, FileText, AlertTriangle, CheckCircle, Clock, Plus, Edit2, Trash2, Search
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";

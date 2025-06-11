@@ -17,9 +17,15 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  DollarSign
+  DollarSign,
+  Eye,
+  Edit2,
+  Trash2
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface ClientRiskProfile {
   clientId: number;
@@ -34,6 +40,9 @@ interface ClientRiskProfile {
 export function MillionDollarClientManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [riskFilter, setRiskFilter] = useState("all");
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: clients = [] } = useQuery({
     queryKey: ["/api/clients"],
@@ -45,6 +54,40 @@ export function MillionDollarClientManagement() {
 
   const { data: checkIns = [] } = useQuery({
     queryKey: ["/api/check-ins"],
+  });
+
+  const deleteClientMutation = useMutation({
+    mutationFn: async (clientId: number) => {
+      return apiRequest(`/api/clients/${clientId}`, "DELETE");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      toast({ title: "Client Deleted", description: "Client has been removed successfully." });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to delete client",
+        variant: "destructive"
+      });
+    },
+  });
+
+  const updateClientMutation = useMutation({
+    mutationFn: async ({ clientId, data }: { clientId: number; data: any }) => {
+      return apiRequest(`/api/clients/${clientId}`, "PATCH", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      toast({ title: "Client Updated", description: "Client information has been updated successfully." });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to update client",
+        variant: "destructive"
+      });
+    },
   });
 
   // Enhanced AI risk profiling for each client

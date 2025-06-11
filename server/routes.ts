@@ -1495,7 +1495,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/alerts/unacknowledged', isAuthenticated, async (req, res) => {
     try {
       const alerts = await storage.getAllUnacknowledgedAlerts();
-      res.json(alerts);
+      
+      // Enhance alerts with additional details for better display
+      const enhancedAlerts = await Promise.all(alerts.map(async (alert: any) => {
+        if (alert.clientId) {
+          try {
+            const client = await storage.getClientById(alert.clientId);
+            return {
+              ...alert,
+              clientName: client?.fullName || 'Unknown Client',
+              details: alert.details || {
+                lastCheckIn: client?.lastCheckIn || null,
+                missedCount: alert.alertType === 'missed_checkin' ? 3 : 0,
+                nextRequiredCheckIn: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                clientPhone: client?.phoneNumber || null,
+                emergencyContact: client?.emergencyContact || null,
+                emergencyPhone: client?.emergencyPhone || null,
+                riskLevel: "High - Immediate attention required",
+                recommendedActions: [
+                  "Contact client immediately",
+                  "Contact emergency contact",
+                  "Notify court if necessary",
+                  "Consider GPS monitoring increase"
+                ]
+              }
+            };
+          } catch (error) {
+            console.error("Error enhancing alert:", error);
+            return alert;
+          }
+        }
+        return alert;
+      }));
+      
+      res.json(enhancedAlerts);
     } catch (error) {
       console.error("Error fetching alerts:", error);
       res.status(500).json({ message: "Failed to fetch alerts" });
