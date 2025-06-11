@@ -1,3 +1,13 @@
 {
-  "nextId": 16
+  "nextId": 1,
+  "lastBackup": null,
+  "systemStats": {
+    "totalClients": 0,
+    "activeClients": 0,
+    "totalPayments": 0,
+    "totalCheckIns": 0,
+    "totalCourtDates": 0,
+    "totalAlerts": 0,
+    "lastActivity": null
+  }
 }
