@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "id": 14,
+    "createdAt": "2025-06-11T10:58:14.697Z",
+    "updatedAt": "2025-06-11T10:58:14.697Z",
+    "userId": null,
+    "clientId": "swanson.robert",
+    "password": "temp123",
+    "fullName": "Kepa Swanson-Neitzel",
+    "phoneNumber": "8087675460",
+    "address": "934 Kapahulu Ave",
+    "dateOfBirth": "1991-05-03",
+    "emergencyContact": "Jessica Houtz",
+    "emergencyPhone": "8084529779",
+    "isActive": true,
+    "lastCheckIn": null,
+    "missedCheckIns": 0
+  }
+]

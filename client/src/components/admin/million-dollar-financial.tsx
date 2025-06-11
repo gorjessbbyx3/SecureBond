@@ -360,34 +360,7 @@ export function MillionDollarFinancial() {
         </TabsContent>
       </Tabs>
 
-      {/* ROI Summary */}
-      <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-orange-200">
-        <CardContent className="p-6">
-          <h3 className="text-lg font-bold text-orange-800 mb-4">Financial Intelligence ROI</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-            <div>
-              <p className="text-sm text-orange-600">Profit Optimization</p>
-              <p className="text-2xl font-bold text-orange-800">+30%</p>
-              <p className="text-xs text-orange-600">Margin increase</p>
-            </div>
-            <div>
-              <p className="text-sm text-green-600">Collection Efficiency</p>
-              <p className="text-2xl font-bold text-green-800">+45%</p>
-              <p className="text-xs text-green-600">Recovery rate</p>
-            </div>
-            <div>
-              <p className="text-sm text-blue-600">Cost Reduction</p>
-              <p className="text-2xl font-bold text-blue-800">-25%</p>
-              <p className="text-xs text-blue-600">Operational costs</p>
-            </div>
-            <div>
-              <p className="text-sm text-purple-600">Annual ROI</p>
-              <p className="text-2xl font-bold text-purple-800">$580K</p>
-              <p className="text-xs text-purple-600">Net profit increase</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
