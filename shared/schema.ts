@@ -34,6 +34,83 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role").notNull().default("client"), // client, admin, maintenance
+  companyId: integer("company_id").references(() => companyConfigurations.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Company configurations table for multi-tenant support
+export const companyConfigurations = pgTable("company_configurations", {
+  id: serial("id").primaryKey(),
+  companyName: varchar("company_name").notNull(),
+  licenseNumber: varchar("license_number").notNull(),
+  state: varchar("state").notNull(),
+  address: text("address").notNull(),
+  city: varchar("city").notNull(),
+  zipCode: varchar("zip_code").notNull(),
+  phone: varchar("phone").notNull(),
+  email: varchar("email").notNull(),
+  website: varchar("website"),
+  logo: text("logo"), // Base64 or URL
+  description: text("description"),
+  timezone: varchar("timezone").default("America/New_York"),
+  businessType: varchar("business_type").default("bail_bonds"), // bail_bonds, surety, insurance
+  isActive: boolean("is_active").default(true),
+  operatingHours: jsonb("operating_hours"),
+  customSettings: jsonb("custom_settings"), // Flexible JSON for custom configurations
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// State-specific legal requirements and configurations
+export const stateConfigurations = pgTable("state_configurations", {
+  id: serial("id").primaryKey(),
+  state: varchar("state").notNull().unique(),
+  stateName: varchar("state_name").notNull(),
+  bondRegulations: jsonb("bond_regulations"), // Max bond amounts, required docs, etc.
+  courtSystems: jsonb("court_systems"), // Court locations, jurisdictions
+  licenseRequirements: jsonb("license_requirements"),
+  complianceRequirements: jsonb("compliance_requirements"),
+  feeStructures: jsonb("fee_structures"), // State-specific fee requirements
+  checkInRequirements: jsonb("check_in_requirements"),
+  reportingRequirements: jsonb("reporting_requirements"),
+  legalDocuments: jsonb("legal_documents"), // Required forms, contracts
+  jurisdictions: jsonb("jurisdictions"), // Counties, courts, law enforcement
+  customFields: jsonb("custom_fields"), // State-specific client/bond fields
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Customizable form fields for different states/companies
+export const customFields = pgTable("custom_fields", {
+  id: serial("id").primaryKey(),
+  companyId: integer("company_id").references(() => companyConfigurations.id),
+  state: varchar("state").references(() => stateConfigurations.state),
+  entityType: varchar("entity_type").notNull(), // client, bond, payment, court_date
+  fieldName: varchar("field_name").notNull(),
+  fieldLabel: varchar("field_label").notNull(),
+  fieldType: varchar("field_type").notNull(), // text, number, date, select, checkbox, textarea
+  fieldOptions: jsonb("field_options"), // For select fields
+  isRequired: boolean("is_required").default(false),
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  validationRules: jsonb("validation_rules"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Legal document templates by state/company
+export const documentTemplates = pgTable("document_templates", {
+  id: serial("id").primaryKey(),
+  companyId: integer("company_id").references(() => companyConfigurations.id),
+  state: varchar("state").references(() => stateConfigurations.state),
+  templateName: varchar("template_name").notNull(),
+  templateType: varchar("template_type").notNull(), // contract, agreement, receipt, notice
+  templateContent: text("template_content").notNull(),
+  variables: jsonb("variables"), // Template variables and their descriptions
+  isActive: boolean("is_active").default(true),
+  version: varchar("version").default("1.0"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -42,15 +119,20 @@ export const users = pgTable("users", {
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id),
+  companyId: integer("company_id").references(() => companyConfigurations.id).notNull(),
   clientId: varchar("client_id").unique().notNull(), // Auto-generated client ID
   password: varchar("password").notNull(), // Hashed password for client login
   fullName: varchar("full_name").notNull(),
   phoneNumber: varchar("phone_number"),
   address: text("address"),
+  city: varchar("city"),
+  state: varchar("state"),
+  zipCode: varchar("zip_code"),
   dateOfBirth: date("date_of_birth"),
   emergencyContact: varchar("emergency_contact"),
   emergencyPhone: varchar("emergency_phone"),
-  // Remove individual bond fields - these will be in bonds table
+  customData: jsonb("custom_data"), // Store custom field values
+  riskLevel: varchar("risk_level").default("medium"), // low, medium, high, critical
   isActive: boolean("is_active").default(true),
   lastCheckIn: timestamp("last_check_in"),
   missedCheckIns: integer("missed_check_ins").default(0),
@@ -62,6 +144,7 @@ export const clients = pgTable("clients", {
 export const bonds = pgTable("bonds", {
   id: serial("id").primaryKey(),
   clientId: integer("client_id").references(() => clients.id).notNull(),
+  companyId: integer("company_id").references(() => companyConfigurations.id).notNull(),
   bondNumber: varchar("bond_number").unique(), // Auto-generated bond contract number
   bondAmount: decimal("bond_amount", { precision: 10, scale: 2 }).notNull(),
   totalOwed: decimal("total_owed", { precision: 10, scale: 2 }).notNull(),
@@ -69,6 +152,7 @@ export const bonds = pgTable("bonds", {
   remainingBalance: decimal("remaining_balance", { precision: 10, scale: 2 }).notNull(),
   courtDate: timestamp("court_date"),
   courtLocation: text("court_location"),
+  jurisdiction: varchar("jurisdiction"), // County/jurisdiction
   charges: text("charges"),
   caseNumber: varchar("case_number"),
   status: varchar("status").notNull().default("active"), // active, completed, forfeited, cancelled, in_forfeiture, surrendered
@@ -77,6 +161,8 @@ export const bonds = pgTable("bonds", {
   collateral: text("collateral"), // Description of collateral if any
   cosigner: varchar("cosigner"),
   cosignerPhone: varchar("cosigner_phone"),
+  cosignerAddress: text("cosigner_address"),
+  customData: jsonb("custom_data"), // Store custom field values
   issuedDate: timestamp("issued_date").defaultNow(),
   expirationDate: timestamp("expiration_date"),
   completedDate: timestamp("completed_date"),
@@ -90,6 +176,39 @@ export const bonds = pgTable("bonds", {
   riskAssessment: varchar("risk_assessment").default("medium"), // low, medium, high, critical
   lastContactDate: timestamp("last_contact_date"),
   nextFollowupDate: timestamp("next_followup_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// State-specific pricing and fee structures
+export const statePricing = pgTable("state_pricing", {
+  id: serial("id").primaryKey(),
+  state: varchar("state").references(() => stateConfigurations.state).notNull(),
+  companyId: integer("company_id").references(() => companyConfigurations.id),
+  bondType: varchar("bond_type").notNull(),
+  minBondAmount: decimal("min_bond_amount", { precision: 10, scale: 2 }),
+  maxBondAmount: decimal("max_bond_amount", { precision: 10, scale: 2 }),
+  premiumRate: decimal("premium_rate", { precision: 5, scale: 4 }).notNull(),
+  minimumPremium: decimal("minimum_premium", { precision: 10, scale: 2 }),
+  additionalFees: jsonb("additional_fees"), // Court fees, filing fees, etc.
+  paymentPlans: jsonb("payment_plans"), // Available payment plan options
+  isActive: boolean("is_active").default(true),
+  effectiveDate: date("effective_date").defaultNow(),
+  expirationDate: date("expiration_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Company-specific business rules and automation settings
+export const businessRules = pgTable("business_rules", {
+  id: serial("id").primaryKey(),
+  companyId: integer("company_id").references(() => companyConfigurations.id).notNull(),
+  ruleName: varchar("rule_name").notNull(),
+  ruleType: varchar("rule_type").notNull(), // pricing, risk_assessment, automation, compliance
+  conditions: jsonb("conditions"), // Rule conditions
+  actions: jsonb("actions"), // Actions to take when conditions are met
+  priority: integer("priority").default(0),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -379,6 +498,43 @@ export const insertPrivacyAcknowledgmentSchema = createInsertSchema(privacyAckno
   acknowledgedAt: true,
 });
 
+// New customization schemas
+export const insertCompanyConfigurationSchema = createInsertSchema(companyConfigurations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStateConfigurationSchema = createInsertSchema(stateConfigurations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCustomFieldSchema = createInsertSchema(customFields).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDocumentTemplateSchema = createInsertSchema(documentTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStatePricingSchema = createInsertSchema(statePricing).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBusinessRuleSchema = createInsertSchema(businessRules).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -423,6 +579,20 @@ export type ClientVehicle = typeof clientVehicles.$inferSelect;
 export type FamilyMember = typeof familyMembers.$inferSelect;
 export type EmploymentInfo = typeof employmentInfo.$inferSelect;
 export type ClientFile = typeof clientFiles.$inferSelect;
+
+// New customization types
+export type InsertCompanyConfiguration = z.infer<typeof insertCompanyConfigurationSchema>;
+export type CompanyConfiguration = typeof companyConfigurations.$inferSelect;
+export type InsertStateConfiguration = z.infer<typeof insertStateConfigurationSchema>;
+export type StateConfiguration = typeof stateConfigurations.$inferSelect;
+export type InsertCustomField = z.infer<typeof insertCustomFieldSchema>;
+export type CustomField = typeof customFields.$inferSelect;
+export type InsertDocumentTemplate = z.infer<typeof insertDocumentTemplateSchema>;
+export type DocumentTemplate = typeof documentTemplates.$inferSelect;
+export type InsertStatePricing = z.infer<typeof insertStatePricingSchema>;
+export type StatePricing = typeof statePricing.$inferSelect;
+export type InsertBusinessRule = z.infer<typeof insertBusinessRuleSchema>;
+export type BusinessRule = typeof businessRules.$inferSelect;
 
 // Payment plans table for structured payment schedules
 export const paymentPlans = pgTable("payment_plans", {
