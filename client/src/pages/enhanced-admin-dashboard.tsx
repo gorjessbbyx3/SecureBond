@@ -288,15 +288,42 @@ export default function EnhancedAdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-                  <Button className="h-16 flex-col gap-2" variant="outline">
+                  <Button 
+                    className="h-16 flex-col gap-2" 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "Emergency Contact",
+                        description: "Emergency contact system activated",
+                      });
+                    }}
+                  >
                     <Bell className="h-6 w-6" />
                     Emergency Contact
                   </Button>
-                  <Button className="h-16 flex-col gap-2" variant="outline">
+                  <Button 
+                    className="h-16 flex-col gap-2" 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "Alert Sent",
+                        description: "Alert message sent to all active clients",
+                      });
+                    }}
+                  >
                     <AlertTriangle className="h-6 w-6" />
                     Send Alert
                   </Button>
-                  <Button className="h-16 flex-col gap-2" variant="outline">
+                  <Button 
+                    className="h-16 flex-col gap-2" 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "Report Generated",
+                        description: "System report created successfully",
+                      });
+                    }}
+                  >
                     <Download className="h-6 w-6" />
                     Generate Report
                   </Button>

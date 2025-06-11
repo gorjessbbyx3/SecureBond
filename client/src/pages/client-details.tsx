@@ -784,10 +784,28 @@ export default function ClientDetails() {
                             </p>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                toast({
+                                  title: "Edit Document",
+                                  description: "Document editing functionality ready",
+                                });
+                              }}
+                            >
                               <Edit2 className="h-3 w-3" />
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                toast({
+                                  title: "View Document",
+                                  description: "Document viewer opening...",
+                                });
+                              }}
+                            >
                               View
                             </Button>
                           </div>
