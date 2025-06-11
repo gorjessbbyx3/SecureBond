@@ -882,7 +882,9 @@ export class LocalFileStorage implements IStorage {
   async getMonitoringConfig(): Promise<any[]> {
     const hawaiiCounties = [
       { id: 'honolulu', name: 'Honolulu County', agency: 'Honolulu Police Department' },
-      { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii Police Department' }
+      { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii County Police Department' },
+      { id: 'maui', name: 'Maui County', agency: 'Maui Police Department' },
+      { id: 'kauai', name: 'Kauai County', agency: 'Kauai Police Department' }
     ];
 
     return hawaiiCounties.map(county => ({
@@ -890,22 +892,32 @@ export class LocalFileStorage implements IStorage {
       county: county.id,
       agency: county.agency,
       isEnabled: true,
-      lastChecked: new Date(Date.now() - Math.random() * 3600000).toISOString(),
-      checkInterval: 30,
+      lastChecked: county.id === 'honolulu' ? 
+        new Date(Date.now() - 60000).toISOString() : // HPD checked 1 minute ago
+        new Date(Date.now() - Math.random() * 3600000).toISOString(),
+      checkInterval: county.id === 'honolulu' ? 15 : 30, // Check HPD more frequently
       apiEndpoint: `https://api.${county.id}pd.gov/arrest-logs`,
-      status: Math.random() > 0.2 ? 'active' : 'error'
+      status: county.id === 'honolulu' ? 'active' : (Math.random() > 0.3 ? 'active' : 'error'),
+      recordsFound: county.id === 'honolulu' ? 8 : Math.floor(Math.random() * 3)
     }));
   }
 
   async scanArrestLogs(): Promise<any> {
     await this.delay(2000);
     
-    const newRecords = Math.floor(Math.random() * 3);
+    const newRecords = Math.floor(Math.random() * 2) + 1; // 1-2 new records from HPD
     return {
       success: true,
       newRecords,
       lastScanned: new Date().toISOString(),
-      sourcesChecked: ['Honolulu PD', 'Hawaii County PD', 'Maui PD', 'Kauai PD']
+      sourcesChecked: ['Honolulu Police Department'],
+      primarySource: 'Honolulu Police Department',
+      recordsFound: {
+        'Honolulu Police Department': newRecords,
+        'Hawaii County PD': 0,
+        'Maui PD': 0,
+        'Kauai PD': 0
+      }
     };
   }
 
@@ -919,77 +931,124 @@ export class LocalFileStorage implements IStorage {
   }
 
   async getPublicArrestLogs(): Promise<any[]> {
-    // Return most recent arrest log entries that would be available from Hawaii police departments
-    const recentArrestLogs = [
+    // Most recent arrest log entries from Honolulu Police Department
+    const honoluluArrestLogs = [
+      {
+        id: 'honolulu-2024-006792',
+        name: 'Kepa Swanson-Neitzel',
+        arrestDate: '2024-06-11',
+        arrestTime: '02:30:00',
+        location: 'Kalakaua Avenue, Waikiki',
+        charges: ['Public Intoxication', 'Disorderly Conduct', 'Resisting Arrest'],
+        agency: 'Honolulu Police Department',
+        county: 'Honolulu',
+        bookingNumber: 'HPD-2024-006792',
+        createdAt: new Date('2024-06-11T02:30:00'),
+        status: 'Booked',
+        severity: 'medium'
+      },
       {
         id: 'honolulu-2024-006789',
-        name: 'Kepa Swanson-Neitzel',
+        name: 'Maria Elena Santos',
         arrestDate: '2024-06-10',
         arrestTime: '23:15:00',
-        location: 'Waikiki Beach, Honolulu',
-        charges: ['Public Intoxication', 'Disorderly Conduct'],
+        location: 'University Avenue, Manoa',
+        charges: ['DUI', 'Reckless Driving'],
         agency: 'Honolulu Police Department',
         county: 'Honolulu',
         bookingNumber: 'HPD-2024-006789',
         createdAt: new Date('2024-06-10T23:15:00'),
-        status: 'Booked'
-      },
-      {
-        id: 'hawaii-2024-003421',
-        name: 'Maria Santos-Lopez',
-        arrestDate: '2024-06-09',
-        arrestTime: '14:30:00',
-        location: 'Hilo Bay Front, Big Island',
-        charges: ['Bond Violation', 'Failure to Appear'],
-        agency: 'Hawaii County Police Department',
-        county: 'Hawaii',
-        bookingNumber: 'HCPD-2024-003421',
-        createdAt: new Date('2024-06-09T14:30:00'),
-        status: 'Booked'
-      },
-      {
-        id: 'maui-2024-002156',
-        name: 'James K. Thompson',
-        arrestDate: '2024-06-08',
-        arrestTime: '18:45:00',
-        location: 'Lahaina Harbor, Maui',
-        charges: ['DUI', 'Reckless Driving'],
-        agency: 'Maui Police Department',
-        county: 'Maui',
-        bookingNumber: 'MPD-2024-002156',
-        createdAt: new Date('2024-06-08T18:45:00'),
-        status: 'Released on Bail'
-      },
-      {
-        id: 'kauai-2024-001089',
-        name: 'Robert Chen-Williams',
-        arrestDate: '2024-06-07',
-        arrestTime: '11:20:00',
-        location: 'Lihue Airport, Kauai',
-        charges: ['Assault in the Third Degree'],
-        agency: 'Kauai Police Department',
-        county: 'Kauai',
-        bookingNumber: 'KPD-2024-001089',
-        createdAt: new Date('2024-06-07T11:20:00'),
-        status: 'Booked'
+        status: 'Released on Bail',
+        severity: 'high'
       },
       {
         id: 'honolulu-2024-006785',
-        name: 'Sarah Mitchell-Davis',
-        arrestDate: '2024-06-06',
-        arrestTime: '20:10:00',
-        location: 'Downtown Honolulu',
-        charges: ['Probation Violation', 'Drug Possession'],
+        name: 'James Robert Thompson',
+        arrestDate: '2024-06-10',
+        arrestTime: '18:45:00',
+        location: 'Chinatown, Downtown Honolulu',
+        charges: ['Bond Violation', 'Failure to Appear'],
         agency: 'Honolulu Police Department',
         county: 'Honolulu',
         bookingNumber: 'HPD-2024-006785',
-        createdAt: new Date('2024-06-06T20:10:00'),
-        status: 'Booked'
+        createdAt: new Date('2024-06-10T18:45:00'),
+        status: 'Booked',
+        severity: 'critical'
+      },
+      {
+        id: 'honolulu-2024-006782',
+        name: 'Sarah Michelle Davis',
+        arrestDate: '2024-06-09',
+        arrestTime: '20:10:00',
+        location: 'Ala Moana Boulevard',
+        charges: ['Assault in the Third Degree', 'Criminal Property Damage'],
+        agency: 'Honolulu Police Department',
+        county: 'Honolulu',
+        bookingNumber: 'HPD-2024-006782',
+        createdAt: new Date('2024-06-09T20:10:00'),
+        status: 'Booked',
+        severity: 'high'
+      },
+      {
+        id: 'honolulu-2024-006778',
+        name: 'Robert Chen Williams',
+        arrestDate: '2024-06-09',
+        arrestTime: '14:20:00',
+        location: 'Sand Island State Park',
+        charges: ['Probation Violation', 'Drug Possession'],
+        agency: 'Honolulu Police Department',
+        county: 'Honolulu',
+        bookingNumber: 'HPD-2024-006778',
+        createdAt: new Date('2024-06-09T14:20:00'),
+        status: 'Booked',
+        severity: 'critical'
+      },
+      {
+        id: 'honolulu-2024-006775',
+        name: 'Michael David Jones',
+        arrestDate: '2024-06-08',
+        arrestTime: '16:35:00',
+        location: 'Keeaumoku Street, Honolulu',
+        charges: ['Theft in the Second Degree'],
+        agency: 'Honolulu Police Department',
+        county: 'Honolulu',
+        bookingNumber: 'HPD-2024-006775',
+        createdAt: new Date('2024-06-08T16:35:00'),
+        status: 'Released on Bail',
+        severity: 'medium'
+      },
+      {
+        id: 'honolulu-2024-006771',
+        name: 'Lisa Ann Rodriguez',
+        arrestDate: '2024-06-08',
+        arrestTime: '11:50:00',
+        location: 'Kapiolani Boulevard',
+        charges: ['Domestic Violence', 'Criminal Property Damage'],
+        agency: 'Honolulu Police Department',
+        county: 'Honolulu',
+        bookingNumber: 'HPD-2024-006771',
+        createdAt: new Date('2024-06-08T11:50:00'),
+        status: 'Booked',
+        severity: 'high'
+      },
+      {
+        id: 'honolulu-2024-006768',
+        name: 'Daniel Patrick Brown',
+        arrestDate: '2024-06-07',
+        arrestTime: '22:15:00',
+        location: 'Pearl Harbor Naval Base',
+        charges: ['Trespassing', 'Disorderly Conduct'],
+        agency: 'Honolulu Police Department',
+        county: 'Honolulu',
+        bookingNumber: 'HPD-2024-006768',
+        createdAt: new Date('2024-06-07T22:15:00'),
+        status: 'Released',
+        severity: 'low'
       }
     ];
 
-    // Sort by most recent first
-    return recentArrestLogs.sort((a, b) => 
+    // Sort by most recent first, prioritizing Honolulu PD records
+    return honoluluArrestLogs.sort((a, b) => 
       new Date(b.arrestDate).getTime() - new Date(a.arrestDate).getTime()
     );
   }

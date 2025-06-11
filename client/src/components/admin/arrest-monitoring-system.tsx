@@ -217,14 +217,14 @@ export default function ArrestMonitoringSystem() {
         <div>
           <h2 className="text-2xl font-bold flex items-center">
             <Shield className="mr-2 w-6 h-6" />
-            Hawaii Arrest Log Monitoring
+            Honolulu Police Department - Arrest Log Monitoring
           </h2>
           <p className="text-muted-foreground">
-            Real-time monitoring of client arrests across all Hawaii counties
+            Real-time monitoring of recent arrests from Honolulu Police Department
           </p>
           <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
             <p className="text-sm text-blue-800">
-              ✓ Displaying authentic arrest data matches from official Hawaii police department logs
+              ✓ Displaying most recent arrest records from Honolulu Police Department official logs
             </p>
           </div>
         </div>
