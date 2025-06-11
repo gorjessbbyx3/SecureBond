@@ -31,6 +31,15 @@ REM Install dependencies if package.json exists
 if exist package.json (
     echo Installing application dependencies...
     call npm install
+    if %errorlevel% neq 0 (
+        echo ERROR: Failed to install dependencies.
+        echo Please check your internet connection and try again.
+        pause
+        exit /b 1
+    )
+    echo ✓ Dependencies installed successfully
+) else (
+    echo WARNING: package.json not found. Skipping dependency installation.
 )
 
 REM Create desktop shortcut
@@ -54,6 +63,7 @@ echo echo Data stored in: %DATA_DIR%
 echo echo Web interface: http://localhost:5000
 echo echo.
 echo echo Please wait while the system starts...
+echo cd /d "%~dp0"
 echo npm run dev
 echo pause
 ) > "%STARTUP_SCRIPT%"
@@ -64,7 +74,8 @@ set BACKUP_SCRIPT=%DESKTOP%\Backup-AlohaBailBond-Data.bat
 (
 echo @echo off
 echo title Aloha Bail Bond Data Backup
-echo set BACKUP_DATE=%%date:~-4,4%%%%date:~-10,2%%%%date:~-7,2%%
+echo for /f "tokens=2 delims==" %%%%a in ('wmic OS Get localdatetime /value'^) do set "dt=%%%%a"
+echo set BACKUP_DATE=%%dt:~0,8%%
 echo set BACKUP_DIR=%USERPROFILE%\Desktop\AlohaBailBond-Backup-%%BACKUP_DATE%%
 echo echo Creating backup of Aloha Bail Bond data...
 echo mkdir "%%BACKUP_DIR%%"
