@@ -341,6 +341,12 @@ export class LocalFileStorage implements IStorage {
       courtDate: bondData.courtDate || null,
       courtLocation: bondData.courtLocation || null,
       caseNumber: bondData.caseNumber || null,
+      charges: bondData.charges || null,
+      collateral: bondData.collateral || null,
+      cosigner: bondData.cosigner || null,
+      cosignerPhone: bondData.cosignerPhone || null,
+      expirationDate: bondData.expirationDate || null,
+      completedDate: bondData.completedDate || null,
       notes: bondData.notes || null,
       status: 'active',
       bondNumber: `BB${Date.now()}`,
@@ -407,6 +413,14 @@ export class LocalFileStorage implements IStorage {
     const payment: Payment = {
       id: this.nextId++,
       ...paymentData,
+      clientId: paymentData.clientId || null,
+      notes: paymentData.notes || null,
+      paymentDate: paymentData.paymentDate || null,
+      paymentMethod: paymentData.paymentMethod || null,
+      receiptImageUrl: paymentData.receiptImageUrl || null,
+      confirmed: paymentData.confirmed || null,
+      confirmedBy: paymentData.confirmedBy || null,
+      confirmedAt: paymentData.confirmedAt || null,
       createdAt: new Date(),
     };
     
@@ -458,8 +472,11 @@ export class LocalFileStorage implements IStorage {
     const checkIn: CheckIn = {
       id: this.nextId++,
       ...checkInData,
+      clientId: checkInData.clientId || null,
+      notes: checkInData.notes || null,
+      checkInTime: checkInData.checkInTime || null,
+      location: checkInData.location || null,
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     
     const checkIns = await this.readJsonFile<CheckIn>('check-ins.json');
@@ -495,8 +512,10 @@ export class LocalFileStorage implements IStorage {
     const expense: Expense = {
       id: this.nextId++,
       ...expenseData,
+      category: expenseData.category || null,
+      expenseDate: expenseData.expenseDate || null,
+      createdBy: expenseData.createdBy || null,
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     
     const expenses = await this.readJsonFile<Expense>('expenses.json');
@@ -516,8 +535,11 @@ export class LocalFileStorage implements IStorage {
     const alert: Alert = {
       id: this.nextId++,
       ...alertData,
+      clientId: alertData.clientId || null,
+      acknowledged: alertData.acknowledged || null,
+      acknowledgedBy: alertData.acknowledgedBy || null,
+      acknowledgedAt: alertData.acknowledgedAt || null,
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     
     const alerts = await this.readJsonFile<Alert>('alerts.json');
