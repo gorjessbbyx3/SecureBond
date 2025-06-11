@@ -33,57 +33,57 @@ export default function ClientDetails() {
 
   // Fetch client data
   const { data: client, isLoading } = useQuery({
-    queryKey: ["/api/clients", clientId],
+    queryKey: [`/api/clients/${clientId}`],
     enabled: !!clientId,
   });
 
   const { data: bonds = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "bonds"],
+    queryKey: [`/api/clients/${clientId}/bonds`],
     enabled: !!clientId,
   });
 
   const { data: courtDates = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "court-dates"],
+    queryKey: [`/api/clients/${clientId}/court-dates`],
     enabled: !!clientId,
   });
 
   const { data: payments = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "payments"],
+    queryKey: [`/api/clients/${clientId}/payments`],
     enabled: !!clientId,
   });
 
   const { data: checkIns = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "check-ins"],
+    queryKey: [`/api/clients/${clientId}/check-ins`],
     enabled: !!clientId,
   });
 
   const { data: vehicles = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "vehicles"],
+    queryKey: [`/api/clients/${clientId}/vehicles`],
     enabled: !!clientId,
   });
 
   const { data: family = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "family"],
+    queryKey: [`/api/clients/${clientId}/family`],
     enabled: !!clientId,
   });
 
   const { data: employment = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "employment"],
+    queryKey: [`/api/clients/${clientId}/employment`],
     enabled: !!clientId,
   });
 
   const { data: files = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "files"],
+    queryKey: [`/api/clients/${clientId}/files`],
     enabled: !!clientId,
   });
 
   const { data: locations = [] } = useQuery({
-    queryKey: ["/api/clients", clientId, "locations"],
+    queryKey: [`/api/clients/${clientId}/locations`],
     enabled: !!clientId,
   });
 
   const { data: paymentSummary } = useQuery({
-    queryKey: ["/api/clients", clientId, "payment-summary"],
+    queryKey: [`/api/clients/${clientId}/payment-summary`],
     enabled: !!clientId,
   });
 
@@ -93,7 +93,7 @@ export default function ClientDetails() {
       return apiRequest(`/api/clients/${clientId}/vehicles`, "POST", vehicleData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId, "vehicles"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/vehicles`] });
       setIsAddingVehicle(false);
       toast({ title: "Vehicle Added", description: "Vehicle information has been added successfully." });
     },
@@ -105,7 +105,7 @@ export default function ClientDetails() {
       return apiRequest(`/api/clients/${clientId}/family`, "POST", familyData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId, "family"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/family`] });
       setIsAddingFamily(false);
       toast({ title: "Family Member Added", description: "Family member has been added successfully." });
     },
@@ -117,7 +117,7 @@ export default function ClientDetails() {
       return apiRequest(`/api/clients/${clientId}/employment`, "POST", employmentData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId, "employment"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/employment`] });
       setIsAddingEmployment(false);
       toast({ title: "Employment Added", description: "Employment information has been added successfully." });
     },

@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "fullName": "Kepa Swanson-Neitzel",
+    "clientId": "swanson.robert",
+    "password": "$2b$10$ixz6H75QyCBGDacJ6d8d/uZI7tyV6DZzkyDldY70cBBD.LyJiDBVS",
+    "phoneNumber": "8087675460",
+    "address": "934 Kapahulu Ave",
+    "dateOfBirth": "1991-05-03",
+    "emergencyContact": "Jessica Houtz",
+    "emergencyPhone": "8084529779",
+    "courtLocation": "Honolulu",
+    "charges": "Fraud",
+    "isActive": true,
+    "missedCheckIns": 0,
+    "createdAt": "2025-06-11T00:39:54.126Z",
+    "updatedAt": "2025-06-11T00:39:54.126Z"
+  }
+]
