@@ -367,9 +367,9 @@ export class LocalFileStorage implements IStorage {
       updatedAt: new Date(),
     };
     
-    const bonds = await this.readJsonFile<Bond>('bonds.json');
+    const bonds = await this.readJsonFile<Bond[]>(path.join(this.dataDir, 'bonds.json'), []);
     bonds.push(bond);
-    await this.writeJsonFile('bonds.json', bonds);
+    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), bonds);
     await this.saveIndex();
     
     return bond;
@@ -1403,19 +1403,19 @@ export class LocalFileStorage implements IStorage {
     return newActivity;
   }
 
-  // Forfeitures
+  // Forfeitures - authentic data only
   async getForfeitures(filters: any): Promise<any[]> {
     const forfeitures = await this.readJsonFile<any[]>(path.join(this.dataDir, 'forfeitures.json'), []);
     let filtered = forfeitures;
     
     if (filters.status) {
-      filtered = filtered.filter(forfeiture => forfeiture.status === filters.status);
+      filtered = filtered.filter((forfeiture: any) => forfeiture.status === filters.status);
     }
     if (filters.priority) {
-      filtered = filtered.filter(forfeiture => forfeiture.priority === filters.priority);
+      filtered = filtered.filter((forfeiture: any) => forfeiture.priority === filters.priority);
     }
     
-    return filtered.sort((a, b) => new Date(b.initiatedDate).getTime() - new Date(a.initiatedDate).getTime());
+    return filtered.sort((a: any, b: any) => new Date(b.initiatedDate).getTime() - new Date(a.initiatedDate).getTime());
   }
 
   async createForfeiture(forfeitureData: any): Promise<any> {
