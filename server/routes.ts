@@ -1018,30 +1018,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Real White Pages search requires authenticated API access
       console.log(`White Pages search for ${name} requires API credentials`);
 
-      const results = [];
-      const searchCity = city?.toLowerCase();
-      
-      // Generate 2-5 realistic results
-      const numResults = Math.floor(Math.random() * 4) + 2;
-      for (let i = 0; i < numResults; i++) {
-        const address = hawaiiAddresses[Math.floor(Math.random() * hawaiiAddresses.length)];
-        
-        // Filter by city if specified
-        if (searchCity && address.city.toLowerCase() !== searchCity) {
-          continue;
-        }
-
-        const streetNumber = Math.floor(Math.random() * 9999) + 100;
-        results.push({
-          name: name,
-          address: `${streetNumber} ${address.street}`,
-          city: address.city,
-          zipCode: address.zipCode,
-          phone: Math.random() > 0.3 ? phoneNumbers[Math.floor(Math.random() * phoneNumbers.length)] : null
-        });
-      }
-
-      res.json({ results });
+      // Return empty results - real search requires API credentials
+      res.json({ results: [] });
     } catch (error) {
       console.error('Error searching White Pages:', error);
       res.status(500).json({ message: 'Failed to search White Pages' });
