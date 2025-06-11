@@ -8,20 +8,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Bell, Check, CheckCheck, Calendar, AlertTriangle, DollarSign, UserX, Clock } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import type { Notification } from "@shared/schema";
 
 export function EnhancedNotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
-    queryKey: ["/api/notifications/user/demo-user"],
+    queryKey: ["/api/notifications/user", user?.id || 'anonymous'],
     refetchInterval: 15000, // Refresh every 15 seconds
   });
 
   const { data: unreadCount = 0 } = useQuery<number>({
-    queryKey: ["/api/notifications/user/demo-user/unread"],
+    queryKey: ["/api/notifications/user", user?.id || 'anonymous', 'unread'],
     refetchInterval: 15000,
   });
 
