@@ -182,34 +182,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password, role } = req.body;
       
-      // Demo staff credentials
-      const staffCredentials = {
-        'admin@alohabailbond.com': { password: 'admin123', role: 'admin', firstName: 'Admin', lastName: 'User' },
-        'staff@alohabailbond.com': { password: 'staff123', role: 'staff', firstName: 'Staff', lastName: 'Member' },
-      };
+      // For now, use hardcoded admin credentials until database authentication is set up
+      if (email === 'admin@alohabailbond.com' && password === 'admin123' && role === 'admin') {
+        // Store session
+        (req.session as any).user = {
+          id: email,
+          email,
+          role: 'admin',
+          firstName: 'Admin',
+          lastName: 'User'
+        };
 
-      const staff = staffCredentials[email as keyof typeof staffCredentials];
-      
-      if (!staff || staff.password !== password || staff.role !== role) {
+        res.json({
+          id: email,
+          email,
+          role: 'admin',
+          firstName: 'Admin',
+          lastName: 'User'
+        });
+      } else {
         return res.status(401).json({ message: "Invalid credentials" });
       }
-
-      // Store session
-      (req.session as any).user = {
-        id: email,
-        email,
-        role: staff.role,
-        firstName: staff.firstName,
-        lastName: staff.lastName
-      };
-
-      res.json({
-        id: email,
-        email,
-        role: staff.role,
-        firstName: staff.firstName,
-        lastName: staff.lastName
-      });
     } catch (error) {
       console.error("Staff login error:", error);
       res.status(500).json({ message: "Login failed" });
@@ -1406,17 +1399,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       switch (type) {
         case 'clients':
           const clients = await storage.getAllClients();
-          exportPath = "Desktop/SecureBond-Clients-Export.csv";
+          exportPath = "Desktop/AlohaΒailBond-Clients-Export.csv";
           break;
         case 'payments':
           const payments = await storage.getAllPayments();
-          exportPath = "Desktop/SecureBond-Payments-Export.csv";
+          exportPath = "Desktop/AlohaBailBond-Payments-Export.csv";
           break;
         case 'financial':
-          exportPath = "Desktop/SecureBond-Financial-Report.pdf";
+          exportPath = "Desktop/AlohaBailBond-Financial-Report.pdf";
           break;
         case 'complete':
-          exportPath = (storage as any).exportData?.() || "Desktop/SecureBond-Complete-Export";
+          exportPath = (storage as any).exportData?.() || "Desktop/AlohaBailBond-Complete-Export";
           break;
         default:
           throw new Error("Invalid export type");

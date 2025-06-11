@@ -75,7 +75,7 @@ export default function ClientLogin() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header 
-        title="SecureBond Client" 
+        title="Aloha Bail Bond Client" 
         subtitle="Professional Bail Bond Management System" 
       />
       

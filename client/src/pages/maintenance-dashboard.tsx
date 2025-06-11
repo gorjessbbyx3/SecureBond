@@ -19,20 +19,12 @@ export default function MaintenanceDashboard() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   
-  // SSH Terminal State
-  const [sshConnected, setSshConnected] = useState(false);
-  const [sshHost, setSshHost] = useState("aloha-bail-bond-server");
-  const [sshOutput, setSshOutput] = useState<string[]>([
-    "SSH Terminal - Aloha Bail Bond Server",
-    "Ready to connect...",
-    ""
-  ]);
-  const [currentCommand, setCurrentCommand] = useState("");
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [currentDir, setCurrentDir] = useState("/home/maintenance");
-  const terminalRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // System management state
+  const [systemStatus, setSystemStatus] = useState({
+    server: "running",
+    database: "connected",
+    storage: "healthy"
+  });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {

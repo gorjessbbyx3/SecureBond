@@ -65,7 +65,7 @@ export default function StaffLogin() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header 
-        title="SecureBond Staff" 
+        title="Aloha Bail Bond Staff" 
         subtitle="Professional Bail Bond Management System" 
       />
       

@@ -855,6 +855,7 @@ export default function ClientDetails() {
                   <BondForm 
                     onSubmit={(data) => addBondMutation.mutate(data)}
                     isLoading={addBondMutation.isPending}
+                    clientId={client?.id || 0}
                   />
                 </DialogContent>
               </Dialog>
