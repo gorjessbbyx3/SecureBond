@@ -3,22 +3,34 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Navigation, Users, AlertTriangle, Clock, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import type { Client, CheckIn } from "@shared/schema";
+
+interface ClientLocation {
+  id: number;
+  name: string;
+  clientId: string;
+  status: 'active' | 'warning' | 'offline';
+  lastUpdate: string;
+  location: any;
+  lat: number;
+  lng: number;
+}
 
 export default function RealTimeMap() {
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
   });
 
   // Get actual client check-in data with locations
-  const { data: checkIns = [] } = useQuery({
+  const { data: checkIns = [] } = useQuery<CheckIn[]>({
     queryKey: ['/api/check-ins'],
   });
 
   // Process real client locations from check-ins
-  const clientLocations = clients.map(client => {
+  const clientLocations: ClientLocation[] = clients.map((client: Client) => {
     const lastCheckIn = checkIns
-      .filter((ci: any) => ci.clientId === client.id)
-      .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+      .filter((ci: CheckIn) => ci.clientId === client.id)
+      .sort((a: CheckIn, b: CheckIn) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
     
     return {
       id: client.id,
@@ -30,7 +42,7 @@ export default function RealTimeMap() {
       lat: lastCheckIn?.location?.latitude || null,
       lng: lastCheckIn?.location?.longitude || null
     };
-  }).filter(client => client.lat && client.lng);
+  }).filter((client): client is ClientLocation => client.lat !== null && client.lng !== null);
 
   return (
     <div className="space-y-6">
@@ -73,7 +85,7 @@ export default function RealTimeMap() {
             />
             
             {/* Real Client Location Markers */}
-            {clientLocations.map((client, index) => {
+            {clientLocations.map((client: ClientLocation, index: number) => {
               // Convert lat/lng to map coordinates (simplified projection)
               const mapX = Math.min(Math.max(((client.lng + 158) * 50), 10), 90);
               const mapY = Math.min(Math.max(((21.5 - client.lat) * 50), 10), 90);
@@ -138,9 +150,9 @@ export default function RealTimeMap() {
             <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
               <div className="text-sm font-medium">Live Tracking: {clientLocations.length} clients</div>
               <div className="text-xs text-gray-600">
-                {clientLocations.filter(c => c.status === 'active').length} active • 
-                {clientLocations.filter(c => c.status === 'warning').length} warnings • 
-                {clientLocations.filter(c => c.status === 'offline').length} offline
+                {clientLocations.filter((c: ClientLocation) => c.status === 'active').length} active • 
+                {clientLocations.filter((c: ClientLocation) => c.status === 'warning').length} warnings • 
+                {clientLocations.filter((c: ClientLocation) => c.status === 'offline').length} offline
               </div>
             </div>
           </div>
@@ -158,7 +170,7 @@ export default function RealTimeMap() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {clientLocations.map((client) => (
+              {clientLocations.map((client: ClientLocation) => (
                 <div key={client.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${
@@ -205,13 +217,13 @@ export default function RealTimeMap() {
               <div className="flex justify-between items-center">
                 <span className="text-sm">Active Check-ins</span>
                 <span className="font-bold text-green-600">
-                  {clientLocations.filter(c => c.status === 'active').length}
+                  {clientLocations.filter((c: ClientLocation) => c.status === 'active').length}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Requires Attention</span>
                 <span className="font-bold text-red-600">
-                  {clientLocations.filter(c => c.status === 'warning').length}
+                  {clientLocations.filter((c: ClientLocation) => c.status === 'warning').length}
                 </span>
               </div>
             </div>
