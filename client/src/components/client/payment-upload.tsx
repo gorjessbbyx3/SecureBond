@@ -31,7 +31,7 @@ export default function PaymentUpload({ clientId }: PaymentUploadProps) {
   const paymentMutation = useMutation({
     mutationFn: async (data: PaymentFormData & { clientId: number }) => {
       const response = await apiRequest("POST", "/api/payments", data);
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       toast({

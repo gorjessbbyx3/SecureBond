@@ -458,12 +458,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/client-login', async (req, res) => {
     try {
       const { clientId, password } = req.body;
+      console.log('Client login attempt:', { clientId, hasPassword: !!password });
       
       if (!clientId || !password) {
         return res.status(400).json({ message: "Client ID and password are required" });
       }
 
       const client = await storage.getClientByClientId(clientId);
+      console.log('Found client:', client ? { id: client.id, clientId: client.clientId, hasPassword: !!client.password } : 'null');
+      
       if (!client) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -474,27 +477,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Try bcrypt comparison first
           isValidPassword = await bcrypt.compare(password, client.password);
+          console.log('Bcrypt comparison result:', isValidPassword);
         } catch (error) {
           // If bcrypt fails, try plain text comparison
           isValidPassword = password === client.password;
+          console.log('Plain text comparison result:', isValidPassword);
         }
       }
       
       if (!isValidPassword) {
+        console.log('Password validation failed');
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       // Store client session info
       (req.session as any).clientId = client.id;
       (req.session as any).clientRole = 'client';
+      console.log('Client session stored, clientId:', client.id);
       
       res.json({ 
         success: true, 
-        client: { 
-          id: client.id, 
-          clientId: client.clientId, 
-          fullName: client.fullName 
-        } 
+        id: client.id,
+        clientId: client.clientId, 
+        fullName: client.fullName,
+        role: 'client'
       });
     } catch (error) {
       console.error("Client login error:", error);

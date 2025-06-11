@@ -23,7 +23,7 @@ export default function CheckInForm({ clientId }: CheckInFormProps) {
   const checkInMutation = useMutation({
     mutationFn: async (data: CheckInFormData & { clientId: number }) => {
       const response = await apiRequest("POST", "/api/check-ins", data);
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       toast({

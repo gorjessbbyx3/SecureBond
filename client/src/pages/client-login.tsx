@@ -30,11 +30,12 @@ export default function ClientLogin() {
       }
     },
     onSuccess: (data) => {
+      console.log('Login success data:', data);
       queryClient.setQueryData(["/api/auth/user"], data);
       setLocation("/client-dashboard");
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${data.fullName}!`,
+        description: `Welcome back, ${data.fullName || 'Client'}!`,
       });
     },
     onError: (error) => {
