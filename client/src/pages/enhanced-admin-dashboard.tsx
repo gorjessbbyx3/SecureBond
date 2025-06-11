@@ -208,32 +208,32 @@ export default function EnhancedAdminDashboard() {
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
-            <TabsTrigger value="performance" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
-              Performance
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="client-analytics" className="data-[state=active]:bg-teal-600 data-[state=active]:text-white">
-              Client Analytics
-            </TabsTrigger>
-            <TabsTrigger value="revenue" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white">
-              Revenue
-            </TabsTrigger>
-            <TabsTrigger value="tracking" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-              Live Tracking
-            </TabsTrigger>
             <TabsTrigger value="clients" className="data-[state=active]:bg-orange-600 data-[state=active]:text-white">
               Clients
             </TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
               Financial
             </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="tracking" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+              Live Tracking
+            </TabsTrigger>
             <TabsTrigger value="court-dates" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">
               Court Dates
             </TabsTrigger>
             <TabsTrigger value="arrest-monitoring" className="data-[state=active]:bg-pink-600 data-[state=active]:text-white">
               Arrest Monitor
+            </TabsTrigger>
+            <TabsTrigger value="roi" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+              ROI Analysis
+            </TabsTrigger>
+            <TabsTrigger value="data-management" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white">
+              Data
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-slate-600 data-[state=active]:text-white">
+              Settings
             </TabsTrigger>
           </TabsList>
 
