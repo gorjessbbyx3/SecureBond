@@ -59,9 +59,7 @@ export function CourtScrapingManagement() {
   // Manual court scraping mutation
   const manualScrapeMutation = useMutation({
     mutationFn: async (clientId: number) => {
-      return apiRequest(`/api/clients/${clientId}/scrape-court-history`, {
-        method: 'POST'
-      });
+      return apiRequest(`/api/clients/${clientId}/scrape-court-history`, 'POST');
     },
     onSuccess: (data: any) => {
       toast({
@@ -82,10 +80,7 @@ export function CourtScrapingManagement() {
   // Delete auto-scraped court record mutation
   const deleteCourtDateMutation = useMutation({
     mutationFn: async ({ id, reason, clientId }: { id: number; reason: string; clientId: number }) => {
-      return apiRequest(`/api/court-dates/${id}/auto-scraped`, {
-        method: 'DELETE',
-        body: { reason, clientId }
-      });
+      return apiRequest(`/api/court-dates/${id}/auto-scraped`, 'DELETE', { reason, clientId });
     },
     onSuccess: (data: any) => {
       toast({

@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Server, Database, Activity, Settings, LogOut, AlertTriangle, CheckCircle, Terminal, Power, Wifi } from "lucide-react";
+import { Server, Database, Activity, Settings, LogOut, AlertTriangle, CheckCircle, Terminal, Power, Wifi, Gavel } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import { CourtScrapingManagement } from "@/components/admin/court-scraping-management";
 
 export default function MaintenanceDashboard() {
   const [, setLocation] = useLocation();
@@ -454,10 +455,11 @@ export default function MaintenanceDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="logs">System Logs</TabsTrigger>
             <TabsTrigger value="ssh">SSH Terminal</TabsTrigger>
+            <TabsTrigger value="court-scraping">Court Scraping</TabsTrigger>
             <TabsTrigger value="backups">Backups</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -664,6 +666,10 @@ export default function MaintenanceDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="court-scraping">
+            <CourtScrapingManagement />
           </TabsContent>
 
           <TabsContent value="settings">
