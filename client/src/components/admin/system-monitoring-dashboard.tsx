@@ -61,9 +61,15 @@ export function SystemMonitoringDashboard() {
     refetchInterval: autoRefresh ? 60000 : false, // Refresh every minute
   });
 
+  const { data: securityData } = useQuery({
+    queryKey: ["/api/system/security/report"],
+    refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds
+  });
+
   const health = healthData as HealthStatus;
   const performance = performanceData?.data as PerformanceStats;
   const metrics = metricsData?.data as any[];
+  const security = securityData?.data as any;
 
   const formatUptime = (uptime: number) => {
     const seconds = Math.floor(uptime / 1000);
@@ -266,6 +272,7 @@ export function SystemMonitoringDashboard() {
           <TabsTrigger value="response-time">Response Time</TabsTrigger>
           <TabsTrigger value="memory">Memory Usage</TabsTrigger>
           <TabsTrigger value="requests">Request Volume</TabsTrigger>
+          <TabsTrigger value="security">Security Events</TabsTrigger>
         </TabsList>
 
         <TabsContent value="response-time">
@@ -361,6 +368,121 @@ export function SystemMonitoringDashboard() {
                   </div>
                   <div className="text-sm text-muted-foreground">Slow Requests</div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="security">
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Monitoring</CardTitle>
+              <CardDescription>Real-time security events and threat detection</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Security Metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">
+                      {security?.summary?.failedLogins || 0}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Failed Logins</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {security?.summary?.suspiciousActivities || 0}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Suspicious Activities</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {security?.summary?.dataAccessAttempts || 0}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Data Access</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {security?.summary?.uniqueIPs || 0}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Unique IPs</div>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-2xl font-bold ${(security?.summary?.riskScore || 0) > 50 ? 'text-red-600' : (security?.summary?.riskScore || 0) > 25 ? 'text-orange-600' : 'text-green-600'}`}>
+                      {security?.summary?.riskScore || 0}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Risk Score</div>
+                  </div>
+                </div>
+
+                {/* Security Progress Bar */}
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Security Risk Level</span>
+                    <span>{(security?.summary?.riskScore || 0) > 70 ? 'High' : (security?.summary?.riskScore || 0) > 30 ? 'Medium' : 'Low'}</span>
+                  </div>
+                  <Progress 
+                    value={security?.summary?.riskScore || 0} 
+                    className="h-3"
+                  />
+                </div>
+
+                {/* Recent Security Events */}
+                <div>
+                  <h4 className="font-medium mb-3">Recent Security Events</h4>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {security?.recentEvents?.length > 0 ? (
+                      security.recentEvents.slice(0, 10).map((event: any, index: number) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-3 h-3 rounded-full ${
+                              event.severity === 'critical' ? 'bg-red-500' : 
+                              event.severity === 'high' ? 'bg-orange-500' : 
+                              event.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                            }`} />
+                            <div>
+                              <div className="font-medium capitalize">{event.eventType.replace('_', ' ')}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {event.ip} • {new Date(event.timestamp).toLocaleTimeString()}
+                              </div>
+                            </div>
+                          </div>
+                          <Badge 
+                            variant={
+                              event.severity === 'critical' ? 'destructive' : 
+                              event.severity === 'high' ? 'destructive' : 
+                              event.severity === 'medium' ? 'secondary' : 'default'
+                            }
+                            className="capitalize"
+                          >
+                            {event.severity}
+                          </Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center text-muted-foreground py-8">
+                        No security events recorded
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Security Recommendations */}
+                {security?.recommendations?.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-3">Security Recommendations</h4>
+                    <div className="space-y-2">
+                      {security.recommendations.map((recommendation: string, index: number) => (
+                        <div key={index} className="flex items-start space-x-2 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                          <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
+                          <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                            {recommendation}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
