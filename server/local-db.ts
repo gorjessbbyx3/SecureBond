@@ -348,6 +348,15 @@ export class LocalFileStorage implements IStorage {
       cosignerPhone: bondData.cosignerPhone || null,
       expirationDate: bondData.expirationDate || null,
       completedDate: bondData.completedDate || null,
+      forfeitedDate: bondData.forfeitedDate || null,
+      forfeitureReason: bondData.forfeitureReason || null,
+      forfeitureAmount: bondData.forfeitureAmount || null,
+      recoveryEfforts: bondData.recoveryEfforts || null,
+      surrenderDate: bondData.surrenderDate || null,
+      surrenderLocation: bondData.surrenderLocation || null,
+      riskAssessment: bondData.riskAssessment || 'medium',
+      lastContactDate: bondData.lastContactDate || null,
+      nextFollowupDate: bondData.nextFollowupDate || null,
       notes: bondData.notes || null,
       status: 'active',
       bondNumber: `BB${Date.now()}`,
@@ -366,14 +375,16 @@ export class LocalFileStorage implements IStorage {
     return bond;
   }
 
+  async getAllBonds(): Promise<Bond[]> {
+    return await this.readJsonFile<Bond[]>(path.join(this.dataDir, 'bonds.json'), []);
+  }
+
   async getClientBonds(clientId: number): Promise<Bond[]> {
-    const bonds = await this.readJsonFile<Bond>('bonds.json');
+    const bonds = await this.getAllBonds();
     return bonds.filter(b => b.clientId === clientId);
   }
 
-  async getAllBonds(): Promise<Bond[]> {
-    return await this.readJsonFile<Bond>('bonds.json');
-  }
+
 
   async updateBond(id: number, updates: Partial<InsertBond>): Promise<Bond> {
     const bonds = await this.readJsonFile<Bond>('bonds.json');
@@ -1306,9 +1317,10 @@ export class LocalFileStorage implements IStorage {
     return termsAck;
   }
 
-  // Bond & Forfeiture Management Methods
-  async getAllBonds(): Promise<Bond[]> {
-    return await this.readJsonFile<Bond[]>(path.join(this.dataDir, 'bonds.json'), []);
+  // Additional Bond & Forfeiture Management Methods
+
+  private getNextId(): number {
+    return this.nextId++;
   }
 
   async getBondById(id: number): Promise<Bond | undefined> {
@@ -1331,10 +1343,13 @@ export class LocalFileStorage implements IStorage {
     return bonds[bondIndex];
   }
 
-  // Payment Plans
+  // Payment Plans - authentic data only
   async getPaymentPlans(bondId?: number): Promise<any[]> {
     const plans = await this.readJsonFile<any[]>(path.join(this.dataDir, 'payment-plans.json'), []);
-    return bondId ? plans.filter(plan => plan.bondId === bondId) : plans;
+    if (bondId) {
+      return plans.filter((plan: any) => plan.bondId === bondId);
+    }
+    return plans;
   }
 
   async createPaymentPlan(planData: any): Promise<any> {
@@ -1355,7 +1370,7 @@ export class LocalFileStorage implements IStorage {
 
   async getPaymentInstallments(planId: number): Promise<any[]> {
     const installments = await this.readJsonFile<any[]>(path.join(this.dataDir, 'payment-installments.json'), []);
-    return installments.filter(installment => installment.paymentPlanId === planId);
+    return installments.filter((installment: any) => installment.paymentPlanId === planId);
   }
 
   // Collections Activities
