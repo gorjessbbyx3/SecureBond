@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye, Users, DollarSign, Calendar, MapPin, Shield, Activity, Database, Upload } from "lucide-react";
+import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye, Users, DollarSign, Calendar, MapPin, Shield, Activity, Database, Upload, Building2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,7 @@ import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system"
 import ROIAnalysisTab from "@/components/admin/roi-analysis-tab";
 import DataManagement from "@/components/admin/data-management";
 import BulkClientUpload from "@/components/admin/bulk-client-upload";
+import { BusinessSettings } from "@/components/admin/business-settings";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -133,7 +134,7 @@ export default function EnhancedAdminDashboard() {
       <main className="container mx-auto px-6 py-8">
         {/* Enhanced Dashboard Tabs - Improved Organization */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-14 text-sm bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 h-14 text-sm bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
             <TabsTrigger 
               value="overview" 
               className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200 hover:bg-blue-100"
@@ -189,6 +190,13 @@ export default function EnhancedAdminDashboard() {
             >
               <Settings className="h-4 w-4" />
               Admin Tools
+            </TabsTrigger>
+            <TabsTrigger 
+              value="business-settings" 
+              className="flex items-center gap-2 data-[state=active]:bg-slate-600 data-[state=active]:text-white transition-all duration-200 hover:bg-slate-100"
+            >
+              <Building2 className="h-4 w-4" />
+              Business Setup
             </TabsTrigger>
           </TabsList>
 
@@ -465,6 +473,25 @@ export default function EnhancedAdminDashboard() {
                   </CardContent>
                 </Card>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="business-settings" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Business Settings Header */}
+              <Card className="border-2 border-slate-200 bg-slate-50 dark:bg-slate-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <Building2 className="h-6 w-6" />
+                    Business Setup & Configuration
+                  </CardTitle>
+                  <CardDescription className="text-slate-700 dark:text-slate-300">
+                    Configure your business profile, goals, staff accounts, and system settings
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <BusinessSettings />
             </div>
           </TabsContent>
         </Tabs>
