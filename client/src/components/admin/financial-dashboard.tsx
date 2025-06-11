@@ -401,7 +401,16 @@ export default function FinancialDashboard() {
                             </p>
                           </div>
                           {payment.receiptImageUrl && (
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "Receipt Viewer",
+                                  description: "Opening receipt image...",
+                                });
+                              }}
+                            >
                               <Eye className="w-3 h-3 mr-1" />
                               View Receipt
                             </Button>
@@ -486,7 +495,16 @@ export default function FinancialDashboard() {
                                 </Button>
                               )}
                               {payment.receiptImageUrl && (
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Receipt Viewer",
+                                      description: "Opening receipt image...",
+                                    });
+                                  }}
+                                >
                                   <Receipt className="w-3 h-3" />
                                 </Button>
                               )}
