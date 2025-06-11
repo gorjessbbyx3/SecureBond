@@ -981,23 +981,27 @@ export default function ClientDetails() {
 }
 
 // Form components for adding information
-function BondForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+function BondForm({ onSubmit, isLoading, clientId }: { onSubmit: (data: any) => void; isLoading: boolean; clientId: number }) {
   const [formData, setFormData] = useState({
     bondAmount: '',
     totalOwed: '',
     amountPaid: '',
+    serviceFee: '',
     notes: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const bondData = {
+      clientId: clientId,
       bondAmount: parseFloat(formData.bondAmount) || 0,
       totalOwed: parseFloat(formData.totalOwed) || 0,
       downPayment: parseFloat(formData.amountPaid) || 0,
       remainingBalance: (parseFloat(formData.totalOwed) || 0) - (parseFloat(formData.amountPaid) || 0),
       status: 'active',
       bondType: 'surety',
+      premiumRate: 0.10,
+      serviceFee: parseFloat(formData.serviceFee) || 0,
       notes: formData.notes
     };
     onSubmit(bondData);
@@ -1045,6 +1049,18 @@ function BondForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLo
       </div>
 
       <div>
+        <Label htmlFor="serviceFee">Service Fee (Optional)</Label>
+        <Input
+          id="serviceFee"
+          type="number"
+          step="0.01"
+          placeholder="Enter service fee if applicable"
+          value={formData.serviceFee}
+          onChange={(e) => setFormData({...formData, serviceFee: e.target.value})}
+        />
+      </div>
+
+      <div>
         <Label htmlFor="notes">Notes (Optional)</Label>
         <Textarea
           id="notes"
@@ -1062,7 +1078,7 @@ function BondForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLo
   );
 }
 
-function PaymentForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+function PaymentForm({ onSubmit, isLoading, clientId }: { onSubmit: (data: any) => void; isLoading: boolean; clientId: number }) {
   const [formData, setFormData] = useState({
     amount: '',
     paymentDate: new Date().toISOString().slice(0, 16),
@@ -1073,9 +1089,11 @@ function PaymentForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; i
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const paymentData = {
-      ...formData,
+      clientId: clientId,
       amount: parseFloat(formData.amount) || 0,
-      paymentDate: new Date(formData.paymentDate)
+      paymentDate: new Date(formData.paymentDate),
+      paymentMethod: formData.paymentMethod,
+      notes: formData.notes
     };
     onSubmit(paymentData);
   };
