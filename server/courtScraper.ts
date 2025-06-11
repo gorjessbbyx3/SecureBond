@@ -32,9 +32,10 @@ export class CourtDateScraper {
     },
     {
       name: 'Hawaii Federal District Court',
-      url: 'https://www.hid.uscourts.gov',
-      searchPath: '/home/cm-ecf-resources/written-opinions',
-      enabled: true
+      url: 'https://ecf.hid.uscourts.gov',
+      searchPath: '/cgi-bin/rss_outside.pl',
+      enabled: true,
+      type: 'rss'
     },
     {
       name: 'Honolulu County Court',
@@ -84,7 +85,9 @@ export class CourtDateScraper {
     const nameComponents = this.parseClientName(clientName);
     
     // Search each available court source
+    console.log(`Total court sources available: ${this.courtSources.length}`);
     for (const source of this.courtSources) {
+      console.log(`Processing source: ${source.name}, enabled: ${source.enabled}, type: ${source.type || 'standard'}`);
       if (!source.enabled) continue;
 
       try {
@@ -133,10 +136,83 @@ export class CourtDateScraper {
     nameComponents: any, 
     options: any
   ): Promise<CourtDate[]> {
+    console.log(`Searching ${source.name} for ${nameComponents.fullName}`);
+    
+    // Handle RSS feeds for real-time court document updates
+    if (source.type === 'rss') {
+      return this.parseRSSFeed(source, nameComponents);
+    }
+    
     // Real court record search would require authenticated API access
-    // Return empty array since no authentic data sources are configured
     console.log(`Court source ${source.name} requires authenticated API access`);
     return [];
+  }
+
+  private async parseRSSFeed(source: any, nameComponents: any): Promise<CourtDate[]> {
+    const courtDates: CourtDate[] = [];
+    
+    try {
+      const fullUrl = `${source.url}${source.searchPath}`;
+      console.log(`Fetching RSS feed from: ${fullUrl}`);
+      
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': this.userAgent,
+          'Accept': 'application/rss+xml, application/xml, text/xml'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const xmlText = await response.text();
+      
+      // Parse RSS XML for court documents
+      const titleMatches = xmlText.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g) || [];
+      const descMatches = xmlText.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/g) || [];
+      const linkMatches = xmlText.match(/<link>(.*?)<\/link>/g) || [];
+      const pubDateMatches = xmlText.match(/<pubDate>(.*?)<\/pubDate>/g) || [];
+
+      for (let i = 0; i < titleMatches.length; i++) {
+        const title = titleMatches[i]?.replace(/<title><!\[CDATA\[/, '').replace(/\]\]><\/title>/, '') || '';
+        const description = descMatches[i]?.replace(/<description><!\[CDATA\[/, '').replace(/\]\]><\/description>/, '') || '';
+        const link = linkMatches[i]?.replace(/<link>/, '').replace(/<\/link>/, '') || '';
+        const pubDate = pubDateMatches[i]?.replace(/<pubDate>/, '').replace(/<\/pubDate>/, '') || '';
+
+        // Check if this document relates to our client
+        const fullText = `${title} ${description}`.toLowerCase();
+        const clientMatch = fullText.includes(nameComponents.firstName.toLowerCase()) || 
+                           fullText.includes(nameComponents.lastName.toLowerCase()) ||
+                           fullText.includes(nameComponents.fullName.toLowerCase());
+
+        if (clientMatch) {
+          // Extract case information from title/description
+          const caseNumberMatch = title.match(/\b\d{1,2}:\d{2}-cv-\d+\b|\b\d{1,2}:\d{2}-cr-\d+\b/);
+          const dateMatch = description.match(/\b\d{1,2}\/\d{1,2}\/\d{4}\b/);
+          
+          courtDates.push({
+            name: nameComponents.fullName,
+            caseNumber: caseNumberMatch ? caseNumberMatch[0] : undefined,
+            courtDate: dateMatch ? dateMatch[0] : new Date(pubDate).toLocaleDateString(),
+            courtTime: undefined,
+            courtLocation: 'Hawaii Federal District Court',
+            caseType: title.includes('criminal') || title.includes('cr-') ? 'Criminal' : 'Civil',
+            charges: description.length > 100 ? description.substring(0, 100) + '...' : description,
+            status: 'Active',
+            source: source.name
+          });
+        }
+      }
+
+      console.log(`Found ${courtDates.length} matching court documents in RSS feed`);
+      
+    } catch (error) {
+      console.error(`Error parsing RSS feed from ${source.name}:`, error);
+    }
+
+    return courtDates;
   }
 
   private async simulateCourtSearch(searchName: string, sourceName: string): Promise<CourtDate[]> {
