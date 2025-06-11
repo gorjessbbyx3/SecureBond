@@ -10,6 +10,7 @@ import {
   boolean,
   decimal,
   date,
+  bigint,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -70,7 +71,7 @@ export const bonds = pgTable("bonds", {
   courtLocation: text("court_location"),
   charges: text("charges"),
   caseNumber: varchar("case_number"),
-  status: varchar("status").notNull().default("active"), // active, completed, forfeited, cancelled
+  status: varchar("status").notNull().default("active"), // active, completed, forfeited, cancelled, in_forfeiture, surrendered
   bondType: varchar("bond_type").default("surety"), // surety, cash, property, federal
   premiumRate: decimal("premium_rate", { precision: 5, scale: 4 }).default("0.10"), // 10% default
   collateral: text("collateral"), // Description of collateral if any
@@ -79,7 +80,16 @@ export const bonds = pgTable("bonds", {
   issuedDate: timestamp("issued_date").defaultNow(),
   expirationDate: timestamp("expiration_date"),
   completedDate: timestamp("completed_date"),
+  forfeitedDate: timestamp("forfeited_date"),
+  forfeitureReason: text("forfeiture_reason"),
+  forfeitureAmount: decimal("forfeiture_amount", { precision: 10, scale: 2 }),
+  recoveryEfforts: text("recovery_efforts"),
+  surrenderDate: timestamp("surrender_date"),
+  surrenderLocation: text("surrender_location"),
   notes: text("notes"),
+  riskAssessment: varchar("risk_assessment").default("medium"), // low, medium, high, critical
+  lastContactDate: timestamp("last_contact_date"),
+  nextFollowupDate: timestamp("next_followup_date"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -354,6 +364,8 @@ export const insertNotificationPreferencesSchema = createInsertSchema(notificati
   updatedAt: true,
 });
 
+
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -396,3 +408,140 @@ export type ClientVehicle = typeof clientVehicles.$inferSelect;
 export type FamilyMember = typeof familyMembers.$inferSelect;
 export type EmploymentInfo = typeof employmentInfo.$inferSelect;
 export type ClientFile = typeof clientFiles.$inferSelect;
+
+// Payment plans table for structured payment schedules
+export const paymentPlans = pgTable("payment_plans", {
+  id: serial("id").primaryKey(),
+  bondId: integer("bond_id").references(() => bonds.id).notNull(),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  downPayment: decimal("down_payment", { precision: 10, scale: 2 }).notNull(),
+  remainingBalance: decimal("remaining_balance", { precision: 10, scale: 2 }).notNull(),
+  installmentAmount: decimal("installment_amount", { precision: 10, scale: 2 }).notNull(),
+  frequency: varchar("frequency").notNull().default("monthly"), // weekly, biweekly, monthly, custom
+  numberOfPayments: integer("number_of_payments").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  status: varchar("status").notNull().default("active"), // active, completed, defaulted, cancelled
+  autoPayEnabled: boolean("auto_pay_enabled").default(false),
+  lateFeesEnabled: boolean("late_fees_enabled").default(true),
+  lateFeeAmount: decimal("late_fee_amount", { precision: 5, scale: 2 }).default("25.00"),
+  gracePeriodDays: integer("grace_period_days").default(5),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Scheduled payment installments
+export const paymentInstallments = pgTable("payment_installments", {
+  id: serial("id").primaryKey(),
+  paymentPlanId: integer("payment_plan_id").references(() => paymentPlans.id).notNull(),
+  installmentNumber: integer("installment_number").notNull(),
+  dueDate: date("due_date").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status").notNull().default("pending"), // pending, paid, late, defaulted
+  paidDate: timestamp("paid_date"),
+  paidAmount: decimal("paid_amount", { precision: 10, scale: 2 }),
+  lateFees: decimal("late_fees", { precision: 5, scale: 2 }).default("0.00"),
+  remindersSent: integer("reminders_sent").default(0),
+  lastReminderDate: timestamp("last_reminder_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Collections activities and attempts
+export const collectionsActivities = pgTable("collections_activities", {
+  id: serial("id").primaryKey(),
+  bondId: integer("bond_id").references(() => bonds.id).notNull(),
+  clientId: integer("client_id").references(() => clients.id).notNull(),
+  activityType: varchar("activity_type").notNull(), // call, email, letter, visit, legal_action
+  contactMethod: varchar("contact_method"), // phone, email, certified_mail, in_person
+  contactAttemptedAt: timestamp("contact_attempted_at").notNull(),
+  contactSuccessful: boolean("contact_successful").default(false),
+  personContacted: varchar("person_contacted"),
+  responseReceived: text("response_received"),
+  promiseDate: date("promise_date"),
+  promiseAmount: decimal("promise_amount", { precision: 10, scale: 2 }),
+  nextActionDate: date("next_action_date"),
+  nextActionType: varchar("next_action_type"),
+  agentId: varchar("agent_id").references(() => users.id).notNull(),
+  priority: varchar("priority").default("medium"), // low, medium, high, urgent
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Forfeiture tracking and management
+export const forfeitures = pgTable("forfeitures", {
+  id: serial("id").primaryKey(),
+  bondId: integer("bond_id").references(() => bonds.id).notNull(),
+  clientId: integer("client_id").references(() => clients.id).notNull(),
+  initiatedDate: timestamp("initiated_date").notNull(),
+  reason: text("reason").notNull(),
+  forfeitureAmount: decimal("forfeiture_amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status").notNull().default("pending"), // pending, active, resolved, cancelled
+  courtOrderDate: date("court_order_date"),
+  judgmentAmount: decimal("judgment_amount", { precision: 10, scale: 2 }),
+  collectionEfforts: text("collection_efforts"),
+  recoveredAmount: decimal("recovered_amount", { precision: 10, scale: 2 }).default("0.00"),
+  writeOffAmount: decimal("write_off_amount", { precision: 10, scale: 2 }).default("0.00"),
+  writeOffDate: date("write_off_date"),
+  writeOffReason: text("write_off_reason"),
+  assignedAgent: varchar("assigned_agent").references(() => users.id),
+  nextReviewDate: date("next_review_date"),
+  priority: varchar("priority").default("medium"), // low, medium, high, critical
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User roles and permissions system
+export const userRoles = pgTable("user_roles", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull().unique(),
+  description: text("description"),
+  permissions: jsonb("permissions").notNull(), // JSON array of permission strings
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User role assignments
+export const userRoleAssignments = pgTable("user_role_assignments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  roleId: integer("role_id").references(() => userRoles.id).notNull(),
+  assignedBy: varchar("assigned_by").references(() => users.id).notNull(),
+  assignedAt: timestamp("assigned_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  expiresAt: timestamp("expires_at"),
+});
+
+// Data backup tracking
+export const dataBackups = pgTable("data_backups", {
+  id: serial("id").primaryKey(),
+  backupType: varchar("backup_type").notNull(), // full, incremental, differential
+  backupLocation: varchar("backup_location").notNull(),
+  backupSize: bigint("backup_size", { mode: "number" }),
+  status: varchar("status").notNull().default("pending"), // pending, in_progress, completed, failed
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  errorMessage: text("error_message"),
+  checksum: varchar("checksum"),
+  retentionDays: integer("retention_days").default(90),
+  isEncrypted: boolean("is_encrypted").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+});
+
+// Security audit log
+export const securityAuditLog = pgTable("security_audit_log", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  action: varchar("action").notNull(),
+  resource: varchar("resource").notNull(),
+  resourceId: varchar("resource_id"),
+  ipAddress: varchar("ip_address"),
+  userAgent: varchar("user_agent"),
+  successful: boolean("successful").notNull(),
+  failureReason: text("failure_reason"),
+  metadata: jsonb("metadata"),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
