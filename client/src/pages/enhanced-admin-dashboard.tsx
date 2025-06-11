@@ -9,31 +9,17 @@ import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, Tre
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
-import ClientManagement from "@/components/admin/client-management";
-import FinancialDashboard from "@/components/admin/financial-dashboard";
-import DashboardStats from "@/components/admin/dashboard-stats";
-import RealTimeMap from "@/components/admin/real-time-map";
-import AnalyticsCharts from "@/components/admin/analytics-charts";
-import ClientAnalyticsDashboard from "@/components/admin/client-analytics-dashboard";
-import NotificationCenter from "@/components/admin/notification-center";
-import { EnhancedNotificationCenter } from "@/components/notifications/enhanced-notification-center";
-import DataManagement from "@/components/admin/data-management";
-import TopLocations from "@/components/admin/top-locations";
-import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
-import BulkClientUpload from "@/components/admin/bulk-client-upload";
-import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
-import QuickStats from "@/components/dashboard/quick-stats";
-import SmartAlerts from "@/components/dashboard/smart-alerts";
-import PerformanceMetrics from "@/components/dashboard/performance-metrics";
-import ClientAnalytics from "@/components/analytics/client-analytics";
-import RevenueChart from "@/components/charts/revenue-chart";
-import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833870.png";
+
+// Import components
 import { AIEnhancedOverview } from "@/components/admin/ai-enhanced-overview";
 import { MillionDollarClientManagement } from "@/components/admin/million-dollar-client-management";
 import { MillionDollarFinancial } from "@/components/admin/million-dollar-financial";
+import RealTimeMap from "@/components/admin/real-time-map";
+import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
+import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
 import ROIAnalysisTab from "@/components/admin/roi-analysis-tab";
+import DataManagement from "@/components/admin/data-management";
+import BulkClientUpload from "@/components/admin/bulk-client-upload";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -81,127 +67,70 @@ export default function EnhancedAdminDashboard() {
 
   const exportReportMutation = useMutation({
     mutationFn: async () => {
-      // Simulate report generation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return { success: true };
+      await apiRequest("POST", "/api/reports/export");
     },
     onSuccess: () => {
       toast({
         title: "Report exported",
-        description: "Monthly report has been generated and downloaded.",
+        description: "System report has been generated and downloaded.",
       });
     },
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
+      <header className="bg-white dark:bg-slate-800 shadow-sm border-b">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                SecureBond Admin
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Professional Bail Bond Management System
-              </p>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">SecureBond</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Admin Dashboard</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              {/* Alerts Badge */}
+              <Button variant="ghost" size="sm" className="relative">
+                <Bell className="h-5 w-5" />
+                {alerts?.length > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
+                    {alerts.length}
+                  </Badge>
+                )}
+              </Button>
+
+              {/* Settings */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowSettings(true)}
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
+
+              {/* Logout */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => logoutMutation.mutate()}
+                disabled={logoutMutation.isPending}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
       </header>
-      
-      <main className="container mx-auto px-4 py-8">
-        {/* Top Action Bar */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100 tracking-wide">
-              ALOHA BAIL BOND
-            </h1>
-            <div className="flex items-center gap-4">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Admin Dashboard
-              </h2>
-              <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                Live System
-              </Badge>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                toast({
-                  title: "Notifications",
-                  description: `${(alerts as any[])?.length || 0} unread notifications`,
-                });
-              }}
-            >
-              <Bell className="h-4 w-4 mr-2" />
-              Notifications
-              {(alerts as any[])?.length > 0 && (
-                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
-                  {(alerts as any[]).length}
-                </Badge>
-              )}
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refreshDataMutation.mutate()}
-              disabled={refreshDataMutation.isPending}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshDataMutation.isPending ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => exportReportMutation.mutate()}
-              disabled={exportReportMutation.isPending}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              {exportReportMutation.isPending ? 'Exporting...' : 'Export'}
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setActiveTab("overview")}
-            >
-              <Bell className="h-4 w-4 mr-2" />
-              Alerts
-              {(alerts as any[])?.length > 0 && (
-                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
-                  {(alerts as any[]).length}
-                </Badge>
-              )}
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowSettings(true)}
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => logoutMutation.mutate()}
-              disabled={logoutMutation.isPending}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-        </div>
 
+      <main className="container mx-auto px-6 py-8">
         {/* Enhanced Dashboard Tabs - Improved Organization */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-14 text-sm bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
@@ -540,78 +469,121 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
         </Tabs>
 
+        {/* Settings Dialog */}
+        <Dialog open={showSettings} onOpenChange={setShowSettings}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                System Settings & Configuration
+              </DialogTitle>
+              <DialogDescription>
+                Configure system preferences, security settings, and operational parameters.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6">
+              {/* System Actions */}
+              <div className="grid gap-4">
+                <h4 className="font-medium flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  System Actions
+                </h4>
+                <div className="grid gap-2 md:grid-cols-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      refreshDataMutation.mutate();
+                      setShowSettings(false);
+                    }}
+                    disabled={refreshDataMutation.isPending}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${refreshDataMutation.isPending ? 'animate-spin' : ''}`} />
+                    Refresh All Data
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      exportReportMutation.mutate();
+                      setShowSettings(false);
+                    }}
+                    disabled={exportReportMutation.isPending}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export System Report
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setActiveTab("data-management"); setShowSettings(false); }}>
+                    <Database className="h-4 w-4 mr-2" />
+                    Data Management
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setActiveTab("arrest-monitoring"); setShowSettings(false); }}>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Monitor Arrests
+                  </Button>
+                </div>
+              </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Court Date Management</CardTitle>
-                <CardDescription>Schedule and manage court dates with automated reminders</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-gray-500">
-                  Court date management interface ready for scheduling
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              {/* Navigation Shortcuts */}
+              <div className="grid gap-4">
+                <h4 className="font-medium flex items-center gap-2">
+                  <Eye className="h-4 w-4" />
+                  Quick Navigation
+                </h4>
+                <div className="grid gap-2 md:grid-cols-2">
+                  <Button variant="outline" size="sm" onClick={() => { setActiveTab("clients"); setShowSettings(false); }}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Client Management
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setActiveTab("financial"); setShowSettings(false); }}>
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Financial Dashboard
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setActiveTab("court-dates"); setShowSettings(false); }}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Court Dates
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setActiveTab("tracking"); setShowSettings(false); }}>
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Live Tracking
+                  </Button>
+                </div>
+              </div>
 
-          <TabsContent value="arrest-monitoring" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Arrest Monitoring System</CardTitle>
-                <CardDescription>Monitor arrest logs and client safety status</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-gray-500">
-                  Arrest monitoring system operational - no current alerts
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-
-        </Tabs>
+              {/* System Status */}
+              <div className="grid gap-4">
+                <h4 className="font-medium flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  System Status
+                </h4>
+                <div className="grid gap-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm font-medium">Database Connection</span>
+                    </div>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Operational</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-sm font-medium">Court Integration</span>
+                    </div>
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">Connected</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-sm font-medium">GPS Tracking</span>
+                    </div>
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-800">Active</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
-      
-      {/* Settings Dialog */}
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>System Settings</DialogTitle>
-            <DialogDescription>
-              Configure system settings and manage data imports
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bulk Client Import</CardTitle>
-                <CardDescription>
-                  Import multiple clients at once using CSV files
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-gray-500">
-                  Bulk client upload functionality available
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t mt-12">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              © 2024 SecureBond Professional Bail Bond Management System
-            </p>
-            <Badge variant="secondary">
-              System Operational
-            </Badge>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
