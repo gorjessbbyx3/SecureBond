@@ -312,16 +312,36 @@ export default function EnhancedAdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="arrest-monitoring" className="space-y-6">
+          <TabsContent value="arrest-logs" className="space-y-6">
             <div className="grid gap-6">
-              {/* Arrest Monitoring Header */}
+              {/* Recent Arrest Logs Header */}
               <Card className="border-2 border-pink-200 bg-pink-50 dark:bg-pink-950">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-xl text-pink-900 dark:text-pink-100 flex items-center gap-2">
                     <Shield className="h-6 w-6" />
-                    Arrest Log Monitoring & Client Alerts
+                    Recent Arrest Logs - Potential Client Identification
                   </CardTitle>
                   <CardDescription className="text-pink-700 dark:text-pink-300">
+                    Monitor recent arrests from Honolulu Police Department for potential client outreach and contact management
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              {/* Recent Arrest Logs Interface */}
+              <RecentArrestLogs />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="arrest-monitoring" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Arrest Monitoring Header */}
+              <Card className="border-2 border-indigo-200 bg-indigo-50 dark:bg-indigo-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
+                    <AlertTriangle className="h-6 w-6" />
+                    Arrest Log Monitoring & Client Alerts
+                  </CardTitle>
+                  <CardDescription className="text-indigo-700 dark:text-indigo-300">
                     Real-time monitoring of police arrest logs for existing clients and potential new business opportunities
                   </CardDescription>
                 </CardHeader>
