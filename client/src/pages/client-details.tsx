@@ -166,27 +166,7 @@ export default function ClientDetails() {
     },
   });
 
-  // Add bond mutation
-  const addBondMutation = useMutation({
-    mutationFn: async (bondData: any) => {
-      return apiRequest("/api/bonds", "POST", bondData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/bonds`] });
-      setIsAddingBond(false);
-      toast({ 
-        title: "Bond Created", 
-        description: "Bond has been successfully created and assigned to client." 
-      });
-    },
-    onError: (error: any) => {
-      toast({ 
-        title: "Error", 
-        description: error.message || "Failed to create bond",
-        variant: "destructive"
-      });
-    },
-  });
+
 
   // Search court records mutation
   const searchRecordsMutation = useMutation({

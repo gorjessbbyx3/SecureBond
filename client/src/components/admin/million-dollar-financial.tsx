@@ -56,12 +56,13 @@ export function MillionDollarFinancial() {
     queryKey: ["/api/clients"],
   });
 
-  // Calculate real financial metrics
+  // Calculate real financial metrics from confirmed payments only
+  const confirmedPayments = payments.filter((payment: any) => payment.confirmed === true);
   const financialMetrics: FinancialMetrics = {
-    totalRevenue: payments.reduce((sum: number, payment: any) => sum + parseFloat(payment.amount || 0), 0),
+    totalRevenue: confirmedPayments.reduce((sum: number, payment: any) => sum + parseFloat(payment.amount || 0), 0),
     profitMargin: 78.5,
     collectionRate: 94.2,
-    outstandingBonds: clients.length * 15000, // Estimated
+    outstandingBonds: clients.length * 15000, // Estimated based on active clients
     averageBondAmount: 15000,
     monthlyGrowth: 12.8
   };

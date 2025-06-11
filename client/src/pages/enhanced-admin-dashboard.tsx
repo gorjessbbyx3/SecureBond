@@ -33,6 +33,7 @@ import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833
 import { AIEnhancedOverview } from "@/components/admin/ai-enhanced-overview";
 import { MillionDollarClientManagement } from "@/components/admin/million-dollar-client-management";
 import { MillionDollarFinancial } from "@/components/admin/million-dollar-financial";
+import ROIAnalysisTab from "@/components/admin/roi-analysis-tab";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
