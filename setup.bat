@@ -1,5 +1,5 @@
 @echo off
-echo SecureBond Bail Management System - Desktop Setup
+echo Aloha Bail Bond Management System - Desktop Setup
 echo ================================================
 echo.
 
@@ -16,13 +16,13 @@ if %errorlevel% neq 0 (
 echo ✓ Node.js found
 echo.
 
-REM Create SecureBond folder on Desktop
+REM Create Aloha Bail Bond folder on Desktop
 set DESKTOP=%USERPROFILE%\Desktop
-set SECUREBOND_DIR=%DESKTOP%\SecureBond
-set DATA_DIR=%USERPROFILE%\Documents\SecureBond Data
+set ALOHA_DIR=%DESKTOP%\AlohaBailBond
+set DATA_DIR=%USERPROFILE%\Documents\AlohaBailBond Data
 
-echo Creating SecureBond application folder...
-if not exist "%SECUREBOND_DIR%" mkdir "%SECUREBOND_DIR%"
+echo Creating Aloha Bail Bond application folder...
+if not exist "%ALOHA_DIR%" mkdir "%ALOHA_DIR%"
 
 echo Creating data storage folder...
 if not exist "%DATA_DIR%" mkdir "%DATA_DIR%"
@@ -35,7 +35,7 @@ if exist package.json (
 
 REM Create desktop shortcut
 echo Creating desktop shortcut...
-set SHORTCUT_PATH=%DESKTOP%\SecureBond.url
+set SHORTCUT_PATH=%DESKTOP%\AlohaBailBond.url
 (
 echo [InternetShortcut]
 echo URL=http://localhost:5000
@@ -44,11 +44,11 @@ echo IconIndex=0
 
 REM Create startup script
 echo Creating startup script...
-set STARTUP_SCRIPT=%DESKTOP%\Start-SecureBond.bat
+set STARTUP_SCRIPT=%DESKTOP%\Start-AlohaBailBond.bat
 (
 echo @echo off
-echo title SecureBond Bail Management System
-echo echo Starting SecureBond...
+echo title Aloha Bail Bond Management System
+echo echo Starting Aloha Bail Bond...
 echo echo.
 echo echo Data stored in: %DATA_DIR%
 echo echo Web interface: http://localhost:5000
@@ -60,13 +60,13 @@ echo pause
 
 REM Create data backup script
 echo Creating backup script...
-set BACKUP_SCRIPT=%DESKTOP%\Backup-SecureBond-Data.bat
+set BACKUP_SCRIPT=%DESKTOP%\Backup-AlohaBailBond-Data.bat
 (
 echo @echo off
-echo title SecureBond Data Backup
+echo title Aloha Bail Bond Data Backup
 echo set BACKUP_DATE=%%date:~-4,4%%%%date:~-10,2%%%%date:~-7,2%%
-echo set BACKUP_DIR=%USERPROFILE%\Desktop\SecureBond-Backup-%%BACKUP_DATE%%
-echo echo Creating backup of SecureBond data...
+echo set BACKUP_DIR=%USERPROFILE%\Desktop\AlohaBailBond-Backup-%%BACKUP_DATE%%
+echo echo Creating backup of Aloha Bail Bond data...
 echo mkdir "%%BACKUP_DIR%%"
 echo xcopy /E /I /Y "%DATA_DIR%" "%%BACKUP_DIR%%"
 echo echo Backup completed: %%BACKUP_DIR%%
@@ -75,20 +75,20 @@ echo pause
 
 echo.
 echo ================================================
-echo SecureBond Setup Complete!
+echo Aloha Bail Bond Setup Complete!
 echo ================================================
 echo.
 echo Installation Details:
 echo - Data storage: %DATA_DIR%
 echo - Desktop shortcuts created
 echo.
-echo To start SecureBond:
-echo 1. Double-click "Start-SecureBond.bat" on your desktop
+echo To start Aloha Bail Bond:
+echo 1. Double-click "Start-AlohaBailBond.bat" on your desktop
 echo 2. Wait for the system to start (about 30 seconds)
-echo 3. Click the "SecureBond" shortcut to open in browser
+echo 3. Click the "AlohaBailBond" shortcut to open in browser
 echo.
 echo To backup your data:
-echo - Run "Backup-SecureBond-Data.bat" on your desktop
+echo - Run "Backup-AlohaBailBond-Data.bat" on your desktop
 echo.
 echo Your client data is stored locally on this computer in:
 echo %DATA_DIR%
