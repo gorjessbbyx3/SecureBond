@@ -1332,12 +1332,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dashboard statistics
+  // Dashboard statistics with authentic data calculations
   app.get('/api/dashboard/stats', isAuthenticated, async (req, res) => {
     try {
       const clients = await storage.getAllClients();
       const payments = await storage.getAllPayments();
-      const upcomingCourtDates = await storage.getAllCourtDates();
+      const courtDates = await storage.getAllCourtDates();
+      const expenses = await storage.getAllExpenses();
       
       const activeClients = clients.filter(c => c.isActive).length;
       const totalRevenue = payments
@@ -1348,17 +1349,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .filter(p => !p.confirmed)
         .reduce((sum, p) => sum + parseFloat(p.amount), 0);
       
+      // Calculate upcoming court dates (next 30 days)
+      const now = new Date();
+      const thirtyDaysFromNow = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+      const upcomingCourtDates = courtDates.filter(cd => {
+        const courtDate = cd.courtDate ? new Date(cd.courtDate) : null;
+        return courtDate && courtDate >= now && courtDate <= thirtyDaysFromNow;
+      }).length;
+      
+      const totalExpenses = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+      
       res.json({
         totalClients: clients.length,
         activeClients,
-        upcomingCourtDates: upcomingCourtDates.length,
+        upcomingCourtDates,
         pendingPayments,
         totalRevenue,
+        totalExpenses,
         pendingAmount
       });
     } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-      res.status(500).json({ message: "Failed to fetch dashboard stats" });
+      console.error("Error calculating dashboard stats:", error);
+      res.status(500).json({ message: "Failed to calculate dashboard stats" });
     }
   });
 
@@ -2384,14 +2396,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dashboard Stats API (replacing mock data)
+  // Admin Dashboard Stats API with authentic data calculations
   app.get('/api/admin/dashboard-stats', isAuthenticated, async (req, res) => {
     try {
-      const stats = await storage.getDashboardStats();
+      const clients = await storage.getAllClients();
+      const bonds = await storage.getAllBonds();
+      const payments = await storage.getAllPayments();
+      const alerts = await storage.getAllUnacknowledgedAlerts();
+      
+      const stats = {
+        totalClients: clients.length,
+        activeBonds: bonds.filter(b => b.status === 'active').length,
+        totalRevenue: payments.filter(p => p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount), 0),
+        pendingAlerts: alerts.length
+      };
+      
       res.json(stats);
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      res.status(500).json({ message: 'Failed to fetch dashboard stats' });
+      console.error('Error calculating admin dashboard stats:', error);
+      res.status(500).json({ message: 'Failed to calculate admin dashboard stats' });
     }
   });
 

@@ -23,7 +23,7 @@ export default function AnalyticsCharts() {
     queryKey: ['/api/expenses'],
   });
 
-  const { data: checkIns = [] } = useQuery({
+  const { data: checkIns = [] } = useQuery<any[]>({
     queryKey: ['/api/check-ins'],
   });
 
@@ -119,7 +119,7 @@ export default function AnalyticsCharts() {
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
 
-    (checkIns as any[]).forEach((checkIn: any) => {
+    checkIns.forEach((checkIn: any) => {
       const checkInDate = new Date(checkIn.createdAt);
       if (checkInDate >= sevenDaysAgo && checkInDate <= now) {
         const dayIndex = checkInDate.getDay();
