@@ -285,7 +285,12 @@ export class LocalFileStorage implements IStorage {
   async createClient(clientData: InsertClient): Promise<Client> {
     const client: Client = {
       id: this.nextId++,
-      ...clientData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: null,
+      clientId: clientData.clientId,
+      password: 'temp123',
+      fullName: clientData.fullName,
       phoneNumber: clientData.phoneNumber || null,
       address: clientData.address || null,
       dateOfBirth: clientData.dateOfBirth || null,
@@ -294,8 +299,6 @@ export class LocalFileStorage implements IStorage {
       isActive: clientData.isActive || true,
       lastCheckIn: null,
       missedCheckIns: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
     
     const clients = await this.readJsonFile<Client>('clients.json');
@@ -1296,7 +1299,7 @@ export class LocalFileStorage implements IStorage {
       acknowledgedAt: new Date(),
     };
     
-    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json'), []);
+    const acknowledgments = await this.readJsonFile<TermsAcknowledgment>(path.join(this.dataDir, 'terms-acknowledgments.json'), []);
     acknowledgments.push(termsAck);
     await this.writeJsonFile(path.join(this.dataDir, 'terms-acknowledgments.json'), acknowledgments);
     await this.saveIndex();

@@ -554,7 +554,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             charges: courtDate.charges || null,
             caseNumber: courtDate.caseNumber || null,
             notes: `Auto-scraped from ${courtDate.source}`,
-            status: 'pending', // Requires admin approval
             source: courtDate.source || 'Court Records Search',
             sourceVerified: false,
             approvedBy: null,
