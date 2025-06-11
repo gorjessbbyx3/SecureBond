@@ -978,24 +978,7 @@ export class LocalFileStorage implements IStorage {
     }));
   }
 
-  async scanArrestLogs(): Promise<any> {
-    // Real implementation would check actual police department APIs
-    // Currently returns no records since no real APIs are configured
-    return {
-      success: true,
-      newRecords: 0,
-      lastScanned: new Date().toISOString(),
-      sourcesChecked: ['No sources configured'],
-      primarySource: 'None',
-      recordsFound: {
-        'Honolulu Police Department': 0,
-        'Hawaii County PD': 0,
-        'Maui PD': 0,
-        'Kauai PD': 0
-      },
-      message: 'No arrest monitoring APIs configured. Contact your system administrator to set up police department data feeds.'
-    };
-  }
+  // Remove duplicate implementation
 
   async acknowledgeArrestRecord(recordId: string): Promise<any> {
     // Only acknowledge if record actually exists
@@ -1569,26 +1552,18 @@ export class LocalFileStorage implements IStorage {
 
   async getMonitoringConfig(): Promise<any> {
     return await this.readJsonFile<any>(path.join(this.dataDir, 'monitoring-config.json'), {
-      counties: ['honolulu', 'hawaii'],
-      agencies: ['hpd', 'hawaii_pd'],
-      scanInterval: 180000,
-      isEnabled: true
+      status: 'not_configured',
+      message: 'No arrest monitoring APIs configured. Contact system administrator to set up police department data feeds.',
+      sources: []
     });
   }
 
   async scanArrestLogs(): Promise<any> {
-    // Authentic arrest log scanning would integrate with real police APIs
-    const clients = await this.getAllClients();
-    const existingRecords = await this.getArrestRecords();
-    
-    // This would be replaced with real police API integration
-    const newRecords = 0;
-    
     return {
-      success: true,
-      newRecords,
+      success: false,
+      newRecords: 0,
       timestamp: new Date().toISOString(),
-      clientsMonitored: clients.filter(c => c.isActive).length
+      message: 'No arrest monitoring APIs configured. Contact system administrator to set up police department data feeds.'
     };
   }
 }
