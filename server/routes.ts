@@ -545,6 +545,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const client = await storage.createClient(clientData);
 
+      // Automatically scrape court history for the new client
+      try {
+        const courtSearchResult = await courtScraper.searchCourtDates(client.fullName, {
+          dateRange: {
+            start: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000 * 5), // 5 years back
+            end: new Date()
+          }
+        });
+
+        // Create court date records with pending status for admin review
+        for (const courtDate of courtSearchResult.courtDates) {
+          await storage.createCourtDate({
+            clientId: client.id,
+            courtDate: new Date(courtDate.courtDate || Date.now()),
+            courtLocation: courtDate.courtLocation || null,
+            charges: courtDate.charges || null,
+            caseNumber: courtDate.caseNumber || null,
+            notes: `Auto-scraped from ${courtDate.source}`,
+            status: 'pending', // Requires admin approval
+            source: courtDate.source || 'Court Records Search',
+            sourceVerified: false,
+            approvedBy: null,
+            clientAcknowledged: false
+          });
+        }
+
+        console.log(`Auto-scraped ${courtSearchResult.courtDates.length} court records for client ${client.fullName}`);
+      } catch (scrapeError) {
+        console.warn(`Court scraping failed for client ${client.fullName}:`, scrapeError);
+        // Don't fail client creation if scraping fails
+      }
+
       // Return client data with credentials for the UI
       res.json({ 
         ...client,
@@ -1089,6 +1121,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching public arrest logs:', error);
       res.status(500).json({ message: 'Failed to fetch public arrest logs' });
+    }
+  });
+
+  // Get all court dates for management
+  app.get('/api/court-dates', isAuthenticated, async (req, res) => {
+    try {
+      const courtDates = await storage.getAllCourtDates();
+      res.json(courtDates);
+    } catch (error) {
+      console.error('Error fetching court dates:', error);
+      res.status(500).json({ message: 'Failed to fetch court dates' });
+    }
+  });
+
+  // Delete auto-scraped court record with reason tracking
+  app.delete('/api/court-dates/:id/auto-scraped', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { reason, clientId } = req.body;
+      
+      // Get all court dates to find the specific one
+      const allCourtDates = await storage.getAllCourtDates();
+      const courtDate = allCourtDates.find(d => d.id === id);
+      
+      if (!courtDate) {
+        return res.status(404).json({ message: "Court date not found" });
+      }
+      
+      // Check if it was auto-scraped
+      const isAutoScraped = courtDate.notes?.includes('Auto-scraped') || courtDate.source?.includes('Court Records Search');
+      
+      if (isAutoScraped) {
+        console.log(`Deleting auto-scraped court record for client ${courtDate.clientId}: ${reason || 'Incorrect match'}`);
+        
+        // Create alert for admin review of auto-scraping accuracy
+        await storage.createAlert({
+          clientId: courtDate.clientId || clientId,
+          message: `Auto-scraped court record deleted: ${reason || 'Incorrect match'}. Case: ${courtDate.caseNumber || 'N/A'}, Court: ${courtDate.courtLocation || 'N/A'}`,
+          alertType: 'court_scrape_accuracy',
+          severity: 'medium',
+          acknowledged: false
+        });
+      }
+      
+      // Delete the court date
+      await storage.deleteCourtDate(id);
+      
+      res.json({ 
+        success: true, 
+        message: isAutoScraped ? 'Auto-scraped court record deleted and accuracy alert created' : 'Court record deleted'
+      });
+    } catch (error) {
+      console.error("Error deleting auto-scraped court date:", error);
+      res.status(500).json({ message: "Failed to delete court date" });
+    }
+  });
+
+  // Manual court history scraping endpoint for existing clients
+  app.post('/api/clients/:id/scrape-court-history', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ message: "Client not found" });
+      }
+
+      console.log(`Manual court scraping initiated for client: ${client.fullName}`);
+      
+      const courtSearchResult = await courtScraper.searchCourtDates(client.fullName, {
+        dateRange: {
+          start: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000 * 5), // 5 years back
+          end: new Date()
+        }
+      });
+
+      let createdRecords = 0;
+      // Create court date records with pending status for admin review
+      for (const courtDate of courtSearchResult.courtDates) {
+        await storage.createCourtDate({
+          clientId: client.id,
+          courtDate: new Date(courtDate.courtDate || Date.now()),
+          courtLocation: courtDate.courtLocation || null,
+          charges: courtDate.charges || null,
+          caseNumber: courtDate.caseNumber || null,
+          notes: `Manual scrape from ${courtDate.source} - ${new Date().toLocaleDateString()}`,
+          status: 'pending',
+          source: courtDate.source || 'Court Records Search',
+          sourceVerified: false,
+          approvedBy: null,
+          clientAcknowledged: false
+        });
+        createdRecords++;
+      }
+
+      res.json({
+        success: true,
+        recordsFound: courtSearchResult.courtDates.length,
+        recordsCreated: createdRecords,
+        client: client.fullName,
+        message: `Found ${createdRecords} court records for review`
+      });
+    } catch (error) {
+      console.error("Error in manual court scraping:", error);
+      res.status(500).json({ message: "Failed to scrape court history" });
     }
   });
 
