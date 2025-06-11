@@ -1,13 +1,1 @@
-[
-  {
-    "id": 13,
-    "clientId": 1,
-    "alertType": "court_date",
-    "severity": "critical",
-    "message": "Kepa Swanson-Neitzel missed hearing scheduled for 7/15/2024 at Honolulu District Court",
-    "acknowledged": null,
-    "acknowledgedBy": null,
-    "acknowledgedAt": null,
-    "createdAt": "2025-06-11T10:33:57.256Z"
-  }
-]
+[]
