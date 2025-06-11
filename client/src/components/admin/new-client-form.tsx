@@ -225,7 +225,7 @@ export default function NewClientForm({ onSubmit, onCancel, isLoading, editingCl
           Cancel
         </Button>
         <Button
-          type="button"
+          type="submit"
           onClick={handleSubmit}
           disabled={isLoading}
           size="sm"
