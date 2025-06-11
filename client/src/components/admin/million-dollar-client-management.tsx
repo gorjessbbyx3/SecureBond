@@ -401,23 +401,23 @@ export function MillionDollarClientManagement() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
             <div>
               <p className="text-sm text-green-600">Client Retention</p>
-              <p className="text-2xl font-bold text-green-800">97.5%</p>
-              <p className="text-xs text-green-600">+35% improvement</p>
+              <p className="text-2xl font-bold text-green-800">0%</p>
+              <p className="text-xs text-green-600">No data available</p>
             </div>
             <div>
               <p className="text-sm text-blue-600">Revenue per Client</p>
-              <p className="text-2xl font-bold text-blue-800">$15,750</p>
-              <p className="text-xs text-blue-600">+40% increase</p>
+              <p className="text-2xl font-bold text-blue-800">$0</p>
+              <p className="text-xs text-blue-600">No data available</p>
             </div>
             <div>
               <p className="text-sm text-purple-600">Risk Reduction</p>
-              <p className="text-2xl font-bold text-purple-800">89%</p>
-              <p className="text-xs text-purple-600">Fewer violations</p>
+              <p className="text-2xl font-bold text-purple-800">0%</p>
+              <p className="text-xs text-purple-600">No data available</p>
             </div>
             <div>
               <p className="text-sm text-orange-600">Annual ROI</p>
-              <p className="text-2xl font-bold text-orange-800">$1.2M</p>
-              <p className="text-xs text-orange-600">Net benefit</p>
+              <p className="text-2xl font-bold text-orange-800">$0</p>
+              <p className="text-xs text-orange-600">No data available</p>
             </div>
           </div>
         </CardContent>

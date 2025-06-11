@@ -71,17 +71,17 @@ export function AIEnhancedOverview() {
   const revenueMetrics: RevenueMetrics = {
     monthlyRevenue: payments.reduce((sum: number, payment: any) => sum + parseFloat(payment.amount || 0), 0),
     projectedRevenue: 0,
-    profitMargin: 78.5,
-    collectionRate: 94.2,
-    avgBondAmount: 15000
+    profitMargin: 0,
+    collectionRate: 0,
+    avgBondAmount: 0
   };
 
   // AI-generated predictive insights
   const predictiveInsights: PredictiveInsights = {
-    skipBailProbability: 12.3,
-    revenueProjection: 245000,
-    operationalEfficiency: 94.7,
-    complianceScore: 98.2
+    skipBailProbability: 0,
+    revenueProjection: 0,
+    operationalEfficiency: 0,
+    complianceScore: 0
   };
 
   return (

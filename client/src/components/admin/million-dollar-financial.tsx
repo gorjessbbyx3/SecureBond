@@ -41,11 +41,11 @@ interface AIFinancialInsights {
 export function MillionDollarFinancial() {
   const [selectedTimeframe, setSelectedTimeframe] = useState("month");
   const [aiInsights, setAiInsights] = useState<AIFinancialInsights>({
-    optimalPricingRecommendation: 18500,
-    riskAdjustedROI: 234,
-    profitabilityScore: 87,
-    marketPositioning: "PREMIUM",
-    revenueProjection: 890000
+    optimalPricingRecommendation: 0,
+    riskAdjustedROI: 0,
+    profitabilityScore: 0,
+    marketPositioning: "NO DATA",
+    revenueProjection: 0
   });
 
   const { data: payments = [] } = useQuery({
@@ -60,11 +60,11 @@ export function MillionDollarFinancial() {
   const confirmedPayments = payments.filter((payment: any) => payment.confirmed === true);
   const financialMetrics: FinancialMetrics = {
     totalRevenue: confirmedPayments.reduce((sum: number, payment: any) => sum + parseFloat(payment.amount || 0), 0),
-    profitMargin: 78.5,
-    collectionRate: 94.2,
-    outstandingBonds: clients.length * 15000, // Estimated based on active clients
-    averageBondAmount: 15000,
-    monthlyGrowth: 12.8
+    profitMargin: 0,
+    collectionRate: 0,
+    outstandingBonds: 0,
+    averageBondAmount: 0,
+    monthlyGrowth: 0
   };
 
   const formatCurrency = (amount: number) => {
