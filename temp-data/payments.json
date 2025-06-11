@@ -11,5 +11,18 @@
     "confirmedBy": null,
     "confirmedAt": null,
     "createdAt": "2025-06-11T10:08:55.481Z"
+  },
+  {
+    "id": 9,
+    "clientId": 1,
+    "amount": "250.00",
+    "paymentMethod": "credit_card",
+    "notes": "Monthly payment submission",
+    "paymentDate": null,
+    "receiptImageUrl": null,
+    "confirmed": null,
+    "confirmedBy": null,
+    "confirmedAt": null,
+    "createdAt": "2025-06-11T10:31:33.319Z"
   }
 ]

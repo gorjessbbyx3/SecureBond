@@ -38,5 +38,13 @@
     "notes": "Check-in from Honolulu downtown",
     "checkInTime": null,
     "createdAt": "2025-06-11T10:29:31.818Z"
+  },
+  {
+    "id": 8,
+    "clientId": 1,
+    "location": "21.3099,-157.8581",
+    "notes": "Regular check-in from home area",
+    "checkInTime": null,
+    "createdAt": "2025-06-11T10:31:32.332Z"
   }
 ]
