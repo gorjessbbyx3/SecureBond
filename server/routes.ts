@@ -1815,7 +1815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/court-dates/:id/approve', isAuthenticated, async (req, res) => {
     try {
       const courtDateId = parseInt(req.params.id);
-      const userId = req.user?.id || 'admin';
+      const userId = (req.user as any)?.claims?.sub || 'admin';
       
       const approvedCourtDate = await storage.approveCourtDate(courtDateId, userId);
       res.json(approvedCourtDate);

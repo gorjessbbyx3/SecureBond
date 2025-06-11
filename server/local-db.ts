@@ -368,11 +368,7 @@ export class LocalFileStorage {
     return checkIns.sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
   }
 
-  async deleteCheckIn(id: number): Promise<void> {
-    const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
-    const filteredCheckIns = checkIns.filter(c => c.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'checkins.json'), filteredCheckIns);
-  }
+
 
   // Expense operations
   async createExpense(expenseData: InsertExpense): Promise<Expense> {
@@ -513,40 +509,9 @@ export class LocalFileStorage {
     await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), filteredCourtDates);
   }
 
-  // Court date approval system
-  async approveCourtDate(id: number, approvedBy: string): Promise<CourtDate> {
-    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
-    const courtDate = courtDates.find(cd => cd.id === id);
-    
-    if (!courtDate) {
-      throw new Error(`Court date with id ${id} not found`);
-    }
 
-    const updatedCourtDate: CourtDate = {
-      ...courtDate,
-      adminApproved: true,
-      approvedBy,
-      approvedAt: new Date(),
-    };
 
-    const updatedCourtDates = courtDates.map(cd => 
-      cd.id === id ? updatedCourtDate : cd
-    );
 
-    await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), updatedCourtDates);
-
-    // Create notification for client about approved court date
-    await this.createNotification({
-      userId: `client-${courtDate.clientId}`,
-      title: "Court Date Confirmed",
-      message: `Your court date on ${new Date(courtDate.courtDate).toLocaleDateString()} has been confirmed by administration. Please acknowledge this notification.`,
-      type: "court_date_approval",
-      priority: "high",
-      actionUrl: "/client/court-dates",
-      metadata: { courtDateId: id }
-    });
-
-    return updatedCourtDate;
   }
 
   async getPendingCourtDates(): Promise<CourtDate[]> {
@@ -1231,10 +1196,100 @@ export class LocalFileStorage {
       createdAt: new Date(),
     } as EmploymentInfo;
     
-    const employmentInfo = await this.readJsonFile(path.join(this.dataDir, 'employment-info.json'), []);
+    const employmentInfo = await this.readJsonFile(path.join(this.dataDir, 'employment-info.json')) || [];
     employmentInfo.push(newEmployment);
     await this.writeJsonFile(path.join(this.dataDir, 'employment-info.json'), employmentInfo);
     await this.saveIndex();
     return newEmployment;
+  }
+
+  async deletePayment(id: number): Promise<void> {
+    const payments = await this.readJsonFile<Payment[]>(path.join(this.dataDir, 'payments.json')) || [];
+    const filteredPayments = payments.filter(p => p.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'payments.json'), filteredPayments);
+    await this.saveIndex();
+  }
+
+  async deleteCheckIn(id: number): Promise<void> {
+    const checkIns = await this.readJsonFile<CheckIn[]>(path.join(this.dataDir, 'checkins.json')) || [];
+    const filteredCheckIns = checkIns.filter(c => c.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'checkins.json'), filteredCheckIns);
+    await this.saveIndex();
+  }
+
+  async deleteCourtDate(id: number): Promise<void> {
+    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
+    const filteredCourtDates = courtDates.filter(c => c.id !== id);
+    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), filteredCourtDates);
+    await this.saveIndex();
+  }
+
+  async approveCourtDate(id: number, approvedBy: string): Promise<CourtDate> {
+    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
+    const index = courtDates.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error("Court date not found");
+    }
+    
+    courtDates[index] = {
+      ...courtDates[index],
+      adminApproved: true,
+      approvedBy,
+      approvedAt: new Date(),
+    };
+    
+    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), courtDates);
+    await this.saveIndex();
+    return courtDates[index];
+  }
+
+  async getPendingCourtDates(): Promise<CourtDate[]> {
+    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
+    return courtDates.filter(c => !c.adminApproved);
+  }
+
+  async acknowledgeCourtDate(id: number, clientId: number): Promise<CourtDate> {
+    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
+    const index = courtDates.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error("Court date not found");
+    }
+    
+    courtDates[index] = {
+      ...courtDates[index],
+      clientAcknowledged: true,
+      acknowledgedAt: new Date(),
+    };
+    
+    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), courtDates);
+    await this.saveIndex();
+    return courtDates[index];
+  }
+
+  async getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]> {
+    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
+    return courtDates.filter(c => c.clientId === clientId && c.adminApproved);
+  }
+
+  async checkTermsAcknowledgment(userId: string, version: string): Promise<boolean> {
+    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json')) || [];
+    return acknowledgments.some(ack => ack.userId === userId && ack.version === version);
+  }
+
+  async acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment> {
+    const termsAck: TermsAcknowledgment = {
+      id: this.nextId++,
+      userId: acknowledgment.userId,
+      version: acknowledgment.version || "1.0",
+      ipAddress: acknowledgment.ipAddress || null,
+      userAgent: acknowledgment.userAgent || null,
+      acknowledgedAt: new Date(),
+    };
+    
+    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json')) || [];
+    acknowledgments.push(termsAck);
+    await this.writeJsonFile(path.join(this.dataDir, 'terms-acknowledgments.json'), acknowledgments);
+    await this.saveIndex();
+    return termsAck;
   }
 }
