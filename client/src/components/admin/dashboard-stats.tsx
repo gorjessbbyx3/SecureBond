@@ -98,9 +98,15 @@ export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) 
       return date >= now && date <= weekFromNow;
     }).length || 0;
 
-    // Calculate pending payment trends
+    // Calculate pending payment trends from real data
     const currentPending = (payments as any[])?.filter(p => p.status === 'pending').length || 0;
-    const yesterdayPending = currentPending + 2; // Simulated reduction
+    
+    // Calculate yesterday's pending count from actual historical data
+    const yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+    const yesterdayPending = (payments as any[])?.filter(p => {
+      const paymentDate = new Date(p.createdAt);
+      return p.status === 'pending' && paymentDate.toDateString() === yesterday.toDateString();
+    }).length || currentPending;
 
     const formatTrend = (value: number) => {
       const sign = value >= 0 ? '+' : '';

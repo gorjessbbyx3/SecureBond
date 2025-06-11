@@ -39,8 +39,13 @@ export default function AdminDashboard() {
     logoutMutation.mutate();
   };
 
-  // Dashboard stats from API
-  const { data: stats } = useQuery({
+  // Dashboard stats from API with proper typing
+  const { data: stats } = useQuery<{
+    totalClients: number;
+    activeBonds: number;
+    totalRevenue: number;
+    pendingAlerts: number;
+  }>({
     queryKey: ['/api/admin/dashboard-stats'],
   });
 

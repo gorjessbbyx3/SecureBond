@@ -23,6 +23,10 @@ export default function AnalyticsCharts() {
     queryKey: ['/api/expenses'],
   });
 
+  const { data: checkIns = [] } = useQuery({
+    queryKey: ['/api/check-ins'],
+  });
+
   // Calculate real client status distribution
   const getClientStatusData = () => {
     if (!clients.length) return [];
@@ -102,18 +106,30 @@ export default function AnalyticsCharts() {
     return Object.values(monthlyData);
   };
 
-  // Calculate daily check-in data (placeholder until check-in system is implemented)
+  // Calculate daily check-in data from real check-in records
   const getCheckInData = () => {
-    // Return empty data for now since check-ins are not yet implemented with daily tracking
-    return [
-      { day: 'Mon', checkIns: 0 },
-      { day: 'Tue', checkIns: 0 },
-      { day: 'Wed', checkIns: 0 },
-      { day: 'Thu', checkIns: 0 },
-      { day: 'Fri', checkIns: 0 },
-      { day: 'Sat', checkIns: 0 },
-      { day: 'Sun', checkIns: 0 },
-    ];
+    if (!checkIns.length) return [];
+
+    const weekData = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => ({
+      day,
+      checkIns: 0
+    }));
+
+    // Count check-ins for the past 7 days
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+
+    (checkIns as any[]).forEach((checkIn: any) => {
+      const checkInDate = new Date(checkIn.createdAt);
+      if (checkInDate >= sevenDaysAgo && checkInDate <= now) {
+        const dayIndex = checkInDate.getDay();
+        const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayIndex];
+        const dayData = weekData.find(d => d.day === dayName);
+        if (dayData) dayData.checkIns++;
+      }
+    });
+
+    return weekData;
   };
 
   const clientStatusData = getClientStatusData();
