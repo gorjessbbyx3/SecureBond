@@ -275,7 +275,11 @@ export class LocalFileStorage implements IStorage {
 
   async getClientByClientId(clientId: string): Promise<Client | undefined> {
     const clients = await this.readJsonFile<Client>('clients.json');
-    return clients.find(c => c.clientId === clientId);
+    console.log('Looking for clientId:', clientId);
+    console.log('Available clients:', clients.map(c => ({ id: c.id, clientId: c.clientId })));
+    const found = clients.find(c => c.clientId === clientId);
+    console.log('Found client:', found ? { id: found.id, clientId: found.clientId } : 'null');
+    return found;
   }
 
   async getAllClients(): Promise<Client[]> {

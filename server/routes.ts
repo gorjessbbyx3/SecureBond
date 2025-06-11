@@ -464,6 +464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Client ID and password are required" });
       }
 
+      console.log('Available storage methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(storage)));
       const client = await storage.getClientByClientId(clientId);
       console.log('Found client:', client ? { id: client.id, clientId: client.clientId, hasPassword: !!client.password } : 'null');
       
@@ -474,14 +475,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For development, support both plain text and hashed passwords
       let isValidPassword = false;
       if (client.password) {
-        try {
-          // Try bcrypt comparison first
-          isValidPassword = await bcrypt.compare(password, client.password);
-          console.log('Bcrypt comparison result:', isValidPassword);
-        } catch (error) {
-          // If bcrypt fails, try plain text comparison
-          isValidPassword = password === client.password;
-          console.log('Plain text comparison result:', isValidPassword);
+        // First try plain text comparison for development
+        isValidPassword = password === client.password;
+        console.log('Plain text comparison result:', isValidPassword);
+        
+        // If plain text fails, try bcrypt
+        if (!isValidPassword) {
+          try {
+            isValidPassword = await bcrypt.compare(password, client.password);
+            console.log('Bcrypt comparison result:', isValidPassword);
+          } catch (error) {
+            console.log('Bcrypt comparison error:', error);
+          }
         }
       }
       
