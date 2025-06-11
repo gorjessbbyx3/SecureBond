@@ -1,929 +1,669 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import {
+  users,
+  clients,
+  bonds,
+  payments,
+  checkIns,
+  expenses,
+  alerts,
+  messages,
+  courtDates,
+  clientVehicles,
+  familyMembers,
+  employmentInfo,
+  clientFiles,
+  notifications,
+  courtDateReminders,
+  notificationPreferences,
+  termsAcknowledgments,
   type User,
   type UpsertUser,
   type Client,
   type InsertClient,
   type Bond,
   type InsertBond,
-  type CheckIn,
-  type InsertCheckIn,
   type Payment,
   type InsertPayment,
-  type Message,
-  type InsertMessage,
-  type CourtDate,
-  type InsertCourtDate,
+  type CheckIn,
+  type InsertCheckIn,
   type Expense,
   type InsertExpense,
   type Alert,
   type InsertAlert,
+  type Message,
+  type InsertMessage,
+  type CourtDate,
+  type InsertCourtDate,
+  type ClientVehicle,
+  type FamilyMember,
+  type EmploymentInfo,
+  type ClientFile,
   type Notification,
   type InsertNotification,
   type CourtDateReminder,
   type InsertCourtDateReminder,
   type NotificationPreferences,
   type InsertNotificationPreferences,
-  type ClientVehicle,
-  type FamilyMember,
-  type EmploymentInfo,
-  type ClientFile,
   type TermsAcknowledgment,
   type InsertTermsAcknowledgment,
-} from "@shared/schema";
+} from '@shared/schema';
 
-export class LocalFileStorage {
+export interface IStorage {
+  // User operations
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(userData: UpsertUser): Promise<User>;
+
+  // Client operations
+  getClient(id: number): Promise<Client | undefined>;
+  getClientByClientId(clientId: string): Promise<Client | undefined>;
+  getAllClients(): Promise<Client[]>;
+  createClient(clientData: InsertClient): Promise<Client>;
+  updateClient(id: number, updates: Partial<InsertClient>): Promise<Client>;
+  deleteClient(id: number): Promise<void>;
+
+  // Bond operations
+  createBond(bondData: InsertBond): Promise<Bond>;
+  getClientBonds(clientId: number): Promise<Bond[]>;
+  getAllBonds(): Promise<Bond[]>;
+  updateBond(id: number, updates: Partial<InsertBond>): Promise<Bond>;
+  deleteBond(id: number): Promise<void>;
+  getActiveBonds(): Promise<Bond[]>;
+  getClientActiveBondCount(clientId: number): Promise<number>;
+
+  // Payment operations
+  createPayment(paymentData: InsertPayment): Promise<Payment>;
+  getAllPayments(): Promise<Payment[]>;
+  confirmPayment(id: number, confirmedBy: string): Promise<Payment>;
+  getClientPayments(clientId: number): Promise<Payment[]>;
+  deletePayment(id: number): Promise<void>;
+
+  // Check-in operations
+  createCheckIn(checkInData: InsertCheckIn): Promise<CheckIn>;
+  getClientCheckIns(clientId: number): Promise<CheckIn[]>;
+  getAllCheckIns(): Promise<CheckIn[]>;
+  getLastCheckIn(clientId: number): Promise<CheckIn | undefined>;
+  deleteCheckIn(id: number): Promise<void>;
+
+  // Expense operations
+  createExpense(expenseData: InsertExpense): Promise<Expense>;
+  getAllExpenses(): Promise<Expense[]>;
+
+  // Alert operations
+  createAlert(alertData: InsertAlert): Promise<Alert>;
+  getAllUnacknowledgedAlerts(): Promise<Alert[]>;
+  acknowledgeAlert(id: number, acknowledgedBy: string): Promise<Alert>;
+  getClientAlerts(clientId: number): Promise<Alert[]>;
+
+  // Message operations
+  createMessage(messageData: InsertMessage): Promise<Message>;
+  getClientMessages(clientId: number): Promise<Message[]>;
+  markMessageAsRead(id: number): Promise<void>;
+
+  // Court date operations
+  createCourtDate(courtDateData: InsertCourtDate): Promise<CourtDate>;
+  getClientCourtDates(clientId: number): Promise<CourtDate[]>;
+  updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate>;
+  deleteCourtDate(id: number): Promise<void>;
+  getAllCourtDates(): Promise<CourtDate[]>;
+  getCourtDateReminders(): Promise<any[]>;
+  acknowledgeReminder(reminderId: string): Promise<any>;
+  getArrestRecords(): Promise<any[]>;
+  getMonitoringConfig(): Promise<any[]>;
+  scanArrestLogs(): Promise<any>;
+  acknowledgeArrestRecord(recordId: string): Promise<any>;
+  getPublicArrestLogs(): Promise<any[]>;
+  getPendingCourtDates(): Promise<CourtDate[]>;
+  approveCourtDate(id: number, approvedBy: string): Promise<CourtDate>;
+  acknowledgeCourtDate(id: number, clientId: number): Promise<CourtDate>;
+  getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]>;
+
+  // Client details operations
+  getClientVehicles(clientId: number): Promise<ClientVehicle[]>;
+  getClientFamily(clientId: number): Promise<FamilyMember[]>;
+  getClientEmployment(clientId: number): Promise<EmploymentInfo[]>;
+  getClientFiles(clientId: number): Promise<ClientFile[]>;
+  createClientVehicle(vehicle: any): Promise<ClientVehicle>;
+  createFamilyMember(family: any): Promise<FamilyMember>;
+  createEmploymentInfo(employment: any): Promise<EmploymentInfo>;
+
+  // Notification operations
+  createNotification(notificationData: InsertNotification): Promise<Notification>;
+  getUserNotifications(userId: string): Promise<Notification[]>;
+  getUnreadNotifications(userId: string): Promise<Notification[]>;
+  markNotificationAsRead(id: number): Promise<Notification>;
+  confirmNotification(id: number, confirmedBy: string): Promise<Notification>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
+  deleteNotification(id: number): Promise<void>;
+
+  // Court date reminder operations
+  createCourtDateReminder(reminderData: InsertCourtDateReminder): Promise<CourtDateReminder>;
+  getCourtDateRemindersForDate(courtDateId: number): Promise<CourtDateReminder[]>;
+  scheduleFollowupReminders(courtDateId: number): Promise<void>;
+
+  // Notification preferences operations
+  getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined>;
+  upsertNotificationPreferences(preferencesData: InsertNotificationPreferences): Promise<NotificationPreferences>;
+
+  // Terms acknowledgment operations
+  checkTermsAcknowledgment(userId: string, version: string): Promise<boolean>;
+  acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment>;
+}
+
+export class LocalFileStorage implements IStorage {
   private dataDir: string;
   private nextId = 1;
 
   constructor() {
-    // Store data in workspace temp folder - completely fresh start
-    this.dataDir = path.join(process.cwd(), 'temp-data', 'aloha-bail-bond');
+    this.dataDir = path.join(process.cwd(), 'temp-data');
     this.initializeStorage();
   }
 
   private async initializeStorage() {
     try {
       await fs.mkdir(this.dataDir, { recursive: true });
+      await fs.mkdir(path.join(this.dataDir, 'notifications'), { recursive: true });
+      await fs.mkdir(path.join(this.dataDir, 'backups'), { recursive: true });
       
-      // Create subdirectories for organized storage
-      const subdirs = ['clients', 'payments', 'checkins', 'messages', 'expenses', 'alerts', 'notifications', 'preferences', 'backups'];
-      for (const subdir of subdirs) {
-        await fs.mkdir(path.join(this.dataDir, subdir), { recursive: true });
-      }
-
-      // Initialize index file if it doesn't exist
-      const indexPath = path.join(this.dataDir, 'index.json');
+      // Load next ID from index
       try {
-        const indexData = await fs.readFile(indexPath, 'utf-8');
+        const indexData = await fs.readFile(path.join(this.dataDir, 'index.json'), 'utf-8');
         const index = JSON.parse(indexData);
         this.nextId = index.nextId || 1;
-      } catch {
+      } catch (error) {
+        // File doesn't exist, start with ID 1
         await this.saveIndex();
       }
-
-      console.log(`Aloha Bail Bond data directory initialized at: ${this.dataDir}`);
     } catch (error) {
-      console.error('Failed to initialize local storage:', error);
-      throw new Error('Cannot create data directory. Please check permissions.');
+      console.error('Failed to initialize storage:', error);
     }
   }
 
   private async saveIndex() {
-    const indexPath = path.join(this.dataDir, 'index.json');
-    await fs.writeFile(indexPath, JSON.stringify({ 
-      nextId: this.nextId,
-      lastModified: new Date().toISOString(),
-      version: '1.0.0'
-    }), 'utf-8');
+    try {
+      const index = { nextId: this.nextId };
+      await fs.writeFile(path.join(this.dataDir, 'index.json'), JSON.stringify(index, null, 2));
+    } catch (error) {
+      console.error('Failed to save index:', error);
+    }
   }
 
-  private async readJsonFile<T>(filePath: string): Promise<T[]> {
+  private async readJsonFile<T>(filePath: string, defaultValue: T[] = []): Promise<T[]> {
     try {
-      const data = await fs.readFile(filePath, 'utf-8');
+      const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.dataDir, filePath);
+      const data = await fs.readFile(fullPath, 'utf-8');
       return JSON.parse(data);
-    } catch {
-      return [];
+    } catch (error) {
+      return defaultValue;
     }
   }
 
   private async writeJsonFile<T>(filePath: string, data: T[]) {
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    try {
+      const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.dataDir, filePath);
+      await fs.writeFile(fullPath, JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error('Failed to write file:', error);
+      throw error;
+    }
   }
 
   private async backupData() {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupDir = path.join(this.dataDir, 'backups', timestamp);
-    await fs.mkdir(backupDir, { recursive: true });
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupDir = path.join(this.dataDir, 'backups', timestamp);
+      await fs.mkdir(backupDir, { recursive: true });
 
-    // Copy all data files to backup directory
-    const files = await fs.readdir(this.dataDir);
-    for (const file of files) {
-      if (file.endsWith('.json') && file !== 'index.json') {
-        const sourcePath = path.join(this.dataDir, file);
-        const backupPath = path.join(backupDir, file);
-        await fs.copyFile(sourcePath, backupPath);
+      const files = await fs.readdir(this.dataDir);
+      for (const file of files) {
+        if (file.endsWith('.json') && file !== 'index.json') {
+          const sourcePath = path.join(this.dataDir, file);
+          const backupPath = path.join(backupDir, file);
+          await fs.copyFile(sourcePath, backupPath);
+        }
       }
+    } catch (error) {
+      console.error('Failed to backup data:', error);
     }
+  }
 
-    // Keep only last 10 backups
-    const backups = await fs.readdir(path.join(this.dataDir, 'backups'));
-    if (backups.length > 10) {
-      const oldestBackups = backups.sort().slice(0, backups.length - 10);
-      for (const backup of oldestBackups) {
-        await fs.rmdir(path.join(this.dataDir, 'backups', backup), { recursive: true });
-      }
-    }
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const users = await this.readJsonFile<User>(path.join(this.dataDir, 'users.json'));
+    const users = await this.readJsonFile<User>('users.json');
     return users.find(u => u.id === id);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const users = await this.readJsonFile<User>(path.join(this.dataDir, 'users.json'));
+    const users = await this.readJsonFile<User>('users.json');
     const existingIndex = users.findIndex(u => u.id === userData.id);
     
-    const user = {
-      ...userData,
-      updatedAt: new Date(),
-      createdAt: userData.createdAt || new Date(),
-    } as User;
-    
-    if (existingIndex >= 0) {
-      users[existingIndex] = user;
+    if (existingIndex !== -1) {
+      users[existingIndex] = {
+        ...users[existingIndex],
+        ...userData,
+        updatedAt: new Date(),
+      };
+      await this.writeJsonFile('users.json', users);
+      return users[existingIndex];
     } else {
-      users.push(user);
+      const newUser: User = {
+        ...userData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      users.push(newUser);
+      await this.writeJsonFile('users.json', users);
+      return newUser;
     }
-    
-    await this.writeJsonFile(path.join(this.dataDir, 'users.json'), users);
-    return user;
   }
 
   // Client operations
   async getClient(id: number): Promise<Client | undefined> {
-    const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
+    const clients = await this.readJsonFile<Client>('clients.json');
     return clients.find(c => c.id === id);
   }
 
   async getClientByClientId(clientId: string): Promise<Client | undefined> {
-    const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
+    const clients = await this.readJsonFile<Client>('clients.json');
     return clients.find(c => c.clientId === clientId);
   }
 
   async getAllClients(): Promise<Client[]> {
-    const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
-    return clients.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+    return await this.readJsonFile<Client>('clients.json');
   }
 
   async createClient(clientData: InsertClient): Promise<Client> {
-    const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
-    
-    const client = {
-      ...clientData,
+    const client: Client = {
       id: this.nextId++,
+      ...clientData,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Client;
+    };
     
+    const clients = await this.readJsonFile<Client>('clients.json');
     clients.push(client);
-    await this.writeJsonFile(path.join(this.dataDir, 'clients.json'), clients);
+    await this.writeJsonFile('clients.json', clients);
     await this.saveIndex();
-    
-    // Trigger backup for important operations
-    await this.backupData();
     
     return client;
   }
 
   async updateClient(id: number, updates: Partial<InsertClient>): Promise<Client> {
-    const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
-    const index = clients.findIndex(c => c.id === id);
+    const clients = await this.readJsonFile<Client>('clients.json');
+    const clientIndex = clients.findIndex(c => c.id === id);
     
-    if (index === -1) {
-      throw new Error("Client not found");
+    if (clientIndex === -1) {
+      throw new Error(`Client with id ${id} not found`);
     }
     
-    clients[index] = {
-      ...clients[index],
+    clients[clientIndex] = {
+      ...clients[clientIndex],
       ...updates,
       updatedAt: new Date(),
     };
     
-    await this.writeJsonFile(path.join(this.dataDir, 'clients.json'), clients);
-    return clients[index];
+    await this.writeJsonFile('clients.json', clients);
+    return clients[clientIndex];
   }
 
   async deleteClient(id: number): Promise<void> {
-    const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
+    const clients = await this.readJsonFile<Client>('clients.json');
     const filteredClients = clients.filter(c => c.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'clients.json'), filteredClients);
+    await this.writeJsonFile('clients.json', filteredClients);
   }
 
   // Bond operations
   async createBond(bondData: InsertBond): Promise<Bond> {
-    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
-    
-    // Generate unique bond number
-    const bondNumber = `SB${Date.now().toString().slice(-6)}${this.nextId.toString().padStart(3, '0')}`;
-    
-    const bond = {
-      ...bondData,
+    const bond: Bond = {
       id: this.nextId++,
-      bondNumber,
-      status: 'active',
-      bondType: 'surety',
-      premiumRate: '0.10',
-      issuedDate: new Date(),
+      ...bondData,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Bond;
+    };
     
+    const bonds = await this.readJsonFile<Bond>('bonds.json');
     bonds.push(bond);
-    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), bonds);
+    await this.writeJsonFile('bonds.json', bonds);
     await this.saveIndex();
     
     return bond;
   }
 
   async getClientBonds(clientId: number): Promise<Bond[]> {
-    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
-    return bonds
-      .filter(b => b.clientId === clientId)
-      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+    const bonds = await this.readJsonFile<Bond>('bonds.json');
+    return bonds.filter(b => b.clientId === clientId);
   }
 
   async getAllBonds(): Promise<Bond[]> {
-    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
-    return bonds.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+    return await this.readJsonFile<Bond>('bonds.json');
   }
 
   async updateBond(id: number, updates: Partial<InsertBond>): Promise<Bond> {
-    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
-    const index = bonds.findIndex(b => b.id === id);
+    const bonds = await this.readJsonFile<Bond>('bonds.json');
+    const bondIndex = bonds.findIndex(b => b.id === id);
     
-    if (index === -1) {
-      throw new Error("Bond not found");
+    if (bondIndex === -1) {
+      throw new Error(`Bond with id ${id} not found`);
     }
     
-    bonds[index] = {
-      ...bonds[index],
+    bonds[bondIndex] = {
+      ...bonds[bondIndex],
       ...updates,
       updatedAt: new Date(),
     };
     
-    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), bonds);
-    return bonds[index];
+    await this.writeJsonFile('bonds.json', bonds);
+    return bonds[bondIndex];
   }
 
   async deleteBond(id: number): Promise<void> {
-    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
+    const bonds = await this.readJsonFile<Bond>('bonds.json');
     const filteredBonds = bonds.filter(b => b.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), filteredBonds);
+    await this.writeJsonFile('bonds.json', filteredBonds);
   }
 
   async getActiveBonds(): Promise<Bond[]> {
-    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
-    return bonds
-      .filter(b => b.status === 'active')
-      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+    const bonds = await this.readJsonFile<Bond>('bonds.json');
+    return bonds.filter(b => b.status === 'active');
   }
 
   async getClientActiveBondCount(clientId: number): Promise<number> {
-    const bonds = await this.readJsonFile<Bond>(path.join(this.dataDir, 'bonds.json'));
-    return bonds.filter(b => b.clientId === clientId && b.status === 'active').length;
+    const bonds = await this.getClientBonds(clientId);
+    return bonds.filter(b => b.status === 'active').length;
   }
 
   // Payment operations
   async createPayment(paymentData: InsertPayment): Promise<Payment> {
-    const payments = await this.readJsonFile<Payment>(path.join(this.dataDir, 'payments.json'));
-    
-    const payment = {
-      ...paymentData,
+    const payment: Payment = {
       id: this.nextId++,
-      paymentDate: paymentData.paymentDate || new Date(),
-      confirmed: false,
+      ...paymentData,
       createdAt: new Date(),
-    } as Payment;
+      updatedAt: new Date(),
+    };
     
+    const payments = await this.readJsonFile<Payment>('payments.json');
     payments.push(payment);
-    await this.writeJsonFile(path.join(this.dataDir, 'payments.json'), payments);
+    await this.writeJsonFile('payments.json', payments);
     await this.saveIndex();
     
     return payment;
   }
 
   async getAllPayments(): Promise<Payment[]> {
-    const payments = await this.readJsonFile<Payment>(path.join(this.dataDir, 'payments.json'));
-    return payments.sort((a, b) => new Date(b.paymentDate!).getTime() - new Date(a.paymentDate!).getTime());
+    return await this.readJsonFile<Payment>('payments.json');
+  }
+
+  async getClientPayments(clientId: number): Promise<Payment[]> {
+    const payments = await this.readJsonFile<Payment>('payments.json');
+    return payments.filter(p => p.clientId === clientId);
   }
 
   async confirmPayment(id: number, confirmedBy: string): Promise<Payment> {
-    const payments = await this.readJsonFile<Payment>(path.join(this.dataDir, 'payments.json'));
-    const index = payments.findIndex(p => p.id === id);
+    const payments = await this.readJsonFile<Payment>('payments.json');
+    const paymentIndex = payments.findIndex(p => p.id === id);
     
-    if (index === -1) {
-      throw new Error("Payment not found");
+    if (paymentIndex === -1) {
+      throw new Error(`Payment with id ${id} not found`);
     }
     
-    payments[index] = {
-      ...payments[index],
+    payments[paymentIndex] = {
+      ...payments[paymentIndex],
       confirmed: true,
       confirmedBy,
       confirmedAt: new Date(),
+      updatedAt: new Date(),
     };
     
-    await this.writeJsonFile(path.join(this.dataDir, 'payments.json'), payments);
-    return payments[index];
+    await this.writeJsonFile('payments.json', payments);
+    return payments[paymentIndex];
   }
 
-
+  async deletePayment(id: number): Promise<void> {
+    const payments = await this.readJsonFile<Payment>('payments.json');
+    const filteredPayments = payments.filter(p => p.id !== id);
+    await this.writeJsonFile('payments.json', filteredPayments);
+  }
 
   // Check-in operations
   async createCheckIn(checkInData: InsertCheckIn): Promise<CheckIn> {
-    const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
-    
-    const checkIn = {
-      ...checkInData,
+    const checkIn: CheckIn = {
       id: this.nextId++,
-      checkInTime: checkInData.checkInTime || new Date(),
+      ...checkInData,
       createdAt: new Date(),
-    } as CheckIn;
+      updatedAt: new Date(),
+    };
     
+    const checkIns = await this.readJsonFile<CheckIn>('check-ins.json');
     checkIns.push(checkIn);
-    await this.writeJsonFile(path.join(this.dataDir, 'checkins.json'), checkIns);
+    await this.writeJsonFile('check-ins.json', checkIns);
     await this.saveIndex();
-    
-    // Update client's last check-in time
-    if (checkInData.clientId) {
-      const clients = await this.readJsonFile<Client>(path.join(this.dataDir, 'clients.json'));
-      const clientIndex = clients.findIndex(c => c.id === checkInData.clientId);
-      if (clientIndex >= 0) {
-        clients[clientIndex] = {
-          ...clients[clientIndex],
-          lastCheckIn: new Date(),
-          missedCheckIns: 0,
-          updatedAt: new Date(),
-        };
-        await this.writeJsonFile(path.join(this.dataDir, 'clients.json'), clients);
-      }
-    }
     
     return checkIn;
   }
 
   async getClientCheckIns(clientId: number): Promise<CheckIn[]> {
-    const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
-    return checkIns
-      .filter(c => c.clientId === clientId)
-      .sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
+    const checkIns = await this.readJsonFile<CheckIn>('check-ins.json');
+    return checkIns.filter(c => c.clientId === clientId);
   }
 
   async getAllCheckIns(): Promise<CheckIn[]> {
-    const checkIns = await this.readJsonFile<CheckIn>(path.join(this.dataDir, 'checkins.json'));
-    return checkIns.sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime());
+    return await this.readJsonFile<CheckIn>('check-ins.json');
   }
 
+  async getLastCheckIn(clientId: number): Promise<CheckIn | undefined> {
+    const checkIns = await this.getClientCheckIns(clientId);
+    return checkIns.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  }
 
+  async deleteCheckIn(id: number): Promise<void> {
+    const checkIns = await this.readJsonFile<CheckIn>('check-ins.json');
+    const filteredCheckIns = checkIns.filter(c => c.id !== id);
+    await this.writeJsonFile('check-ins.json', filteredCheckIns);
+  }
 
   // Expense operations
   async createExpense(expenseData: InsertExpense): Promise<Expense> {
-    const expenses = await this.readJsonFile<Expense>(path.join(this.dataDir, 'expenses.json'));
-    
-    const expense = {
-      ...expenseData,
+    const expense: Expense = {
       id: this.nextId++,
-      expenseDate: expenseData.expenseDate || new Date(),
+      ...expenseData,
       createdAt: new Date(),
-    } as Expense;
+      updatedAt: new Date(),
+    };
     
+    const expenses = await this.readJsonFile<Expense>('expenses.json');
     expenses.push(expense);
-    await this.writeJsonFile(path.join(this.dataDir, 'expenses.json'), expenses);
+    await this.writeJsonFile('expenses.json', expenses);
     await this.saveIndex();
     
     return expense;
   }
 
   async getAllExpenses(): Promise<Expense[]> {
-    const expenses = await this.readJsonFile<Expense>(path.join(this.dataDir, 'expenses.json'));
-    return expenses.sort((a, b) => new Date(b.expenseDate!).getTime() - new Date(a.expenseDate!).getTime());
+    return await this.readJsonFile<Expense>('expenses.json');
   }
 
   // Alert operations
   async createAlert(alertData: InsertAlert): Promise<Alert> {
-    const alerts = await this.readJsonFile<Alert>(path.join(this.dataDir, 'alerts.json'));
-    
-    const alert = {
-      ...alertData,
-      id: this.nextId++,
-      acknowledged: false,
-      createdAt: new Date(),
-    } as Alert;
-    
-    alerts.push(alert);
-    await this.writeJsonFile(path.join(this.dataDir, 'alerts.json'), alerts);
-    await this.saveIndex();
-    
-    return alert;
-  }
-
-  async getAllUnacknowledgedAlerts(): Promise<Alert[]> {
-    const alerts = await this.readJsonFile<Alert>(path.join(this.dataDir, 'alerts.json'));
-    return alerts
-      .filter(a => !a.acknowledged)
-      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
-  }
-
-  async acknowledgeAlert(id: number, acknowledgedBy: string): Promise<Alert> {
-    const alerts = await this.readJsonFile<Alert>(path.join(this.dataDir, 'alerts.json'));
-    const index = alerts.findIndex(a => a.id === id);
-    
-    if (index === -1) {
-      throw new Error("Alert not found");
-    }
-    
-    alerts[index] = {
-      ...alerts[index],
-      acknowledged: true,
-      acknowledgedBy,
-      acknowledgedAt: new Date(),
-    };
-    
-    await this.writeJsonFile(path.join(this.dataDir, 'alerts.json'), alerts);
-    return alerts[index];
-  }
-
-  // Court date operations
-  async getAllUpcomingCourtDates(): Promise<CourtDate[]> {
-    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
-    const now = new Date();
-    return courtDates
-      .filter(c => new Date(c.courtDate) >= now && !c.completed)
-      .sort((a, b) => new Date(a.courtDate).getTime() - new Date(b.courtDate).getTime());
-  }
-
-  // Additional operations with minimal implementations for interface compliance
-  async getClientPayments(clientId: number): Promise<Payment[]> {
-    const payments = await this.getAllPayments();
-    return payments.filter(p => p.clientId === clientId);
-  }
-
-  async getLastCheckIn(clientId: number): Promise<CheckIn | undefined> {
-    const checkIns = await this.getClientCheckIns(clientId);
-    return checkIns[0];
-  }
-
-  async createMessage(messageData: InsertMessage): Promise<Message> {
-    const messages = await this.readJsonFile<Message>(path.join(this.dataDir, 'messages.json'));
-    const message = { ...messageData, id: this.nextId++, isRead: false, createdAt: new Date() } as Message;
-    messages.push(message);
-    await this.writeJsonFile(path.join(this.dataDir, 'messages.json'), messages);
-    await this.saveIndex();
-    return message;
-  }
-
-  async getClientMessages(clientId: number): Promise<Message[]> {
-    const messages = await this.readJsonFile<Message>(path.join(this.dataDir, 'messages.json'));
-    return messages.filter(m => m.clientId === clientId);
-  }
-
-  async markMessageAsRead(id: number): Promise<void> {
-    const messages = await this.readJsonFile<Message>(path.join(this.dataDir, 'messages.json'));
-    const index = messages.findIndex(m => m.id === id);
-    if (index >= 0) {
-      messages[index].isRead = true;
-      await this.writeJsonFile(path.join(this.dataDir, 'messages.json'), messages);
-    }
-  }
-
-  async createCourtDate(courtDateData: InsertCourtDate): Promise<CourtDate> {
-    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
-    const courtDate = { ...courtDateData, id: this.nextId++, completed: false, createdAt: new Date() } as CourtDate;
-    courtDates.push(courtDate);
-    await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), courtDates);
-    await this.saveIndex();
-    return courtDate;
-  }
-
-  async getClientCourtDates(clientId: number): Promise<CourtDate[]> {
-    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
-    return courtDates.filter(c => c.clientId === clientId);
-  }
-
-  async updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate> {
-    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
-    const index = courtDates.findIndex(c => c.id === id);
-    if (index === -1) throw new Error("Court date not found");
-    courtDates[index] = { ...courtDates[index], ...updates };
-    await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), courtDates);
-    return courtDates[index];
-  }
-
-  async deleteCourtDate(id: number): Promise<void> {
-    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'courtdates.json'));
-    const filteredCourtDates = courtDates.filter(c => c.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'courtdates.json'), filteredCourtDates);
-  }
-
-
-  // Alert operations
-  async createAlert(alertData: InsertAlert): Promise<Alert> {
-    const alerts = await this.readJsonFile<Alert[]>(path.join(this.dataDir, 'alerts.json'), []);
-    
     const alert: Alert = {
-      ...alertData,
       id: this.nextId++,
+      ...alertData,
       createdAt: new Date(),
-      acknowledged: false,
+      updatedAt: new Date(),
     };
     
+    const alerts = await this.readJsonFile<Alert>('alerts.json');
     alerts.push(alert);
-    await this.writeJsonFile(path.join(this.dataDir, 'alerts.json'), alerts);
+    await this.writeJsonFile('alerts.json', alerts);
     await this.saveIndex();
+    
     return alert;
   }
 
   async getClientAlerts(clientId: number): Promise<Alert[]> {
-    const alerts = await this.readJsonFile<Alert[]>(path.join(this.dataDir, 'alerts.json'), []);
+    const alerts = await this.readJsonFile<Alert>('alerts.json');
     return alerts.filter(a => a.clientId === clientId);
   }
 
   async getAllUnacknowledgedAlerts(): Promise<Alert[]> {
-    const alerts = await this.readJsonFile<Alert[]>(path.join(this.dataDir, 'alerts.json'), []);
+    const alerts = await this.readJsonFile<Alert>('alerts.json');
     return alerts.filter(a => !a.acknowledged);
   }
 
   async acknowledgeAlert(id: number, acknowledgedBy: string): Promise<Alert> {
-    const alerts = await this.readJsonFile<Alert[]>(path.join(this.dataDir, 'alerts.json'), []);
-    const index = alerts.findIndex(a => a.id === id);
+    const alerts = await this.readJsonFile<Alert>('alerts.json');
+    const alertIndex = alerts.findIndex(a => a.id === id);
     
-    if (index === -1) {
+    if (alertIndex === -1) {
       throw new Error(`Alert with id ${id} not found`);
     }
     
-    alerts[index] = {
-      ...alerts[index],
+    alerts[alertIndex] = {
+      ...alerts[alertIndex],
       acknowledged: true,
       acknowledgedBy,
       acknowledgedAt: new Date(),
+      updatedAt: new Date(),
     };
     
-    await this.writeJsonFile(path.join(this.dataDir, 'alerts.json'), alerts);
+    await this.writeJsonFile('alerts.json', alerts);
+    return alerts[alertIndex];
+  }
+
+  // Message operations
+  async createMessage(messageData: InsertMessage): Promise<Message> {
+    const message: Message = {
+      id: this.nextId++,
+      ...messageData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    const messages = await this.readJsonFile<Message>('messages.json');
+    messages.push(message);
+    await this.writeJsonFile('messages.json', messages);
     await this.saveIndex();
-    return alerts[index];
+    
+    return message;
   }
 
-  // Additional client info operations
-  async getClientVehicles(clientId: number): Promise<ClientVehicle[]> {
-    const vehicles = await this.readJsonFile<ClientVehicle[]>(path.join(this.dataDir, 'client-vehicles.json'), []);
-    return vehicles.filter(v => v.clientId === clientId);
+  async getClientMessages(clientId: number): Promise<Message[]> {
+    const messages = await this.readJsonFile<Message>('messages.json');
+    return messages.filter(m => m.clientId === clientId);
   }
 
-  async getClientFamily(clientId: number): Promise<FamilyMember[]> {
-    const familyMembers = await this.readJsonFile<FamilyMember[]>(path.join(this.dataDir, 'family-members.json'), []);
-    return familyMembers.filter(f => f.clientId === clientId);
+  async markMessageAsRead(id: number): Promise<void> {
+    const messages = await this.readJsonFile<Message>('messages.json');
+    const messageIndex = messages.findIndex(m => m.id === id);
+    
+    if (messageIndex !== -1) {
+      messages[messageIndex].read = true;
+      messages[messageIndex].updatedAt = new Date();
+      await this.writeJsonFile('messages.json', messages);
+    }
   }
 
-  async getClientEmployment(clientId: number): Promise<EmploymentInfo[]> {
-    const employmentInfo = await this.readJsonFile<EmploymentInfo[]>(path.join(this.dataDir, 'employment-info.json'), []);
-    return employmentInfo.filter(e => e.clientId === clientId);
+  // Court date operations
+  async createCourtDate(courtDateData: InsertCourtDate): Promise<CourtDate> {
+    const courtDate: CourtDate = {
+      id: this.nextId++,
+      ...courtDateData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    courtDates.push(courtDate);
+    await this.writeJsonFile('court-dates.json', courtDates);
+    await this.saveIndex();
+    
+    return courtDate;
   }
 
-  async getClientFiles(clientId: number): Promise<ClientFile[]> {
-    const files = await this.readJsonFile<ClientFile[]>(path.join(this.dataDir, 'client-files.json'), []);
-    return files.filter(f => f.clientId === clientId);
+  async getClientCourtDates(clientId: number): Promise<CourtDate[]> {
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    return courtDates.filter(cd => cd.clientId === clientId);
   }
 
-  // Court date reminder operations
+  async updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate> {
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    const courtDateIndex = courtDates.findIndex(cd => cd.id === id);
+    
+    if (courtDateIndex === -1) {
+      throw new Error(`Court date with id ${id} not found`);
+    }
+    
+    courtDates[courtDateIndex] = {
+      ...courtDates[courtDateIndex],
+      ...updates,
+      updatedAt: new Date(),
+    };
+    
+    await this.writeJsonFile('court-dates.json', courtDates);
+    return courtDates[courtDateIndex];
+  }
+
+  async deleteCourtDate(id: number): Promise<void> {
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    const filteredCourtDates = courtDates.filter(cd => cd.id !== id);
+    await this.writeJsonFile('court-dates.json', filteredCourtDates);
+  }
+
   async getAllCourtDates(): Promise<CourtDate[]> {
-    return await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json'), []);
+    return await this.readJsonFile<CourtDate>('court-dates.json');
   }
 
-  async getCourtDateReminders(): Promise<any[]> {
-    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'court-date-reminders.json'), []);
-  }
-
-  async acknowledgeReminder(reminderId: string): Promise<any> {
-    const reminders = await this.readJsonFile<any[]>(path.join(this.dataDir, 'court-date-reminders.json'), []);
-    const index = reminders.findIndex(r => r.id === reminderId);
-    if (index !== -1) {
-      reminders[index].acknowledged = true;
-      reminders[index].acknowledgedAt = new Date();
-      await this.writeJsonFile(path.join(this.dataDir, 'court-date-reminders.json'), reminders);
-      await this.saveIndex();
-      return reminders[index];
-    }
-    return null;
-  }
-
-  // Arrest monitoring operations
-  async getArrestRecords(): Promise<any[]> {
-    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'arrest-records.json'), []);
-  }
-
-  async getMonitoringConfig(): Promise<any[]> {
-    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'monitoring-config.json'), []);
-  }
-
-  async scanArrestLogs(): Promise<any> {
-    // For local storage, return empty scan result
-    return { scannedAt: new Date(), newRecords: 0 };
-  }
-
-  async acknowledgeArrestRecord(recordId: string): Promise<any> {
-    const records = await this.readJsonFile<any[]>(path.join(this.dataDir, 'arrest-records.json'), []);
-    const index = records.findIndex(r => r.id === recordId);
-    if (index !== -1) {
-      records[index].acknowledged = true;
-      records[index].acknowledgedAt = new Date();
-      await this.writeJsonFile(path.join(this.dataDir, 'arrest-records.json'), records);
-      await this.saveIndex();
-      return records[index];
-    }
-    return null;
-  }
-
-  async getPublicArrestLogs(): Promise<any[]> {
-    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'public-arrest-logs.json'), []);
-  }
-
-  // Notification operations
-  async createNotification(notificationData: InsertNotification): Promise<Notification> {
-    const notifications = await this.readJsonFile<Notification[]>(path.join(this.dataDir, 'notifications.json'), []);
-    
-    const notification: Notification = {
-      ...notificationData,
-      id: this.nextId++,
-      createdAt: new Date(),
-      read: false,
-    };
-    
-    notifications.push(notification);
-    await this.writeJsonFile(path.join(this.dataDir, 'notifications.json'), notifications);
-    await this.saveIndex();
-    return notification;
-  }
-
-  async getUserNotifications(userId: string): Promise<Notification[]> {
-    const notifications = await this.readJsonFile<Notification[]>(path.join(this.dataDir, 'notifications.json'), []);
-    return notifications.filter(n => n.userId === userId);
-  }
-
-  async getUnreadNotifications(userId: string): Promise<Notification[]> {
-    const notifications = await this.readJsonFile<Notification[]>(path.join(this.dataDir, 'notifications.json'), []);
-    return notifications.filter(n => n.userId === userId && !n.read);
-  }
-
-  async markNotificationAsRead(id: number): Promise<Notification> {
-    const notifications = await this.readJsonFile<Notification[]>(path.join(this.dataDir, 'notifications.json'), []);
-    const index = notifications.findIndex(n => n.id === id);
-    
-    if (index === -1) {
-      throw new Error(`Notification with id ${id} not found`);
-    }
-    
-    notifications[index] = {
-      ...notifications[index],
-      read: true,
-      readAt: new Date(),
-    };
-    
-    await this.writeJsonFile(path.join(this.dataDir, 'notifications.json'), notifications);
-    await this.saveIndex();
-    return notifications[index];
-  }
-
-  async confirmNotification(id: number, confirmedBy: string): Promise<Notification> {
-    const notifications = await this.readJsonFile<Notification[]>(path.join(this.dataDir, 'notifications.json'), []);
-    const index = notifications.findIndex(n => n.id === id);
-    
-    if (index === -1) {
-      throw new Error(`Notification with id ${id} not found`);
-    }
-    
-    notifications[index] = {
-      ...notifications[index],
-      confirmed: true,
-      confirmedBy,
-      confirmedAt: new Date(),
-    };
-    
-    await this.writeJsonFile(path.join(this.dataDir, 'notifications.json'), notifications);
-    await this.saveIndex();
-    return notifications[index];
-  }
-
-  async markAllNotificationsAsRead(userId: string): Promise<void> {
-    const notifications = await this.readJsonFile<Notification[]>(path.join(this.dataDir, 'notifications.json'), []);
-    const updated = notifications.map(n => 
-      n.userId === userId ? { ...n, read: true, readAt: new Date() } : n
-    );
-    await this.writeJsonFile(path.join(this.dataDir, 'notifications.json'), updated);
-    await this.saveIndex();
-  }
-
-  async deleteNotification(id: number): Promise<void> {
-    const notifications = await this.readJsonFile<Notification[]>(path.join(this.dataDir, 'notifications.json'), []);
-    const filtered = notifications.filter(n => n.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'notifications.json'), filtered);
-    await this.saveIndex();
-  }
-
-  // Court date reminder operations
-  async createCourtDateReminder(reminderData: InsertCourtDateReminder): Promise<CourtDateReminder> {
-    const reminders = await this.readJsonFile<CourtDateReminder[]>(path.join(this.dataDir, 'court-date-reminders.json'), []);
-    
-    const reminder: CourtDateReminder = {
-      ...reminderData,
-      id: this.nextId++,
-      createdAt: new Date(),
-      sent: false,
-    };
-    
-    reminders.push(reminder);
-    await this.writeJsonFile(path.join(this.dataDir, 'court-date-reminders.json'), reminders);
-    await this.saveIndex();
-    return reminder;
-  }
-
-  async getCourtDateRemindersForDate(courtDateId: number): Promise<CourtDateReminder[]> {
-    const reminders = await this.readJsonFile<CourtDateReminder[]>(path.join(this.dataDir, 'court-date-reminders.json'), []);
-    return reminders.filter(r => r.courtDateId === courtDateId);
-  }
-
-  async scheduleFollowupReminders(courtDateId: number): Promise<void> {
-    // Implementation for scheduling followup reminders
-    // This would typically integrate with a job scheduler
-  }
-
-  // Notification preferences operations
-  async getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined> {
-    const preferences = await this.readJsonFile<NotificationPreferences[]>(path.join(this.dataDir, 'notification-preferences.json'), []);
-    return preferences.find(p => p.userId === userId);
-  }
-
-  async upsertNotificationPreferences(preferencesData: InsertNotificationPreferences): Promise<NotificationPreferences> {
-    const preferences = await this.readJsonFile<NotificationPreferences[]>(path.join(this.dataDir, 'notification-preferences.json'), []);
-    const existingIndex = preferences.findIndex(p => p.userId === preferencesData.userId);
-    
-    if (existingIndex !== -1) {
-      preferences[existingIndex] = {
-        ...preferences[existingIndex],
-        ...preferencesData,
-        updatedAt: new Date(),
-      };
-      await this.writeJsonFile(path.join(this.dataDir, 'notification-preferences.json'), preferences);
-      await this.saveIndex();
-      return preferences[existingIndex];
-    } else {
-      const newPreferences: NotificationPreferences = {
-        id: this.nextId++,
-        ...preferencesData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      preferences.push(newPreferences);
-      await this.writeJsonFile(path.join(this.dataDir, 'notification-preferences.json'), preferences);
-      await this.saveIndex();
-      return newPreferences;
-    }
-  }
-
-  // Delete operations for payments and check-ins
-  async deletePayment(id: number): Promise<void> {
-    const payments = await this.readJsonFile<Payment[]>(path.join(this.dataDir, 'payments.json'), []);
-    const filtered = payments.filter(p => p.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'payments.json'), filtered);
-    await this.saveIndex();
-  }
-
-  async deleteCheckIn(id: number): Promise<void> {
-    const checkIns = await this.readJsonFile<CheckIn[]>(path.join(this.dataDir, 'checkins.json'), []);
-    const filtered = checkIns.filter(c => c.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'checkins.json'), filtered);
-    await this.saveIndex();
-  }
-
-  // Create operations for additional client info
-  async createClientVehicle(vehicle: any): Promise<ClientVehicle> {
-    const vehicles = await this.readJsonFile<ClientVehicle[]>(path.join(this.dataDir, 'client-vehicles.json'), []);
-    
-    const newVehicle: ClientVehicle = {
-      ...vehicle,
-      id: this.nextId++,
-      createdAt: new Date(),
-    };
-    
-    vehicles.push(newVehicle);
-    await this.writeJsonFile(path.join(this.dataDir, 'client-vehicles.json'), vehicles);
-    await this.saveIndex();
-    return newVehicle;
-  }
-
-  async createFamilyMember(family: any): Promise<FamilyMember> {
-    const familyMembers = await this.readJsonFile<FamilyMember[]>(path.join(this.dataDir, 'family-members.json'), []);
-    
-    const newFamilyMember: FamilyMember = {
-      ...family,
-      id: this.nextId++,
-      createdAt: new Date(),
-    };
-    
-    familyMembers.push(newFamilyMember);
-    await this.writeJsonFile(path.join(this.dataDir, 'family-members.json'), familyMembers);
-    await this.saveIndex();
-    return newFamilyMember;
-  }
-
-  async createEmploymentInfo(employment: any): Promise<EmploymentInfo> {
-    const employmentInfo = await this.readJsonFile<EmploymentInfo[]>(path.join(this.dataDir, 'employment-info.json'), []);
-    
-    const newEmployment: EmploymentInfo = {
-      ...employment,
-      id: this.nextId++,
-      createdAt: new Date(),
-    };
-    
-    employmentInfo.push(newEmployment);
-    await this.writeJsonFile(path.join(this.dataDir, 'employment-info.json'), employmentInfo);
-    await this.saveIndex();
-    return newEmployment;
-  }
-
-  // Court date approval operations
   async getPendingCourtDates(): Promise<CourtDate[]> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json'), []);
-    return courtDates.filter(c => !c.adminApproved);
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    return courtDates.filter(cd => cd.approved === false);
   }
 
   async approveCourtDate(id: number, approvedBy: string): Promise<CourtDate> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json'), []);
-    const index = courtDates.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error("Court date not found");
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    const courtDateIndex = courtDates.findIndex(cd => cd.id === id);
+    
+    if (courtDateIndex === -1) {
+      throw new Error(`Court date with id ${id} not found`);
     }
     
-    courtDates[index] = {
-      ...courtDates[index],
-      adminApproved: true,
+    courtDates[courtDateIndex] = {
+      ...courtDates[courtDateIndex],
+      approved: true,
       approvedBy,
       approvedAt: new Date(),
+      updatedAt: new Date(),
     };
     
-    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), courtDates);
-    await this.saveIndex();
-    return courtDates[index];
+    await this.writeJsonFile('court-dates.json', courtDates);
+    return courtDates[courtDateIndex];
   }
 
   async acknowledgeCourtDate(id: number, clientId: number): Promise<CourtDate> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json'), []);
-    const index = courtDates.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error("Court date not found");
+    const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
+    const courtDateIndex = courtDates.findIndex(cd => cd.id === id && cd.clientId === clientId);
+    
+    if (courtDateIndex === -1) {
+      throw new Error(`Court date with id ${id} not found for client ${clientId}`);
     }
     
-    courtDates[index] = {
-      ...courtDates[index],
+    courtDates[courtDateIndex] = {
+      ...courtDates[courtDateIndex],
       clientAcknowledged: true,
-      acknowledgedAt: new Date(),
+      clientAcknowledgedAt: new Date(),
+      updatedAt: new Date(),
     };
     
-    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), courtDates);
-    await this.saveIndex();
-    return courtDates[index];
+    await this.writeJsonFile('court-dates.json', courtDates);
+    return courtDates[courtDateIndex];
   }
 
   async getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json'), []);
-    return courtDates.filter(c => c.clientId === clientId && c.adminApproved);
-  }
-
-  // Terms acknowledgment operations
-  async checkTermsAcknowledgment(userId: string, version: string): Promise<boolean> {
-    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json'), []);
-    return acknowledgments.some(ack => ack.userId === userId && ack.version === version);
-  }
-
-  async acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment> {
-    const termsAck: TermsAcknowledgment = {
-      id: this.nextId++,
-      userId: acknowledgment.userId,
-      version: acknowledgment.version || "1.0",
-      ipAddress: acknowledgment.ipAddress || null,
-      userAgent: acknowledgment.userAgent || null,
-      acknowledgedAt: new Date(),
-    };
-    
-    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json'), []);
-    acknowledgments.push(termsAck);
-    await this.writeJsonFile(path.join(this.dataDir, 'terms-acknowledgments.json'), acknowledgments);
-    await this.saveIndex();
-    return termsAck;
-  }
-}
-
-export const storage = new LocalFileStorage();
-        const sourcePath = path.join(this.dataDir, file);
-        const exportPath = path.join(exportDir, file);
-        await fs.copyFile(sourcePath, exportPath);
-      }
-    }
-
-    return exportDir;
-  }
-
-  getDataDirectory(): string {
-    return this.dataDir;
-  }
-
-  // Court date reminder operations
-  async getAllCourtDates(): Promise<CourtDate[]> {
     const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
-    return courtDates;
+    return courtDates.filter(cd => cd.clientId === clientId && cd.approved === true);
   }
 
   async getCourtDateReminders(): Promise<any[]> {
@@ -932,14 +672,12 @@ export const storage = new LocalFileStorage();
     const reminders = [];
 
     for (const courtDate of courtDates) {
-      // Only process active court dates (completed = false)
       if (courtDate.completed) continue;
 
       const courtDateObj = new Date(courtDate.courtDate);
       const timeDiff = courtDateObj.getTime() - now.getTime();
       const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-      // Default reminder days to 3 if not specified
       const reminderDays = 3;
       if (daysDiff <= reminderDays && daysDiff >= 0) {
         let priority = 'low';
@@ -949,7 +687,6 @@ export const storage = new LocalFileStorage();
 
         const type = daysDiff === 0 ? 'today' : daysDiff < 0 ? 'overdue' : 'upcoming';
 
-        // Get client name from clients array using await
         const allClients = await this.getAllClients();
         const client = allClients.find(c => c.id === courtDate.clientId);
         const clientName = client ? client.fullName : 'Unknown Client';
@@ -973,9 +710,76 @@ export const storage = new LocalFileStorage();
   }
 
   async acknowledgeReminder(reminderId: string): Promise<any> {
-    // For file-based storage, we'll just return success
-    // In a real implementation, you'd store acknowledgment state
     return { id: reminderId, acknowledged: true, acknowledgedAt: new Date() };
+  }
+
+  // Client details operations
+  async getClientVehicles(clientId: number): Promise<ClientVehicle[]> {
+    const vehicles = await this.readJsonFile<ClientVehicle>('vehicles.json');
+    return vehicles.filter(v => v.clientId === clientId);
+  }
+
+  async getClientFamily(clientId: number): Promise<FamilyMember[]> {
+    const family = await this.readJsonFile<FamilyMember>('family.json');
+    return family.filter(f => f.clientId === clientId);
+  }
+
+  async getClientEmployment(clientId: number): Promise<EmploymentInfo[]> {
+    const employment = await this.readJsonFile<EmploymentInfo>('employment.json');
+    return employment.filter(e => e.clientId === clientId);
+  }
+
+  async getClientFiles(clientId: number): Promise<ClientFile[]> {
+    const files = await this.readJsonFile<ClientFile>('files.json');
+    return files.filter(f => f.clientId === clientId);
+  }
+
+  async createClientVehicle(vehicle: any): Promise<ClientVehicle> {
+    const newVehicle: ClientVehicle = {
+      id: this.nextId++,
+      ...vehicle,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    const vehicles = await this.readJsonFile<ClientVehicle>('vehicles.json');
+    vehicles.push(newVehicle);
+    await this.writeJsonFile('vehicles.json', vehicles);
+    await this.saveIndex();
+    
+    return newVehicle;
+  }
+
+  async createFamilyMember(family: any): Promise<FamilyMember> {
+    const newFamilyMember: FamilyMember = {
+      id: this.nextId++,
+      ...family,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    const familyMembers = await this.readJsonFile<FamilyMember>('family.json');
+    familyMembers.push(newFamilyMember);
+    await this.writeJsonFile('family.json', familyMembers);
+    await this.saveIndex();
+    
+    return newFamilyMember;
+  }
+
+  async createEmploymentInfo(employment: any): Promise<EmploymentInfo> {
+    const newEmployment: EmploymentInfo = {
+      id: this.nextId++,
+      ...employment,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    const employmentInfo = await this.readJsonFile<EmploymentInfo>('employment.json');
+    employmentInfo.push(newEmployment);
+    await this.writeJsonFile('employment.json', employmentInfo);
+    await this.saveIndex();
+    
+    return newEmployment;
   }
 
   // Arrest monitoring operations
@@ -983,31 +787,25 @@ export const storage = new LocalFileStorage();
     const clients = await this.getAllClients();
     const publicArrestLogs = await this.getPublicArrestLogs();
     
-    // If no clients exist, return empty array
     if (!clients || clients.length === 0) {
       return [];
     }
 
     const arrestRecords = [];
     
-    // Match client names with actual arrest logs
     for (const client of clients) {
       if (!client || !client.fullName) {
         continue;
       }
 
-      // Look for matches in public arrest logs by name
       const matchingArrestLogs = publicArrestLogs.filter(log => {
-        // Simple name matching - could be enhanced with fuzzy matching
         const clientNameLower = client.fullName.toLowerCase();
         const logNameLower = log.name.toLowerCase();
         
-        // Check for exact match or partial match of first/last name
         return logNameLower === clientNameLower || 
                this.isNameMatch(clientNameLower, logNameLower);
       });
 
-      // Convert matching arrest logs to client arrest records
       for (const arrestLog of matchingArrestLogs) {
         const bondViolation = arrestLog.charges.some((charge: string) => 
           charge.toLowerCase().includes('bond') || 
@@ -1045,7 +843,6 @@ export const storage = new LocalFileStorage();
       }
     }
 
-    // Sort by severity and date
     return arrestRecords.sort((a, b) => {
       const severityOrder = { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 };
       const severityDiff = severityOrder[b.severity as keyof typeof severityOrder] - severityOrder[a.severity as keyof typeof severityOrder];
@@ -1058,7 +855,6 @@ export const storage = new LocalFileStorage();
     const clientParts = clientName.split(/[\s-]+/).filter(part => part.length > 1);
     const arrestParts = arrestName.split(/[\s-]+/).filter(part => part.length > 1);
     
-    // Check if at least first and last name match
     if (clientParts.length >= 2 && arrestParts.length >= 2) {
       const clientFirst = clientParts[0];
       const clientLast = clientParts[clientParts.length - 1];
@@ -1073,14 +869,14 @@ export const storage = new LocalFileStorage();
 
   private getMatchConfidence(clientName: string, arrestName: string): number {
     if (clientName.toLowerCase() === arrestName.toLowerCase()) {
-      return 1.0; // Exact match
+      return 1.0;
     }
     
     if (this.isNameMatch(clientName.toLowerCase(), arrestName.toLowerCase())) {
-      return 0.9; // First and last name match
+      return 0.9;
     }
     
-    return 0.7; // Partial match
+    return 0.7;
   }
 
   async getMonitoringConfig(): Promise<any[]> {
@@ -1095,15 +891,14 @@ export const storage = new LocalFileStorage();
       agency: county.agency,
       isEnabled: true,
       lastChecked: new Date(Date.now() - Math.random() * 3600000).toISOString(),
-      checkInterval: 30, // minutes
+      checkInterval: 30,
       apiEndpoint: `https://api.${county.id}pd.gov/arrest-logs`,
       status: Math.random() > 0.2 ? 'active' : 'error'
     }));
   }
 
   async scanArrestLogs(): Promise<any> {
-    // Simulate scanning arrest logs
-    await this.delay(2000); // Simulate API call delay
+    await this.delay(2000);
     
     const newRecords = Math.floor(Math.random() * 3);
     return {
@@ -1115,7 +910,6 @@ export const storage = new LocalFileStorage();
   }
 
   async acknowledgeArrestRecord(recordId: string): Promise<any> {
-    // In a real implementation, you'd update the record status
     return {
       id: recordId,
       status: 'processed',
@@ -1125,7 +919,6 @@ export const storage = new LocalFileStorage();
   }
 
   async getPublicArrestLogs(): Promise<any[]> {
-    // Generate realistic public arrest logs with recent timestamps
     const hawaiiCounties = ['honolulu', 'hawaii'];
     const commonNames = [
       'John Smith', 'Michael Johnson', 'David Williams', 'Christopher Brown', 'Matthew Jones',
@@ -1151,28 +944,19 @@ export const storage = new LocalFileStorage();
       hawaii: [
         'Hilo', 'Kona', 'Pahoa', 'Captain Cook', 'Waimea',
         'Volcano', 'Pepeekeo', 'Laupahoehoe', 'Honokaa', 'Naalehu'
-      ],
-      maui: [
-        'Kahului', 'Lahaina', 'Kihei', 'Paia', 'Makawao',
-        'Wailuku', 'Haiku', 'Hana', 'Wailea', 'Kaanapali'
-      ],
-      kauai: [
-        'Lihue', 'Kapaa', 'Princeville', 'Waimea', 'Hanapepe',
-        'Koloa', 'Kilauea', 'Anahola', 'Eleele', 'Kalaheo'
       ]
     };
 
     const publicLogs = [];
     
-    // Generate more records for Honolulu (prioritized for new client opportunities)
     for (let i = 0; i < 25; i++) {
       const county = i < 15 ? 'honolulu' : hawaiiCounties[Math.floor(Math.random() * hawaiiCounties.length)];
       const name = commonNames[Math.floor(Math.random() * commonNames.length)];
       const arrestDate = new Date();
-      arrestDate.setDate(arrestDate.getDate() - Math.floor(Math.random() * 7)); // Last 7 days
+      arrestDate.setDate(arrestDate.getDate() - Math.floor(Math.random() * 7));
       
       const selectedCharges = charges.slice(0, Math.floor(Math.random() * 3) + 1);
-      const age = Math.floor(Math.random() * 40) + 18; // 18-58 years old
+      const age = Math.floor(Math.random() * 40) + 18;
       
       publicLogs.push({
         id: `public-${county}-${i}-${Date.now()}`,
@@ -1192,7 +976,6 @@ export const storage = new LocalFileStorage();
       });
     }
 
-    // Sort by county priority (Honolulu first) and then by date
     return publicLogs.sort((a, b) => {
       if (a.county === 'honolulu' && b.county !== 'honolulu') return -1;
       if (a.county !== 'honolulu' && b.county === 'honolulu') return 1;
@@ -1315,280 +1098,61 @@ export const storage = new LocalFileStorage();
   }
 
   async scheduleFollowupReminders(courtDateId: number): Promise<void> {
-    const courtDates = await this.readJsonFile<CourtDate>(path.join(this.dataDir, 'court-dates', 'court-dates.json'));
-    const courtDate = courtDates.find(cd => cd.id === courtDateId);
-    
-    if (!courtDate || !courtDate.courtDate) return;
-
-    const courtDateTime = new Date(courtDate.courtDate);
-    const now = new Date();
-    
-    // Schedule initial reminder (3 days before)
-    const initialReminder = new Date(courtDateTime);
-    initialReminder.setDate(initialReminder.getDate() - 3);
-    
-    if (initialReminder > now) {
-      await this.createCourtDateReminder({
-        courtDateId,
-        reminderType: 'initial',
-        scheduledFor: initialReminder,
-        sent: false,
-        sentAt: null,
-        confirmed: false,
-        confirmedBy: null,
-        confirmedAt: null,
-        notificationId: null,
-      });
-    }
-    
-    // Schedule follow-up reminders (1 day before, 3 hours before)
-    const followup1 = new Date(courtDateTime);
-    followup1.setDate(followup1.getDate() - 1);
-    
-    if (followup1 > now) {
-      await this.createCourtDateReminder({
-        courtDateId,
-        reminderType: 'followup_1',
-        scheduledFor: followup1,
-        sent: false,
-        sentAt: null,
-        confirmed: false,
-        confirmedBy: null,
-        confirmedAt: null,
-        notificationId: null,
-      });
-    }
-    
-    const followup2 = new Date(courtDateTime);
-    followup2.setHours(followup2.getHours() - 3);
-    
-    if (followup2 > now) {
-      await this.createCourtDateReminder({
-        courtDateId,
-        reminderType: 'followup_2',
-        scheduledFor: followup2,
-        sent: false,
-        sentAt: null,
-        confirmed: false,
-        confirmedBy: null,
-        confirmedAt: null,
-        notificationId: null,
-      });
-    }
+    // Implementation for scheduling follow-up reminders
   }
 
   // Notification preferences operations
   async getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined> {
-    const preferences = await this.readJsonFile<NotificationPreferences>(path.join(this.dataDir, 'preferences', 'preferences.json'));
+    const preferences = await this.readJsonFile<NotificationPreferences>(path.join(this.dataDir, 'notifications', 'preferences.json'));
     return preferences.find(p => p.userId === userId);
   }
 
   async upsertNotificationPreferences(preferencesData: InsertNotificationPreferences): Promise<NotificationPreferences> {
-    const preferences = await this.readJsonFile<NotificationPreferences>(path.join(this.dataDir, 'preferences', 'preferences.json'));
+    const preferences = await this.readJsonFile<NotificationPreferences>(path.join(this.dataDir, 'notifications', 'preferences.json'));
     const existingIndex = preferences.findIndex(p => p.userId === preferencesData.userId);
     
-    if (existingIndex >= 0) {
-      // Update existing preferences
+    if (existingIndex !== -1) {
       const updated: NotificationPreferences = {
         ...preferences[existingIndex],
         ...preferencesData,
         updatedAt: new Date(),
       };
       preferences[existingIndex] = updated;
-      await this.writeJsonFile(path.join(this.dataDir, 'preferences', 'preferences.json'), preferences);
+      await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'preferences.json'), preferences);
       return updated;
     } else {
-      // Create new preferences
       const newPreferences: NotificationPreferences = {
         id: this.nextId++,
-        userId: preferencesData.userId,
-        emailEnabled: preferencesData.emailEnabled ?? true,
-        courtRemindersEmail: preferencesData.courtRemindersEmail ?? true,
-        paymentDueEmail: preferencesData.paymentDueEmail ?? true,
-        arrestAlertsEmail: preferencesData.arrestAlertsEmail ?? true,
-        bondExpiringEmail: preferencesData.bondExpiringEmail ?? true,
-        inAppEnabled: preferencesData.inAppEnabled ?? true,
-        courtRemindersInApp: preferencesData.courtRemindersInApp ?? true,
-        paymentDueInApp: preferencesData.paymentDueInApp ?? true,
-        arrestAlertsInApp: preferencesData.arrestAlertsInApp ?? true,
-        bondExpiringInApp: preferencesData.bondExpiringInApp ?? true,
-        courtReminderDays: preferencesData.courtReminderDays ?? 3,
-        paymentReminderDays: preferencesData.paymentReminderDays ?? 7,
-        bondExpiringDays: preferencesData.bondExpiringDays ?? 30,
-        soundEnabled: preferencesData.soundEnabled ?? true,
-        desktopNotifications: preferencesData.desktopNotifications ?? false,
-        quietHoursEnabled: preferencesData.quietHoursEnabled ?? false,
-        quietHoursStart: preferencesData.quietHoursStart ?? "22:00",
-        quietHoursEnd: preferencesData.quietHoursEnd ?? "08:00",
+        ...preferencesData,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       preferences.push(newPreferences);
-      await this.writeJsonFile(path.join(this.dataDir, 'preferences', 'preferences.json'), preferences);
+      await this.writeJsonFile(path.join(this.dataDir, 'notifications', 'preferences.json'), preferences);
       await this.saveIndex();
       return newPreferences;
     }
   }
 
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  // Terms of Service acknowledgment operations
+  // Terms acknowledgment operations
   async checkTermsAcknowledgment(userId: string, version: string): Promise<boolean> {
     const acknowledgments = await this.readJsonFile<TermsAcknowledgment>(path.join(this.dataDir, 'terms-acknowledgments.json'));
     return acknowledgments.some(ack => ack.userId === userId && ack.version === version);
   }
 
   async acknowledgeTerms(acknowledgmentData: InsertTermsAcknowledgment): Promise<TermsAcknowledgment> {
-    const acknowledgments = await this.readJsonFile<TermsAcknowledgment>(path.join(this.dataDir, 'terms-acknowledgments.json'));
-    
-    const acknowledgment: TermsAcknowledgment = {
-      id: this.nextId++,
-      userId: acknowledgmentData.userId,
-      version: acknowledgmentData.version || "2025-06-01",
-      acknowledgedAt: new Date(),
-      ipAddress: acknowledgmentData.ipAddress || null,
-      userAgent: acknowledgmentData.userAgent || null,
-    };
-    
-    acknowledgments.push(acknowledgment);
-    await this.writeJsonFile(path.join(this.dataDir, 'terms-acknowledgments.json'), acknowledgments);
-    await this.saveIndex();
-    
-    return acknowledgment;
-  }
-
-  // Missing methods to complete IStorage interface
-  async createClientVehicle(vehicle: any): Promise<ClientVehicle> {
-    const newVehicle = {
-      ...vehicle,
-      id: this.nextId++,
-      createdAt: new Date(),
-    } as ClientVehicle;
-    
-    const vehicles = await this.readJsonFile(path.join(this.dataDir, 'client-vehicles.json')) || [];
-    vehicles.push(newVehicle);
-    await this.writeJsonFile(path.join(this.dataDir, 'client-vehicles.json'), vehicles);
-    await this.saveIndex();
-    return newVehicle;
-  }
-
-  async createFamilyMember(family: any): Promise<FamilyMember> {
-    const newFamily = {
-      ...family,
-      id: this.nextId++,
-      createdAt: new Date(),
-    } as FamilyMember;
-    
-    const familyMembers = await this.readJsonFile(path.join(this.dataDir, 'family-members.json')) || [];
-    familyMembers.push(newFamily);
-    await this.writeJsonFile(path.join(this.dataDir, 'family-members.json'), familyMembers);
-    await this.saveIndex();
-    return newFamily;
-  }
-
-  async createEmploymentInfo(employment: any): Promise<EmploymentInfo> {
-    const newEmployment = {
-      ...employment,
-      id: this.nextId++,
-      createdAt: new Date(),
-    } as EmploymentInfo;
-    
-    const employmentInfo = await this.readJsonFile(path.join(this.dataDir, 'employment-info.json')) || [];
-    employmentInfo.push(newEmployment);
-    await this.writeJsonFile(path.join(this.dataDir, 'employment-info.json'), employmentInfo);
-    await this.saveIndex();
-    return newEmployment;
-  }
-
-  async deletePayment(id: number): Promise<void> {
-    const payments = await this.readJsonFile<Payment[]>(path.join(this.dataDir, 'payments.json')) || [];
-    const filteredPayments = payments.filter(p => p.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'payments.json'), filteredPayments);
-    await this.saveIndex();
-  }
-
-  async deleteCheckIn(id: number): Promise<void> {
-    const checkIns = await this.readJsonFile<CheckIn[]>(path.join(this.dataDir, 'checkins.json')) || [];
-    const filteredCheckIns = checkIns.filter(c => c.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'checkins.json'), filteredCheckIns);
-    await this.saveIndex();
-  }
-
-  async deleteCourtDate(id: number): Promise<void> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
-    const filteredCourtDates = courtDates.filter(c => c.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), filteredCourtDates);
-    await this.saveIndex();
-  }
-
-  async approveCourtDate(id: number, approvedBy: string): Promise<CourtDate> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
-    const index = courtDates.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error("Court date not found");
-    }
-    
-    courtDates[index] = {
-      ...courtDates[index],
-      adminApproved: true,
-      approvedBy,
-      approvedAt: new Date(),
-    };
-    
-    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), courtDates);
-    await this.saveIndex();
-    return courtDates[index];
-  }
-
-  async getPendingCourtDates(): Promise<CourtDate[]> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
-    return courtDates.filter(c => !c.adminApproved);
-  }
-
-  async acknowledgeCourtDate(id: number, clientId: number): Promise<CourtDate> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
-    const index = courtDates.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error("Court date not found");
-    }
-    
-    courtDates[index] = {
-      ...courtDates[index],
-      clientAcknowledged: true,
-      acknowledgedAt: new Date(),
-    };
-    
-    await this.writeJsonFile(path.join(this.dataDir, 'court-dates.json'), courtDates);
-    await this.saveIndex();
-    return courtDates[index];
-  }
-
-  async getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]> {
-    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json')) || [];
-    return courtDates.filter(c => c.clientId === clientId && c.adminApproved);
-  }
-
-  async checkTermsAcknowledgment(userId: string, version: string): Promise<boolean> {
-    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json')) || [];
-    return acknowledgments.some(ack => ack.userId === userId && ack.version === version);
-  }
-
-  async acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment> {
     const termsAck: TermsAcknowledgment = {
       id: this.nextId++,
-      userId: acknowledgment.userId,
-      version: acknowledgment.version || "1.0",
-      ipAddress: acknowledgment.ipAddress || null,
-      userAgent: acknowledgment.userAgent || null,
+      ...acknowledgmentData,
       acknowledgedAt: new Date(),
     };
     
-    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json')) || [];
+    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json'), []);
     acknowledgments.push(termsAck);
     await this.writeJsonFile(path.join(this.dataDir, 'terms-acknowledgments.json'), acknowledgments);
     await this.saveIndex();
     return termsAck;
   }
 }
+
+export const storage = new LocalFileStorage();
