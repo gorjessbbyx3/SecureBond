@@ -10,7 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorContext, mapApiErrorToContext } from "@/hooks/useErrorContext";
-import Header from "@/components/layout/header";
+import { BrandedHeader } from "@/components/ui/branded-header";
 import Footer from "@/components/layout/footer";
 
 export default function ClientLogin() {
@@ -96,25 +96,13 @@ export default function ClientLogin() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header 
-        title="Aloha Bail Bond Client" 
-        subtitle="Professional Bail Bond Management System" 
+      <BrandedHeader 
+        title="Client Portal" 
+        subtitle="Access your account information" 
       />
       
       <main className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[80vh]">
         <div className="w-full max-w-md space-y-6">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100 tracking-wide">
-              ALOHA BAIL BOND
-            </h1>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Client Portal
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Access your account information
-            </p>
-          </div>
 
           {/* Login Form */}
           <Card>
