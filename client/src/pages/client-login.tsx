@@ -24,9 +24,9 @@ export default function ClientLogin() {
   const loginMutation = useMutation({
     mutationFn: async ({ clientId, password, phoneNumber }: { clientId?: string; password?: string; phoneNumber?: string }) => {
       if (loginMethod === "id") {
-        return await apiRequest("/api/client/login", "POST", { clientId, password });
+        return await apiRequest("POST", "/api/auth/client-login", { clientId, password });
       } else {
-        return await apiRequest("/api/client/login-phone", "POST", { phoneNumber, password });
+        return await apiRequest("POST", "/api/auth/client-login-phone", { phoneNumber, password });
       }
     },
     onSuccess: (data) => {
