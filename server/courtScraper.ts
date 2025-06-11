@@ -127,96 +127,21 @@ export class CourtDateScraper {
     nameComponents: any, 
     options: any
   ): Promise<CourtDate[]> {
-    const courtDates: CourtDate[] = [];
-
-    try {
-      // Simulate court record search with realistic data patterns
-      // In a real implementation, this would make actual HTTP requests to court websites
-      
-      // Check for common court record patterns
-      const searchVariations = [
-        nameComponents.fullName,
-        `${nameComponents.lastName}, ${nameComponents.firstName}`,
-        `${nameComponents.firstName} ${nameComponents.lastName}`
-      ];
-
-      for (const nameVariation of searchVariations) {
-        // Simulate searching court records
-        const mockResults = await this.simulateCourtSearch(nameVariation, source.name);
-        courtDates.push(...mockResults);
-      }
-
-    } catch (error) {
-      console.error(`Failed to search ${source.name}:`, error);
-    }
-
-    return courtDates;
+    // Real court record search would require authenticated API access
+    // Return empty array since no authentic data sources are configured
+    console.log(`Court source ${source.name} requires authenticated API access`);
+    return [];
   }
 
   private async simulateCourtSearch(searchName: string, sourceName: string): Promise<CourtDate[]> {
-    // Simulate realistic court record search results
-    // In production, this would parse actual HTML from court websites
-    
-    const results: CourtDate[] = [];
-    
-    // For Travis Hong-Ah Nee, simulate finding court records
-    if (searchName.toLowerCase().includes('travis') && searchName.toLowerCase().includes('hong')) {
-      results.push({
-        name: 'Travis Hong-Ah Nee',
-        caseNumber: 'CR-2024-001895',
-        courtDate: '2024-03-20',
-        courtTime: '10:00 AM',
-        courtLocation: 'Honolulu District Court Room 2B',
-        caseType: 'Criminal',
-        charges: 'Assault in the third degree',
-        status: 'Scheduled',
-        source: sourceName
-      });
-
-      // Additional hearing
-      results.push({
-        name: 'Travis Hong-Ah Nee',
-        caseNumber: 'CR-2024-001895',
-        courtDate: '2024-04-15',
-        courtTime: '2:00 PM',
-        courtLocation: 'Honolulu District Court Room 2B',
-        caseType: 'Criminal',
-        charges: 'Assault in the third degree - Status Conference',
-        status: 'Scheduled',
-        source: sourceName
-      });
-    }
-
-    return results;
+    // Real court searches require authentic API access to court systems
+    return [];
   }
 
   private async searchPublicRecords(clientName: string, options: any): Promise<CourtDate[]> {
-    const results: CourtDate[] = [];
-    
-    try {
-      // Simulate searching public record aggregators
-      console.log(`Searching public records for: ${clientName}`);
-      
-      // For Travis Hong-Ah Nee, simulate additional records
-      if (clientName.toLowerCase().includes('travis') && clientName.toLowerCase().includes('hong')) {
-        results.push({
-          name: 'Travis Hong-Ah Nee',
-          caseNumber: 'TR-2024-000567',
-          courtDate: '2024-05-10',
-          courtTime: '9:00 AM',
-          courtLocation: 'Honolulu Municipal Court',
-          caseType: 'Traffic',
-          charges: 'Speeding violation',
-          status: 'Pending',
-          source: 'Hawaii Public Records'
-        });
-      }
-      
-    } catch (error) {
-      console.error('Public records search failed:', error);
-    }
-    
-    return results;
+    // Real public records search requires authenticated API access
+    console.log(`Public records search for ${clientName} requires API credentials`);
+    return [];
   }
 
   private delay(ms: number): Promise<void> {
