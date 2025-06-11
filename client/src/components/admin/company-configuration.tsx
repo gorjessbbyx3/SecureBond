@@ -414,21 +414,11 @@ export function CompanyConfigurationManager({ companyId }: CompanyConfigurationM
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="logoUrl">Logo URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="logoUrl"
-                    value={configForm.customSettings?.branding?.logoUrl || ""}
-                    onChange={(e) => updateCustomSettings("branding", "logoUrl", e.target.value)}
-                    placeholder="Enter logo URL or upload image"
-                  />
-                  <Button variant="outline">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload
-                  </Button>
-                </div>
-              </div>
+              <LogoUpload
+                logoUrl={configForm.customSettings?.branding?.logoUrl || ""}
+                onLogoChange={(url) => updateCustomSettings("branding", "logoUrl", url)}
+                companyName={configForm.companyName}
+              />
             </CardContent>
           </Card>
         </TabsContent>
