@@ -176,19 +176,14 @@ export class CourtDateScraper {
       const linkMatches = xmlText.match(/<link>(.*?)<\/link>/g) || [];
       const pubDateMatches = xmlText.match(/<pubDate>(.*?)<\/pubDate>/g) || [];
 
-      console.log(`RSS feed parsing - Found ${titleMatches.length} entries`);
-      console.log(`Searching for client: ${nameComponents.fullName} (first: ${nameComponents.firstName}, last: ${nameComponents.lastName})`);
-
       for (let i = 0; i < titleMatches.length; i++) {
         const title = titleMatches[i]?.replace(/<title>(?:<!\[CDATA\[)?/, '').replace(/(?:\]\]>)?<\/title>/, '') || '';
         const description = descMatches[i]?.replace(/<description>(?:<!\[CDATA\[)?/, '').replace(/(?:\]\]>)?<\/description>/, '') || '';
         const link = linkMatches[i]?.replace(/<link>/, '').replace(/<\/link>/, '') || '';
         const pubDate = pubDateMatches[i]?.replace(/<pubDate>/, '').replace(/<\/pubDate>/, '') || '';
 
-        // Log each title for debugging
-        if (i < 5) { // Log first 5 titles for debugging
-          console.log(`RSS Entry ${i}: ${title}`);
-        }
+        // Skip RSS channel title entry
+        if (i === 0 && title.includes('District of Hawaii - Recent Entries')) continue;
 
         // Check if this document relates to our client
         const fullText = `${title} ${description}`.toLowerCase();
@@ -197,10 +192,6 @@ export class CourtDateScraper {
         const defendantMatch = title.match(/USA v\.\s+([A-Za-z\s,]+)/i);
         const defendantName = defendantMatch ? defendantMatch[1].trim() : '';
         
-        if (defendantName && i < 5) {
-          console.log(`Extracted defendant: "${defendantName}"`);
-        }
-        
         const clientMatch = fullText.includes(nameComponents.firstName.toLowerCase()) || 
                            fullText.includes(nameComponents.lastName.toLowerCase()) ||
                            fullText.includes(nameComponents.fullName.toLowerCase()) ||
@@ -208,7 +199,6 @@ export class CourtDateScraper {
                            defendantName.toLowerCase().includes(nameComponents.firstName.toLowerCase());
 
         if (clientMatch) {
-          console.log(`Found match for ${nameComponents.fullName} in: ${title}`);
           // Extract case information from title/description
           const caseNumberMatch = title.match(/\b\d{1,2}:\d{2}-cv-\d+\b|\b\d{1,2}:\d{2}-cr-\d+\b/);
           const dateMatch = description.match(/\b\d{1,2}\/\d{1,2}\/\d{4}\b/);
