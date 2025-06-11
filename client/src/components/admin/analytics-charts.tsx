@@ -81,10 +81,11 @@ export default function AnalyticsCharts() {
       monthlyData[key] = { month: key, revenue: 0, expenses: 0 };
     }
 
-    // Add payment data
-    payments.forEach((payment: Payment) => {
-      if (payment.confirmed && payment.createdAt) {
-        const date = new Date(payment.createdAt);
+    // Add payment data - only from confirmed payments
+    const confirmedPayments = payments.filter((payment: Payment) => payment.confirmed === true);
+    confirmedPayments.forEach((payment: Payment) => {
+      if (payment.paymentDate) {
+        const date = new Date(payment.paymentDate);
         const key = date.toLocaleDateString('en-US', { month: 'short' });
         if (monthlyData[key]) {
           monthlyData[key].revenue += parseFloat(payment.amount) || 0;
