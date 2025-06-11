@@ -263,7 +263,17 @@ export function StateConfigurationManager({ companyId }: StateConfigurationManag
     if (!editingConfig) return;
     updateStateConfigMutation.mutate({
       id: editingConfig.id,
-      data: stateConfigForm as Partial<InsertStateConfiguration>
+      data: {
+        state: stateConfigForm.state,
+        stateName: stateConfigForm.stateName,
+        bondRegulations: stateConfigForm.bondRegulations,
+        courtSystems: stateConfigForm.courtSystems,
+        licenseRequirements: stateConfigForm.licenseRequirements,
+        complianceRequirements: stateConfigForm.complianceRequirements,
+        feeStructures: stateConfigForm.feeStructures,
+        checkInRequirements: stateConfigForm.checkInRequirements,
+        isActive: stateConfigForm.isActive
+      }
     });
   };
 

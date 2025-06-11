@@ -18,6 +18,12 @@ import {
   courtDateReminders,
   notificationPreferences,
   termsAcknowledgments,
+  companyConfigurations,
+  stateConfigurations,
+  customFields,
+  documentTemplates,
+  statePricing,
+  businessRules,
   type User,
   type UpsertUser,
   type Client,
@@ -48,6 +54,18 @@ import {
   type InsertNotificationPreferences,
   type TermsAcknowledgment,
   type InsertTermsAcknowledgment,
+  type CompanyConfiguration,
+  type InsertCompanyConfiguration,
+  type StateConfiguration,
+  type InsertStateConfiguration,
+  type CustomField,
+  type InsertCustomField,
+  type DocumentTemplate,
+  type InsertDocumentTemplate,
+  type StatePricing,
+  type InsertStatePricing,
+  type BusinessRule,
+  type InsertBusinessRule,
 } from '@shared/schema';
 
 export interface IStorage {
@@ -149,6 +167,42 @@ export interface IStorage {
   // Terms acknowledgment operations
   checkTermsAcknowledgment(userId: string, version: string): Promise<boolean>;
   acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment>;
+
+  // Company configuration operations
+  createCompanyConfiguration(configData: InsertCompanyConfiguration): Promise<CompanyConfiguration>;
+  getCompanyConfiguration(id: number): Promise<CompanyConfiguration | undefined>;
+  updateCompanyConfiguration(id: number, updates: Partial<InsertCompanyConfiguration>): Promise<CompanyConfiguration>;
+  getAllCompanyConfigurations(): Promise<CompanyConfiguration[]>;
+
+  // State configuration operations
+  createStateConfiguration(configData: InsertStateConfiguration): Promise<StateConfiguration>;
+  getStateConfiguration(state: string): Promise<StateConfiguration | undefined>;
+  updateStateConfiguration(id: number, updates: Partial<InsertStateConfiguration>): Promise<StateConfiguration>;
+  getAllStateConfigurations(): Promise<StateConfiguration[]>;
+
+  // Custom fields operations
+  createCustomField(fieldData: InsertCustomField): Promise<CustomField>;
+  getCustomFields(companyId?: number, state?: string, entityType?: string): Promise<CustomField[]>;
+  updateCustomField(id: number, updates: Partial<InsertCustomField>): Promise<CustomField>;
+  deleteCustomField(id: number): Promise<void>;
+
+  // Document template operations
+  createDocumentTemplate(templateData: InsertDocumentTemplate): Promise<DocumentTemplate>;
+  getDocumentTemplates(companyId?: number, state?: string, templateType?: string): Promise<DocumentTemplate[]>;
+  updateDocumentTemplate(id: number, updates: Partial<InsertDocumentTemplate>): Promise<DocumentTemplate>;
+  deleteDocumentTemplate(id: number): Promise<void>;
+
+  // State pricing operations
+  createStatePricing(pricingData: InsertStatePricing): Promise<StatePricing>;
+  getStatePricing(companyId?: number, state?: string, bondType?: string): Promise<StatePricing[]>;
+  updateStatePricing(id: number, updates: Partial<InsertStatePricing>): Promise<StatePricing>;
+  deleteStatePricing(id: number): Promise<void>;
+
+  // Business rules operations
+  createBusinessRule(ruleData: InsertBusinessRule): Promise<BusinessRule>;
+  getBusinessRules(companyId: number, ruleType?: string): Promise<BusinessRule[]>;
+  updateBusinessRule(id: number, updates: Partial<InsertBusinessRule>): Promise<BusinessRule>;
+  deleteBusinessRule(id: number): Promise<void>;
 }
 
 export class LocalFileStorage implements IStorage {
@@ -1613,6 +1667,302 @@ export class LocalFileStorage implements IStorage {
       console.error('Error creating privacy acknowledgment:', error);
       throw error;
     }
+  }
+
+  // Company configuration operations
+  async createCompanyConfiguration(configData: InsertCompanyConfiguration): Promise<CompanyConfiguration> {
+    const config: CompanyConfiguration = {
+      id: this.getNextId(),
+      ...configData,
+      isActive: configData.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const configs = await this.readJsonFile<CompanyConfiguration>('company-configurations.json', []);
+    configs.push(config);
+    await this.writeJsonFile('company-configurations.json', configs);
+    
+    return config;
+  }
+
+  async getCompanyConfiguration(id: number): Promise<CompanyConfiguration | undefined> {
+    const configs = await this.readJsonFile<CompanyConfiguration>('company-configurations.json', []);
+    return configs.find(config => config.id === id);
+  }
+
+  async updateCompanyConfiguration(id: number, updates: Partial<InsertCompanyConfiguration>): Promise<CompanyConfiguration> {
+    const configs = await this.readJsonFile<CompanyConfiguration>('company-configurations.json', []);
+    const configIndex = configs.findIndex(config => config.id === id);
+    
+    if (configIndex === -1) {
+      throw new Error('Company configuration not found');
+    }
+
+    configs[configIndex] = {
+      ...configs[configIndex],
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    await this.writeJsonFile('company-configurations.json', configs);
+    return configs[configIndex];
+  }
+
+  async getAllCompanyConfigurations(): Promise<CompanyConfiguration[]> {
+    return await this.readJsonFile<CompanyConfiguration>('company-configurations.json', []);
+  }
+
+  // State configuration operations
+  async createStateConfiguration(configData: InsertStateConfiguration): Promise<StateConfiguration> {
+    const config: StateConfiguration = {
+      id: this.getNextId(),
+      ...configData,
+      isActive: configData.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const configs = await this.readJsonFile<StateConfiguration>('state-configurations.json', []);
+    configs.push(config);
+    await this.writeJsonFile('state-configurations.json', configs);
+    
+    return config;
+  }
+
+  async getStateConfiguration(state: string): Promise<StateConfiguration | undefined> {
+    const configs = await this.readJsonFile<StateConfiguration>('state-configurations.json', []);
+    return configs.find(config => config.state === state);
+  }
+
+  async updateStateConfiguration(id: number, updates: Partial<InsertStateConfiguration>): Promise<StateConfiguration> {
+    const configs = await this.readJsonFile<StateConfiguration>('state-configurations.json', []);
+    const configIndex = configs.findIndex(config => config.id === id);
+    
+    if (configIndex === -1) {
+      throw new Error('State configuration not found');
+    }
+
+    configs[configIndex] = {
+      ...configs[configIndex],
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    await this.writeJsonFile('state-configurations.json', configs);
+    return configs[configIndex];
+  }
+
+  async getAllStateConfigurations(): Promise<StateConfiguration[]> {
+    return await this.readJsonFile<StateConfiguration>('state-configurations.json', []);
+  }
+
+  // Custom fields operations
+  async createCustomField(fieldData: InsertCustomField): Promise<CustomField> {
+    const field: CustomField = {
+      id: this.getNextId(),
+      ...fieldData,
+      isRequired: fieldData.isRequired ?? false,
+      isActive: fieldData.isActive ?? true,
+      displayOrder: fieldData.displayOrder ?? 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const fields = await this.readJsonFile<CustomField>('custom-fields.json', []);
+    fields.push(field);
+    await this.writeJsonFile('custom-fields.json', fields);
+    
+    return field;
+  }
+
+  async getCustomFields(companyId?: number, state?: string, entityType?: string): Promise<CustomField[]> {
+    const fields = await this.readJsonFile<CustomField>('custom-fields.json', []);
+    return fields.filter(field => 
+      (!companyId || field.companyId === companyId) &&
+      (!state || field.state === state) &&
+      (!entityType || field.entityType === entityType) &&
+      field.isActive
+    );
+  }
+
+  async updateCustomField(id: number, updates: Partial<InsertCustomField>): Promise<CustomField> {
+    const fields = await this.readJsonFile<CustomField>('custom-fields.json', []);
+    const fieldIndex = fields.findIndex(field => field.id === id);
+    
+    if (fieldIndex === -1) {
+      throw new Error('Custom field not found');
+    }
+
+    fields[fieldIndex] = {
+      ...fields[fieldIndex],
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    await this.writeJsonFile('custom-fields.json', fields);
+    return fields[fieldIndex];
+  }
+
+  async deleteCustomField(id: number): Promise<void> {
+    const fields = await this.readJsonFile<CustomField>('custom-fields.json', []);
+    const filteredFields = fields.filter(field => field.id !== id);
+    await this.writeJsonFile('custom-fields.json', filteredFields);
+  }
+
+  // Document template operations
+  async createDocumentTemplate(templateData: InsertDocumentTemplate): Promise<DocumentTemplate> {
+    const template: DocumentTemplate = {
+      id: this.getNextId(),
+      ...templateData,
+      isActive: templateData.isActive ?? true,
+      version: templateData.version ?? "1.0",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const templates = await this.readJsonFile<DocumentTemplate>('document-templates.json', []);
+    templates.push(template);
+    await this.writeJsonFile('document-templates.json', templates);
+    
+    return template;
+  }
+
+  async getDocumentTemplates(companyId?: number, state?: string, templateType?: string): Promise<DocumentTemplate[]> {
+    const templates = await this.readJsonFile<DocumentTemplate>('document-templates.json', []);
+    return templates.filter(template => 
+      (!companyId || template.companyId === companyId) &&
+      (!state || template.state === state) &&
+      (!templateType || template.templateType === templateType) &&
+      template.isActive
+    );
+  }
+
+  async updateDocumentTemplate(id: number, updates: Partial<InsertDocumentTemplate>): Promise<DocumentTemplate> {
+    const templates = await this.readJsonFile<DocumentTemplate>('document-templates.json', []);
+    const templateIndex = templates.findIndex(template => template.id === id);
+    
+    if (templateIndex === -1) {
+      throw new Error('Document template not found');
+    }
+
+    templates[templateIndex] = {
+      ...templates[templateIndex],
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    await this.writeJsonFile('document-templates.json', templates);
+    return templates[templateIndex];
+  }
+
+  async deleteDocumentTemplate(id: number): Promise<void> {
+    const templates = await this.readJsonFile<DocumentTemplate>('document-templates.json', []);
+    const filteredTemplates = templates.filter(template => template.id !== id);
+    await this.writeJsonFile('document-templates.json', filteredTemplates);
+  }
+
+  // State pricing operations
+  async createStatePricing(pricingData: InsertStatePricing): Promise<StatePricing> {
+    const pricing: StatePricing = {
+      id: this.getNextId(),
+      ...pricingData,
+      isActive: pricingData.isActive ?? true,
+      effectiveDate: pricingData.effectiveDate ?? new Date().toISOString().split('T')[0],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const pricings = await this.readJsonFile<StatePricing>('state-pricing.json', []);
+    pricings.push(pricing);
+    await this.writeJsonFile('state-pricing.json', pricings);
+    
+    return pricing;
+  }
+
+  async getStatePricing(companyId?: number, state?: string, bondType?: string): Promise<StatePricing[]> {
+    const pricings = await this.readJsonFile<StatePricing>('state-pricing.json', []);
+    return pricings.filter(pricing => 
+      (!companyId || pricing.companyId === companyId) &&
+      (!state || pricing.state === state) &&
+      (!bondType || pricing.bondType === bondType) &&
+      pricing.isActive
+    );
+  }
+
+  async updateStatePricing(id: number, updates: Partial<InsertStatePricing>): Promise<StatePricing> {
+    const pricings = await this.readJsonFile<StatePricing>('state-pricing.json', []);
+    const pricingIndex = pricings.findIndex(pricing => pricing.id === id);
+    
+    if (pricingIndex === -1) {
+      throw new Error('State pricing not found');
+    }
+
+    pricings[pricingIndex] = {
+      ...pricings[pricingIndex],
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    await this.writeJsonFile('state-pricing.json', pricings);
+    return pricings[pricingIndex];
+  }
+
+  async deleteStatePricing(id: number): Promise<void> {
+    const pricings = await this.readJsonFile<StatePricing>('state-pricing.json', []);
+    const filteredPricings = pricings.filter(pricing => pricing.id !== id);
+    await this.writeJsonFile('state-pricing.json', filteredPricings);
+  }
+
+  // Business rules operations
+  async createBusinessRule(ruleData: InsertBusinessRule): Promise<BusinessRule> {
+    const rule: BusinessRule = {
+      id: this.getNextId(),
+      ...ruleData,
+      priority: ruleData.priority ?? 0,
+      isActive: ruleData.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const rules = await this.readJsonFile<BusinessRule>('business-rules.json', []);
+    rules.push(rule);
+    await this.writeJsonFile('business-rules.json', rules);
+    
+    return rule;
+  }
+
+  async getBusinessRules(companyId: number, ruleType?: string): Promise<BusinessRule[]> {
+    const rules = await this.readJsonFile<BusinessRule>('business-rules.json', []);
+    return rules.filter(rule => 
+      rule.companyId === companyId &&
+      (!ruleType || rule.ruleType === ruleType) &&
+      rule.isActive
+    ).sort((a, b) => (b.priority || 0) - (a.priority || 0));
+  }
+
+  async updateBusinessRule(id: number, updates: Partial<InsertBusinessRule>): Promise<BusinessRule> {
+    const rules = await this.readJsonFile<BusinessRule>('business-rules.json', []);
+    const ruleIndex = rules.findIndex(rule => rule.id === id);
+    
+    if (ruleIndex === -1) {
+      throw new Error('Business rule not found');
+    }
+
+    rules[ruleIndex] = {
+      ...rules[ruleIndex],
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    await this.writeJsonFile('business-rules.json', rules);
+    return rules[ruleIndex];
+  }
+
+  async deleteBusinessRule(id: number): Promise<void> {
+    const rules = await this.readJsonFile<BusinessRule>('business-rules.json', []);
+    const filteredRules = rules.filter(rule => rule.id !== id);
+    await this.writeJsonFile('business-rules.json', filteredRules);
   }
 }
 

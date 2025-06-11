@@ -1,310 +1,308 @@
-import { Express, Request, Response } from "express";
+import { Router } from "express";
 import { storage } from "../local-db";
-import { sendGridService } from "../services/sendgrid";
+import { 
+  insertCompanyConfigurationSchema,
+  insertStateConfigurationSchema,
+  insertCustomFieldSchema,
+  insertDocumentTemplateSchema,
+  insertStatePricingSchema,
+  insertBusinessRuleSchema
+} from "@shared/schema";
 
-export function registerAdminRoutes(app: Express) {
-  // Business Profile Management
-  app.get("/api/admin/business-profile", async (req: Request, res: Response) => {
-    try {
-      // In a real implementation, this would fetch from a business_profile table
-      const defaultProfile = {
-        companyName: "SecureBond Services",
-        licenseNumber: "BB-2024-001",
-        address: "123 Business Center Dr",
-        city: "Honolulu",
-        state: "Hawaii",
-        zipCode: "96813",
-        phone: "(808) 555-0123",
-        email: "admin@securebond.com",
-        website: "www.securebond.com",
-        description: "Professional bail bond services with advanced technology solutions"
-      };
-      
-      res.json(defaultProfile);
-    } catch (error) {
-      console.error("Error fetching business profile:", error);
-      res.status(500).json({ error: "Failed to fetch business profile" });
+const router = Router();
+
+// Company Configuration Routes
+router.post("/company-configuration", async (req, res) => {
+  try {
+    const validatedData = insertCompanyConfigurationSchema.parse(req.body);
+    const config = await storage.createCompanyConfiguration(validatedData);
+    res.json(config);
+  } catch (error) {
+    console.error("Error creating company configuration:", error);
+    res.status(400).json({ error: "Failed to create company configuration" });
+  }
+});
+
+router.get("/company-configuration/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const config = await storage.getCompanyConfiguration(id);
+    if (!config) {
+      return res.status(404).json({ error: "Company configuration not found" });
     }
-  });
+    res.json(config);
+  } catch (error) {
+    console.error("Error fetching company configuration:", error);
+    res.status(500).json({ error: "Failed to fetch company configuration" });
+  }
+});
 
-  app.put("/api/admin/business-profile", async (req: Request, res: Response) => {
-    try {
-      const profileData = req.body;
-      // In a real implementation, this would save to database
-      console.log("Saving business profile:", profileData);
-      
-      res.json({ success: true, message: "Business profile updated successfully" });
-    } catch (error) {
-      console.error("Error updating business profile:", error);
-      res.status(500).json({ error: "Failed to update business profile" });
+router.put("/company-configuration/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const config = await storage.updateCompanyConfiguration(id, updates);
+    res.json(config);
+  } catch (error) {
+    console.error("Error updating company configuration:", error);
+    res.status(400).json({ error: "Failed to update company configuration" });
+  }
+});
+
+router.get("/company-configurations", async (req, res) => {
+  try {
+    const configs = await storage.getAllCompanyConfigurations();
+    res.json(configs);
+  } catch (error) {
+    console.error("Error fetching company configurations:", error);
+    res.status(500).json({ error: "Failed to fetch company configurations" });
+  }
+});
+
+// State Configuration Routes
+router.post("/state-configurations", async (req, res) => {
+  try {
+    const validatedData = insertStateConfigurationSchema.parse(req.body);
+    const config = await storage.createStateConfiguration(validatedData);
+    res.json(config);
+  } catch (error) {
+    console.error("Error creating state configuration:", error);
+    res.status(400).json({ error: "Failed to create state configuration" });
+  }
+});
+
+router.get("/state-configurations", async (req, res) => {
+  try {
+    const configs = await storage.getAllStateConfigurations();
+    res.json(configs);
+  } catch (error) {
+    console.error("Error fetching state configurations:", error);
+    res.status(500).json({ error: "Failed to fetch state configurations" });
+  }
+});
+
+router.get("/state-configurations/:state", async (req, res) => {
+  try {
+    const state = req.params.state;
+    const config = await storage.getStateConfiguration(state);
+    if (!config) {
+      return res.status(404).json({ error: "State configuration not found" });
     }
-  });
+    res.json(config);
+  } catch (error) {
+    console.error("Error fetching state configuration:", error);
+    res.status(500).json({ error: "Failed to fetch state configuration" });
+  }
+});
 
-  // Business Goals Management
-  app.get("/api/admin/business-goals", async (req: Request, res: Response) => {
-    try {
-      const defaultGoals = {
-        annualRevenueTarget: 2500000,
-        clientGrowthTarget: 150,
-        retentionRateTarget: 95,
-        profitMarginTarget: 75,
-        bondVolumeTarget: 500,
-        complianceRateTarget: 98
-      };
-      
-      res.json(defaultGoals);
-    } catch (error) {
-      console.error("Error fetching business goals:", error);
-      res.status(500).json({ error: "Failed to fetch business goals" });
-    }
-  });
+router.put("/state-configurations/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const config = await storage.updateStateConfiguration(id, updates);
+    res.json(config);
+  } catch (error) {
+    console.error("Error updating state configuration:", error);
+    res.status(400).json({ error: "Failed to update state configuration" });
+  }
+});
 
-  app.put("/api/admin/business-goals", async (req: Request, res: Response) => {
-    try {
-      const goalsData = req.body;
-      // In a real implementation, this would save to database
-      console.log("Saving business goals:", goalsData);
-      
-      res.json({ success: true, message: "Business goals updated successfully" });
-    } catch (error) {
-      console.error("Error updating business goals:", error);
-      res.status(500).json({ error: "Failed to update business goals" });
-    }
-  });
+// State Pricing Routes
+router.post("/state-pricing", async (req, res) => {
+  try {
+    const validatedData = insertStatePricingSchema.parse(req.body);
+    const pricing = await storage.createStatePricing(validatedData);
+    res.json(pricing);
+  } catch (error) {
+    console.error("Error creating state pricing:", error);
+    res.status(400).json({ error: "Failed to create state pricing" });
+  }
+});
 
-  // Staff Management
-  app.get("/api/admin/staff", async (req: Request, res: Response) => {
-    try {
-      // In a real implementation, this would fetch from a staff/users table
-      const defaultStaff = [
-        {
-          id: 1,
-          fullName: "Admin User",
-          email: "admin@securebond.com",
-          role: "admin",
-          permissions: ["all"],
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString()
-        }
-      ];
-      
-      res.json(defaultStaff);
-    } catch (error) {
-      console.error("Error fetching staff:", error);
-      res.status(500).json({ error: "Failed to fetch staff members" });
-    }
-  });
+router.get("/state-pricing/:companyId", async (req, res) => {
+  try {
+    const companyId = parseInt(req.params.companyId);
+    const { state, bondType } = req.query;
+    const pricing = await storage.getStatePricing(
+      companyId,
+      state as string,
+      bondType as string
+    );
+    res.json(pricing);
+  } catch (error) {
+    console.error("Error fetching state pricing:", error);
+    res.status(500).json({ error: "Failed to fetch state pricing" });
+  }
+});
 
-  app.post("/api/admin/staff", async (req: Request, res: Response) => {
-    try {
-      const staffData = req.body;
-      
-      // Validate required fields
-      if (!staffData.fullName || !staffData.email) {
-        return res.status(400).json({ error: "Full name and email are required" });
-      }
+router.put("/state-pricing/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const pricing = await storage.updateStatePricing(id, updates);
+    res.json(pricing);
+  } catch (error) {
+    console.error("Error updating state pricing:", error);
+    res.status(400).json({ error: "Failed to update state pricing" });
+  }
+});
 
-      // In a real implementation, this would:
-      // 1. Create user account
-      // 2. Send welcome email with login credentials
-      // 3. Set up permissions
-      
-      const newStaff = {
-        id: Date.now(), // In real implementation, use proper ID generation
-        fullName: staffData.fullName,
-        email: staffData.email,
-        role: staffData.role,
-        permissions: staffData.permissions || [],
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        lastLogin: null
-      };
+router.delete("/state-pricing/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteStatePricing(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting state pricing:", error);
+    res.status(400).json({ error: "Failed to delete state pricing" });
+  }
+});
 
-      console.log("Creating new staff member:", newStaff);
-      
-      res.json({ success: true, data: newStaff, message: "Staff member created successfully" });
-    } catch (error) {
-      console.error("Error creating staff member:", error);
-      res.status(500).json({ error: "Failed to create staff member" });
-    }
-  });
+// Custom Fields Routes
+router.post("/custom-fields", async (req, res) => {
+  try {
+    const validatedData = insertCustomFieldSchema.parse(req.body);
+    const field = await storage.createCustomField(validatedData);
+    res.json(field);
+  } catch (error) {
+    console.error("Error creating custom field:", error);
+    res.status(400).json({ error: "Failed to create custom field" });
+  }
+});
 
-  app.put("/api/admin/staff/:id", async (req: Request, res: Response) => {
-    try {
-      const staffId = parseInt(req.params.id);
-      const updateData = req.body;
-      
-      // In a real implementation, this would update the staff member in database
-      console.log(`Updating staff member ${staffId}:`, updateData);
-      
-      res.json({ success: true, message: "Staff member updated successfully" });
-    } catch (error) {
-      console.error("Error updating staff member:", error);
-      res.status(500).json({ error: "Failed to update staff member" });
-    }
-  });
+router.get("/custom-fields", async (req, res) => {
+  try {
+    const { companyId, state, entityType } = req.query;
+    const fields = await storage.getCustomFields(
+      companyId ? parseInt(companyId as string) : undefined,
+      state as string,
+      entityType as string
+    );
+    res.json(fields);
+  } catch (error) {
+    console.error("Error fetching custom fields:", error);
+    res.status(500).json({ error: "Failed to fetch custom fields" });
+  }
+});
 
-  app.delete("/api/admin/staff/:id", async (req: Request, res: Response) => {
-    try {
-      const staffId = parseInt(req.params.id);
-      
-      // In a real implementation, this would soft-delete the staff member
-      console.log(`Deactivating staff member ${staffId}`);
-      
-      res.json({ success: true, message: "Staff member deactivated successfully" });
-    } catch (error) {
-      console.error("Error deactivating staff member:", error);
-      res.status(500).json({ error: "Failed to deactivate staff member" });
-    }
-  });
+router.put("/custom-fields/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const field = await storage.updateCustomField(id, updates);
+    res.json(field);
+  } catch (error) {
+    console.error("Error updating custom field:", error);
+    res.status(400).json({ error: "Failed to update custom field" });
+  }
+});
 
-  // System Configuration
-  app.get("/api/admin/system-config", async (req: Request, res: Response) => {
-    try {
-      const defaultConfig = {
-        security: {
-          twoFactorAuth: false,
-          sessionTimeout: 30,
-          auditLogging: true,
-          passwordPolicy: {
-            minLength: 8,
-            requireSpecialChars: true,
-            requireNumbers: true
-          }
-        },
-        notifications: {
-          emailNotifications: true,
-          smsNotifications: false,
-          courtReminders: true,
-          alertFrequency: "immediate"
-        },
-        system: {
-          maintenanceMode: false,
-          backupFrequency: "daily",
-          dataRetention: 365
-        }
-      };
-      
-      res.json(defaultConfig);
-    } catch (error) {
-      console.error("Error fetching system config:", error);
-      res.status(500).json({ error: "Failed to fetch system configuration" });
-    }
-  });
+router.delete("/custom-fields/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteCustomField(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting custom field:", error);
+    res.status(400).json({ error: "Failed to delete custom field" });
+  }
+});
 
-  app.put("/api/admin/system-config", async (req: Request, res: Response) => {
-    try {
-      const configData = req.body;
-      // In a real implementation, this would save system configuration
-      console.log("Updating system configuration:", configData);
-      
-      res.json({ success: true, message: "System configuration updated successfully" });
-    } catch (error) {
-      console.error("Error updating system config:", error);
-      res.status(500).json({ error: "Failed to update system configuration" });
-    }
-  });
+// Document Template Routes
+router.post("/document-templates", async (req, res) => {
+  try {
+    const validatedData = insertDocumentTemplateSchema.parse(req.body);
+    const template = await storage.createDocumentTemplate(validatedData);
+    res.json(template);
+  } catch (error) {
+    console.error("Error creating document template:", error);
+    res.status(400).json({ error: "Failed to create document template" });
+  }
+});
 
-  // System Actions
-  app.post("/api/admin/backup", async (req: Request, res: Response) => {
-    try {
-      // In a real implementation, this would trigger a system backup
-      console.log("Initiating system backup...");
-      
-      const backupId = `backup_${Date.now()}`;
-      
-      res.json({ 
-        success: true, 
-        backupId, 
-        message: "System backup initiated successfully" 
-      });
-    } catch (error) {
-      console.error("Error initiating backup:", error);
-      res.status(500).json({ error: "Failed to initiate backup" });
-    }
-  });
+router.get("/document-templates", async (req, res) => {
+  try {
+    const { companyId, state, templateType } = req.query;
+    const templates = await storage.getDocumentTemplates(
+      companyId ? parseInt(companyId as string) : undefined,
+      state as string,
+      templateType as string
+    );
+    res.json(templates);
+  } catch (error) {
+    console.error("Error fetching document templates:", error);
+    res.status(500).json({ error: "Failed to fetch document templates" });
+  }
+});
 
-  app.post("/api/admin/security-audit", async (req: Request, res: Response) => {
-    try {
-      // In a real implementation, this would run security audit checks
-      console.log("Running security audit...");
-      
-      const auditResults = {
-        timestamp: new Date().toISOString(),
-        status: "passed",
-        issues: [],
-        recommendations: [
-          "Enable two-factor authentication for all admin accounts",
-          "Review user permissions quarterly",
-          "Update system dependencies regularly"
-        ]
-      };
-      
-      res.json({ 
-        success: true, 
-        audit: auditResults, 
-        message: "Security audit completed successfully" 
-      });
-    } catch (error) {
-      console.error("Error running security audit:", error);
-      res.status(500).json({ error: "Failed to run security audit" });
-    }
-  });
+router.put("/document-templates/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const template = await storage.updateDocumentTemplate(id, updates);
+    res.json(template);
+  } catch (error) {
+    console.error("Error updating document template:", error);
+    res.status(400).json({ error: "Failed to update document template" });
+  }
+});
 
-  // SendGrid Configuration
-  app.put("/api/admin/sendgrid-config", async (req: Request, res: Response) => {
-    try {
-      const { apiKey, fromEmail, fromName } = req.body;
-      
-      if (!apiKey || !apiKey.startsWith('SG.')) {
-        return res.status(400).json({ error: "Invalid SendGrid API key format" });
-      }
+router.delete("/document-templates/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteDocumentTemplate(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting document template:", error);
+    res.status(400).json({ error: "Failed to delete document template" });
+  }
+});
 
-      // Configure SendGrid service
-      sendGridService.configure(apiKey);
-      
-      // In production, save these settings to database/config
-      process.env.SENDGRID_API_KEY = apiKey;
-      process.env.SENDGRID_FROM_EMAIL = fromEmail;
-      process.env.SENDGRID_FROM_NAME = fromName;
-      
-      console.log("SendGrid configuration updated");
-      
-      res.json({ 
-        success: true, 
-        message: "SendGrid configuration saved successfully" 
-      });
-    } catch (error) {
-      console.error("Error saving SendGrid config:", error);
-      res.status(500).json({ error: "Failed to save SendGrid configuration" });
-    }
-  });
+// Business Rules Routes
+router.post("/business-rules", async (req, res) => {
+  try {
+    const validatedData = insertBusinessRuleSchema.parse(req.body);
+    const rule = await storage.createBusinessRule(validatedData);
+    res.json(rule);
+  } catch (error) {
+    console.error("Error creating business rule:", error);
+    res.status(400).json({ error: "Failed to create business rule" });
+  }
+});
 
-  app.post("/api/admin/test-sendgrid", async (req: Request, res: Response) => {
-    try {
-      const { testEmail } = req.body;
-      
-      if (!testEmail) {
-        return res.status(400).json({ error: "Test email address required" });
-      }
+router.get("/business-rules/:companyId", async (req, res) => {
+  try {
+    const companyId = parseInt(req.params.companyId);
+    const { ruleType } = req.query;
+    const rules = await storage.getBusinessRules(companyId, ruleType as string);
+    res.json(rules);
+  } catch (error) {
+    console.error("Error fetching business rules:", error);
+    res.status(500).json({ error: "Failed to fetch business rules" });
+  }
+});
 
-      const result = await sendGridService.testConnection(testEmail);
-      
-      if (result.success) {
-        res.json({ 
-          success: true, 
-          message: "Test email sent successfully. Check your inbox." 
-        });
-      } else {
-        res.status(400).json({ 
-          success: false, 
-          error: result.message 
-        });
-      }
-    } catch (error) {
-      console.error("Error testing SendGrid:", error);
-      res.status(500).json({ error: "Failed to test SendGrid connection" });
-    }
-  });
-}
+router.put("/business-rules/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const rule = await storage.updateBusinessRule(id, updates);
+    res.json(rule);
+  } catch (error) {
+    console.error("Error updating business rule:", error);
+    res.status(400).json({ error: "Failed to update business rule" });
+  }
+});
+
+router.delete("/business-rules/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteBusinessRule(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting business rule:", error);
+    res.status(400).json({ error: "Failed to delete business rule" });
+  }
+});
+
+export default router;
