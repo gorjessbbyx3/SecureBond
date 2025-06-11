@@ -30,6 +30,9 @@ import PerformanceMetrics from "@/components/dashboard/performance-metrics";
 import ClientAnalytics from "@/components/analytics/client-analytics";
 import RevenueChart from "@/components/charts/revenue-chart";
 import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833870.png";
+import { AIEnhancedOverview } from "@/components/admin/ai-enhanced-overview";
+import { MillionDollarClientManagement } from "@/components/admin/million-dollar-client-management";
+import { MillionDollarFinancial } from "@/components/admin/million-dollar-financial";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -234,52 +237,8 @@ export default function EnhancedAdminDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Quick Stats */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
-                  <Badge variant="secondary">Live</Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">0</div>
-                  <p className="text-xs text-muted-foreground">Active client base</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Bonds</CardTitle>
-                  <Badge variant="secondary">Live</Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">0</div>
-                  <p className="text-xs text-muted-foreground">Current portfolio</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-                  <Badge variant="secondary">Live</Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">$0</div>
-                  <p className="text-xs text-muted-foreground">Total collected</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Court Dates</CardTitle>
-                  <Badge variant="secondary">Live</Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">0</div>
-                  <p className="text-xs text-muted-foreground">Upcoming hearings</p>
-                </CardContent>
-              </Card>
-            </div>
+            <AIEnhancedOverview />
+          </TabsContent>
             
             {/* Quick Actions */}
             <Card>
