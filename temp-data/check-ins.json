@@ -46,5 +46,13 @@
     "notes": "Regular check-in from home area",
     "checkInTime": null,
     "createdAt": "2025-06-11T10:31:32.332Z"
+  },
+  {
+    "id": 10,
+    "clientId": 1,
+    "location": "21.2895,-157.8267",
+    "notes": "Testing button functionality - downtown check-in",
+    "checkInTime": null,
+    "createdAt": "2025-06-11T10:33:42.241Z"
   }
 ]

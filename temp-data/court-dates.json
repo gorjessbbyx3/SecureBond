@@ -1,0 +1,22 @@
+[
+  {
+    "id": 12,
+    "createdAt": "2025-06-11T10:33:51.741Z",
+    "clientId": 1,
+    "courtDate": "2024-07-15T00:00:00.000Z",
+    "courtType": "hearing",
+    "courtLocation": "Honolulu District Court",
+    "charges": "Assault 3rd Degree",
+    "caseNumber": null,
+    "notes": "Test court date entry",
+    "completed": false,
+    "attendanceStatus": "pending",
+    "adminApproved": false,
+    "approvedBy": null,
+    "approvedAt": null,
+    "clientAcknowledged": false,
+    "acknowledgedAt": null,
+    "source": "manual",
+    "sourceVerified": false
+  }
+]
