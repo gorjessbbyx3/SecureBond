@@ -29,7 +29,7 @@ export default function StaffLogin() {
       queryClient.setQueryData(["/api/auth/user"], data);
       
       // Redirect based on role
-      if (data.role === "admin") {
+      if ((data as any).role === "admin") {
         setLocation("/admin");
       } else {
         setLocation("/staff-dashboard");
@@ -37,7 +37,7 @@ export default function StaffLogin() {
       
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${data.firstName || data.email}!`,
+        description: `Welcome back, ${(data as any).firstName || (data as any).email}!`,
       });
     },
     onError: (error) => {

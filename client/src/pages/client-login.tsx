@@ -37,7 +37,7 @@ export default function ClientLogin() {
       setLocation("/client-dashboard");
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${data.fullName || 'Client'}!`,
+        description: `Welcome back, ${(data as any).fullName || 'Client'}!`,
       });
     },
     onError: (error) => {
@@ -131,7 +131,7 @@ export default function ClientLogin() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Login Method Selection */}
                 <div className="space-y-2">
-                  <Label>Login Method</Label>
+                  <Label htmlFor="login-method">Login Method</Label>
                   <div className="flex gap-2">
                     <Button
                       type="button"

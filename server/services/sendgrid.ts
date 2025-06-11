@@ -1,59 +1,37 @@
 import { MailService } from '@sendgrid/mail';
 
+if (!process.env.SENDGRID_API_KEY) {
+  console.warn("SENDGRID_API_KEY environment variable not set. Email functionality will be disabled.");
+}
+
+const mailService = new MailService();
+if (process.env.SENDGRID_API_KEY) {
+  mailService.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
 interface EmailParams {
   to: string;
   from: string;
   subject: string;
   text?: string;
   html?: string;
-  templateId?: string;
-  dynamicTemplateData?: any;
 }
 
 export class SendGridService {
-  private mailService: MailService;
-  private isConfigured: boolean = false;
-
-  constructor() {
-    this.mailService = new MailService();
-  }
-
-  configure(apiKey: string): void {
-    if (!apiKey || !apiKey.startsWith('SG.')) {
-      throw new Error('Invalid SendGrid API key format');
-    }
-    
-    this.mailService.setApiKey(apiKey);
-    this.isConfigured = true;
-  }
-
-  isReady(): boolean {
-    return this.isConfigured && !!process.env.SENDGRID_API_KEY;
-  }
-
   async sendEmail(params: EmailParams): Promise<boolean> {
-    if (!this.isReady()) {
-      console.error('SendGrid not configured - email not sent');
+    if (!process.env.SENDGRID_API_KEY) {
+      console.warn("SendGrid API key not configured. Email not sent.");
       return false;
     }
 
     try {
-      const emailData: any = {
+      await mailService.send({
         to: params.to,
         from: params.from,
         subject: params.subject,
-      };
-
-      if (params.templateId) {
-        emailData.templateId = params.templateId;
-        emailData.dynamicTemplateData = params.dynamicTemplateData || {};
-      } else {
-        emailData.text = params.text;
-        emailData.html = params.html;
-      }
-
-      await this.mailService.send(emailData);
-      console.log(`Email sent successfully to ${params.to}`);
+        text: params.text,
+        html: params.html,
+      });
       return true;
     } catch (error) {
       console.error('SendGrid email error:', error);
@@ -61,90 +39,80 @@ export class SendGridService {
     }
   }
 
-  async sendCourtReminder(clientEmail: string, clientName: string, courtDate: string, location: string): Promise<boolean> {
-    if (!this.isReady()) {
-      console.log('SendGrid not configured - court reminder not sent');
-      return false;
+  async sendBulkEmails(emails: EmailParams[]): Promise<number> {
+    if (!process.env.SENDGRID_API_KEY) {
+      console.warn("SendGrid API key not configured. Bulk emails not sent.");
+      return 0;
     }
+
+    let successCount = 0;
+    for (const email of emails) {
+      const success = await this.sendEmail(email);
+      if (success) successCount++;
+    }
+    return successCount;
+  }
+
+  async sendCourtReminder(clientEmail: string, clientName: string, courtDate: Date, caseNumber?: string): Promise<boolean> {
+    const subject = `Court Date Reminder - ${courtDate.toLocaleDateString()}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1e40af;">Court Date Reminder</h2>
+        <p>Dear ${clientName},</p>
+        <p>This is a reminder about your upcoming court date:</p>
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Date:</strong> ${courtDate.toLocaleDateString()}</p>
+          <p><strong>Time:</strong> ${courtDate.toLocaleTimeString()}</p>
+          ${caseNumber ? `<p><strong>Case Number:</strong> ${caseNumber}</p>` : ''}
+        </div>
+        <p><strong>Important:</strong> Please ensure you appear at the scheduled time. Failure to appear may result in bond forfeiture.</p>
+        <p>If you have any questions, please contact us immediately.</p>
+        <hr style="margin: 30px 0;">
+        <p style="color: #6b7280; font-size: 12px;">
+          This is an automated reminder from Aloha Bail Bond.<br>
+          Please do not reply to this email.
+        </p>
+      </div>
+    `;
 
     return this.sendEmail({
       to: clientEmail,
-      from: process.env.SENDGRID_FROM_EMAIL || 'alerts@yourdomain.com',
-      subject: 'Court Date Reminder - Action Required',
-      html: `
-        <h2>Court Date Reminder</h2>
-        <p>Dear ${clientName},</p>
-        <p>This is a reminder that you have a court appearance scheduled:</p>
-        <ul>
-          <li><strong>Date:</strong> ${courtDate}</li>
-          <li><strong>Location:</strong> ${location}</li>
-        </ul>
-        <p><strong>IMPORTANT:</strong> Failure to appear may result in a warrant for your arrest and forfeiture of your bond.</p>
-        <p>Please contact us immediately if you have any questions or concerns.</p>
-        <p>Best regards,<br>Your Bail Bond Team</p>
-      `
+      from: 'noreply@alohabailbond.com',
+      subject,
+      html,
+      text: `Court Date Reminder - ${clientName}, your court date is scheduled for ${courtDate.toLocaleDateString()} at ${courtDate.toLocaleTimeString()}. ${caseNumber ? `Case Number: ${caseNumber}. ` : ''}Please ensure you appear at the scheduled time.`
     });
   }
 
-  async sendEmergencyAlert(recipients: string[], message: string, alertType: string): Promise<boolean> {
-    if (!this.isReady()) {
-      console.log('SendGrid not configured - emergency alert not sent');
-      return false;
-    }
+  async sendPaymentConfirmation(clientEmail: string, clientName: string, amount: string, paymentDate: Date): Promise<boolean> {
+    const subject = `Payment Confirmation - $${amount}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #059669;">Payment Confirmed</h2>
+        <p>Dear ${clientName},</p>
+        <p>We have successfully received and confirmed your payment:</p>
+        <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #059669;">
+          <p><strong>Amount:</strong> $${amount}</p>
+          <p><strong>Date:</strong> ${paymentDate.toLocaleDateString()}</p>
+          <p><strong>Status:</strong> Confirmed</p>
+        </div>
+        <p>Thank you for your payment. Your account has been updated accordingly.</p>
+        <hr style="margin: 30px 0;">
+        <p style="color: #6b7280; font-size: 12px;">
+          This is an automated confirmation from Aloha Bail Bond.<br>
+          Please keep this email for your records.
+        </p>
+      </div>
+    `;
 
-    const promises = recipients.map(email => 
-      this.sendEmail({
-        to: email,
-        from: process.env.SENDGRID_FROM_EMAIL || 'alerts@yourdomain.com',
-        subject: `URGENT: ${alertType} Alert`,
-        html: `
-          <h2 style="color: red;">EMERGENCY ALERT</h2>
-          <p><strong>Alert Type:</strong> ${alertType}</p>
-          <p><strong>Message:</strong> ${message}</p>
-          <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-          <p>This alert requires immediate attention. Please take appropriate action.</p>
-        `
-      })
-    );
-
-    const results = await Promise.all(promises);
-    return results.every(result => result);
-  }
-
-  async testConnection(testEmail: string): Promise<{ success: boolean; message: string }> {
-    if (!this.isReady()) {
-      return {
-        success: false,
-        message: 'SendGrid API key not configured'
-      };
-    }
-
-    try {
-      const success = await this.sendEmail({
-        to: testEmail,
-        from: process.env.SENDGRID_FROM_EMAIL || 'test@yourdomain.com',
-        subject: 'SendGrid Test Email',
-        text: 'This is a test email to verify SendGrid configuration.',
-        html: '<p>This is a test email to verify SendGrid configuration.</p><p>If you receive this, your email system is working correctly.</p>'
-      });
-
-      return {
-        success,
-        message: success ? 'Test email sent successfully' : 'Failed to send test email'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: `SendGrid error: ${error}`
-      };
-    }
+    return this.sendEmail({
+      to: clientEmail,
+      from: 'payments@alohabailbond.com',
+      subject,
+      html,
+      text: `Payment Confirmation - ${clientName}, we have confirmed your payment of $${amount} received on ${paymentDate.toLocaleDateString()}. Thank you for your payment.`
+    });
   }
 }
 
-// Global instance
 export const sendGridService = new SendGridService();
-
-// Initialize with environment variable if available
-if (process.env.SENDGRID_API_KEY) {
-  sendGridService.configure(process.env.SENDGRID_API_KEY);
-}

@@ -9,6 +9,7 @@ import { sendGridService } from "./services/sendgrid";
 import { healthEndpoint, healthCheckMiddleware } from "./middleware/healthCheck";
 import { performanceMiddleware, performanceStatsEndpoint, performanceMetricsEndpoint } from "./middleware/performance";
 import { securityAuditMiddleware, securityReportEndpoint, securityEventsEndpoint } from "./middleware/securityAudit";
+import { auditLogger } from "./utils/auditLogger";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import bcrypt from 'bcrypt';
 import { 
