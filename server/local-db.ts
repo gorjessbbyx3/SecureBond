@@ -1373,19 +1373,19 @@ export class LocalFileStorage implements IStorage {
     return installments.filter((installment: any) => installment.paymentPlanId === planId);
   }
 
-  // Collections Activities
+  // Collections Activities - authentic data only
   async getCollectionsActivities(filters: any): Promise<any[]> {
     const activities = await this.readJsonFile<any[]>(path.join(this.dataDir, 'collections-activities.json'), []);
     let filtered = activities;
     
     if (filters.bondId) {
-      filtered = filtered.filter(activity => activity.bondId === filters.bondId);
+      filtered = filtered.filter((activity: any) => activity.bondId === filters.bondId);
     }
     if (filters.clientId) {
-      filtered = filtered.filter(activity => activity.clientId === filters.clientId);
+      filtered = filtered.filter((activity: any) => activity.clientId === filters.clientId);
     }
     
-    return filtered.sort((a, b) => new Date(b.contactAttemptedAt).getTime() - new Date(a.contactAttemptedAt).getTime());
+    return filtered.sort((a: any, b: any) => new Date(b.contactAttemptedAt).getTime() - new Date(a.contactAttemptedAt).getTime());
   }
 
   async createCollectionsActivity(activityData: any): Promise<any> {
