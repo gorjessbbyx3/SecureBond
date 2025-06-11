@@ -63,35 +63,63 @@ export default function StaffLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background with gradient and pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 opacity-20 bg-white bg-opacity-5"></div>
+      </div>
+
       <Header 
         title="Aloha Bail Bond Staff" 
         subtitle="Professional Bail Bond Management System" 
       />
       
-      <main className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[80vh]">
-        <div className="w-full max-w-md space-y-6">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100 tracking-wide">
-              ALOHA BAIL BOND
-            </h1>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Staff Portal
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Access your staff dashboard
-            </p>
+      <main className="relative container mx-auto px-4 py-8 flex items-center justify-center min-h-[80vh]">
+        <div className="w-full max-w-md space-y-8">
+          {/* Enhanced Header */}
+          <div className="text-center space-y-4">
+            <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20">
+              <Users className="h-10 w-10 text-white" />
+            </div>
+            
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold text-white tracking-wide">
+                ALOHA BAIL BOND
+              </h1>
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent flex-1"></div>
+                <h2 className="text-2xl font-semibold text-white/90 px-4">
+                  Staff Portal
+                </h2>
+                <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent flex-1"></div>
+              </div>
+              <p className="text-white/70 text-lg">
+                Professional Bail Bond Management System
+              </p>
+              
+              {/* Security badges */}
+              <div className="flex justify-center gap-2 mt-4">
+                <Badge variant="outline" className="bg-white/10 border-white/20 text-white/80">
+                  <Lock className="h-3 w-3 mr-1" />
+                  Secure Access
+                </Badge>
+                <Badge variant="outline" className="bg-white/10 border-white/20 text-white/80">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  CJIS Compliant
+                </Badge>
+              </div>
+            </div>
           </div>
 
           {/* Login Form */}
-          <Card>
+          <Card className="bg-white/95 backdrop-blur-sm border-white/20 shadow-2xl">
             <CardHeader className="space-y-1">
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-gray-900">
                 <Users className="h-5 w-5" />
                 Staff Login
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-600">
                 Enter your credentials to access the staff portal
               </CardDescription>
             </CardHeader>
