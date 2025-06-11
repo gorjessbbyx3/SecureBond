@@ -8,11 +8,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { usePrivacyAcknowledgment } from "@/hooks/usePrivacyAcknowledgment";
 import CheckInForm from "@/components/client/check-in-form";
 import PaymentUpload from "@/components/client/payment-upload";
 import { CourtDateNotifications } from "@/components/client/court-date-notifications";
 import { MobileNavigation } from "@/components/mobile/mobile-navigation";
 import { MobileCard, MobileStatCard, MobileListItem } from "@/components/mobile/mobile-card";
+import InitialPrivacyConsent from "@/components/privacy/InitialPrivacyConsent";
 
 export default function ClientDashboard() {
   const [, setLocation] = useLocation();
