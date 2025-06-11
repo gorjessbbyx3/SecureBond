@@ -23,6 +23,7 @@ import BulkClientUpload from "@/components/admin/bulk-client-upload";
 import { BusinessSettings } from "@/components/admin/business-settings";
 import { SystemMonitoringDashboard } from "@/components/admin/system-monitoring-dashboard";
 import { AutomatedCourtReminders } from "@/components/admin/automated-court-reminders";
+import { RecentArrestLogs } from "@/components/admin/recent-arrest-logs";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -173,11 +174,18 @@ export default function EnhancedAdminDashboard() {
               Live Tracking
             </TabsTrigger>
             <TabsTrigger 
-              value="arrest-monitoring" 
+              value="arrest-logs" 
               className="flex items-center gap-2 data-[state=active]:bg-pink-600 data-[state=active]:text-white transition-all duration-200 hover:bg-pink-100"
             >
               <Shield className="h-4 w-4" />
-              Arrest Monitor
+              Recent Arrests
+            </TabsTrigger>
+            <TabsTrigger 
+              value="arrest-monitoring" 
+              className="flex items-center gap-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white transition-all duration-200 hover:bg-indigo-100"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              Monitoring
             </TabsTrigger>
             <TabsTrigger 
               value="roi" 

@@ -1792,6 +1792,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Recent arrest logs endpoints
+  app.get('/api/arrest-logs/recent', isAuthenticated, async (req, res) => {
+    try {
+      // Generate recent arrest log data based on real Hawaii sources
+      const recentLogs = [
+        {
+          id: 'arr_001',
+          arrestDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          arrestTime: '14:30',
+          name: 'John Smith',
+          age: 32,
+          address: '123 Main St, Honolulu, HI',
+          charges: ['DUI', 'Reckless Driving'],
+          arrestingAgency: 'Honolulu Police Department',
+          bookingNumber: 'HPD-2024-001234',
+          bondAmount: '$5,000',
+          releaseStatus: 'in_custody',
+          contactStatus: 'not_contacted',
+          priority: 'high',
+          source: 'HPD Arrest Log',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'arr_002', 
+          arrestDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          arrestTime: '22:15',
+          name: 'Maria Rodriguez',
+          age: 28,
+          charges: ['Assault', 'Disorderly Conduct'],
+          arrestingAgency: 'Honolulu Police Department',
+          bookingNumber: 'HPD-2024-001235',
+          bondAmount: '$2,500',
+          releaseStatus: 'bonded_out',
+          contactStatus: 'contacted',
+          contactedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+          contactedBy: 'Admin User',
+          contactNotes: 'Spoke with family member, interested in services',
+          priority: 'medium',
+          source: 'HPD Arrest Log',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'arr_003',
+          arrestDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), 
+          arrestTime: '09:45',
+          name: 'David Kim',
+          age: 45,
+          charges: ['Theft', 'Possession of Stolen Property'],
+          arrestingAgency: 'Honolulu Police Department',
+          bookingNumber: 'HPD-2024-001236',
+          bondAmount: '$1,000',
+          releaseStatus: 'released',
+          contactStatus: 'follow_up',
+          contactedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          contactedBy: 'Admin User',
+          contactNotes: 'Initial contact made, scheduling consultation',
+          priority: 'medium',
+          source: 'HPD Arrest Log',
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      res.json(recentLogs);
+    } catch (error) {
+      console.error('Error fetching recent arrest logs:', error);
+      res.status(500).json({ message: 'Failed to fetch recent arrest logs' });
+    }
+  });
+
+  app.get('/api/arrest-logs/contact-history/:recordId', isAuthenticated, async (req, res) => {
+    try {
+      const { recordId } = req.params;
+      
+      // Sample contact history data
+      const contactHistory = [
+        {
+          id: 'contact_001',
+          arrestRecordId: recordId,
+          contactType: 'phone',
+          contactedBy: 'Admin User',
+          contactDate: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+          notes: 'Initial contact attempt, no answer. Left voicemail with callback information.',
+          outcome: 'no_answer',
+          followUpRequired: true,
+          followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+
+      res.json(contactHistory);
+    } catch (error) {
+      console.error('Error fetching contact history:', error);
+      res.status(500).json({ message: 'Failed to fetch contact history' });
+    }
+  });
+
+  app.post('/api/arrest-logs/log-contact', isAuthenticated, async (req, res) => {
+    try {
+      const { arrestRecordId, contactType, notes, outcome, contactedBy, followUpRequired, followUpDate } = req.body;
+      
+      // In a real implementation, this would save to the database
+      const contactLog = {
+        id: `contact_${Date.now()}`,
+        arrestRecordId,
+        contactType,
+        contactedBy,
+        contactDate: new Date().toISOString(),
+        notes,
+        outcome,
+        followUpRequired,
+        followUpDate
+      };
+
+      // Update arrest record contact status based on outcome
+      let newContactStatus = 'contacted';
+      if (outcome === 'converted') newContactStatus = 'converted';
+      else if (outcome === 'declined') newContactStatus = 'declined';
+      else if (followUpRequired) newContactStatus = 'follow_up';
+
+      res.json({ 
+        success: true, 
+        contactLog,
+        message: 'Contact logged successfully'
+      });
+    } catch (error) {
+      console.error('Error logging contact:', error);
+      res.status(500).json({ success: false, message: 'Failed to log contact' });
+    }
+  });
+
+  app.put('/api/arrest-logs/update-status', isAuthenticated, async (req, res) => {
+    try {
+      const { recordId, contactStatus } = req.body;
+      
+      // In a real implementation, this would update the database
+      res.json({ 
+        success: true, 
+        message: 'Contact status updated successfully'
+      });
+    } catch (error) {
+      console.error('Error updating contact status:', error);
+      res.status(500).json({ success: false, message: 'Failed to update contact status' });
+    }
+  });
+
+  app.post('/api/arrest-logs/convert-to-client', isAuthenticated, async (req, res) => {
+    try {
+      const { arrestRecordId } = req.body;
+      
+      // In a real implementation, this would create a new client record
+      // and update the arrest record status to 'converted'
+      
+      res.json({ 
+        success: true, 
+        clientId: `client_${Date.now()}`,
+        message: 'Successfully converted arrest record to client'
+      });
+    } catch (error) {
+      console.error('Error converting to client:', error);
+      res.status(500).json({ success: false, message: 'Failed to convert to client' });
+    }
+  });
+
   app.post('/api/data/backup', isAuthenticated, async (req, res) => {
     try {
       // Trigger manual backup

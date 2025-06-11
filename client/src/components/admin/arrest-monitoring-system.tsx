@@ -26,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ArrestRecord {
   id: string;
-  clientId: number;
+  clientId?: number;
   clientName: string;
   arrestDate: string;
   arrestTime: string;
@@ -41,6 +41,14 @@ interface ArrestRecord {
   severity: 'low' | 'medium' | 'high' | 'critical';
   createdAt: string;
   matchConfidence?: number;
+  contactStatus?: 'not_contacted' | 'contacted' | 'follow_up' | 'converted' | 'declined';
+  contactedAt?: string;
+  contactedBy?: string;
+  contactNotes?: string;
+  phoneNumber?: string;
+  familyContacts?: string[];
+  bondAmount?: string;
+  releaseStatus?: 'in_custody' | 'released' | 'bonded_out';
 }
 
 interface MonitoringConfig {
