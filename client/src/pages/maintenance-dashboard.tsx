@@ -294,158 +294,11 @@ export default function MaintenanceDashboard() {
       ];
     }
     
-    // Aloha Bail Bond specific commands
-    if (cmd === 'aloha-status') {
-      return [
-        "Aloha Bail Bond System Status:",
-        "================================",
-        "Application:     RUNNING (PID: 1234)",
-        "Database:        CONNECTED",
-        "Web Server:      ACTIVE",
-        "Court Scraper:   ENABLED",
-        "SMS Service:     OPERATIONAL",
-        "Email Service:   OPERATIONAL",
-        "Backup Service:  SCHEDULED",
-        "Last Restart:    2024-01-10 14:30:15",
-        "Uptime:          1 day, 1 hour, 16 minutes"
-      ];
-    }
+    // Terminal commands require actual server access - no mock outputs
     
-    if (cmd === 'aloha-clients') {
-      return [
-        "Active Clients:     0",
-        "Total Clients:      0", 
-        "Pending Check-ins:  0",
-        "Overdue Check-ins:  0",
-        "Court Dates Today:  0",
-        "Court Dates This Week: 0",
-        "Recent Registrations: 0 (last 24h)"
-      ];
-    }
+
     
-    if (cmd === 'aloha-backup') {
-      return [
-        "Creating database backup...",
-        "Backing up client data...",
-        "Backing up payment records...",
-        "Backing up court dates...",
-        "Compressing backup files...",
-        "Backup completed successfully!",
-        "Backup saved to: /home/maintenance/backups/aloha-backup-2024-01-10-15:51.tar.gz",
-        "Backup size: 2.3 MB"
-      ];
-    }
-    
-    if (cmd === 'aloha-restart') {
-      return [
-        "Stopping Aloha Bail Bond service...",
-        "Waiting for graceful shutdown...",
-        "Service stopped.",
-        "Starting Aloha Bail Bond service...",
-        "Loading configuration...",
-        "Connecting to database...",
-        "Initializing court scraper...",
-        "Starting web server on port 5000...",
-        "Service started successfully!",
-        "New PID: 2345"
-      ];
-    }
-    
-    if (cmd === 'top') {
-      return [
-        "top - 15:51:23 up 1 day,  1:21,  2 users,  load average: 0.42, 0.35, 0.38",
-        "Tasks: 127 total,   1 running, 126 sleeping,   0 stopped,   0 zombie",
-        "%Cpu(s):  2.1 us,  0.8 sy,  0.0 ni, 96.8 id,  0.3 wa,  0.0 hi,  0.0 si,  0.0 st",
-        "MiB Mem :   7924.2 total,   3201.5 free,   2145.8 used,   2576.9 buff/cache",
-        "MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   5312.1 avail Mem",
-        "",
-        "  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND",
-        " 1234 maint     20   0  987654 125000  25000 S   2.1  15.4   0:45.23 node",
-        " 5678 postgres  20   0  445566  67890  12000 S   0.8   8.2   0:12.45 postgres",
-        " 9012 www-data  20   0  123456   8901   4000 S   0.2   1.1   0:03.12 nginx"
-      ];
-    }
-    
-    if (cmd === 'netstat -an' || cmd === 'netstat') {
-      return [
-        "Active Internet connections (servers and established)",
-        "Proto Recv-Q Send-Q Local Address           Foreign Address         State",
-        "tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN",
-        "tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN",
-        "tcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN",
-        "tcp        0      0 0.0.0.0:5000            0.0.0.0:*               LISTEN",
-        "tcp        0      0 127.0.0.1:5432          0.0.0.0:*               LISTEN",
-        "tcp        0      0 192.168.1.100:5000     192.168.1.50:45234      ESTABLISHED",
-        "tcp        0      0 192.168.1.100:22       192.168.1.25:52341      ESTABLISHED"
-      ];
-    }
-    
-    if (cmd === 'systemctl status aloha-bail-bond' || cmd.includes('aloha-bail-bond')) {
-      return [
-        "● aloha-bail-bond.service - Aloha Bail Bond Management System",
-        "   Loaded: loaded (/etc/systemd/system/aloha-bail-bond.service; enabled)",
-        "   Active: active (running) since Wed 2024-01-10 14:30:15 UTC; 1h 21min ago",
-        "     Docs: https://aloha-bail-bond.com/docs",
-        "  Process: 1234 ExecStart=/usr/bin/node /app/server/index.js (code=exited, status=0/SUCCESS)",
-        " Main PID: 1234 (node)",
-        "    Tasks: 11 (limit: 4915)",
-        "   Memory: 125.0M",
-        "   CGroup: /system.slice/aloha-bail-bond.service",
-        "           └─1234 node /app/server/index.js",
-        "",
-        "Jan 10 15:45:12 server aloha-bail-bond[1234]: [INFO] Client check-in processed",
-        "Jan 10 15:44:33 server aloha-bail-bond[1234]: [INFO] Payment recorded successfully",
-        "Jan 10 15:43:22 server aloha-bail-bond[1234]: [INFO] Database backup completed"
-      ];
-    }
-    
-    if (cmd === 'service --status-all') {
-      return [
-        " [ + ]  acpid",
-        " [ + ]  aloha-bail-bond",
-        " [ + ]  cron",
-        " [ + ]  dbus", 
-        " [ + ]  nginx",
-        " [ + ]  postgresql",
-        " [ + ]  ssh",
-        " [ + ]  systemd-logind",
-        " [ + ]  udev",
-        " [ - ]  apache2",
-        " [ - ]  mysql"
-      ];
-    }
-    
-    if (cmd.startsWith('cat ')) {
-      const filename = cmd.substring(4).trim();
-      if (filename === 'app.log' && currentDir === '/home/maintenance/logs') {
-        return [
-          "[2024-01-10 15:51:12] INFO: SSH connection established from 192.168.1.25",
-          "[2024-01-10 15:50:45] INFO: Court date reminder sent to client SB789012",
-          "[2024-01-10 15:49:33] INFO: Payment processed - Amount: $750.00",
-          "[2024-01-10 15:48:22] INFO: Client check-in recorded - SB123456",
-          "[2024-01-10 15:47:18] WARN: High memory usage detected - 87%",
-          "[2024-01-10 15:46:45] INFO: Database backup completed successfully",
-          "[2024-01-10 15:45:33] INFO: New client registration - SB345678"
-        ];
-      } else if (filename === 'config.json' && currentDir === '/home/maintenance/aloha-bail-bond') {
-        return [
-          "{",
-          '  "port": 5000,',
-          '  "database": {',
-          '    "host": "localhost",',
-          '    "port": 5432,',
-          '    "name": "aloha_bail_bond"',
-          '  },',
-          '  "features": {',
-          '    "courtScraper": true,',
-          '    "smsNotifications": true,',
-          '    "emailAlerts": true',
-          '  }',
-          "}"
-        ];
-      }
-      return [`cat: ${filename}: No such file or directory`];
-    }
+    // All terminal commands require actual server SSH access
     
     if (cmd === 'history') {
       return commandHistory.map((cmd, index) => `${index + 1}  ${cmd}`);
@@ -511,14 +364,14 @@ export default function MaintenanceDashboard() {
     }
   }, [activeTab, sshConnected]);
 
-  // Mock system stats
+  // System stats require server monitoring integration
   const systemStats = {
-    serverStatus: "operational",
-    databaseStatus: "operational",
-    lastBackup: "2024-01-10T02:00:00Z",
-    uptime: "99.9%",
-    activeUsers: 15,
-    storageUsed: "45%",
+    serverStatus: "unknown",
+    databaseStatus: "unknown", 
+    lastBackup: null,
+    uptime: "unknown",
+    activeUsers: 0,
+    storageUsed: "unknown",
   };
 
   const getStatusBadge = (status: string) => {
