@@ -22,5 +22,21 @@
     "notes": "Production security test",
     "checkInTime": null,
     "createdAt": "2025-06-11T10:19:10.905Z"
+  },
+  {
+    "id": 6,
+    "clientId": 1,
+    "location": "21.2961,-157.8168",
+    "notes": "Check-in from Waikiki Beach area",
+    "checkInTime": null,
+    "createdAt": "2025-06-11T10:29:30.331Z"
+  },
+  {
+    "id": 7,
+    "clientId": 1,
+    "location": "21.3045,-157.8556",
+    "notes": "Check-in from Honolulu downtown",
+    "checkInTime": null,
+    "createdAt": "2025-06-11T10:29:31.818Z"
   }
 ]
