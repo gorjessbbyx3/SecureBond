@@ -189,23 +189,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Staff login endpoint
+  // Admin login endpoint
+  app.post('/api/auth/admin-login', async (req, res) => {
+    try {
+      const { email, password, username } = req.body;
+      console.log('Admin login attempt:', { email, username, hasPassword: !!password });
+      
+      // Support both email and username login
+      const isValidAdmin = (email === 'admin@alohabailbond.com' || username === 'admin') && password === 'admin123';
+      
+      if (isValidAdmin) {
+        (req.session as any).adminRole = 'admin';
+        console.log('Admin login successful, session set');
+        
+        res.json({
+          success: true,
+          role: 'admin'
+        });
+      } else {
+        console.log('Admin login failed - invalid credentials');
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  // Maintenance login endpoint
+  app.post('/api/auth/maintenance-login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (email === 'maintenance@alohabailbond.com' && password === 'maint123') {
+        (req.session as any).adminRole = 'maintenance';
+        
+        res.json({
+          success: true,
+          role: 'maintenance'
+        });
+      } else {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Maintenance login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  // Staff login endpoint (keeping for backwards compatibility)
   app.post('/api/staff/login', async (req, res) => {
     try {
       const { email, password, role } = req.body;
       
-      // For now, use hardcoded admin credentials until database authentication is set up
       if (email === 'admin@alohabailbond.com' && password === 'admin123' && role === 'admin') {
-        // Store session
         (req.session as any).adminRole = 'admin';
-        (req.session as any).user = {
-          id: email,
-          email,
-          role: 'admin',
-          firstName: 'Admin',
-          lastName: 'User'
-        };
-
+        
         res.json({
           id: email,
           email,
