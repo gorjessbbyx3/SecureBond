@@ -54,19 +54,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }));
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: "User not authenticated" });
+      // Check for admin session first
+      const adminRole = (req.session as any)?.adminRole;
+      if (adminRole) {
+        return res.json({
+          id: `admin-${adminRole}`,
+          role: adminRole,
+          email: adminRole === 'admin' ? 'admin@alohabailbond.com' : 'maintenance@alohabailbond.com',
+          firstName: adminRole === 'admin' ? 'Admin' : 'Maintenance',
+          lastName: 'User'
+        });
+      }
+
+      // Check for client session
+      const clientId = (req.session as any)?.clientId;
+      if (clientId) {
+        const client = await storage.getClient(clientId);
+        if (client) {
+          return res.json({
+            id: client.id,
+            role: 'client',
+            fullName: client.fullName,
+            clientId: client.clientId
+          });
+        }
+      }
+
+      // Check for Replit Auth (if available)
+      if (req.user?.claims?.sub) {
+        const userId = req.user.claims.sub;
+        const user = await storage.getUser(userId);
+        if (user) {
+          return res.json(user);
+        }
       }
       
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      res.json(user);
+      return res.status(401).json({ message: "User not authenticated" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });

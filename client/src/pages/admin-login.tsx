@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { UserRoundCheck, Lock, User, AlertTriangle, ArrowLeft } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/header";
@@ -16,6 +16,7 @@ import type { LoginResponse, AdminCredentials } from "@/lib/types";
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -27,6 +28,8 @@ export default function AdminLogin() {
     },
     onSuccess: (data) => {
       if (data.success) {
+        // Invalidate auth query to refresh authentication state
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
         toast({
           title: "Welcome back!",
           description: "Successfully signed into admin portal.",
