@@ -916,7 +916,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/court-dates/upcoming', isAuthenticated, async (req, res) => {
     try {
-      const courtDates = await storage.getAllUpcomingCourtDates();
+      const courtDates = await storage.getAllCourtDates();
       res.json(courtDates);
     } catch (error) {
       console.error("Error fetching court dates:", error);
@@ -1212,7 +1212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clients = await storage.getAllClients();
       const payments = await storage.getAllPayments();
-      const upcomingCourtDates = await storage.getAllUpcomingCourtDates();
+      const upcomingCourtDates = await storage.getAllCourtDates();
       
       const activeClients = clients.filter(c => c.isActive).length;
       const totalRevenue = payments
@@ -1321,7 +1321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clients = await storage.getAllClients();
       const payments = await storage.getAllPayments();
       const alerts = await storage.getAllUnacknowledgedAlerts();
-      const upcomingCourtDates = await storage.getAllUpcomingCourtDates();
+      const upcomingCourtDates = await storage.getAllCourtDates();
       
       const notifications = [];
       
