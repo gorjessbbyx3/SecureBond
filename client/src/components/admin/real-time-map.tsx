@@ -30,17 +30,17 @@ export default function RealTimeMap() {
   const clientLocations: ClientLocation[] = clients.map((client: Client) => {
     const lastCheckIn = checkIns
       .filter((ci: CheckIn) => ci.clientId === client.id)
-      .sort((a: CheckIn, b: CheckIn) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+      .sort((a: CheckIn, b: CheckIn) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())[0];
     
     return {
       id: client.id,
       name: client.fullName,
       clientId: client.clientId,
-      status: client.isActive ? (client.missedCheckIns > 0 ? 'warning' : 'active') : 'offline',
-      lastUpdate: lastCheckIn ? new Date(lastCheckIn.timestamp).toLocaleString() : 'No check-ins',
+      status: client.isActive ? ((client.missedCheckIns || 0) > 0 ? 'warning' : 'active') : 'offline',
+      lastUpdate: lastCheckIn ? new Date(lastCheckIn.createdAt || 0).toLocaleString() : 'No check-ins',
       location: lastCheckIn?.location || null,
-      lat: lastCheckIn?.location?.latitude || null,
-      lng: lastCheckIn?.location?.longitude || null
+      lat: lastCheckIn?.location ? parseFloat(lastCheckIn.location.split(',')[0] || '0') : null,
+      lng: lastCheckIn?.location ? parseFloat(lastCheckIn.location.split(',')[1] || '0') : null
     };
   }).filter((client): client is ClientLocation => client.lat !== null && client.lng !== null);
 

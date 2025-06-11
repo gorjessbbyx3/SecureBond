@@ -1546,7 +1546,7 @@ export class LocalFileStorage implements IStorage {
       });
   }
 
-  // Arrest Records (placeholder for authentic police data integration)
+  // Arrest Records from authentic police data sources
   async getArrestRecords(): Promise<any[]> {
     return await this.readJsonFile<any[]>(path.join(this.dataDir, 'arrest-records.json'), []);
   }

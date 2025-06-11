@@ -9,24 +9,38 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+interface StorageInfo {
+  dataDirectory: string;
+  totalSize: string;
+  lastBackup: string;
+  backupCount: number;
+  files: {
+    clients: { count: number; size: string };
+    payments: { count: number; size: string };
+    checkins: { count: number; size: string };
+    expenses: { count: number; size: string };
+    alerts: { count: number; size: string };
+  };
+}
+
 export default function DataManagement() {
   const [exportProgress, setExportProgress] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: storageInfo } = useQuery({
+  const { data: storageInfo } = useQuery<StorageInfo>({
     queryKey: ['/api/data/storage-info'],
   });
 
   const exportDataMutation = useMutation({
     mutationFn: async (type: string) => {
       const response = await apiRequest("POST", "/api/data/export", { type });
-      return response;
+      return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
         title: "Export completed",
-        description: `Data exported successfully to: ${data.path}`,
+        description: `Data exported successfully`,
       });
     },
   });
@@ -59,21 +73,19 @@ export default function DataManagement() {
     },
   });
 
-  const mockStorageInfo = {
-    dataDirectory: "C:\\Users\\Bondsman\\Documents\\SecureBond Data",
-    totalSize: "45.2 MB",
-    lastBackup: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    backupCount: 7,
+  const info: StorageInfo = storageInfo || {
+    dataDirectory: "./temp-data",
+    totalSize: "0 MB",
+    lastBackup: new Date().toISOString(),
+    backupCount: 0,
     files: {
-      clients: { count: 24, size: "12.4 MB" },
-      payments: { count: 156, size: "8.7 MB" },
-      checkins: { count: 892, size: "15.2 MB" },
-      expenses: { count: 43, size: "2.1 MB" },
-      alerts: { count: 12, size: "0.8 MB" }
+      clients: { count: 0, size: "0 MB" },
+      payments: { count: 0, size: "0 MB" },
+      checkins: { count: 0, size: "0 MB" },
+      expenses: { count: 0, size: "0 MB" },
+      alerts: { count: 0, size: "0 MB" }
     }
   };
-
-  const info = storageInfo || mockStorageInfo;
 
   return (
     <div className="space-y-6">

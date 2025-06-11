@@ -67,7 +67,7 @@ export class CourtReminderService {
 
       // Create notification
       const notificationData: InsertNotification = {
-        userId: 'demo-user', // In real app, this would be the admin/staff user
+        userId: `system-${Date.now()}`,
         title: this.getReminderTitle(reminder.reminderType, courtDate),
         message: this.getReminderMessage(reminder.reminderType, courtDate, client),
         type: 'court_reminder',

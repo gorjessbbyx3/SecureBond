@@ -2258,7 +2258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Terms of Service API routes
   app.get('/api/terms/status', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id || 'demo-user';
+      const userId = req.user.id || `admin-${Date.now()}`;
       const currentVersion = '2025-06-01';
       
       const hasAcknowledged = await storage.checkTermsAcknowledgment(userId, currentVersion);
@@ -2276,7 +2276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/terms/acknowledge', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id || 'demo-user';
+      const userId = req.user.id || `admin-${Date.now()}`;
       const { version, userAgent } = req.body;
       
       if (!version) {
