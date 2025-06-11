@@ -30,17 +30,14 @@ function Router() {
       <Route path="/maintenance-login" component={MaintenanceLogin} />
       <Route path="/terms-of-service" component={TermsOfService} />
       
-      {!isLoading && isAuthenticated && (
-        <>
-          <Route path="/client-dashboard" component={ClientDashboard} />
-          <Route path="/client/:id" component={ClientDetails} />
-          <Route path="/staff-dashboard" component={StaffDashboard} />
-          <Route path="/admin-dashboard" component={AdminDashboard} />
-          <Route path="/admin" component={AdminDashboard} />
-          <Route path="/client-portal-preview" component={ClientPortalPreview} />
-          <Route path="/maintenance-dashboard" component={MaintenanceDashboard} />
-        </>
-      )}
+      {/* Always render protected routes, let components handle auth checks */}
+      <Route path="/client-dashboard" component={ClientDashboard} />
+      <Route path="/client/:id" component={ClientDetails} />
+      <Route path="/staff-dashboard" component={StaffDashboard} />
+      <Route path="/admin-dashboard" component={AdminDashboard} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/client-portal-preview" component={ClientPortalPreview} />
+      <Route path="/maintenance-dashboard" component={MaintenanceDashboard} />
       
       <Route component={NotFound} />
     </Switch>
