@@ -2209,6 +2209,244 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bond & Forfeiture Management API routes
+  app.get('/api/bonds', isAuthenticated, async (req, res) => {
+    try {
+      const bonds = await storage.getAllBonds();
+      res.json(bonds);
+    } catch (error) {
+      console.error('Error fetching bonds:', error);
+      res.status(500).json({ message: 'Failed to fetch bonds' });
+    }
+  });
+
+  app.get('/api/bonds/:id', isAuthenticated, async (req, res) => {
+    try {
+      const bondId = parseInt(req.params.id);
+      const bond = await storage.getBondById(bondId);
+      if (!bond) {
+        return res.status(404).json({ message: 'Bond not found' });
+      }
+      res.json(bond);
+    } catch (error) {
+      console.error('Error fetching bond:', error);
+      res.status(500).json({ message: 'Failed to fetch bond' });
+    }
+  });
+
+  app.put('/api/bonds/:id/status', isAuthenticated, async (req, res) => {
+    try {
+      const bondId = parseInt(req.params.id);
+      const { status, notes, forfeitureAmount, surrenderLocation } = req.body;
+      
+      const updatedBond = await storage.updateBondStatus(bondId, {
+        status,
+        notes,
+        forfeitureAmount,
+        surrenderLocation,
+        updatedAt: new Date()
+      });
+      
+      res.json(updatedBond);
+    } catch (error) {
+      console.error('Error updating bond status:', error);
+      res.status(500).json({ message: 'Failed to update bond status' });
+    }
+  });
+
+  // Payment Plans API
+  app.get('/api/payment-plans', isAuthenticated, async (req, res) => {
+    try {
+      const { bondId } = req.query;
+      const paymentPlans = await storage.getPaymentPlans(bondId ? parseInt(bondId as string) : undefined);
+      res.json(paymentPlans);
+    } catch (error) {
+      console.error('Error fetching payment plans:', error);
+      res.status(500).json({ message: 'Failed to fetch payment plans' });
+    }
+  });
+
+  app.post('/api/payment-plans', isAuthenticated, async (req, res) => {
+    try {
+      const paymentPlanData = req.body;
+      const newPlan = await storage.createPaymentPlan(paymentPlanData);
+      res.status(201).json(newPlan);
+    } catch (error) {
+      console.error('Error creating payment plan:', error);
+      res.status(500).json({ message: 'Failed to create payment plan' });
+    }
+  });
+
+  app.get('/api/payment-installments/:planId', isAuthenticated, async (req, res) => {
+    try {
+      const planId = parseInt(req.params.planId);
+      const installments = await storage.getPaymentInstallments(planId);
+      res.json(installments);
+    } catch (error) {
+      console.error('Error fetching installments:', error);
+      res.status(500).json({ message: 'Failed to fetch installments' });
+    }
+  });
+
+  // Collections Management API
+  app.get('/api/collections/activities', isAuthenticated, async (req, res) => {
+    try {
+      const { bondId, clientId } = req.query;
+      const activities = await storage.getCollectionsActivities({
+        bondId: bondId ? parseInt(bondId as string) : undefined,
+        clientId: clientId ? parseInt(clientId as string) : undefined
+      });
+      res.json(activities);
+    } catch (error) {
+      console.error('Error fetching collections activities:', error);
+      res.status(500).json({ message: 'Failed to fetch collections activities' });
+    }
+  });
+
+  app.post('/api/collections/activities', isAuthenticated, async (req, res) => {
+    try {
+      const activityData = req.body;
+      const newActivity = await storage.createCollectionsActivity(activityData);
+      res.status(201).json(newActivity);
+    } catch (error) {
+      console.error('Error creating collections activity:', error);
+      res.status(500).json({ message: 'Failed to create collections activity' });
+    }
+  });
+
+  // Forfeiture Management API
+  app.get('/api/forfeitures', isAuthenticated, async (req, res) => {
+    try {
+      const { status, priority } = req.query;
+      const forfeitures = await storage.getForfeitures({
+        status: status as string,
+        priority: priority as string
+      });
+      res.json(forfeitures);
+    } catch (error) {
+      console.error('Error fetching forfeitures:', error);
+      res.status(500).json({ message: 'Failed to fetch forfeitures' });
+    }
+  });
+
+  app.post('/api/forfeitures', isAuthenticated, async (req, res) => {
+    try {
+      const forfeitureData = req.body;
+      const newForfeiture = await storage.createForfeiture(forfeitureData);
+      res.status(201).json(newForfeiture);
+    } catch (error) {
+      console.error('Error creating forfeiture:', error);
+      res.status(500).json({ message: 'Failed to create forfeiture' });
+    }
+  });
+
+  // User Roles & Permissions API
+  app.get('/api/admin/roles', isAuthenticated, async (req, res) => {
+    try {
+      const roles = await storage.getUserRoles();
+      res.json(roles);
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      res.status(500).json({ message: 'Failed to fetch roles' });
+    }
+  });
+
+  app.post('/api/admin/roles', isAuthenticated, async (req, res) => {
+    try {
+      const roleData = req.body;
+      const newRole = await storage.createUserRole(roleData);
+      res.status(201).json(newRole);
+    } catch (error) {
+      console.error('Error creating role:', error);
+      res.status(500).json({ message: 'Failed to create role' });
+    }
+  });
+
+  // Data Backup API
+  app.get('/api/admin/backups', isAuthenticated, async (req, res) => {
+    try {
+      const backups = await storage.getDataBackups();
+      res.json(backups);
+    } catch (error) {
+      console.error('Error fetching backups:', error);
+      res.status(500).json({ message: 'Failed to fetch backups' });
+    }
+  });
+
+  app.post('/api/admin/backups', isAuthenticated, async (req, res) => {
+    try {
+      const backupData = req.body;
+      const newBackup = await storage.createDataBackup(backupData);
+      res.status(201).json(newBackup);
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      res.status(500).json({ message: 'Failed to create backup' });
+    }
+  });
+
+  // Dashboard Stats API (replacing mock data)
+  app.get('/api/admin/dashboard-stats', isAuthenticated, async (req, res) => {
+    try {
+      const stats = await storage.getDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      res.status(500).json({ message: 'Failed to fetch dashboard stats' });
+    }
+  });
+
+  // Client Locations API (replacing mock data)
+  app.get('/api/clients/locations', isAuthenticated, async (req, res) => {
+    try {
+      const locations = await storage.getClientLocations();
+      res.json(locations);
+    } catch (error) {
+      console.error('Error fetching client locations:', error);
+      res.status(500).json({ message: 'Failed to fetch client locations' });
+    }
+  });
+
+  // Arrest Monitoring API (replacing mock data)
+  app.get('/api/arrest-monitoring/records', isAuthenticated, async (req, res) => {
+    try {
+      const records = await storage.getArrestRecords();
+      res.json(records);
+    } catch (error) {
+      console.error('Error fetching arrest records:', error);
+      res.status(500).json({ message: 'Failed to fetch arrest records' });
+    }
+  });
+
+  app.get('/api/arrest-monitoring/public-logs', isAuthenticated, async (req, res) => {
+    try {
+      const logs = await storage.getPublicArrestLogs();
+      res.json(logs);
+    } catch (error) {
+      console.error('Error fetching public arrest logs:', error);
+      res.status(500).json({ message: 'Failed to fetch public arrest logs' });
+    }
+  });
+
+  app.get('/api/arrest-monitoring/config', isAuthenticated, async (req, res) => {
+    try {
+      const config = await storage.getMonitoringConfig();
+      res.json(config);
+    } catch (error) {
+      console.error('Error fetching monitoring config:', error);
+      res.status(500).json({ message: 'Failed to fetch monitoring config' });
+    }
+  });
+
+  app.post('/api/arrest-monitoring/scan', isAuthenticated, async (req, res) => {
+    try {
+      const scanResult = await storage.scanArrestLogs();
+      res.json(scanResult);
+    } catch (error) {
+      console.error('Error scanning arrest logs:', error);
+      res.status(500).json({ message: 'Failed to scan arrest logs' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

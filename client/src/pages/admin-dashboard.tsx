@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, DollarSign, Calendar, AlertTriangle, LogOut, TrendingUp } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/header";
@@ -40,15 +40,10 @@ export default function AdminDashboard() {
     logoutMutation.mutate();
   };
 
-  // Mock dashboard stats
-  const stats = {
-    totalClients: 45,
-    activeClients: 42,
-    upcomingCourtDates: 8,
-    pendingPayments: 12,
-    totalRevenue: 125000,
-    pendingAlerts: 3,
-  };
+  // Dashboard stats from API
+  const { data: stats } = useQuery({
+    queryKey: ['/api/admin/dashboard-stats'],
+  });
 
   return (
     <div className="min-h-screen flex flex-col">

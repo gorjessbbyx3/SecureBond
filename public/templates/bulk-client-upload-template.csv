@@ -1,4 +1,1 @@
 Full Name,Phone Number,Email,Address,Date of Birth (YYYY-MM-DD),Emergency Contact Name,Emergency Contact Phone,SSN (Optional),Is Active (TRUE/FALSE),Notes
-John Smith,(808) 555-0101,john.smith@email.com,"123 Main St, Honolulu, HI 96813",1985-03-15,Jane Smith,(808) 555-0102,123-45-6789,TRUE,Sample active client
-Maria Rodriguez,(808) 555-0201,maria.rodriguez@email.com,"456 Ocean Ave, Kailua, HI 96734",1990-07-22,Carlos Rodriguez,(808) 555-0202,987-65-4321,TRUE,Sample active client
-Robert Johnson,(808) 555-0301,robert.johnson@email.com,"789 Beach Rd, Waikiki, HI 96815",1988-11-10,Linda Johnson,(808) 555-0302,456-78-9012,FALSE,Sample inactive client
