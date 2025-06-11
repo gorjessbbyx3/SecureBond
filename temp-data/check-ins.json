@@ -14,5 +14,13 @@
     "notes": "Test biometric check-in",
     "checkInTime": null,
     "createdAt": "2025-06-11T10:16:23.105Z"
+  },
+  {
+    "id": 5,
+    "clientId": 1,
+    "location": "21.3099,-157.8581",
+    "notes": "Production security test",
+    "checkInTime": null,
+    "createdAt": "2025-06-11T10:19:10.905Z"
   }
 ]

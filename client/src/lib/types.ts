@@ -36,8 +36,12 @@ export interface DashboardStats {
 }
 
 export interface CheckInFormData {
-  location?: string;
+  location: string; // GPS location is mandatory
   notes?: string;
+  biometricData?: string;
+  biometricType?: 'facial' | 'fingerprint';
+  isFirstCheckIn?: boolean;
+  gpsAccuracy?: string;
 }
 
 export interface PaymentFormData {
