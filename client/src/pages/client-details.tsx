@@ -30,6 +30,9 @@ export default function ClientDetails() {
   const [isAddingFamily, setIsAddingFamily] = useState(false);
   const [isAddingEmployment, setIsAddingEmployment] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [isAddingBond, setIsAddingBond] = useState(false);
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
+  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
 
   // Fetch client data
   const { data: client, isLoading } = useQuery({
@@ -120,6 +123,45 @@ export default function ClientDetails() {
       queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/employment`] });
       setIsAddingEmployment(false);
       toast({ title: "Employment Added", description: "Employment information has been added successfully." });
+    },
+  });
+
+  // Add bond mutation
+  const addBondMutation = useMutation({
+    mutationFn: async (bondData: any) => {
+      return apiRequest(`/api/clients/${clientId}/bonds`, "POST", bondData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/bonds`] });
+      setIsAddingBond(false);
+      toast({ title: "Bond Added", description: "Bond information has been added successfully." });
+    },
+  });
+
+  // Add payment mutation
+  const addPaymentMutation = useMutation({
+    mutationFn: async (paymentData: any) => {
+      return apiRequest(`/api/clients/${clientId}/payments`, "POST", paymentData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/payments`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/payment-summary`] });
+      setIsAddingPayment(false);
+      toast({ title: "Payment Added", description: "Payment has been recorded successfully." });
+    },
+  });
+
+  // Upload document mutation
+  const uploadDocumentMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return apiRequest(`/api/clients/${clientId}/documents`, "POST", formData, {
+        headers: { 'Content-Type': undefined }, // Let browser set multipart boundary
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/files`] });
+      setIsUploadingDocument(false);
+      toast({ title: "Document Uploaded", description: "Document has been uploaded successfully." });
     },
   });
 
@@ -490,6 +532,27 @@ export default function ClientDetails() {
 
           {/* Payments Tab */}
           <TabsContent value="payments" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Payment Information</h3>
+              <Dialog open={isAddingPayment} onOpenChange={setIsAddingPayment}>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Payment
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Record New Payment</DialogTitle>
+                  </DialogHeader>
+                  <PaymentForm 
+                    onSubmit={(data) => addPaymentMutation.mutate(data)}
+                    isLoading={addPaymentMutation.isPending}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Payment Summary */}
               <Card className="lg:col-span-1">
@@ -652,10 +715,23 @@ export default function ClientDetails() {
           <TabsContent value="documents" className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Court Documents & Files</h3>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Upload Document
-              </Button>
+              <Dialog open={isUploadingDocument} onOpenChange={setIsUploadingDocument}>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Upload Document
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Upload Document</DialogTitle>
+                  </DialogHeader>
+                  <DocumentUploadForm 
+                    onSubmit={(formData) => uploadDocumentMutation.mutate(formData)}
+                    isLoading={uploadDocumentMutation.isPending}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -762,34 +838,64 @@ export default function ClientDetails() {
           </TabsContent>
 
           {/* Bonds Tab */}
-          <TabsContent value="bonds">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bond Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {bonds.length > 0 ? (
-                  <div className="space-y-4">
-                    {bonds.map((bond: any) => (
-                      <div key={bond.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-medium">Bond #{bond.bondNumber}</h4>
-                            <p className="text-sm text-slate-600">Amount: ${bond.amount}</p>
-                            <p className="text-sm text-slate-600">Status: {bond.status}</p>
+          <TabsContent value="bonds" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Bond Information</h3>
+              <Dialog open={isAddingBond} onOpenChange={setIsAddingBond}>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Bond
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Add New Bond</DialogTitle>
+                  </DialogHeader>
+                  <BondForm 
+                    onSubmit={(data) => addBondMutation.mutate(data)}
+                    isLoading={addBondMutation.isPending}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {bonds.length > 0 ? (
+                bonds.map((bond: any) => (
+                  <Card key={bond.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <DollarSign className="h-5 w-5 text-green-500 mt-1" />
+                          <div className="flex-1">
+                            <h4 className="font-medium">Bond #{bond.bondNumber || bond.id}</h4>
+                            <p className="text-sm text-slate-600">Amount: ${parseFloat(bond.bondAmount || "0").toLocaleString()}</p>
+                            <p className="text-sm text-slate-600">Status: {bond.status || "Active"}</p>
+                            {bond.courtDate && (
+                              <p className="text-sm text-slate-600">
+                                Court Date: {new Date(bond.courtDate).toLocaleDateString()}
+                              </p>
+                            )}
+                            {bond.caseNumber && (
+                              <p className="text-sm text-slate-500">Case: {bond.caseNumber}</p>
+                            )}
                           </div>
-                          <Badge variant={bond.isActive ? "default" : "secondary"}>
-                            {bond.isActive ? "Active" : "Inactive"}
-                          </Badge>
                         </div>
+                        <Badge variant={bond.status === "active" ? "default" : "secondary"}>
+                          {bond.status || "Active"}
+                        </Badge>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-slate-500">No bonds found</p>
-                )}
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-8 text-slate-500">
+                  <DollarSign className="h-12 w-12 mx-auto mb-4 text-slate-300" />
+                  <p>No bonds found</p>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="court">
