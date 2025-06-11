@@ -253,6 +253,11 @@ export class LocalFileStorage implements IStorage {
     } else {
       const newUser: User = {
         ...userData,
+        email: userData.email || null,
+        firstName: userData.firstName || null,
+        lastName: userData.lastName || null,
+        profileImageUrl: userData.profileImageUrl || null,
+        role: userData.role || 'client',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -281,6 +286,16 @@ export class LocalFileStorage implements IStorage {
     const client: Client = {
       id: this.nextId++,
       ...clientData,
+      phoneNumber: clientData.phoneNumber || null,
+      address: clientData.address || null,
+      dateOfBirth: clientData.dateOfBirth || null,
+      emergencyContact: clientData.emergencyContact || null,
+      emergencyPhone: clientData.emergencyPhone || null,
+      isActive: clientData.isActive || true,
+      userId: clientData.userId || null,
+      password: clientData.password || 'temp123',
+      lastCheckIn: null,
+      missedCheckIns: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -322,6 +337,16 @@ export class LocalFileStorage implements IStorage {
     const bond: Bond = {
       id: this.nextId++,
       ...bondData,
+      downPayment: bondData.downPayment || null,
+      courtDate: bondData.courtDate || null,
+      courtLocation: bondData.courtLocation || null,
+      caseNumber: bondData.caseNumber || null,
+      notes: bondData.notes || null,
+      status: 'active',
+      bondNumber: `BB${Date.now()}`,
+      bondType: 'surety',
+      premiumRate: '10',
+      issuedDate: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -383,7 +408,6 @@ export class LocalFileStorage implements IStorage {
       id: this.nextId++,
       ...paymentData,
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     
     const payments = await this.readJsonFile<Payment>('payments.json');
