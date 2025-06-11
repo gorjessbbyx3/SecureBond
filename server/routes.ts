@@ -608,10 +608,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Store admin credentials - in production this would be in a secure database
+  // Production admin credentials - CHANGE THESE BEFORE DEPLOYMENT
   let adminCredentials = {
-    admin: { username: 'admin', password: 'admin123' },
-    maintenance: { username: 'webmaster', password: 'Camputer69!' }
+    admin: { username: 'admin', password: process.env.ADMIN_PASSWORD || 'SecureBond2025!' },
+    maintenance: { username: 'maintenance', password: process.env.MAINTENANCE_PASSWORD || 'MaintenanceSecure2025!' }
   };
 
   // Admin/Maintenance login

@@ -20,7 +20,7 @@ import MaintenanceLogin from "@/pages/maintenance-login";
 import TermsOfService from "@/pages/terms-of-service";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import ClientPortalPreview from "@/pages/client-portal-preview";
-import ErrorTooltipDemo from "@/pages/error-tooltip-demo";
+
 import NotFound from "@/pages/not-found";
 
 function Router() {

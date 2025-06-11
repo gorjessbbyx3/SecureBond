@@ -1541,16 +1541,7 @@ export class LocalFileStorage implements IStorage {
       });
   }
 
-  // Arrest Records from authentic police data sources
-  async getArrestRecords(): Promise<any[]> {
-    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'arrest-records.json'), []);
-  }
-
-  async getPublicArrestLogs(): Promise<any[]> {
-    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'public-arrest-logs.json'), []);
-  }
-
-  async getMonitoringConfig(): Promise<any> {
+  async getMonitoringConfigData(): Promise<any> {
     const hawaiiCounties = [
       { id: 'honolulu', name: 'Honolulu County', agency: 'Honolulu Police Department' },
       { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii County Police Department' },
