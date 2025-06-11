@@ -43,22 +43,7 @@ export default function RealTimeMap() {
     );
   }
 
-  const mockClients: ClientLocation[] = [
-    {
-      id: 1,
-      clientId: "SB123456",
-      fullName: "John Smith",
-      lastCheckIn: "2024-01-10T14:30:00Z",
-      location: {
-        latitude: 40.7128,
-        longitude: -74.0060,
-        address: "123 Main St, Anytown, ST 12345"
-      },
-      status: 'compliant'
-    }
-  ];
-
-  const clientData = clients || mockClients;
+  const clientData = clients || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {

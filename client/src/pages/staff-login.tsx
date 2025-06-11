@@ -160,20 +160,7 @@ export default function StaffLogin() {
                 </Button>
               </form>
 
-              {/* Demo Credentials */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">Demo Credentials</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-blue-700">Admin:</span>
-                    <code className="text-blue-800">admin@alohabailbond.com / admin123</code>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-blue-700">Staff:</span>
-                    <code className="text-blue-800">staff@alohabailbond.com / staff123</code>
-                  </div>
-                </div>
-              </div>
+
             </CardContent>
           </Card>
 

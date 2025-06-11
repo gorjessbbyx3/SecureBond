@@ -1015,22 +1015,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Name is required' });
       }
 
-      // Generate sample White Pages results for Hawaii residents
-      const hawaiiAddresses = [
-        { street: 'Ala Moana Blvd', city: 'Honolulu', zipCode: '96813' },
-        { street: 'King St', city: 'Honolulu', zipCode: '96817' },
-        { street: 'Beretania St', city: 'Honolulu', zipCode: '96814' },
-        { street: 'Kapiolani Blvd', city: 'Honolulu', zipCode: '96814' },
-        { street: 'Kamehameha Hwy', city: 'Kaneohe', zipCode: '96744' },
-        { street: 'Kailua Rd', city: 'Kailua', zipCode: '96734' },
-        { street: 'Banyan Dr', city: 'Hilo', zipCode: '96720' },
-        { street: 'Kilauea Ave', city: 'Hilo', zipCode: '96720' }
-      ];
-
-      const phoneNumbers = [
-        '(808) 555-0123', '(808) 555-0456', '(808) 555-0789',
-        '(808) 555-0234', '(808) 555-0567', '(808) 555-0890'
-      ];
+      // Real White Pages search requires authenticated API access
+      console.log(`White Pages search for ${name} requires API credentials`);
 
       const results = [];
       const searchCity = city?.toLowerCase();
