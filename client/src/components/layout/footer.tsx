@@ -15,12 +15,8 @@ export default function Footer() {
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-xs text-slate-500">
-              <Phone className="text-green-600 w-3 h-3" />
-              <span>24/7 Support: (555) 123-4567</span>
-            </div>
-            <div className="flex items-center space-x-2 text-xs text-slate-500">
               <Mail className="text-blue-600 w-3 h-3" />
-              <span>support@securebond.com</span>
+              <span>Support: gorJessCo@cyberservices.net</span>
             </div>
           </div>
         </div>

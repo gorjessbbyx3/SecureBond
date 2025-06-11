@@ -27,7 +27,7 @@ export default function Header({ title = "Aloha Bail Bond", subtitle = "Professi
           </div>
           <div className="flex items-center space-x-2 text-sm text-slate-600">
             <Clock className="text-slate-400 w-4 h-4" />
-            <span>24/7 Support Available</span>
+            <span>Support: gorJessCo@cyberservices.net</span>
           </div>
         </div>
       </div>
