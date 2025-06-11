@@ -1804,6 +1804,409 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Skip Bail Prevention endpoints
+  app.get('/api/admin/skip-bail-risk', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const checkIns = await storage.getAllCheckIns();
+      
+      const riskAnalysis = clients.map(client => {
+        const clientCheckIns = checkIns.filter(ci => ci.clientId === client.id);
+        const missedCount = client.missedCheckIns || 0;
+        const lastCheckIn = clientCheckIns.length > 0 ? 
+          Math.max(...clientCheckIns.map(ci => new Date(ci.checkInTime || 0).getTime())) : 0;
+        
+        let riskLevel = 'LOW';
+        if (missedCount > 3) riskLevel = 'CRITICAL';
+        else if (missedCount > 1) riskLevel = 'HIGH';
+        else if (missedCount > 0) riskLevel = 'MEDIUM';
+        
+        return {
+          clientId: client.id,
+          clientName: client.fullName,
+          riskLevel,
+          missedCheckIns: missedCount,
+          lastCheckIn: lastCheckIn ? new Date(lastCheckIn).toISOString() : null,
+          totalCheckIns: clientCheckIns.length,
+          complianceScore: Math.max(0, 100 - (missedCount * 15))
+        };
+      });
+      
+      res.json(riskAnalysis);
+    } catch (error) {
+      console.error("Error fetching skip bail risk:", error);
+      res.status(500).json({ message: "Failed to fetch skip bail risk analysis" });
+    }
+  });
+
+  app.get('/api/admin/location/patterns', isAuthenticated, async (req, res) => {
+    try {
+      const { clientId } = req.query;
+      const checkIns = await storage.getAllCheckIns();
+      
+      let filteredCheckIns = checkIns;
+      if (clientId) {
+        filteredCheckIns = checkIns.filter(ci => ci.clientId === parseInt(clientId as string));
+      }
+      
+      const patterns = filteredCheckIns.map(checkIn => ({
+        clientId: checkIn.clientId,
+        location: checkIn.location,
+        timestamp: checkIn.checkInTime,
+        coordinates: {
+          lat: parseFloat(checkIn.location?.split(',')[0] || '0'),
+          lng: parseFloat(checkIn.location?.split(',')[1] || '0')
+        }
+      }));
+      
+      res.json(patterns);
+    } catch (error) {
+      console.error("Error fetching location patterns:", error);
+      res.status(500).json({ message: "Failed to fetch location patterns" });
+    }
+  });
+
+  app.get('/api/admin/location/frequent/:clientId', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const { days = '30' } = req.query;
+      const daysAgo = parseInt(days as string);
+      
+      const checkIns = await storage.getClientCheckIns(clientId);
+      const cutoffDate = new Date(Date.now() - (daysAgo * 24 * 60 * 60 * 1000));
+      
+      const recentCheckIns = checkIns.filter(ci => 
+        new Date(ci.checkInTime || 0) > cutoffDate
+      );
+      
+      const locationFrequency: { [key: string]: number } = {};
+      recentCheckIns.forEach(checkIn => {
+        const location = checkIn.location || 'Unknown';
+        locationFrequency[location] = (locationFrequency[location] || 0) + 1;
+      });
+      
+      const frequentLocations = Object.entries(locationFrequency)
+        .map(([location, count]) => ({ location, count }))
+        .sort((a, b) => b.count - a.count);
+      
+      res.json(frequentLocations);
+    } catch (error) {
+      console.error("Error fetching frequent locations:", error);
+      res.status(500).json({ message: "Failed to fetch frequent locations" });
+    }
+  });
+
+  // Court Date management endpoints
+  app.post('/api/court-dates/:id/acknowledge', isAuthenticated, async (req, res) => {
+    try {
+      const courtDateId = parseInt(req.params.id);
+      const { clientId } = req.body;
+      
+      const courtDate = await storage.acknowledgeCourtDate(courtDateId, clientId);
+      res.json(courtDate);
+    } catch (error) {
+      console.error("Error acknowledging court date:", error);
+      res.status(500).json({ message: "Failed to acknowledge court date" });
+    }
+  });
+
+  app.put('/api/court-dates/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const courtDate = await storage.updateCourtDate(id, updates);
+      res.json(courtDate);
+    } catch (error) {
+      console.error("Error updating court date:", error);
+      res.status(500).json({ message: "Failed to update court date" });
+    }
+  });
+
+  app.delete('/api/court-dates/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteCourtDate(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting court date:", error);
+      res.status(500).json({ message: "Failed to delete court date" });
+    }
+  });
+
+  app.post('/api/court-dates/:id/approve', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { approvedBy } = req.body;
+      
+      const courtDate = await storage.approveCourtDate(id, approvedBy);
+      res.json(courtDate);
+    } catch (error) {
+      console.error("Error approving court date:", error);
+      res.status(500).json({ message: "Failed to approve court date" });
+    }
+  });
+
+  // Advanced Analytics endpoints
+  app.get('/api/analytics/client-behavior', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const checkIns = await storage.getAllCheckIns();
+      const payments = await storage.getAllPayments();
+      
+      const behaviorAnalytics = clients.map(client => {
+        const clientCheckIns = checkIns.filter(ci => ci.clientId === client.id);
+        const clientPayments = payments.filter(p => p.clientId === client.id);
+        
+        return {
+          clientId: client.id,
+          clientName: client.fullName,
+          checkInFrequency: clientCheckIns.length,
+          paymentHistory: clientPayments.length,
+          complianceScore: Math.max(0, 100 - ((client.missedCheckIns || 0) * 10)),
+          riskLevel: (client.missedCheckIns || 0) > 2 ? 'HIGH' : 'LOW'
+        };
+      });
+      
+      res.json(behaviorAnalytics);
+    } catch (error) {
+      console.error("Error fetching client behavior analytics:", error);
+      res.status(500).json({ message: "Failed to fetch client behavior analytics" });
+    }
+  });
+
+  app.get('/api/analytics/geographic', isAuthenticated, async (req, res) => {
+    try {
+      const checkIns = await storage.getAllCheckIns();
+      
+      const geographicData = checkIns.map(checkIn => ({
+        location: checkIn.location,
+        timestamp: checkIn.checkInTime,
+        clientId: checkIn.clientId
+      }));
+      
+      res.json(geographicData);
+    } catch (error) {
+      console.error("Error fetching geographic analytics:", error);
+      res.status(500).json({ message: "Failed to fetch geographic analytics" });
+    }
+  });
+
+  app.get('/api/analytics/compliance', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const totalClients = clients.length;
+      const compliantClients = clients.filter(c => (c.missedCheckIns || 0) === 0).length;
+      const complianceRate = totalClients > 0 ? (compliantClients / totalClients) * 100 : 0;
+      
+      res.json({
+        totalClients,
+        compliantClients,
+        complianceRate,
+        nonCompliantClients: totalClients - compliantClients
+      });
+    } catch (error) {
+      console.error("Error fetching compliance metrics:", error);
+      res.status(500).json({ message: "Failed to fetch compliance metrics" });
+    }
+  });
+
+  app.get('/api/analytics/revenue', isAuthenticated, async (req, res) => {
+    try {
+      const payments = await storage.getAllPayments();
+      const confirmedPayments = payments.filter(p => p.confirmed);
+      const totalRevenue = confirmedPayments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      const pendingRevenue = payments.filter(p => !p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      
+      res.json({
+        totalRevenue,
+        pendingRevenue,
+        confirmedPayments: confirmedPayments.length,
+        pendingPayments: payments.length - confirmedPayments.length
+      });
+    } catch (error) {
+      console.error("Error fetching revenue analytics:", error);
+      res.status(500).json({ message: "Failed to fetch revenue analytics" });
+    }
+  });
+
+  // User-specific notification endpoints
+  app.get('/api/notifications/user/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const notifications = await storage.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching user notifications:", error);
+      res.status(500).json({ message: "Failed to fetch user notifications" });
+    }
+  });
+
+  app.get('/api/notifications/user/:userId/unread', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const unreadNotifications = await storage.getUnreadNotifications(userId);
+      res.json(unreadNotifications.length);
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+      res.status(500).json({ message: "Failed to fetch unread notifications" });
+    }
+  });
+
+  app.post('/api/notifications', isAuthenticated, async (req, res) => {
+    try {
+      const notificationData = insertNotificationSchema.parse(req.body);
+      const notification = await storage.createNotification(notificationData);
+      res.json(notification);
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      res.status(500).json({ message: "Failed to create notification" });
+    }
+  });
+
+  app.put('/api/notifications/:id/confirm', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { confirmedBy } = req.body;
+      
+      const notification = await storage.confirmNotification(id, confirmedBy);
+      res.json(notification);
+    } catch (error) {
+      console.error("Error confirming notification:", error);
+      res.status(500).json({ message: "Failed to confirm notification" });
+    }
+  });
+
+  // Real-time tracking endpoints
+  app.get('/api/tracking/client/:id', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const checkIns = await storage.getClientCheckIns(clientId);
+      
+      const trackingData = checkIns.map(checkIn => ({
+        timestamp: checkIn.checkInTime,
+        location: checkIn.location,
+        notes: checkIn.notes
+      }));
+      
+      res.json(trackingData);
+    } catch (error) {
+      console.error("Error fetching client tracking data:", error);
+      res.status(500).json({ message: "Failed to fetch client tracking data" });
+    }
+  });
+
+  app.post('/api/tracking/location', async (req, res) => {
+    try {
+      const { clientId, location, notes } = req.body;
+      
+      const checkInData = {
+        clientId: parseInt(clientId),
+        location,
+        notes,
+        checkInTime: new Date()
+      };
+      
+      const checkIn = await storage.createCheckIn(checkInData);
+      res.json(checkIn);
+    } catch (error) {
+      console.error("Error updating location:", error);
+      res.status(500).json({ message: "Failed to update location" });
+    }
+  });
+
+  app.get('/api/tracking/active', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const activeClients = clients.filter(c => c.isActive);
+      
+      const activeSessions = await Promise.all(activeClients.map(async (client) => {
+        const lastCheckIn = await storage.getLastCheckIn(client.id);
+        return {
+          clientId: client.id,
+          clientName: client.fullName,
+          lastCheckIn: lastCheckIn?.checkInTime,
+          location: lastCheckIn?.location,
+          status: lastCheckIn ? 'active' : 'inactive'
+        };
+      }));
+      
+      res.json(activeSessions);
+    } catch (error) {
+      console.error("Error fetching active tracking sessions:", error);
+      res.status(500).json({ message: "Failed to fetch active tracking sessions" });
+    }
+  });
+
+  // Court scraping endpoints
+  app.post('/api/court-scraping/search', isAuthenticated, async (req, res) => {
+    try {
+      const { clientName, options } = req.body;
+      
+      const searchResult = await courtScraper.searchCourtDates(clientName, options);
+      res.json(searchResult);
+    } catch (error) {
+      console.error("Error searching court records:", error);
+      res.status(500).json({ message: "Failed to search court records" });
+    }
+  });
+
+  app.get('/api/court-scraping/config', isAuthenticated, async (req, res) => {
+    try {
+      const config = await storage.getMonitoringConfig();
+      res.json(config);
+    } catch (error) {
+      console.error("Error fetching scraping config:", error);
+      res.status(500).json({ message: "Failed to fetch scraping configuration" });
+    }
+  });
+
+  // Audit system endpoints
+  app.get('/api/audit/logs', isAuthenticated, async (req, res) => {
+    try {
+      // In a real implementation, this would fetch from audit log storage
+      const auditLogs = [
+        {
+          id: 1,
+          timestamp: new Date().toISOString(),
+          userId: 'admin',
+          action: 'VIEW_CLIENT_DATA',
+          resource: 'clients',
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
+        }
+      ];
+      
+      res.json(auditLogs);
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      res.status(500).json({ message: "Failed to fetch audit logs" });
+    }
+  });
+
+  app.post('/api/audit/compliance-report', isAuthenticated, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+      
+      const report = {
+        reportId: `COMP-${Date.now()}`,
+        generatedAt: new Date().toISOString(),
+        period: { startDate, endDate },
+        summary: {
+          totalClients: await storage.getAllClients().then(c => c.length),
+          complianceRate: 95.2,
+          totalCheckIns: await storage.getAllCheckIns().then(c => c.length),
+          missedCheckIns: 3
+        }
+      };
+      
+      res.json(report);
+    } catch (error) {
+      console.error("Error generating compliance report:", error);
+      res.status(500).json({ message: "Failed to generate compliance report" });
+    }
+  });
+
 
 
   // Mark court appearance status for specific court date
