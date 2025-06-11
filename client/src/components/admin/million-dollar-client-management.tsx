@@ -48,6 +48,10 @@ export function MillionDollarClientManagement() {
     queryKey: ["/api/clients"],
   });
 
+  const { data: alerts = [] } = useQuery({
+    queryKey: ["/api/alerts/unacknowledged"],
+  });
+
   const { data: payments = [] } = useQuery({
     queryKey: ["/api/payments"],
   });
