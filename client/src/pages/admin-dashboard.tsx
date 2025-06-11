@@ -1,20 +1,19 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, DollarSign, Calendar, AlertTriangle, LogOut, TrendingUp } from "lucide-react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
 import ClientManagement from "@/components/admin/client-management";
 import FinancialDashboard from "@/components/admin/financial-dashboard";
 import DashboardStats from "@/components/admin/dashboard-stats";
 import RealTimeMap from "@/components/admin/real-time-map";
 import AnalyticsCharts from "@/components/admin/analytics-charts";
 import { CourtDateApprovals } from "@/components/admin/court-date-approvals";
+import { MobileNavigation } from "@/components/mobile/mobile-navigation";
+import { MobileCard, MobileStatCard, MobileListItem } from "@/components/mobile/mobile-card";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
