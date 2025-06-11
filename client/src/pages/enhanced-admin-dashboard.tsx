@@ -239,8 +239,36 @@ export default function EnhancedAdminDashboard() {
           <TabsContent value="overview" className="space-y-6">
             <AIEnhancedOverview />
           </TabsContent>
-            
-            {/* Quick Actions */}
+
+          <TabsContent value="clients" className="space-y-6">
+            <MillionDollarClientManagement />
+          </TabsContent>
+
+          <TabsContent value="financial" className="space-y-6">
+            <MillionDollarFinancial />
+          </TabsContent>
+
+          <TabsContent value="tracking" className="space-y-6">
+            <RealTimeMap />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <ClientAnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="court-dates" className="space-y-6">
+            <CourtDateReminderSystem />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-6">
+            <EnhancedNotificationCenter />
+          </TabsContent>
+
+          <TabsContent value="data" className="space-y-6">
+            <DataManagement />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
