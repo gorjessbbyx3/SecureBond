@@ -23,6 +23,8 @@ import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";
 import { requireAuth, requireRole, requireAnyRole, type AuthenticatedRequest } from "./middleware/auth";
+import { validateBody, validateQuery, validateParams } from "./middleware/validation";
+import { loginRateLimit, apiRateLimit, securityHeaders, sanitizeInput } from "./middleware/security";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -46,6 +48,11 @@ const isAuthenticated = (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Security middleware
+  app.use(securityHeaders);
+  app.use(sanitizeInput);
+  app.use(apiRateLimit);
+
   // Session middleware setup
   app.use(session({
     secret: process.env.SESSION_SECRET || 'aloha-bail-bond-secret-key-' + Date.now(),
@@ -196,8 +203,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin login endpoint
-  app.post('/api/auth/admin-login', async (req, res) => {
+  // Admin login endpoint with rate limiting
+  app.post('/api/auth/admin-login', loginRateLimit, validateBody(z.object({
+    email: z.string().email().optional(),
+    username: z.string().min(3).optional(),
+    password: z.string().min(6)
+  }).refine(data => data.email || data.username, {
+    message: "Either email or username is required"
+  })), async (req, res) => {
     try {
       const { email, password, username } = req.body;
       console.log('Admin login attempt:', { email, username, hasPassword: !!password });
@@ -223,8 +236,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Maintenance login endpoint
-  app.post('/api/auth/maintenance-login', async (req, res) => {
+  // Maintenance login endpoint with rate limiting
+  app.post('/api/auth/maintenance-login', loginRateLimit, validateBody(z.object({
+    email: z.string().email().optional(),
+    username: z.string().min(3).optional(),
+    password: z.string().min(6)
+  }).refine(data => data.email || data.username, {
+    message: "Either email or username is required"
+  })), async (req, res) => {
     try {
       const { email, password } = req.body;
       
@@ -268,8 +287,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Client login endpoints
-  app.post('/api/client/login', async (req, res) => {
+  // Client login endpoints with validation and rate limiting
+  app.post('/api/client/login', loginRateLimit, validateBody(z.object({
+    clientId: z.string().min(3),
+    password: z.string().min(6)
+  })), async (req, res) => {
     try {
       const { clientId, password } = req.body;
       
@@ -307,7 +329,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/client/login-phone', async (req, res) => {
+  app.post('/api/client/login-phone', loginRateLimit, validateBody(z.object({
+    phoneNumber: z.string().regex(/^\d{10}$/, "Phone number must be 10 digits"),
+    password: z.string().min(6)
+  })), async (req, res) => {
     try {
       const { phoneNumber, password } = req.body;
       
