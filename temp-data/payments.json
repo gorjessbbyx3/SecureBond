@@ -1,15 +1,1 @@
-[
-  {
-    "id": 2,
-    "clientId": 1,
-    "amount": "1500.00",
-    "paymentMethod": "credit_card",
-    "confirmed": true,
-    "notes": "Initial bond payment",
-    "paymentDate": null,
-    "receiptImageUrl": null,
-    "confirmedBy": null,
-    "confirmedAt": null,
-    "createdAt": "2025-06-11T19:48:42.669Z"
-  }
-]
+[]
