@@ -973,6 +973,24 @@ class MemoryStorage implements IStorage {
       return newPreferences;
     }
   }
+
+  // Terms acknowledgment operations
+  async checkTermsAcknowledgment(userId: string, version: string): Promise<boolean> {
+    // For memory storage, always return false to prompt acknowledgment
+    return false;
+  }
+
+  async acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment> {
+    const termsAck: TermsAcknowledgment = {
+      id: this.nextId++,
+      userId: acknowledgment.userId,
+      version: acknowledgment.version || "1.0",
+      ipAddress: acknowledgment.ipAddress || null,
+      userAgent: acknowledgment.userAgent || null,
+      acknowledgedAt: new Date(),
+    };
+    return termsAck;
+  }
 }
 
 // Use local file storage for data persistence on bondsman's computer

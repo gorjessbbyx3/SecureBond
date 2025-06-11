@@ -321,11 +321,7 @@ export class LocalFileStorage {
     return payments[index];
   }
 
-  async deletePayment(id: number): Promise<void> {
-    const payments = await this.readJsonFile<Payment>(path.join(this.dataDir, 'payments.json'));
-    const filteredPayments = payments.filter(p => p.id !== id);
-    await this.writeJsonFile(path.join(this.dataDir, 'payments.json'), filteredPayments);
-  }
+
 
   // Check-in operations
   async createCheckIn(checkInData: InsertCheckIn): Promise<CheckIn> {
@@ -1197,5 +1193,48 @@ export class LocalFileStorage {
     await this.saveIndex();
     
     return acknowledgment;
+  }
+
+  // Missing methods to complete IStorage interface
+  async createClientVehicle(vehicle: any): Promise<ClientVehicle> {
+    const newVehicle = {
+      ...vehicle,
+      id: this.nextId++,
+      createdAt: new Date(),
+    } as ClientVehicle;
+    
+    const vehicles = await this.readJsonFile(path.join(this.dataDir, 'client-vehicles.json')) || [];
+    vehicles.push(newVehicle);
+    await this.writeJsonFile(path.join(this.dataDir, 'client-vehicles.json'), vehicles);
+    await this.saveIndex();
+    return newVehicle;
+  }
+
+  async createFamilyMember(family: any): Promise<FamilyMember> {
+    const newFamily = {
+      ...family,
+      id: this.nextId++,
+      createdAt: new Date(),
+    } as FamilyMember;
+    
+    const familyMembers = await this.readJsonFile(path.join(this.dataDir, 'family-members.json')) || [];
+    familyMembers.push(newFamily);
+    await this.writeJsonFile(path.join(this.dataDir, 'family-members.json'), familyMembers);
+    await this.saveIndex();
+    return newFamily;
+  }
+
+  async createEmploymentInfo(employment: any): Promise<EmploymentInfo> {
+    const newEmployment = {
+      ...employment,
+      id: this.nextId++,
+      createdAt: new Date(),
+    } as EmploymentInfo;
+    
+    const employmentInfo = await this.readJsonFile(path.join(this.dataDir, 'employment-info.json'), []);
+    employmentInfo.push(newEmployment);
+    await this.writeJsonFile(path.join(this.dataDir, 'employment-info.json'), employmentInfo);
+    await this.saveIndex();
+    return newEmployment;
   }
 }
