@@ -18,6 +18,7 @@ import {
   insertNotificationSchema,
   insertNotificationPreferencesSchema
 } from "@shared/schema";
+import { z } from "zod";
 import { randomBytes } from "crypto";
 import multer from "multer";
 import csv from "csv-parser";
@@ -25,6 +26,9 @@ import { Readable } from "stream";
 import { requireAuth, requireRole, requireAnyRole, type AuthenticatedRequest } from "./middleware/auth";
 import { validateBody, validateQuery, validateParams } from "./middleware/validation";
 import { loginRateLimit, apiRateLimit, securityHeaders, sanitizeInput } from "./middleware/security";
+import { auditMiddleware, sensitiveDataAccess } from "./middleware/audit";
+import { registerDashboardRoutes } from "./routes/dashboard";
+import { logger } from "./utils/logger";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -222,12 +226,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (req.session as any).adminRole = 'admin';
         console.log('Admin login successful, session set');
         
+        // Log successful login
+        await logger.logLoginAttempt(true, email || username || 'admin', req.ip || '', req.get('User-Agent') || '');
+        
         res.json({
           success: true,
           role: 'admin'
         });
       } else {
         console.log('Admin login failed - invalid credentials');
+        
+        // Log failed login attempt
+        await logger.logLoginAttempt(false, email || username || 'unknown', req.ip || '', req.get('User-Agent') || '');
+        await logger.logSecurityEvent('Failed admin login attempt', 'medium', { email, username, ip: req.ip });
+        
         return res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
