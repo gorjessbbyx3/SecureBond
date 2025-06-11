@@ -290,6 +290,17 @@ export const notificationPreferences = pgTable("notification_preferences", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Privacy acknowledgment tracking table
+export const privacyAcknowledgments = pgTable("privacy_acknowledgments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  version: varchar("version").notNull(), // Privacy policy version
+  dataTypes: jsonb("data_types").notNull(), // Array of acknowledged data types
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  acknowledgedAt: timestamp("acknowledged_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertClientSchema = createInsertSchema(clients).omit({
@@ -363,8 +374,10 @@ export const insertNotificationPreferencesSchema = createInsertSchema(notificati
   createdAt: true,
   updatedAt: true,
 });
-
-
+export const insertPrivacyAcknowledgmentSchema = createInsertSchema(privacyAcknowledgments).omit({
+  id: true,
+  acknowledgedAt: true,
+});
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;

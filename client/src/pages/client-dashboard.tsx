@@ -22,6 +22,7 @@ export default function ClientDashboard() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   const { isAuthenticated, isLoading } = useAuth();
+  const { hasAcknowledged, isLoading: privacyLoading, acknowledgePrivacy } = usePrivacyAcknowledgment();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -30,8 +31,8 @@ export default function ClientDashboard() {
     }
   }, [isAuthenticated, isLoading, setLocation]);
 
-  // Show loading while checking authentication
-  if (isLoading) {
+  // Show loading while checking authentication or privacy status
+  if (isLoading || privacyLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -45,6 +46,48 @@ export default function ClientDashboard() {
   // Don't render dashboard if not authenticated
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Handle privacy consent flow
+  const handlePrivacyAccept = async () => {
+    try {
+      const dataTypes = [
+        "location_tracking",
+        "facial_recognition", 
+        "personal_legal_data"
+      ];
+      await acknowledgePrivacy(dataTypes);
+      toast({
+        title: "Privacy Policy Acknowledged",
+        description: "You can now access the SecureBond system.",
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to acknowledge privacy policy. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePrivacyDecline = () => {
+    toast({
+      title: "Privacy Policy Required",
+      description: "You must acknowledge our privacy policy to use this system.",
+      variant: "destructive"
+    });
+    setLocation("/client-login");
+  };
+
+  // Show privacy consent if not acknowledged
+  if (!hasAcknowledged) {
+    return (
+      <InitialPrivacyConsent
+        onAccept={handlePrivacyAccept}
+        onDecline={handlePrivacyDecline}
+      />
+    );
   }
 
   const logoutMutation = useMutation({

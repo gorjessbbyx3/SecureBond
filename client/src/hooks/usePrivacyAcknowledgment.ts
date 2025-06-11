@@ -77,10 +77,17 @@ export function usePrivacyAcknowledgment() {
         acknowledgedAt: new Date().toISOString()
       };
 
-      await apiRequest("/api/privacy/acknowledgment", {
+      const response = await fetch("/api/privacy/acknowledgment", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(acknowledgmentData)
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to record privacy acknowledgment");
+      }
 
       setHasAcknowledged(true);
       return true;

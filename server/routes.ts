@@ -1618,6 +1618,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Privacy acknowledgment endpoints
+  app.get('/api/privacy/acknowledgment/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const acknowledgment = await storage.getPrivacyAcknowledgment(userId);
+      
+      if (acknowledgment) {
+        res.json({
+          acknowledged: true,
+          version: acknowledgment.version,
+          acknowledgedAt: acknowledgment.acknowledgedAt,
+          dataTypes: acknowledgment.dataTypes
+        });
+      } else {
+        res.status(404).json({ acknowledged: false });
+      }
+    } catch (error) {
+      console.error("Error fetching privacy acknowledgment:", error);
+      res.status(500).json({ message: "Failed to fetch privacy acknowledgment" });
+    }
+  });
+
+  app.post('/api/privacy/acknowledgment', isAuthenticated, async (req, res) => {
+    try {
+      const { userId, version, dataTypes, ipAddress, userAgent } = req.body;
+      
+      const acknowledgmentData = {
+        userId,
+        version,
+        dataTypes,
+        ipAddress: ipAddress || req.ip || 'unknown',
+        userAgent: userAgent || req.get('User-Agent') || 'unknown'
+      };
+
+      const result = await storage.createPrivacyAcknowledgment(acknowledgmentData);
+      
+      res.json({
+        success: true,
+        acknowledgment: result
+      });
+    } catch (error) {
+      console.error("Error creating privacy acknowledgment:", error);
+      res.status(500).json({ message: "Failed to record privacy acknowledgment" });
+    }
+  });
+
   app.post('/api/data/export', isAuthenticated, async (req, res) => {
     try {
       const { type } = req.body;
