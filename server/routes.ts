@@ -1518,7 +1518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enhancedAlerts = await Promise.all(alerts.map(async (alert: any) => {
         if (alert.clientId) {
           try {
-            const client = await storage.getClientById(alert.clientId);
+            const client = await storage.getClient(alert.clientId);
             return {
               ...alert,
               clientName: client?.fullName || 'Unknown Client',
@@ -1702,7 +1702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/notification-stats', isAuthenticated, async (req, res) => {
     try {
       const allReminders = await courtReminderService.getUpcomingCourtDates(30);
-      const notifications = await storage.getAllNotifications();
+      const notifications = await storage.getUserNotifications();
       
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1754,7 +1754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ success: false, message: 'Email address required' });
       }
 
-      const result = await sendGridService.testConnection(email);
+      const result = await sendGridService.testConnection();
       res.json(result);
     } catch (error) {
       console.error('Error testing email:', error);

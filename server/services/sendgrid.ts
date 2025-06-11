@@ -113,6 +113,31 @@ export class SendGridService {
       text: `Payment Confirmation - ${clientName}, we have confirmed your payment of $${amount} received on ${paymentDate.toLocaleDateString()}. Thank you for your payment.`
     });
   }
+
+  // Health check methods for monitoring
+  isReady(): boolean {
+    return !!process.env.SENDGRID_API_KEY;
+  }
+
+  async testConnection(): Promise<boolean> {
+    if (!process.env.SENDGRID_API_KEY) {
+      return false;
+    }
+    
+    try {
+      // Send a minimal test email to verify connection
+      const testResult = await this.sendEmail({
+        to: 'test@example.com',
+        from: 'noreply@alohabailbond.com',
+        subject: 'SendGrid Connection Test',
+        text: 'This is a connection test.'
+      });
+      return testResult;
+    } catch (error) {
+      console.error('SendGrid connection test failed:', error);
+      return false;
+    }
+  }
 }
 
 export const sendGridService = new SendGridService();
