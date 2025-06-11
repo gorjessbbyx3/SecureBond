@@ -531,6 +531,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // General login endpoint that routes to appropriate login based on role
+  app.post('/api/auth/login', async (req, res) => {
+    const { username, password, role } = req.body;
+    const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+    
+    try {
+      if (role === 'admin' || role === 'maintenance') {
+        // Handle admin login directly
+        const creds = adminCredentials[role as keyof typeof adminCredentials];
+        if (!creds || creds.username !== username || creds.password !== password) {
+          await auditLogger.log({
+            eventType: 'ADMIN_LOGIN_FAILED',
+            category: 'AUTHENTICATION',
+            severity: 'CRITICAL',
+            ipAddress,
+            userAgent,
+            action: 'Failed admin login attempt',
+            details: { username, role, hasPassword: !!password },
+            complianceRelevant: true,
+          });
+          return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        await auditLogger.log({
+          eventType: 'ADMIN_LOGIN_SUCCESS',
+          category: 'AUTHENTICATION',
+          severity: 'HIGH',
+          ipAddress,
+          userAgent,
+          action: 'Successful admin login',
+          details: { username, role },
+          complianceRelevant: true,
+        });
+
+        req.session.user = { username, role };
+        return res.json({ 
+          success: true, 
+          role, 
+          username,
+          redirectTo: role === 'admin' ? '/admin-dashboard' : '/maintenance-dashboard'
+        });
+      } else {
+        // Handle client login
+        const clients = await storage.getAllClients();
+        const client = clients.find((c: any) => c.clientId === username);
+        
+        if (!client) {
+          return res.status(401).json({ message: "Client not found" });
+        }
+        
+        // Simple password check for production use
+        if (password !== 'client123') {
+          return res.status(401).json({ message: "Invalid password" });
+        }
+        
+        req.session.user = { 
+          id: client.id,
+          clientId: client.clientId, 
+          fullName: client.fullName,
+          role: 'client'
+        };
+        
+        res.json({ 
+          success: true, 
+          id: client.id,
+          clientId: client.clientId, 
+          fullName: client.fullName,
+          role: 'client'
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
   // Store admin credentials - in production this would be in a secure database
   let adminCredentials = {
     admin: { username: 'admin', password: 'admin123' },
