@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { EnhancedInput } from "@/components/ui/enhanced-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User, Lock, Phone, AlertCircle } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useErrorContext, mapApiErrorToContext } from "@/hooks/useErrorContext";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -20,6 +20,7 @@ export default function ClientLogin() {
   const [loginMethod, setLoginMethod] = useState<"id" | "phone">("id");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { addError, removeError, clearErrors } = useErrorContext();
 
   const loginMutation = useMutation({
     mutationFn: async ({ clientId, password, phoneNumber }: { clientId?: string; password?: string; phoneNumber?: string }) => {
@@ -39,6 +40,25 @@ export default function ClientLogin() {
       });
     },
     onError: (error) => {
+      // Clear previous errors
+      clearErrors();
+      
+      // Map API error to contextual error information
+      const contextualError = mapApiErrorToContext(
+        error, 
+        loginMethod === "id" ? "/api/auth/client-login" : "/api/auth/client-login-phone",
+        loginMethod === "id" ? "clientId" : "phoneNumber"
+      );
+      
+      // Add error to context for tooltip display
+      if (loginMethod === "id") {
+        addError("clientId", contextualError);
+        addError("password", contextualError);
+      } else {
+        addError("phoneNumber", contextualError);
+        addError("password", contextualError);
+      }
+      
       toast({
         title: "Login Failed",
         description: "Invalid credentials. Please check your information and try again.",
@@ -137,43 +157,49 @@ export default function ClientLogin() {
 
                 {/* Client ID or Phone Number */}
                 {loginMethod === "id" ? (
-                  <div className="space-y-2">
-                    <Label htmlFor="clientId">Client ID</Label>
-                    <Input
-                      id="clientId"
-                      type="text"
-                      value={clientId}
-                      onChange={(e) => setClientId(e.target.value)}
-                      placeholder="SB123456789A"
-                      required
-                    />
-                  </div>
+                  <EnhancedInput
+                    label="Client ID"
+                    type="text"
+                    value={clientId}
+                    onChange={(e) => {
+                      setClientId(e.target.value);
+                      removeError("clientId");
+                    }}
+                    placeholder="SB123456789A"
+                    errorKey="clientId"
+                    helperText="Your unique client identifier (e.g., SB123456789A)"
+                    required
+                  />
                 ) : (
-                  <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">Phone Number</Label>
-                    <Input
-                      id="phoneNumber"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="(808) 555-0123"
-                      required
+                  <EnhancedInput
+                    label="Phone Number"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      setPhoneNumber(e.target.value);
+                      removeError("phoneNumber");
+                    }}
+                    placeholder="(808) 555-0123"
+                    errorKey="phoneNumber"
+                    helperText="Your registered phone number"
+                    required
                     />
-                  </div>
                 )}
 
                 {/* Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    required
-                  />
-                </div>
+                <EnhancedInput
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    removeError("password");
+                  }}
+                  placeholder="Enter your password"
+                  errorKey="password"
+                  helperText="Your account password"
+                  required
+                />
 
                 {/* Submit Button */}
                 <Button 
