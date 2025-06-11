@@ -498,7 +498,11 @@ export class LocalFileStorage implements IStorage {
 
   async getLastCheckIn(clientId: number): Promise<CheckIn | undefined> {
     const checkIns = await this.getClientCheckIns(clientId);
-    return checkIns.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    return checkIns.sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return timeB - timeA;
+    })[0];
   }
 
   async deleteCheckIn(id: number): Promise<void> {
@@ -585,8 +589,10 @@ export class LocalFileStorage implements IStorage {
     const message: Message = {
       id: this.nextId++,
       ...messageData,
+      clientId: messageData.clientId || null,
+      senderId: messageData.senderId || null,
+      isRead: messageData.isRead || null,
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     
     const messages = await this.readJsonFile<Message>('messages.json');
@@ -607,8 +613,7 @@ export class LocalFileStorage implements IStorage {
     const messageIndex = messages.findIndex(m => m.id === id);
     
     if (messageIndex !== -1) {
-      messages[messageIndex].read = true;
-      messages[messageIndex].updatedAt = new Date();
+      messages[messageIndex].isRead = true;
       await this.writeJsonFile('messages.json', messages);
     }
   }
@@ -618,8 +623,22 @@ export class LocalFileStorage implements IStorage {
     const courtDate: CourtDate = {
       id: this.nextId++,
       ...courtDateData,
+      clientId: courtDateData.clientId || null,
+      courtType: courtDateData.courtType || "hearing",
+      courtLocation: courtDateData.courtLocation || null,
+      charges: courtDateData.charges || null,
+      caseNumber: courtDateData.caseNumber || null,
+      notes: courtDateData.notes || null,
+      completed: courtDateData.completed || false,
+      attendanceStatus: courtDateData.attendanceStatus || "pending",
+      adminApproved: courtDateData.adminApproved || false,
+      approvedBy: courtDateData.approvedBy || null,
+      approvedAt: courtDateData.approvedAt || null,
+      clientAcknowledged: courtDateData.clientAcknowledged || false,
+      acknowledgedAt: courtDateData.acknowledgedAt || null,
+      source: courtDateData.source || "manual",
+      sourceVerified: courtDateData.sourceVerified || false,
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     
     const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
@@ -646,7 +665,6 @@ export class LocalFileStorage implements IStorage {
     courtDates[courtDateIndex] = {
       ...courtDates[courtDateIndex],
       ...updates,
-      updatedAt: new Date(),
     };
     
     await this.writeJsonFile('court-dates.json', courtDates);
