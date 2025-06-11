@@ -195,7 +195,8 @@ echo   Wait 30-60 seconds for initialization
 echo.
 echo STEP 2 - Initial Setup:
 echo   Click "SecureBond-Admin.url" to access admin portal
-echo   Default login: admin / admin123
+echo   Default login: admin / SecureBond2025!
+echo   Maintenance login: maintenance / MaintenanceSecure2025!
 echo   Complete business setup in the "Business Setup" tab
 echo.
 echo STEP 3 - Create Staff Accounts:
@@ -219,7 +220,7 @@ echo Client Portal: http://localhost:5000/client-login
 echo   - Check-ins, payments, court notifications
 echo.
 echo ================================================
-echo DATA PROTECTION
+echo DATA PROTECTION & SECURITY
 echo ================================================
 echo.
 echo CRITICAL: Run "Backup-SecureBond-Data.bat" regularly
@@ -228,7 +229,25 @@ echo Your business data is stored locally on this computer
 echo.
 echo Data location: %DATA_DIR%
 echo.
+echo Security Features:
+echo - CJIS compliant audit logging (7-year retention)
+echo - GDPR/CCPA privacy controls
+echo - Real-time Hawaii police data integration
+echo - Federal court monitoring system
+echo - Encrypted session management
+echo.
 echo For system status: Run "SecureBond-System-Status.bat"
+echo.
+echo ================================================
+echo PRODUCTION DEPLOYMENT NOTES
+echo ================================================
+echo.
+echo Before live deployment, configure:
+echo - SENDGRID_API_KEY environment variable
+echo - ADMIN_PASSWORD environment variable
+echo - MAINTENANCE_PASSWORD environment variable
+echo.
+echo Technical Support: gorJessCo@cyberservices.net
 echo.
 echo ================================================
 echo Setup complete! Your SecureBond system is ready.
