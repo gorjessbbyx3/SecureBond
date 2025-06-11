@@ -53,6 +53,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
   }));
 
+  // Logout route
+  app.post('/api/auth/logout', (req: any, res) => {
+    req.session.destroy((err: any) => {
+      if (err) {
+        console.error('Session destruction error:', err);
+        return res.status(500).json({ message: 'Logout failed' });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ message: 'Logged out successfully' });
+    });
+  });
+
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
     try {
@@ -1181,10 +1193,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Manual court scraping initiated for client: ${client.fullName}`);
       
       const courtSearchResult = await courtScraper.searchCourtDates(client.fullName, {
-        dateRange: {
-          start: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000 * 5), // 5 years back
-          end: new Date()
-        }
+        state: 'HI',
+        county: 'all',
+        maxResults: 50
       });
 
       let createdRecords = 0;
@@ -1197,7 +1208,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           charges: courtDate.charges || null,
           caseNumber: courtDate.caseNumber || null,
           notes: `Manual scrape from ${courtDate.source} - ${new Date().toLocaleDateString()}`,
-          status: 'pending',
           source: courtDate.source || 'Court Records Search',
           sourceVerified: false,
           approvedBy: null,
@@ -1718,7 +1728,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/client/court-dates', async (req, res) => {
     try {
       // Get client from session - this should be implemented based on your auth system
-      const clientId = req.session?.clientId || req.headers['x-client-id'];
+      const clientId = (req.session as any)?.clientId || req.headers['x-client-id'];
       
       if (!clientId) {
         return res.status(401).json({ message: 'Not authenticated' });
