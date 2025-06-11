@@ -41,6 +41,7 @@ export function CourtDateApprovals() {
   });
 
   const getClientName = (clientId: number) => {
+    if (!Array.isArray(allClients)) return "Unknown Client";
     const client = allClients.find((c: any) => c.id === clientId);
     return client?.fullName || "Unknown Client";
   };
@@ -76,7 +77,7 @@ export function CourtDateApprovals() {
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
           Pending Court Date Approvals
-          {pendingCourtDates.length > 0 && (
+          {Array.isArray(pendingCourtDates) && pendingCourtDates.length > 0 && (
             <Badge variant="secondary" className="ml-2">
               {pendingCourtDates.length}
             </Badge>
@@ -87,14 +88,14 @@ export function CourtDateApprovals() {
         </p>
       </CardHeader>
       <CardContent>
-        {pendingCourtDates.length === 0 ? (
+        {!Array.isArray(pendingCourtDates) || pendingCourtDates.length === 0 ? (
           <div className="text-center py-8">
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <p className="text-slate-600">No pending court dates to approve</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {pendingCourtDates.map((courtDate: any) => (
+            {Array.isArray(pendingCourtDates) && pendingCourtDates.map((courtDate: any) => (
               <div key={courtDate.id} className="border rounded-lg p-4 bg-slate-50">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2 flex-1">

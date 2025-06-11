@@ -351,6 +351,13 @@ class MemoryStorage implements IStorage {
     return checkIns[0];
   }
 
+  async deleteCheckIn(id: number): Promise<void> {
+    const index = this.checkIns.findIndex(c => c.id === id);
+    if (index >= 0) {
+      this.checkIns.splice(index, 1);
+    }
+  }
+
   // Payment operations
   async createPayment(paymentData: InsertPayment): Promise<Payment> {
     const payment = {
@@ -387,6 +394,13 @@ class MemoryStorage implements IStorage {
       confirmedAt: new Date(),
     };
     return this.payments[index];
+  }
+
+  async deletePayment(id: number): Promise<void> {
+    const index = this.payments.findIndex(p => p.id === id);
+    if (index >= 0) {
+      this.payments.splice(index, 1);
+    }
   }
 
   // Message operations
