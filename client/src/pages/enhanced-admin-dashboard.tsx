@@ -128,7 +128,12 @@ export default function EnhancedAdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setActiveTab("overview")}
+              onClick={() => {
+                toast({
+                  title: "Notifications",
+                  description: `${(alerts as any[])?.length || 0} unread notifications`,
+                });
+              }}
             >
               <Bell className="h-4 w-4 mr-2" />
               Notifications
