@@ -683,7 +683,7 @@ export class LocalFileStorage implements IStorage {
 
   async getPendingCourtDates(): Promise<CourtDate[]> {
     const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
-    return courtDates.filter(cd => cd.approved === false);
+    return courtDates.filter(cd => cd.adminApproved === false);
   }
 
   async approveCourtDate(id: number, approvedBy: string): Promise<CourtDate> {
@@ -696,10 +696,9 @@ export class LocalFileStorage implements IStorage {
     
     courtDates[courtDateIndex] = {
       ...courtDates[courtDateIndex],
-      approved: true,
+      adminApproved: true,
       approvedBy,
       approvedAt: new Date(),
-      updatedAt: new Date(),
     };
     
     await this.writeJsonFile('court-dates.json', courtDates);
@@ -717,8 +716,7 @@ export class LocalFileStorage implements IStorage {
     courtDates[courtDateIndex] = {
       ...courtDates[courtDateIndex],
       clientAcknowledged: true,
-      clientAcknowledgedAt: new Date(),
-      updatedAt: new Date(),
+      acknowledgedAt: new Date(),
     };
     
     await this.writeJsonFile('court-dates.json', courtDates);
@@ -727,7 +725,7 @@ export class LocalFileStorage implements IStorage {
 
   async getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]> {
     const courtDates = await this.readJsonFile<CourtDate>('court-dates.json');
-    return courtDates.filter(cd => cd.clientId === clientId && cd.approved === true);
+    return courtDates.filter(cd => cd.clientId === clientId && cd.adminApproved === true);
   }
 
   async getCourtDateReminders(): Promise<any[]> {
@@ -1257,7 +1255,25 @@ export class LocalFileStorage implements IStorage {
     } else {
       const newPreferences: NotificationPreferences = {
         id: this.nextId++,
-        ...preferencesData,
+        userId: preferencesData.userId,
+        emailEnabled: preferencesData.emailEnabled ?? true,
+        courtRemindersEmail: preferencesData.courtRemindersEmail ?? true,
+        paymentDueEmail: preferencesData.paymentDueEmail ?? true,
+        arrestAlertsEmail: preferencesData.arrestAlertsEmail ?? true,
+        bondExpiringEmail: preferencesData.bondExpiringEmail ?? true,
+        inAppEnabled: preferencesData.inAppEnabled ?? true,
+        courtRemindersInApp: preferencesData.courtRemindersInApp ?? true,
+        paymentDueInApp: preferencesData.paymentDueInApp ?? true,
+        arrestAlertsInApp: preferencesData.arrestAlertsInApp ?? true,
+        bondExpiringInApp: preferencesData.bondExpiringInApp ?? true,
+        courtReminderDays: preferencesData.courtReminderDays ?? 3,
+        paymentReminderDays: preferencesData.paymentReminderDays ?? 7,
+        bondExpiringDays: preferencesData.bondExpiringDays ?? 30,
+        soundEnabled: preferencesData.soundEnabled ?? true,
+        desktopNotifications: preferencesData.desktopNotifications ?? false,
+        quietHoursEnabled: preferencesData.quietHoursEnabled ?? false,
+        quietHoursStart: preferencesData.quietHoursStart ?? "22:00",
+        quietHoursEnd: preferencesData.quietHoursEnd ?? "08:00",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -1277,7 +1293,10 @@ export class LocalFileStorage implements IStorage {
   async acknowledgeTerms(acknowledgmentData: InsertTermsAcknowledgment): Promise<TermsAcknowledgment> {
     const termsAck: TermsAcknowledgment = {
       id: this.nextId++,
-      ...acknowledgmentData,
+      userId: acknowledgmentData.userId,
+      version: acknowledgmentData.version || "1.0",
+      ipAddress: acknowledgmentData.ipAddress || null,
+      userAgent: acknowledgmentData.userAgent || null,
       acknowledgedAt: new Date(),
     };
     
