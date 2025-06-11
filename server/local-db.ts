@@ -1566,6 +1566,37 @@ export class LocalFileStorage implements IStorage {
       message: 'No arrest monitoring APIs configured. Contact system administrator to set up police department data feeds.'
     };
   }
+
+  // Privacy acknowledgment operations
+  async getPrivacyAcknowledgment(userId: string): Promise<any | undefined> {
+    try {
+      const acknowledgments = await this.readJsonFile<any[]>(path.join(this.dataDir, 'privacy-acknowledgments.json'), []);
+      return acknowledgments.find(ack => ack.userId === userId);
+    } catch (error) {
+      console.error('Error reading privacy acknowledgments:', error);
+      return undefined;
+    }
+  }
+
+  async createPrivacyAcknowledgment(acknowledgment: any): Promise<any> {
+    try {
+      const acknowledgments = await this.readJsonFile<any[]>(path.join(this.dataDir, 'privacy-acknowledgments.json'), []);
+      
+      const newAcknowledgment = {
+        id: acknowledgments.length + 1,
+        ...acknowledgment,
+        acknowledgedAt: new Date()
+      };
+
+      acknowledgments.push(newAcknowledgment);
+      await this.writeJsonFile(path.join(this.dataDir, 'privacy-acknowledgments.json'), acknowledgments);
+      
+      return newAcknowledgment;
+    } catch (error) {
+      console.error('Error creating privacy acknowledgment:', error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new LocalFileStorage();

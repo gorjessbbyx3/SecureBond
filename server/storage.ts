@@ -29,6 +29,8 @@ import {
   type ClientFile,
   type TermsAcknowledgment,
   type InsertTermsAcknowledgment,
+  type PrivacyAcknowledgment,
+  type InsertPrivacyAcknowledgment,
 } from "@shared/schema";
 import { LocalFileStorage } from "./local-db";
 
@@ -175,6 +177,10 @@ export interface IStorage {
   // Terms acknowledgment operations
   checkTermsAcknowledgment(userId: string, version: string): Promise<boolean>;
   acknowledgeTerms(acknowledgment: InsertTermsAcknowledgment): Promise<TermsAcknowledgment>;
+  
+  // Privacy acknowledgment operations
+  getPrivacyAcknowledgment(userId: string): Promise<PrivacyAcknowledgment | undefined>;
+  createPrivacyAcknowledgment(acknowledgment: InsertPrivacyAcknowledgment): Promise<PrivacyAcknowledgment>;
 }
 
 // In-memory storage for development
