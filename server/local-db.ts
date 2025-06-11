@@ -1567,7 +1567,9 @@ export class LocalFileStorage implements IStorage {
         new Date(Date.now() - 60000).toISOString() : // HPD checked 1 minute ago
         new Date(Date.now() - Math.random() * 3600000).toISOString(),
       checkInterval: county.id === 'honolulu' ? 15 : 30, // Check HPD more frequently
-      apiEndpoint: `https://api.${county.id}pd.gov/arrest-logs`,
+      apiEndpoint: county.id === 'honolulu' ? 'https://www.honolulupd.org/information/arrest-logs/' : 
+                   county.id === 'hawaii' ? 'https://www.hawaiipolice.gov/news-and-media/booking-logs/' :
+                   `https://www.${county.id}pd.gov/arrest-logs`,
       status: county.id === 'honolulu' ? 'active' : (Math.random() > 0.3 ? 'active' : 'inactive'),
       recordsFound: county.id === 'honolulu' ? 8 : Math.floor(Math.random() * 3)
     }));
