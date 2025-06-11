@@ -1,0 +1,10 @@
+[
+  {
+    "id": 3,
+    "clientId": 1,
+    "checkInTime": "2025-06-11T19:45:00.000Z",
+    "location": "Downtown Honolulu",
+    "notes": "Regular weekly check-in",
+    "createdAt": "2025-06-11T19:48:47.756Z"
+  }
+]
