@@ -22,6 +22,7 @@ import DataManagement from "@/components/admin/data-management";
 import BulkClientUpload from "@/components/admin/bulk-client-upload";
 import { BusinessSettings } from "@/components/admin/business-settings";
 import { SystemMonitoringDashboard } from "@/components/admin/system-monitoring-dashboard";
+import { AutomatedCourtReminders } from "@/components/admin/automated-court-reminders";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();

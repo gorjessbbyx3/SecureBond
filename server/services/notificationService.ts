@@ -78,6 +78,16 @@ export class NotificationService {
     await this.createNotificationRecord(client, null, 'checkin_reminder', message);
   }
 
+  async sendTestSMS(phoneNumber: string): Promise<boolean> {
+    try {
+      const testMessage = 'This is a test SMS from SecureBond. Your notification system is working correctly.';
+      return await this.smsProvider.sendSMS(phoneNumber, testMessage);
+    } catch (error) {
+      console.error('Test SMS failed:', error);
+      return false;
+    }
+  }
+
   private formatCourtReminderMessage(
     client: Client, 
     courtDate: CourtDate, 

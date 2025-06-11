@@ -4,6 +4,8 @@ import session from "express-session";
 import { storage } from "./storage";
 import { courtScraper } from "./courtScraper";
 import { courtReminderService } from "./courtReminderService";
+import { notificationService } from "./services/notificationService";
+import { sendGridService } from "./services/sendgrid";
 import { healthEndpoint, healthCheckMiddleware } from "./middleware/healthCheck";
 import { performanceMiddleware, performanceStatsEndpoint, performanceMetricsEndpoint } from "./middleware/performance";
 import { securityAuditMiddleware, securityReportEndpoint, securityEventsEndpoint } from "./middleware/securityAudit";
@@ -1692,6 +1694,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Export error:", error);
       res.status(500).json({ message: "Failed to export data" });
+    }
+  });
+
+  // Court reminder management endpoints
+  app.get('/api/admin/notification-stats', isAuthenticated, async (req, res) => {
+    try {
+      const allReminders = await courtReminderService.getUpcomingCourtDates(30);
+      const notifications = await storage.getAllNotifications();
+      
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      const todayNotifications = notifications.filter(n => {
+        const notifDate = new Date(n.createdAt!);
+        const notifDay = new Date(notifDate.getFullYear(), notifDate.getMonth(), notifDate.getDate());
+        return notifDay.getTime() === today.getTime() && n.type === 'court_reminder';
+      });
+
+      res.json({
+        totalReminders: allReminders.length,
+        pendingReminders: 0, // Would need reminder table implementation
+        sentReminders: todayNotifications.length,
+        failedReminders: 0,
+        upcomingCourtDates: allReminders.length
+      });
+    } catch (error) {
+      console.error('Error fetching notification stats:', error);
+      res.status(500).json({ message: 'Failed to fetch notification statistics' });
+    }
+  });
+
+  app.get('/api/admin/court-reminders', isAuthenticated, async (req, res) => {
+    try {
+      // This would return actual court reminder records when storage is implemented
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching court reminders:', error);
+      res.status(500).json({ message: 'Failed to fetch court reminders' });
+    }
+  });
+
+  app.get('/api/admin/upcoming-court-dates', isAuthenticated, async (req, res) => {
+    try {
+      const upcomingDates = await courtReminderService.getUpcomingCourtDates(30);
+      res.json(upcomingDates);
+    } catch (error) {
+      console.error('Error fetching upcoming court dates:', error);
+      res.status(500).json({ message: 'Failed to fetch upcoming court dates' });
+    }
+  });
+
+  app.post('/api/admin/test-email', isAuthenticated, async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ success: false, message: 'Email address required' });
+      }
+
+      const result = await sendGridService.testConnection(email);
+      res.json(result);
+    } catch (error) {
+      console.error('Error testing email:', error);
+      res.status(500).json({ success: false, message: 'Failed to test email notification' });
+    }
+  });
+
+  app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {
+    try {
+      const { phone } = req.body;
+      
+      if (!phone) {
+        return res.status(400).json({ success: false, message: 'Phone number required' });
+      }
+
+      // Test SMS via notification service
+      const success = await notificationService.sendTestSMS(phone);
+      
+      res.json({
+        success,
+        message: success ? 'Test SMS sent successfully' : 'Failed to send test SMS - check Twilio configuration'
+      });
+    } catch (error) {
+      console.error('Error testing SMS:', error);
+      res.status(500).json({ success: false, message: 'Failed to test SMS notification' });
+    }
+  });
+
+  app.post('/api/admin/trigger-reminders', isAuthenticated, async (req, res) => {
+    try {
+      await courtReminderService.processPendingReminders();
+      res.json({ success: true, message: 'Manual reminder check completed' });
+    } catch (error) {
+      console.error('Error triggering reminders:', error);
+      res.status(500).json({ success: false, message: 'Failed to trigger reminders' });
     }
   });
 
