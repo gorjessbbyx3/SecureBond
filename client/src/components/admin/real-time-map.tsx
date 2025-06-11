@@ -9,13 +9,28 @@ export default function RealTimeMap() {
     queryKey: ['/api/clients'],
   });
 
-  // Mock GPS locations for demonstration
-  const clientLocations = [
-    { id: 1, name: "John Doe", lat: 21.3099, lng: -157.8581, status: "active", lastUpdate: "2 min ago" },
-    { id: 2, name: "Jane Smith", lat: 21.2787, lng: -157.8262, status: "warning", lastUpdate: "15 min ago" },
-    { id: 3, name: "Mike Johnson", lat: 21.3891, lng: -157.9712, status: "active", lastUpdate: "5 min ago" },
-    { id: 4, name: "Sarah Wilson", lat: 21.3045, lng: -158.0001, status: "offline", lastUpdate: "2 hrs ago" },
-  ];
+  // Get actual client check-in data with locations
+  const { data: checkIns = [] } = useQuery({
+    queryKey: ['/api/check-ins'],
+  });
+
+  // Process real client locations from check-ins
+  const clientLocations = clients.map(client => {
+    const lastCheckIn = checkIns
+      .filter((ci: any) => ci.clientId === client.id)
+      .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+    
+    return {
+      id: client.id,
+      name: client.fullName,
+      clientId: client.clientId,
+      status: client.isActive ? (client.missedCheckIns > 0 ? 'warning' : 'active') : 'offline',
+      lastUpdate: lastCheckIn ? new Date(lastCheckIn.timestamp).toLocaleString() : 'No check-ins',
+      location: lastCheckIn?.location || null,
+      lat: lastCheckIn?.location?.latitude || null,
+      lng: lastCheckIn?.location?.longitude || null
+    };
+  }).filter(client => client.lat && client.lng);
 
   return (
     <div className="space-y-6">
@@ -57,16 +72,21 @@ export default function RealTimeMap() {
               }}
             />
             
-            {/* Client Location Markers */}
-            {clientLocations.map((client, index) => (
-              <div
-                key={client.id}
-                className="absolute"
-                style={{
-                  left: `${20 + (index * 20)}%`,
-                  top: `${30 + (index * 15)}%`,
-                }}
-              >
+            {/* Real Client Location Markers */}
+            {clientLocations.map((client, index) => {
+              // Convert lat/lng to map coordinates (simplified projection)
+              const mapX = Math.min(Math.max(((client.lng + 158) * 50), 10), 90);
+              const mapY = Math.min(Math.max(((21.5 - client.lat) * 50), 10), 90);
+              
+              return (
+                <div
+                  key={client.id}
+                  className="absolute"
+                  style={{
+                    left: `${mapX}%`,
+                    top: `${mapY}%`,
+                  }}
+                >
                 <div className="relative group cursor-pointer">
                   <div className={`w-4 h-4 rounded-full border-2 border-white shadow-lg animate-pulse ${
                     client.status === 'active' ? 'bg-green-500' :
@@ -81,14 +101,19 @@ export default function RealTimeMap() {
                     'bg-red-400'
                   }`}></div>
                   
-                  {/* Tooltip */}
+                  {/* Real Client Info Tooltip */}
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
                     <div className="font-medium">{client.name}</div>
+                    <div className="text-gray-300">ID: {client.clientId}</div>
                     <div className="text-gray-300">Last: {client.lastUpdate}</div>
+                    {client.location && (
+                      <div className="text-gray-300">GPS: {client.lat?.toFixed(4)}, {client.lng?.toFixed(4)}</div>
+                    )}
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
             
             {/* Map Legend */}
             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
@@ -109,10 +134,14 @@ export default function RealTimeMap() {
               </div>
             </div>
             
-            {/* Location Info */}
+            {/* Real Location Info */}
             <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-              <div className="text-sm font-medium">Honolulu, HI</div>
-              <div className="text-xs text-gray-600">Real-time GPS tracking active</div>
+              <div className="text-sm font-medium">Live Tracking: {clientLocations.length} clients</div>
+              <div className="text-xs text-gray-600">
+                {clientLocations.filter(c => c.status === 'active').length} active • 
+                {clientLocations.filter(c => c.status === 'warning').length} warnings • 
+                {clientLocations.filter(c => c.status === 'offline').length} offline
+              </div>
             </div>
           </div>
         </CardContent>
@@ -166,20 +195,24 @@ export default function RealTimeMap() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm">Coverage Area</span>
-                <span className="font-bold">25 sq miles</span>
+                <span className="text-sm">Total Clients</span>
+                <span className="font-bold">{clients.length}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Average Distance</span>
-                <span className="font-bold">2.3 miles</span>
+                <span className="text-sm">With GPS Data</span>
+                <span className="font-bold">{clientLocations.length}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Hotspots</span>
-                <span className="font-bold">Downtown, Airport</span>
+                <span className="text-sm">Active Check-ins</span>
+                <span className="font-bold text-green-600">
+                  {clientLocations.filter(c => c.status === 'active').length}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Update Frequency</span>
-                <span className="font-bold text-green-600">30 seconds</span>
+                <span className="text-sm">Requires Attention</span>
+                <span className="font-bold text-red-600">
+                  {clientLocations.filter(c => c.status === 'warning').length}
+                </span>
               </div>
             </div>
           </CardContent>

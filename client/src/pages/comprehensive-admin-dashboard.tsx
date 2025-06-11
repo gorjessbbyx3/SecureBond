@@ -1297,23 +1297,33 @@ export default function ComprehensiveAdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {recentCheckIns.slice(0, 12).map((checkIn: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200">
+                    {recentCheckIns.length > 0 ? recentCheckIns.slice(0, 12).map((checkIn: any, index: number) => (
+                      <div key={checkIn.id || index} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200">
                         <div className="flex items-center gap-3">
                           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                           <div>
-                            <span className="font-medium">Client #{checkIn.clientId || `Client-${index + 1}`}</span>
-                            <p className="text-xs text-gray-600">Location verified • GPS accurate</p>
+                            <span className="font-medium">
+                              {clients.find(c => c.id === checkIn.clientId)?.fullName || `Client #${checkIn.clientId}`}
+                            </span>
+                            <p className="text-xs text-gray-600">
+                              {checkIn.location ? 'Location verified • GPS accurate' : 'Check-in confirmed'}
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <span className="text-sm font-medium">
-                            {new Date(checkIn.timestamp || new Date()).toLocaleTimeString()}
+                            {new Date(checkIn.timestamp).toLocaleTimeString()}
                           </span>
                           <p className="text-xs text-green-600">✓ Verified</p>
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <Clock className="h-8 w-8 mx-auto mb-2" />
+                        <p>No recent check-ins</p>
+                        <p className="text-xs">Check-ins will appear here in real-time</p>
+                      </div>
+                    )}
                     {recentCheckIns.length === 0 && (
                       <div className="text-center py-8 text-gray-500">
                         <Clock className="h-8 w-8 mx-auto mb-2" />
@@ -1334,8 +1344,8 @@ export default function ComprehensiveAdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {alerts.slice(0, 12).map((alert: any, index: number) => (
-                      <div key={index} className={`flex items-center justify-between p-3 rounded-lg border ${
+                    {alerts.length > 0 ? alerts.slice(0, 12).map((alert: any, index: number) => (
+                      <div key={alert.id || index} className={`flex items-center justify-between p-3 rounded-lg border ${
                         alert.priority === 'high' ? 'bg-red-50 dark:bg-red-900/20 border-red-200' :
                         alert.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200' :
                         'bg-blue-50 dark:bg-blue-900/20 border-blue-200'
@@ -1347,20 +1357,26 @@ export default function ComprehensiveAdminDashboard() {
                             'text-blue-500'
                           }`} />
                           <div>
-                            <span className="font-medium">{alert.message || `Alert ${index + 1}`}</span>
-                            <p className="text-xs text-gray-600">{alert.description || 'System generated alert'}</p>
+                            <span className="font-medium">{alert.message}</span>
+                            <p className="text-xs text-gray-600">{alert.description}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <Badge variant={alert.priority === 'high' ? 'destructive' : 'secondary'}>
-                            {alert.priority || 'low'}
+                            {alert.priority}
                           </Badge>
                           <p className="text-xs text-gray-500 mt-1">
-                            {new Date(alert.timestamp || new Date()).toLocaleTimeString()}
+                            {new Date(alert.createdAt).toLocaleTimeString()}
                           </p>
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                        <p>All systems operational</p>
+                        <p className="text-xs">No active alerts</p>
+                      </div>
+                    )}
                     {alerts.length === 0 && (
                       <div className="text-center py-8 text-gray-500">
                         <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
