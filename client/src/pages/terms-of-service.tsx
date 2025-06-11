@@ -1,190 +1,282 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { CheckCircle, FileText, AlertTriangle, Scale, Shield, Users, Gavel, XCircle } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useTermsStatus } from "@/hooks/useTermsStatus";
 import { useLocation } from "wouter";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
+
+const CURRENT_VERSION = "2.0";
 
 export default function TermsOfService() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const { hasAcknowledged: hasAcceptedTerms, currentVersion } = useTermsStatus();
+  const [isAccepting, setIsAccepting] = useState(false);
+
+  const handleAcceptTerms = async () => {
+    if (!user) return;
+    
+    setIsAccepting(true);
+    try {
+      // Implementation would go here
+      setLocation("/");
+    } catch (error) {
+      console.error("Failed to accept terms:", error);
+    } finally {
+      setIsAccepting(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <Button 
-            variant="outline" 
-            onClick={() => setLocation("/")}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          <h1 className="text-3xl font-bold text-slate-900">Terms of Service</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <Scale className="h-12 w-12 text-blue-600 mr-3" />
+              <h1 className="text-3xl font-bold text-slate-900">Terms of Service</h1>
+            </div>
+            <p className="text-slate-600">SecureBond Bail Bond Management System</p>
+            <p className="text-sm text-slate-500 mt-2">Effective Date: June 11, 2025</p>
+            <p className="text-sm text-slate-500">Version: {CURRENT_VERSION}</p>
+            <p className="text-sm text-slate-500">Developer: gorJessCo</p>
+            
+            {hasAcceptedTerms && (
+              <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                You have accepted these terms
+              </div>
+            )}
+          </div>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-blue-600" />
+                Important Notice
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-yellow-800 font-semibold mb-2">Critical Legal Service</p>
+                    <p className="text-yellow-700 text-sm">
+                      This system manages bail bond services where compliance failures can result in serious legal consequences, 
+                      including arrest warrants and forfeiture of bond amounts. All users must understand their legal obligations 
+                      and use this system responsibly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+                  1. Acceptance of Terms
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 leading-relaxed mb-4">
+                  By accessing or using the SecureBond bail bond management system, you agree to comply with 
+                  and be bound by these Terms of Service. If you disagree with any part of these terms, 
+                  you may not access or use the system.
+                </p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-800 text-sm">
+                    <strong>Important:</strong> These terms constitute a legally binding agreement between you and gorJessCo. 
+                    Your use of the system indicates your acceptance of these terms and creates legal obligations.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Shield className="h-5 w-5 mr-2 text-blue-600" />
+                  2. License and Access
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 mb-4">
+                  You are granted a limited, non-exclusive, non-transferable license to use the system 
+                  in accordance with these terms for lawful bail bond management purposes only.
+                </p>
+                <div>
+                  <h4 className="font-semibold text-slate-800 mb-2">License Restrictions:</h4>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1 ml-4">
+                    <li>Use is limited to authorized personnel only</li>
+                    <li>Account credentials may not be shared or transferred</li>
+                    <li>System access is monitored and logged for security purposes</li>
+                    <li>Reverse engineering or copying of the system is strictly forbidden</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-purple-600" />
+                  3. User Conduct
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 mb-4">You agree not to:</p>
+                <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
+                  <li>Use the system for illegal or abusive purposes</li>
+                  <li>Attempt to hack, reverse engineer, or disrupt the system's functionality</li>
+                  <li>Upload harmful or fraudulent content</li>
+                  <li>Access or attempt to access accounts belonging to other users</li>
+                  <li>Violate any court orders, bond conditions, or legal obligations</li>
+                  <li>Provide false, misleading, or fraudulent information</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <XCircle className="h-5 w-5 mr-2 text-red-600" />
+                  4. Termination
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 mb-4">
+                  We reserve the right to suspend or terminate your access for violations of these terms 
+                  or applicable laws, including but not limited to:
+                </p>
+                <ul className="list-disc list-inside text-slate-700 space-y-1 ml-4">
+                  <li>Violation of these Terms of Service</li>
+                  <li>Suspected fraudulent or illegal activity</li>
+                  <li>Failure to comply with court orders or bond conditions</li>
+                  <li>Security concerns or system maintenance requirements</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <AlertTriangle className="h-5 w-5 mr-2 text-orange-600" />
+                  5. Disclaimers
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 mb-4">
+                  The system is provided "as is" without warranties of any kind. We specifically disclaim:
+                </p>
+                <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
+                  <li>Guarantees of error-free or uninterrupted service</li>
+                  <li>Accuracy or completeness of third-party data or court information</li>
+                  <li>Compatibility with all devices or operating systems</li>
+                  <li>Availability during maintenance or technical issues</li>
+                </ul>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+                  <p className="text-red-800 text-sm">
+                    <strong>Critical Disclaimer:</strong> Users remain solely responsible for compliance with all 
+                    legal obligations and court appearances. System failures do not excuse legal non-compliance.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Shield className="h-5 w-5 mr-2 text-gray-600" />
+                  6. Limitation of Liability
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 mb-4">
+                  To the extent permitted by law, gorJessCo is not liable for damages arising from the use 
+                  or inability to use the system, including but not limited to:
+                </p>
+                <ul className="list-disc list-inside text-slate-700 space-y-1 ml-4">
+                  <li>Lost profits, revenue, or business opportunities</li>
+                  <li>Legal consequences from missed court dates or non-compliance</li>
+                  <li>Forfeited bond amounts or additional legal fees</li>
+                  <li>System downtime or service interruptions</li>
+                  <li>Data loss or unauthorized access</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Gavel className="h-5 w-5 mr-2 text-blue-600" />
+                  7. Governing Law
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 mb-4">
+                  These terms are governed by the laws of the State of Hawaii. All disputes shall be resolved 
+                  in the state and federal courts located in Hawaii.
+                </p>
+                <p className="text-slate-600 text-sm">
+                  If any provision of these terms is found unenforceable, the remaining provisions shall remain in full force and effect.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-green-600" />
+                  8. Contact Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 mb-4">
+                  For questions about these Terms of Service or system support:
+                </p>
+                <div className="bg-slate-50 rounded-lg p-4">
+                  <p className="text-slate-800 font-semibold">gorJessCo</p>
+                  <p className="text-slate-700">Email: gorJessCo@cyberservices.net</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {user && !hasAcceptedTerms && (
+            <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">Accept Terms to Continue</h3>
+                <p className="text-slate-600 mb-4">
+                  You must accept these Terms of Service to use the SecureBond system.
+                </p>
+                <Button 
+                  onClick={handleAcceptTerms}
+                  disabled={isAccepting}
+                  className="px-8 py-2"
+                >
+                  {isAccepting ? "Processing..." : "I Accept These Terms"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!user && (
+            <div className="mt-8 text-center">
+              <Button 
+                onClick={() => setLocation("/")}
+                className="px-8 py-2"
+              >
+                Return to Login
+              </Button>
+            </div>
+          )}
         </div>
-
-        <Card className="max-w-4xl mx-auto">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl">Terms of Service</CardTitle>
-            <div className="text-center text-slate-600">
-              <p><strong>Effective Date:</strong> June 1st, 2025</p>
-              <p><strong>Developer:</strong> gorjessbbyCo.</p>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-6 text-slate-700">
-            <p>
-              This Terms of Service ("Agreement") governs your use of the software application ("Application") 
-              developed by gorjessbbyCo. for use by licensed bail bond companies and their clients. By accessing 
-              or using the Application, you ("User") agree to be bound by the terms of this Agreement. If you do 
-              not agree with these terms, you may not use the Application.
-            </p>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">1. Acceptance of Terms</h2>
-              <p>
-                By installing, accessing, or using the Application, the User agrees to comply with and be bound 
-                by this Agreement. This includes the Company (bail bond business) and any third-party Clients 
-                who interact with the Application.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">2. Purpose of the Application</h2>
-              <p>
-                The Application is intended solely as a digital tool to assist licensed bail bond companies in 
-                managing operations such as check-ins, notifications, location tracking, document uploads, and 
-                communication. It is not a legal service, nor is it a substitute for professional legal advice 
-                or obligations.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">3. User Responsibilities</h2>
-              <div className="space-y-3">
-                <p>
-                  <strong>The Company</strong> is responsible for ensuring the Application is used in accordance 
-                  with all applicable local, state, and federal laws.
-                </p>
-                <p>
-                  <strong>Clients</strong> are responsible for complying with their own legal obligations, 
-                  including but not limited to court appearances, reporting conditions, and communication with 
-                  their bail bond agent.
-                </p>
-                <p>
-                  <strong>The Developer</strong> is not responsible for configuring or maintaining the Company's 
-                  internal workflows, settings, or policies.
-                </p>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">4. No Legal Advice</h2>
-              <p>
-                The Application does not provide legal advice, legal representation, or compliance assurance. 
-                Any information presented is for administrative convenience only and should not be relied upon 
-                as legal guidance.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">5. Limitation of Liability</h2>
-              <p>
-                The Application is provided "as is," without warranties of any kind, express or implied. The 
-                Developer makes no guarantees regarding uptime, accuracy, performance, or reliability.
-              </p>
-              <p className="mt-3">
-                By using this Application, both the Company and its Clients agree to the following:
-              </p>
-              <ul className="list-disc list-inside space-y-2 mt-3 ml-4">
-                <li>
-                  The Developer shall not be held liable for any damages, including but not limited to missed 
-                  court appearances, arrests, incarceration, lost revenue, legal consequences, or business 
-                  disruptions resulting from the use or misuse of the Application.
-                </li>
-                <li>
-                  The Developer is not responsible for any data input errors, missed alerts, or failures in 
-                  location tracking, notifications, or submissions.
-                </li>
-                <li>
-                  Use of the Application is entirely at the User's own risk.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">6. Client Acknowledgment</h2>
-              <p>Clients using this Application understand that:</p>
-              <ul className="list-disc list-inside space-y-2 mt-3 ml-4">
-                <li>
-                  It is a third-party tool not owned or operated by any government entity.
-                </li>
-                <li>
-                  The Developer is not affiliated with the court system, law enforcement, or the bail bond 
-                  company beyond the technical provision of the Application.
-                </li>
-                <li>
-                  Any issues related to bond, court dates, or check-ins must be directed to the bail bond company.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">7. Indemnification</h2>
-              <p>
-                Users agree to indemnify and hold harmless the Developer from any and all claims, damages, 
-                liabilities, costs, or expenses (including attorney's fees) arising from their use or misuse 
-                of the Application.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">8. Modifications to the Agreement</h2>
-              <p>
-                The Developer reserves the right to update or modify this Agreement at any time without prior 
-                notice. Continued use of the Application after such changes constitutes acceptance of the 
-                updated Agreement.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">9. Termination</h2>
-              <p>
-                The Developer reserves the right to suspend or terminate access to the Application at their 
-                discretion, without liability, for any reason including breach of this Agreement.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">10. Governing Law</h2>
-              <p>
-                This Agreement shall be governed by and construed in accordance with the laws of the State of 
-                Hawaii, without regard to its conflict of laws principles.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-slate-900 mb-3">11. Contact</h2>
-              <p>For questions or concerns about this Agreement, please contact:</p>
-              <div className="mt-3 p-4 bg-slate-100 rounded-lg">
-                <p><strong>Jessica Houtz</strong></p>
-                <p>gorjessbbyCo.</p>
-              </div>
-            </section>
-
-            <div className="mt-8 pt-6 border-t border-slate-200">
-              <p className="text-sm text-slate-500 text-center">
-                By continuing to use this application, you acknowledge that you have read, understood, 
-                and agree to be bound by these Terms of Service.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
-
-      <Footer />
+      </div>
     </div>
   );
 }
