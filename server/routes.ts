@@ -1721,7 +1721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(acknowledgedCourtDate);
     } catch (error) {
       console.error('Error acknowledging court date:', error);
-      res.status(400).json({ message: error.message });
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -1977,9 +1977,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .filter(payment => !payment.confirmed)
         .reduce((sum, payment) => sum + parseFloat(payment.amount || '0'), 0);
       
-      const sortedPayments = payments.sort((a, b) => 
-        new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime()
-      );
+      const sortedPayments = payments.sort((a, b) => {
+        const dateA = a.paymentDate ? new Date(a.paymentDate).getTime() : 0;
+        const dateB = b.paymentDate ? new Date(b.paymentDate).getTime() : 0;
+        return dateB - dateA;
+      });
       const lastPaymentDate = sortedPayments[0]?.paymentDate || null;
       
       res.json({
