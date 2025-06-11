@@ -466,6 +466,50 @@ class MemoryStorage implements IStorage {
     return this.courtDates[index];
   }
 
+  async deleteCourtDate(id: number): Promise<void> {
+    const index = this.courtDates.findIndex(c => c.id === id);
+    if (index >= 0) {
+      this.courtDates.splice(index, 1);
+    }
+  }
+
+  async approveCourtDate(id: number, approvedBy: string): Promise<CourtDate> {
+    const index = this.courtDates.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error("Court date not found");
+    }
+    
+    this.courtDates[index] = {
+      ...this.courtDates[index],
+      adminApproved: true,
+      approvedBy,
+      approvedAt: new Date(),
+    };
+    return this.courtDates[index];
+  }
+
+  async getPendingCourtDates(): Promise<CourtDate[]> {
+    return this.courtDates.filter(c => !c.adminApproved);
+  }
+
+  async acknowledgeCourtDate(id: number, clientId: number): Promise<CourtDate> {
+    const index = this.courtDates.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error("Court date not found");
+    }
+    
+    this.courtDates[index] = {
+      ...this.courtDates[index],
+      clientAcknowledged: true,
+      acknowledgedAt: new Date(),
+    };
+    return this.courtDates[index];
+  }
+
+  async getClientApprovedCourtDates(clientId: number): Promise<CourtDate[]> {
+    return this.courtDates.filter(c => c.clientId === clientId && c.adminApproved);
+  }
+
   // Expense operations
   async createExpense(expenseData: InsertExpense): Promise<Expense> {
     const expense = {
@@ -555,12 +599,42 @@ class MemoryStorage implements IStorage {
     return this.clientVehicles.filter(v => v.clientId === clientId);
   }
 
+  async createClientVehicle(vehicle: any): Promise<ClientVehicle> {
+    const newVehicle = {
+      ...vehicle,
+      id: this.nextId++,
+      createdAt: new Date(),
+    } as ClientVehicle;
+    this.clientVehicles.push(newVehicle);
+    return newVehicle;
+  }
+
   async getClientFamily(clientId: number): Promise<FamilyMember[]> {
     return this.familyMembers.filter(f => f.clientId === clientId);
   }
 
+  async createFamilyMember(family: any): Promise<FamilyMember> {
+    const newFamily = {
+      ...family,
+      id: this.nextId++,
+      createdAt: new Date(),
+    } as FamilyMember;
+    this.familyMembers.push(newFamily);
+    return newFamily;
+  }
+
   async getClientEmployment(clientId: number): Promise<EmploymentInfo[]> {
     return this.employmentInfo.filter(e => e.clientId === clientId);
+  }
+
+  async createEmploymentInfo(employment: any): Promise<EmploymentInfo> {
+    const newEmployment = {
+      ...employment,
+      id: this.nextId++,
+      createdAt: new Date(),
+    } as EmploymentInfo;
+    this.employmentInfo.push(newEmployment);
+    return newEmployment;
   }
 
   async getClientFiles(clientId: number): Promise<ClientFile[]> {
