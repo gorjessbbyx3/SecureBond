@@ -45,47 +45,88 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header title="Admin Portal" subtitle="Bondsman Administration" />
+    <div className="mobile-dashboard">
+      {/* Mobile Navigation */}
+      <MobileNavigation userRole="admin" />
       
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
-            <p className="text-slate-600">Manage clients, payments, and operations</p>
+      <main className="mobile-content">
+        <div className="mobile-container">
+          {/* Mobile Header Section */}
+          <div className="mobile-section">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h1 className="mobile-heading text-slate-900">Admin Dashboard</h1>
+                <p className="mobile-text text-slate-600">Manage clients, payments, and operations</p>
+              </div>
+            </div>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="flex items-center">
-            <LogOut className="mr-2 w-4 h-4" />
-            Logout
-          </Button>
+
+          {/* Mobile Overview Stats */}
+          <div className="mobile-section">
+            <div className="mobile-grid tablet-grid">
+              <MobileStatCard
+                title="Total Clients"
+                value={stats?.totalClients || "0"}
+                icon={<Users className="h-6 w-6" />}
+              />
+              
+              <MobileStatCard
+                title="Active Bonds"
+                value={stats?.activeBonds || "0"}
+                icon={<DollarSign className="h-6 w-6" />}
+              />
+              
+              <MobileStatCard
+                title="Total Revenue"
+                value={stats?.totalRevenue ? `$${stats.totalRevenue.toLocaleString()}` : "$0"}
+                icon={<TrendingUp className="h-6 w-6" />}
+              />
+              
+              <MobileStatCard
+                title="Pending Alerts"
+                value={stats?.pendingAlerts || "0"}
+                icon={<AlertTriangle className="h-6 w-6" />}
+              />
+            </div>
+          </div>
+
+          {/* Main Content Tabs */}
+          <div className="mobile-section">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
+                <TabsTrigger value="clients" className="text-xs">Clients</TabsTrigger>
+                <TabsTrigger value="financial" className="text-xs">Financial</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-4 mt-4">
+                <div className="mobile-grid">
+                  <MobileCard title="Quick Stats">
+                    <DashboardStats />
+                  </MobileCard>
+                  
+                  <MobileCard title="Recent Activity">
+                    <AnalyticsCharts />
+                  </MobileCard>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="clients">
+                <div className="mobile-section">
+                  <ClientManagement />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="financial">
+                <div className="mobile-section">
+                  <FinancialDashboard />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
-
-        {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Users className="h-8 w-8 text-blue-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-600">Total Clients</p>
-                  <p className="text-2xl font-bold text-slate-900">{stats.totalClients}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <DollarSign className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    ${stats.totalRevenue.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
+      </main>
+    </div>
           </Card>
 
           <Card>

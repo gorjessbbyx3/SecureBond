@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import ClientDashboard from "@/pages/client-dashboard";
 import ClientDetails from "@/pages/client-details";
-import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
+import AdminDashboard from "@/pages/admin-dashboard-clean";
 import StaffDashboard from "@/pages/staff-dashboard";
 import MaintenanceDashboard from "@/pages/maintenance-dashboard";
 import AdminLogin from "@/pages/admin-login";
@@ -35,8 +35,8 @@ function Router() {
           <Route path="/client-dashboard" component={ClientDashboard} />
           <Route path="/client/:id" component={ClientDetails} />
           <Route path="/staff-dashboard" component={StaffDashboard} />
-          <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
-          <Route path="/admin" component={EnhancedAdminDashboard} />
+          <Route path="/admin-dashboard" component={AdminDashboard} />
+          <Route path="/admin" component={AdminDashboard} />
           <Route path="/client-portal-preview" component={ClientPortalPreview} />
           <Route path="/maintenance-dashboard" component={MaintenanceDashboard} />
         </>

@@ -336,4 +336,114 @@
   .mobile-modal-footer {
     @apply border-t border-slate-200 p-4 space-y-3;
   }
+  
+  /* Enhanced mobile utility classes */
+  .mobile-overflow-scroll {
+    @apply overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .mobile-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .mobile-scroll-snap {
+    scroll-snap-type: x mandatory;
+  }
+  
+  .mobile-scroll-snap-item {
+    scroll-snap-align: start;
+  }
+  
+  /* Mobile responsive typography */
+  .mobile-title {
+    @apply text-xl font-bold leading-tight;
+  }
+  
+  .mobile-subtitle {
+    @apply text-base font-medium leading-relaxed;
+  }
+  
+  .mobile-body {
+    @apply text-sm leading-relaxed;
+  }
+  
+  .mobile-caption {
+    @apply text-xs leading-relaxed text-slate-600;
+  }
+  
+  /* Mobile form enhancements */
+  .mobile-form-group {
+    @apply space-y-2 mb-4;
+  }
+  
+  .mobile-form-label {
+    @apply block text-sm font-medium text-slate-700 mb-1;
+  }
+  
+  .mobile-form-error {
+    @apply text-xs text-red-600 mt-1;
+  }
+  
+  /* Mobile animation utilities */
+  @keyframes mobile-slide-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes mobile-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .mobile-slide-up {
+    animation: mobile-slide-up 0.3s ease-out;
+  }
+  
+  .mobile-fade-in {
+    animation: mobile-fade-in 0.2s ease-out;
+  }
+  
+  /* Mobile specific breakpoint adjustments */
+  @media (max-width: 640px) {
+    .container {
+      @apply px-4;
+    }
+    
+    .mobile-card {
+      @apply mx-0 rounded-lg;
+    }
+    
+    .mobile-grid {
+      @apply gap-3;
+    }
+    
+    .mobile-button {
+      @apply py-4 text-base;
+    }
+  }
+  
+  /* Tablet specific adjustments */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .tablet-grid {
+      @apply grid-cols-2;
+    }
+    
+    .mobile-card {
+      @apply p-5;
+    }
+  }
 }
