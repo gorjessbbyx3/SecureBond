@@ -981,6 +981,308 @@ export default function ClientDetails() {
 }
 
 // Form components for adding information
+function BondForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+  const [formData, setFormData] = useState({
+    bondAmount: '',
+    totalOwed: '',
+    downPayment: '',
+    remainingBalance: '',
+    courtDate: '',
+    courtLocation: '',
+    charges: '',
+    caseNumber: '',
+    bondType: 'surety',
+    premiumRate: '0.10',
+    collateral: '',
+    cosigner: '',
+    cosignerPhone: '',
+    notes: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const bondData = {
+      ...formData,
+      bondAmount: parseFloat(formData.bondAmount) || 0,
+      totalOwed: parseFloat(formData.totalOwed) || 0,
+      downPayment: parseFloat(formData.downPayment) || 0,
+      remainingBalance: parseFloat(formData.remainingBalance) || 0,
+      premiumRate: parseFloat(formData.premiumRate) || 0.10,
+      courtDate: formData.courtDate ? new Date(formData.courtDate) : null
+    };
+    onSubmit(bondData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="bondAmount">Bond Amount</Label>
+          <Input
+            id="bondAmount"
+            type="number"
+            step="0.01"
+            value={formData.bondAmount}
+            onChange={(e) => setFormData({...formData, bondAmount: e.target.value})}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="totalOwed">Total Owed</Label>
+          <Input
+            id="totalOwed"
+            type="number"
+            step="0.01"
+            value={formData.totalOwed}
+            onChange={(e) => setFormData({...formData, totalOwed: e.target.value})}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="downPayment">Down Payment</Label>
+          <Input
+            id="downPayment"
+            type="number"
+            step="0.01"
+            value={formData.downPayment}
+            onChange={(e) => setFormData({...formData, downPayment: e.target.value})}
+          />
+        </div>
+        <div>
+          <Label htmlFor="remainingBalance">Remaining Balance</Label>
+          <Input
+            id="remainingBalance"
+            type="number"
+            step="0.01"
+            value={formData.remainingBalance}
+            onChange={(e) => setFormData({...formData, remainingBalance: e.target.value})}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="courtDate">Court Date</Label>
+          <Input
+            id="courtDate"
+            type="datetime-local"
+            value={formData.courtDate}
+            onChange={(e) => setFormData({...formData, courtDate: e.target.value})}
+          />
+        </div>
+        <div>
+          <Label htmlFor="bondType">Bond Type</Label>
+          <Select value={formData.bondType} onValueChange={(value) => setFormData({...formData, bondType: value})}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="surety">Surety</SelectItem>
+              <SelectItem value="cash">Cash</SelectItem>
+              <SelectItem value="property">Property</SelectItem>
+              <SelectItem value="federal">Federal</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="courtLocation">Court Location</Label>
+        <Input
+          id="courtLocation"
+          value={formData.courtLocation}
+          onChange={(e) => setFormData({...formData, courtLocation: e.target.value})}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="charges">Charges</Label>
+        <Textarea
+          id="charges"
+          value={formData.charges}
+          onChange={(e) => setFormData({...formData, charges: e.target.value})}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="caseNumber">Case Number</Label>
+          <Input
+            id="caseNumber"
+            value={formData.caseNumber}
+            onChange={(e) => setFormData({...formData, caseNumber: e.target.value})}
+          />
+        </div>
+        <div>
+          <Label htmlFor="premiumRate">Premium Rate</Label>
+          <Input
+            id="premiumRate"
+            type="number"
+            step="0.0001"
+            value={formData.premiumRate}
+            onChange={(e) => setFormData({...formData, premiumRate: e.target.value})}
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="notes">Notes</Label>
+        <Textarea
+          id="notes"
+          value={formData.notes}
+          onChange={(e) => setFormData({...formData, notes: e.target.value})}
+        />
+      </div>
+
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? "Adding Bond..." : "Add Bond"}
+      </Button>
+    </form>
+  );
+}
+
+function PaymentForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+  const [formData, setFormData] = useState({
+    amount: '',
+    paymentDate: new Date().toISOString().slice(0, 16),
+    paymentMethod: 'cash',
+    notes: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const paymentData = {
+      ...formData,
+      amount: parseFloat(formData.amount) || 0,
+      paymentDate: new Date(formData.paymentDate)
+    };
+    onSubmit(paymentData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="amount">Payment Amount</Label>
+        <Input
+          id="amount"
+          type="number"
+          step="0.01"
+          value={formData.amount}
+          onChange={(e) => setFormData({...formData, amount: e.target.value})}
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="paymentDate">Payment Date</Label>
+        <Input
+          id="paymentDate"
+          type="datetime-local"
+          value={formData.paymentDate}
+          onChange={(e) => setFormData({...formData, paymentDate: e.target.value})}
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="paymentMethod">Payment Method</Label>
+        <Select value={formData.paymentMethod} onValueChange={(value) => setFormData({...formData, paymentMethod: value})}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="cash">Cash</SelectItem>
+            <SelectItem value="check">Check</SelectItem>
+            <SelectItem value="credit_card">Credit Card</SelectItem>
+            <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+            <SelectItem value="money_order">Money Order</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="notes">Notes</Label>
+        <Textarea
+          id="notes"
+          value={formData.notes}
+          onChange={(e) => setFormData({...formData, notes: e.target.value})}
+          placeholder="Any additional notes about this payment..."
+        />
+      </div>
+
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? "Recording Payment..." : "Record Payment"}
+      </Button>
+    </form>
+  );
+}
+
+function DocumentUploadForm({ onSubmit, isLoading }: { onSubmit: (formData: FormData) => void; isLoading: boolean }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [category, setCategory] = useState('other');
+  const [description, setDescription] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('category', category);
+    formData.append('description', description);
+    
+    onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="file">Select Document</Label>
+        <Input
+          id="file"
+          type="file"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="category">Document Category</Label>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="court_order">Court Order</SelectItem>
+            <SelectItem value="bail_agreement">Bail Agreement</SelectItem>
+            <SelectItem value="payment_record">Payment Record</SelectItem>
+            <SelectItem value="id_document">ID Document</SelectItem>
+            <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Brief description of the document..."
+        />
+      </div>
+
+      <Button type="submit" disabled={isLoading || !file} className="w-full">
+        {isLoading ? "Uploading..." : "Upload Document"}
+      </Button>
+    </form>
+  );
+}
+
 function VehicleForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
   const [formData, setFormData] = useState({
     make: "",
