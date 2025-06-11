@@ -240,32 +240,7 @@ export default function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
     }
   };
 
-  // Mock staff data if not available
-  const mockStaffMembers: StaffMember[] = [
-    {
-      id: "admin",
-      username: "admin",
-      role: "admin",
-      lastLogin: "2025-06-10T22:00:00Z",
-      isActive: true,
-    },
-    {
-      id: "staff1",
-      username: "receptionist",
-      role: "staff",
-      lastLogin: "2025-06-10T18:30:00Z",
-      isActive: true,
-    },
-    {
-      id: "staff2",
-      username: "coordinator",
-      role: "staff",
-      lastLogin: "2025-06-09T16:45:00Z",
-      isActive: true,
-    }
-  ];
-
-  const staff = (staffMembers as StaffMember[]) || mockStaffMembers;
+  const staff = (staffMembers as StaffMember[]) || [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -48,8 +48,15 @@ const upload = multer({
 
 // Simple auth middleware for development
 const isAuthenticated = (req: any, res: any, next: any) => {
-  // For demo purposes, always allow access
-  next();
+  // Check for authenticated session
+  const adminRole = (req.session as any)?.adminRole;
+  const clientId = (req.session as any)?.clientId;
+  
+  if (adminRole || clientId || req.user?.claims?.sub) {
+    next();
+  } else {
+    res.status(401).json({ message: "Authentication required" });
+  }
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -2194,7 +2201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/notifications/:id/confirm', isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const userId = req.user?.claims?.sub || "demo-user";
+      const userId = req.user?.claims?.sub || `system-${Date.now()}`;
       const notification = await storage.confirmNotification(id, userId);
       res.json(notification);
     } catch (error) {
@@ -2497,7 +2504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Client Locations API (replacing mock data)
+  // Client Locations API
   app.get('/api/clients/locations', isAuthenticated, async (req, res) => {
     try {
       const locations = await storage.getClientLocations();
@@ -2508,7 +2515,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Arrest Monitoring API (replacing mock data)
+  // Arrest Monitoring API
   app.get('/api/arrest-monitoring/records', isAuthenticated, async (req, res) => {
     try {
       const records = await storage.getArrestRecords();
