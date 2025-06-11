@@ -312,7 +312,8 @@ export default function ArrestMonitoringSystem() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {hawaiiCounties.map((county) => {
-              const config = (monitoringConfig as MonitoringConfig[] || []).find((c: MonitoringConfig) => c.county === county.id);
+              const configArray = Array.isArray(monitoringConfig) ? monitoringConfig : [];
+              const config = configArray.find((c: MonitoringConfig) => c.county === county.id);
               return (
                 <div key={county.id} className="p-4 border rounded-lg">
                   <div className="flex justify-between items-start mb-2">

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import NewClientForm from "@/components/admin/new-client-form";
 import { 
   Brain, 
   Users, 
@@ -20,7 +22,8 @@ import {
   DollarSign,
   Eye,
   Edit2,
-  Trash2
+  Trash2,
+  UserPlus
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -40,6 +43,7 @@ interface ClientRiskProfile {
 export function MillionDollarClientManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [riskFilter, setRiskFilter] = useState("all");
+  const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -93,6 +97,31 @@ export function MillionDollarClientManagement() {
       });
     },
   });
+
+  const createClientMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return apiRequest("POST", "/api/clients", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      setIsAddClientOpen(false);
+      toast({ 
+        title: "Client Created", 
+        description: "New client has been added successfully." 
+      });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to create client",
+        variant: "destructive"
+      });
+    },
+  });
+
+  const handleCreateClient = (data: any) => {
+    createClientMutation.mutate(data);
+  };
 
   // Enhanced AI risk profiling for each client
   const generateRiskProfile = (clientId: number): ClientRiskProfile => {
