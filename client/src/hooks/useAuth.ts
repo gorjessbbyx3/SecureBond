@@ -14,11 +14,17 @@ interface AuthUser {
 export function useAuth() {
   const queryClient = useQueryClient();
   
-  const { data: user, isLoading, error } = useQuery<AuthUser>({
+  const { data: user, isLoading, error, refetch } = useQuery<AuthUser>({
     queryKey: ["/api/auth/user"],
-    retry: false,
+    retry: (failureCount, error) => {
+      // Don't retry on authentication errors
+      if (error?.message?.includes('401')) return false;
+      return failureCount < 3;
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
   });
 
   const logoutMutation = useMutation({
@@ -54,6 +60,7 @@ export function useAuth() {
     isClient: user?.role === 'client',
     isMaintenance: user?.role === 'maintenance',
     logout,
+    refetch,
     error,
   };
 }

@@ -22,6 +22,7 @@ import { randomBytes } from "crypto";
 import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";
+import { requireAuth, requireRole, requireAnyRole, type AuthenticatedRequest } from "./middleware/auth";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -47,10 +48,16 @@ const isAuthenticated = (req: any, res: any, next: any) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Session middleware setup
   app.use(session({
-    secret: 'aloha-bail-bond-secret-key',
+    secret: process.env.SESSION_SECRET || 'aloha-bail-bond-secret-key-' + Date.now(),
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+    name: 'sessionId',
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      sameSite: 'lax'
+    }
   }));
 
   // Logout route

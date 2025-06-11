@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "@/pages/landing";
 import ClientDashboard from "@/pages/client-dashboard";
 import ClientDetails from "@/pages/client-details";
@@ -31,14 +32,42 @@ function Router() {
       <Route path="/maintenance-login" component={MaintenanceLogin} />
       <Route path="/terms-of-service" component={TermsOfService} />
       
-      {/* Always render protected routes, let components handle auth checks */}
-      <Route path="/client-dashboard" component={ClientDashboard} />
-      <Route path="/client/:id" component={ClientDetails} />
-      <Route path="/staff-dashboard" component={StaffDashboard} />
-      <Route path="/admin-dashboard" component={AdminDashboard} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/client-portal-preview" component={ClientPortalPreview} />
-      <Route path="/maintenance-dashboard" component={MaintenanceDashboard} />
+      {/* Protected routes with role-based access control */}
+      <Route path="/client-dashboard">
+        <ProtectedRoute requiredRole="client">
+          <ClientDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/client/:id">
+        <ProtectedRoute>
+          <ClientDetails />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/staff-dashboard">
+        <ProtectedRoute requiredRole="admin">
+          <StaffDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin-dashboard">
+        <ProtectedRoute requiredRole="admin">
+          <AdminDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin">
+        <ProtectedRoute requiredRole="admin">
+          <AdminDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/client-portal-preview">
+        <ProtectedRoute>
+          <ClientPortalPreview />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/maintenance-dashboard">
+        <ProtectedRoute requiredRole="maintenance">
+          <MaintenanceDashboard />
+        </ProtectedRoute>
+      </Route>
       
       <Route component={NotFound} />
     </Switch>
