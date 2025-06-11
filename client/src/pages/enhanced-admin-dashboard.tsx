@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye } from "lucide-react";
+import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye, Users, DollarSign, Calendar, MapPin, Shield, Activity, Database, Upload } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -202,205 +202,345 @@ export default function EnhancedAdminDashboard() {
           </div>
         </div>
 
-        {/* Enhanced Dashboard Tabs */}
+        {/* Enhanced Dashboard Tabs - Improved Organization */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-10 h-12 text-xs overflow-x-auto">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              Overview
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-14 text-sm bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+            <TabsTrigger 
+              value="overview" 
+              className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200 hover:bg-blue-100"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Dashboard
             </TabsTrigger>
-            <TabsTrigger value="clients" className="data-[state=active]:bg-orange-600 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="clients" 
+              className="flex items-center gap-2 data-[state=active]:bg-orange-600 data-[state=active]:text-white transition-all duration-200 hover:bg-orange-100"
+            >
+              <Users className="h-4 w-4" />
               Clients
             </TabsTrigger>
-            <TabsTrigger value="financial" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="financial" 
+              className="flex items-center gap-2 data-[state=active]:bg-green-600 data-[state=active]:text-white transition-all duration-200 hover:bg-green-100"
+            >
+              <DollarSign className="h-4 w-4" />
               Financial
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="tracking" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-              Live Tracking
-            </TabsTrigger>
-            <TabsTrigger value="court-dates" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="court-dates" 
+              className="flex items-center gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white transition-all duration-200 hover:bg-red-100"
+            >
+              <Calendar className="h-4 w-4" />
               Court Dates
             </TabsTrigger>
-            <TabsTrigger value="arrest-monitoring" className="data-[state=active]:bg-pink-600 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="tracking" 
+              className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all duration-200 hover:bg-purple-100"
+            >
+              <MapPin className="h-4 w-4" />
+              Live Tracking
+            </TabsTrigger>
+            <TabsTrigger 
+              value="arrest-monitoring" 
+              className="flex items-center gap-2 data-[state=active]:bg-pink-600 data-[state=active]:text-white transition-all duration-200 hover:bg-pink-100"
+            >
+              <Shield className="h-4 w-4" />
               Arrest Monitor
             </TabsTrigger>
-            <TabsTrigger value="roi" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="roi" 
+              className="flex items-center gap-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white transition-all duration-200 hover:bg-indigo-100"
+            >
+              <TrendingUp className="h-4 w-4" />
               ROI Analysis
             </TabsTrigger>
-            <TabsTrigger value="data-management" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white">
-              Data
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-slate-600 data-[state=active]:text-white">
-              Settings
+            <TabsTrigger 
+              value="data-management" 
+              className="flex items-center gap-2 data-[state=active]:bg-gray-600 data-[state=active]:text-white transition-all duration-200 hover:bg-gray-100"
+            >
+              <Settings className="h-4 w-4" />
+              Admin Tools
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <AIEnhancedOverview />
+            <div className="grid gap-6">
+              {/* Critical Operations Header */}
+              <Card className="border-2 border-blue-200 bg-blue-50 dark:bg-blue-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                    <Activity className="h-6 w-6" />
+                    Mission-Critical Operations Dashboard
+                  </CardTitle>
+                  <CardDescription className="text-blue-700 dark:text-blue-300">
+                    Real-time monitoring of all critical bail bond operations - court dates, client compliance, and financial status
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <AIEnhancedOverview />
+            </div>
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-6">
-            <MillionDollarClientManagement />
+            <div className="grid gap-6">
+              {/* Client Management Header */}
+              <Card className="border-2 border-orange-200 bg-orange-50 dark:bg-orange-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-orange-900 dark:text-orange-100 flex items-center gap-2">
+                    <Users className="h-6 w-6" />
+                    Client Management & Compliance Tracking
+                  </CardTitle>
+                  <CardDescription className="text-orange-700 dark:text-orange-300">
+                    Comprehensive client management with AI-powered risk assessment and compliance monitoring
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <MillionDollarClientManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="financial" className="space-y-6">
-            <MillionDollarFinancial />
-          </TabsContent>
-
-          <TabsContent value="tracking" className="space-y-6">
-            <RealTimeMap />
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
-            <ClientAnalyticsDashboard />
-          </TabsContent>
-
-          <TabsContent value="court-dates" className="space-y-6">
-            <CourtDateReminderSystem />
-          </TabsContent>
-
-          <TabsContent value="notifications" className="space-y-6">
-            <EnhancedNotificationCenter />
-          </TabsContent>
-
-          <TabsContent value="data" className="space-y-6">
-            <DataManagement />
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-                  <Button 
-                    className="h-16 flex-col gap-2" 
-                    variant="outline"
-                    onClick={() => {
-                      toast({
-                        title: "Emergency Contact",
-                        description: "Emergency contact system activated",
-                      });
-                    }}
-                  >
-                    <Bell className="h-6 w-6" />
-                    Emergency Contact
-                  </Button>
-                  <Button 
-                    className="h-16 flex-col gap-2" 
-                    variant="outline"
-                    onClick={() => {
-                      toast({
-                        title: "Alert Sent",
-                        description: "Alert message sent to all active clients",
-                      });
-                    }}
-                  >
-                    <AlertTriangle className="h-6 w-6" />
-                    Send Alert
-                  </Button>
-                  <Button 
-                    className="h-16 flex-col gap-2" 
-                    variant="outline"
-                    onClick={() => {
-                      toast({
-                        title: "Report Generated",
-                        description: "System report created successfully",
-                      });
-                    }}
-                  >
-                    <Download className="h-6 w-6" />
-                    Generate Report
-                  </Button>
-                  <Button 
-                    className="h-16 flex-col gap-2" 
-                    variant="outline"
-                    onClick={() => setLocation("/client-portal-preview")}
-                  >
-                    <Eye className="h-6 w-6" />
-                    Client Portal Preview
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="performance" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>System Performance</CardTitle>
-                <CardDescription>Real-time system metrics and health monitoring</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Server Health</p>
-                    <div className="text-2xl font-bold text-green-600">Operational</div>
-                    <p className="text-xs text-gray-600">99.9% uptime</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Database</p>
-                    <div className="text-2xl font-bold text-green-600">Connected</div>
-                    <p className="text-xs text-gray-600">Response time: 45ms</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Security</p>
-                    <div className="text-2xl font-bold text-green-600">Protected</div>
-                    <p className="text-xs text-gray-600">SSL enabled</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
-            <AnalyticsCharts />
-          </TabsContent>
-
-          <TabsContent value="client-analytics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Client Analytics</CardTitle>
-                <CardDescription>Detailed client behavior and performance metrics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-gray-500">
-                  Client analytics will display when data is available
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="revenue" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Analytics</CardTitle>
-                <CardDescription>Financial performance and revenue tracking</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-gray-500">
-                  Revenue charts will display when payment data is available
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="tracking" className="space-y-6">
-            <RealTimeMap />
-          </TabsContent>
-
-          <TabsContent value="clients" className="space-y-6">
-            <ClientManagement />
-          </TabsContent>
-
-          <TabsContent value="financial" className="space-y-6">
-            <FinancialDashboard />
+            <div className="grid gap-6">
+              {/* Financial Operations Header */}
+              <Card className="border-2 border-green-200 bg-green-50 dark:bg-green-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-green-900 dark:text-green-100 flex items-center gap-2">
+                    <DollarSign className="h-6 w-6" />
+                    Financial Operations & Revenue Management
+                  </CardTitle>
+                  <CardDescription className="text-green-700 dark:text-green-300">
+                    Complete financial oversight including payment processing, collections, and revenue optimization
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <MillionDollarFinancial />
+            </div>
           </TabsContent>
 
           <TabsContent value="court-dates" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Court Date Management Header */}
+              <Card className="border-2 border-red-200 bg-red-50 dark:bg-red-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-red-900 dark:text-red-100 flex items-center gap-2">
+                    <Calendar className="h-6 w-6" />
+                    Court Date Management & Reminder System
+                  </CardTitle>
+                  <CardDescription className="text-red-700 dark:text-red-300">
+                    Critical court date tracking and automated reminder system to prevent missed appearances
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <CourtDateReminderSystem />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tracking" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Live Tracking Header */}
+              <Card className="border-2 border-purple-200 bg-purple-50 dark:bg-purple-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                    <MapPin className="h-6 w-6" />
+                    Real-Time Client Location Tracking
+                  </CardTitle>
+                  <CardDescription className="text-purple-700 dark:text-purple-300">
+                    Live GPS monitoring and geofencing for client compliance and safety verification
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <RealTimeMap />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="arrest-monitoring" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Arrest Monitoring Header */}
+              <Card className="border-2 border-pink-200 bg-pink-50 dark:bg-pink-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-pink-900 dark:text-pink-100 flex items-center gap-2">
+                    <Shield className="h-6 w-6" />
+                    Arrest Log Monitoring & Client Alerts
+                  </CardTitle>
+                  <CardDescription className="text-pink-700 dark:text-pink-300">
+                    Real-time monitoring of police arrest logs for existing clients and potential new business opportunities
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <ArrestMonitoringSystem />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="roi" className="space-y-6">
+            <div className="grid gap-6">
+              {/* ROI Analysis Header */}
+              <Card className="border-2 border-indigo-200 bg-indigo-50 dark:bg-indigo-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
+                    <TrendingUp className="h-6 w-6" />
+                    Return on Investment Analysis & Business Intelligence
+                  </CardTitle>
+                  <CardDescription className="text-indigo-700 dark:text-indigo-300">
+                    Advanced ROI analytics, revenue optimization opportunities, and business growth insights
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <ROIAnalysisTab />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="data-management" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Admin Tools Header */}
+              <Card className="border-2 border-gray-200 bg-gray-50 dark:bg-gray-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <Settings className="h-6 w-6" />
+                    Administrative Tools & System Management
+                  </CardTitle>
+                  <CardDescription className="text-gray-700 dark:text-gray-300">
+                    System administration, data management, bulk operations, and security settings
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              {/* Admin Tools Grid */}
+              <div className="grid gap-6">
+                {/* Quick Actions */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Quick Actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                      <Button 
+                        className="h-16 flex-col gap-2" 
+                        variant="outline"
+                        onClick={() => {
+                          toast({
+                            title: "Emergency Protocol",
+                            description: "Emergency contact system activated for all active clients",
+                          });
+                        }}
+                      >
+                        <AlertTriangle className="h-6 w-6 text-red-500" />
+                        Emergency Contact
+                      </Button>
+                      <Button 
+                        className="h-16 flex-col gap-2" 
+                        variant="outline"
+                        onClick={() => {
+                          toast({
+                            title: "System Alert",
+                            description: "Alert message broadcast to all active clients",
+                          });
+                        }}
+                      >
+                        <Bell className="h-6 w-6 text-blue-500" />
+                        Broadcast Alert
+                      </Button>
+                      <Button 
+                        className="h-16 flex-col gap-2" 
+                        variant="outline"
+                        onClick={() => {
+                          exportReportMutation.mutate();
+                        }}
+                        disabled={exportReportMutation.isPending}
+                      >
+                        <Download className="h-6 w-6 text-green-500" />
+                        {exportReportMutation.isPending ? 'Generating...' : 'Export Report'}
+                      </Button>
+                      <Button 
+                        className="h-16 flex-col gap-2" 
+                        variant="outline"
+                        onClick={() => {
+                          refreshDataMutation.mutate();
+                        }}
+                        disabled={refreshDataMutation.isPending}
+                      >
+                        <RefreshCw className={`h-6 w-6 text-purple-500 ${refreshDataMutation.isPending ? 'animate-spin' : ''}`} />
+                        Refresh Data
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Data Management Tools */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Database className="h-5 w-5" />
+                      Data Management
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DataManagement />
+                  </CardContent>
+                </Card>
+
+                {/* Bulk Operations */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Upload className="h-5 w-5" />
+                      Bulk Operations
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <BulkClientUpload />
+                  </CardContent>
+                </Card>
+
+                {/* System Status */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      System Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        <div>
+                          <p className="font-medium">Database</p>
+                          <p className="text-sm text-muted-foreground">Operational</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        <div>
+                          <p className="font-medium">Court Integration</p>
+                          <p className="text-sm text-muted-foreground">Connected</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        <div>
+                          <p className="font-medium">GPS Tracking</p>
+                          <p className="text-sm text-muted-foreground">Active</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+
             <Card>
               <CardHeader>
                 <CardTitle>Court Date Management</CardTitle>
