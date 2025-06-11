@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorContextProvider from "@/components/ErrorContextProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "@/pages/landing";
 import ClientDashboard from "@/pages/client-dashboard";
@@ -80,10 +81,12 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <ErrorContextProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </ErrorContextProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
