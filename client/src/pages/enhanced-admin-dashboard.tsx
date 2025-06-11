@@ -21,6 +21,7 @@ import ROIAnalysisTab from "@/components/admin/roi-analysis-tab";
 import DataManagement from "@/components/admin/data-management";
 import BulkClientUpload from "@/components/admin/bulk-client-upload";
 import { BusinessSettings } from "@/components/admin/business-settings";
+import { SystemMonitoringDashboard } from "@/components/admin/system-monitoring-dashboard";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -197,6 +198,13 @@ export default function EnhancedAdminDashboard() {
             >
               <Building2 className="h-4 w-4" />
               Business Setup
+            </TabsTrigger>
+            <TabsTrigger 
+              value="system-monitoring" 
+              className="flex items-center gap-2 data-[state=active]:bg-cyan-600 data-[state=active]:text-white transition-all duration-200 hover:bg-cyan-100"
+            >
+              <Activity className="h-4 w-4" />
+              System Health
             </TabsTrigger>
           </TabsList>
 
@@ -492,6 +500,25 @@ export default function EnhancedAdminDashboard() {
               </Card>
               
               <BusinessSettings />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="system-monitoring" className="space-y-6">
+            <div className="grid gap-6">
+              {/* System Monitoring Header */}
+              <Card className="border-2 border-cyan-200 bg-cyan-50 dark:bg-cyan-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-cyan-900 dark:text-cyan-100 flex items-center gap-2">
+                    <Activity className="h-6 w-6" />
+                    Production System Health & Performance Monitoring
+                  </CardTitle>
+                  <CardDescription className="text-cyan-700 dark:text-cyan-300">
+                    Real-time system health monitoring, performance metrics, and production readiness dashboard
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <SystemMonitoringDashboard />
             </div>
           </TabsContent>
         </Tabs>

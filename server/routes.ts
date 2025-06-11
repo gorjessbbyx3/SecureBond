@@ -6,6 +6,7 @@ import { courtScraper } from "./courtScraper";
 import { courtReminderService } from "./courtReminderService";
 import { healthEndpoint, healthCheckMiddleware } from "./middleware/healthCheck";
 import { performanceMiddleware, performanceStatsEndpoint, performanceMetricsEndpoint } from "./middleware/performance";
+import { securityAuditMiddleware, securityReportEndpoint, securityEventsEndpoint } from "./middleware/securityAudit";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import bcrypt from 'bcrypt';
 import { 
@@ -81,14 +82,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
-  // Add performance monitoring middleware
+  // Add monitoring and security middleware
   app.use(healthCheckMiddleware);
   app.use(performanceMiddleware);
+  app.use(securityAuditMiddleware);
 
   // System monitoring endpoints
   app.get('/api/system/health', healthEndpoint);
   app.get('/api/system/performance/stats', performanceStatsEndpoint);
   app.get('/api/system/performance/metrics', performanceMetricsEndpoint);
+  app.get('/api/system/security/report', securityReportEndpoint);
+  app.get('/api/system/security/events', securityEventsEndpoint);
 
   // Logout route
   app.post('/api/auth/logout', (req: any, res) => {
