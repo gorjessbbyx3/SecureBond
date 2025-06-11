@@ -17,6 +17,7 @@ import StaffLogin from "@/pages/staff-login";
 import ClientLogin from "@/pages/client-login";
 import MaintenanceLogin from "@/pages/maintenance-login";
 import TermsOfService from "@/pages/terms-of-service";
+import PrivacyPolicy from "@/pages/privacy-policy";
 import ClientPortalPreview from "@/pages/client-portal-preview";
 import NotFound from "@/pages/not-found";
 
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/maintenance-login" component={MaintenanceLogin} />
       <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
       
       {/* Protected routes with role-based access control */}
       <Route path="/client-dashboard">
