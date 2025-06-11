@@ -985,155 +985,73 @@ function BondForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLo
   const [formData, setFormData] = useState({
     bondAmount: '',
     totalOwed: '',
-    downPayment: '',
-    remainingBalance: '',
-    courtDate: '',
-    courtLocation: '',
-    charges: '',
-    caseNumber: '',
-    bondType: 'surety',
-    premiumRate: '0.10',
-    collateral: '',
-    cosigner: '',
-    cosignerPhone: '',
+    amountPaid: '',
     notes: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const bondData = {
-      ...formData,
       bondAmount: parseFloat(formData.bondAmount) || 0,
       totalOwed: parseFloat(formData.totalOwed) || 0,
-      downPayment: parseFloat(formData.downPayment) || 0,
-      remainingBalance: parseFloat(formData.remainingBalance) || 0,
-      premiumRate: parseFloat(formData.premiumRate) || 0.10,
-      courtDate: formData.courtDate ? new Date(formData.courtDate) : null
+      downPayment: parseFloat(formData.amountPaid) || 0,
+      remainingBalance: (parseFloat(formData.totalOwed) || 0) - (parseFloat(formData.amountPaid) || 0),
+      status: 'active',
+      bondType: 'surety',
+      notes: formData.notes
     };
     onSubmit(bondData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="bondAmount">Bond Amount</Label>
-          <Input
-            id="bondAmount"
-            type="number"
-            step="0.01"
-            value={formData.bondAmount}
-            onChange={(e) => setFormData({...formData, bondAmount: e.target.value})}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="totalOwed">Total Owed</Label>
-          <Input
-            id="totalOwed"
-            type="number"
-            step="0.01"
-            value={formData.totalOwed}
-            onChange={(e) => setFormData({...formData, totalOwed: e.target.value})}
-            required
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="downPayment">Down Payment</Label>
-          <Input
-            id="downPayment"
-            type="number"
-            step="0.01"
-            value={formData.downPayment}
-            onChange={(e) => setFormData({...formData, downPayment: e.target.value})}
-          />
-        </div>
-        <div>
-          <Label htmlFor="remainingBalance">Remaining Balance</Label>
-          <Input
-            id="remainingBalance"
-            type="number"
-            step="0.01"
-            value={formData.remainingBalance}
-            onChange={(e) => setFormData({...formData, remainingBalance: e.target.value})}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="courtDate">Court Date</Label>
-          <Input
-            id="courtDate"
-            type="datetime-local"
-            value={formData.courtDate}
-            onChange={(e) => setFormData({...formData, courtDate: e.target.value})}
-          />
-        </div>
-        <div>
-          <Label htmlFor="bondType">Bond Type</Label>
-          <Select value={formData.bondType} onValueChange={(value) => setFormData({...formData, bondType: value})}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="surety">Surety</SelectItem>
-              <SelectItem value="cash">Cash</SelectItem>
-              <SelectItem value="property">Property</SelectItem>
-              <SelectItem value="federal">Federal</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       <div>
-        <Label htmlFor="courtLocation">Court Location</Label>
+        <Label htmlFor="bondAmount">Bond Amount *</Label>
         <Input
-          id="courtLocation"
-          value={formData.courtLocation}
-          onChange={(e) => setFormData({...formData, courtLocation: e.target.value})}
+          id="bondAmount"
+          type="number"
+          step="0.01"
+          placeholder="Enter bond amount"
+          value={formData.bondAmount}
+          onChange={(e) => setFormData({...formData, bondAmount: e.target.value})}
+          required
         />
       </div>
 
       <div>
-        <Label htmlFor="charges">Charges</Label>
-        <Textarea
-          id="charges"
-          value={formData.charges}
-          onChange={(e) => setFormData({...formData, charges: e.target.value})}
+        <Label htmlFor="totalOwed">Total Amount Owed *</Label>
+        <Input
+          id="totalOwed"
+          type="number"
+          step="0.01"
+          placeholder="Enter total amount owed"
+          value={formData.totalOwed}
+          onChange={(e) => setFormData({...formData, totalOwed: e.target.value})}
+          required
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="caseNumber">Case Number</Label>
-          <Input
-            id="caseNumber"
-            value={formData.caseNumber}
-            onChange={(e) => setFormData({...formData, caseNumber: e.target.value})}
-          />
-        </div>
-        <div>
-          <Label htmlFor="premiumRate">Premium Rate</Label>
-          <Input
-            id="premiumRate"
-            type="number"
-            step="0.0001"
-            value={formData.premiumRate}
-            onChange={(e) => setFormData({...formData, premiumRate: e.target.value})}
-          />
-        </div>
+      <div>
+        <Label htmlFor="amountPaid">Amount Paid *</Label>
+        <Input
+          id="amountPaid"
+          type="number"
+          step="0.01"
+          placeholder="Enter amount already paid"
+          value={formData.amountPaid}
+          onChange={(e) => setFormData({...formData, amountPaid: e.target.value})}
+          required
+        />
       </div>
 
       <div>
-        <Label htmlFor="notes">Notes</Label>
+        <Label htmlFor="notes">Notes (Optional)</Label>
         <Textarea
           id="notes"
+          placeholder="Any additional notes about this bond..."
           value={formData.notes}
           onChange={(e) => setFormData({...formData, notes: e.target.value})}
+          rows={2}
         />
       </div>
 
