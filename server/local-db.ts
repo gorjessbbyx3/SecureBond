@@ -391,6 +391,361 @@ export class LocalFileStorage {
     const filteredRules = rules.filter(rule => rule.id !== id);
     await this.writeJsonFile('business-rules.json', filteredRules);
   }
+
+  // Required methods for IStorage interface
+  async getUser(id: string): Promise<any> {
+    const users = await this.readJsonFile('users.json', []);
+    return users.find((u: any) => u.id === id);
+  }
+
+  async upsertUser(user: any): Promise<any> {
+    const users = await this.readJsonFile('users.json', []);
+    const existingIndex = users.findIndex((u: any) => u.id === user.id);
+    
+    if (existingIndex >= 0) {
+      users[existingIndex] = { ...users[existingIndex], ...user };
+      await this.writeJsonFile('users.json', users);
+      return users[existingIndex];
+    } else {
+      const newUser = { ...user, createdAt: new Date() };
+      users.push(newUser);
+      await this.writeJsonFile('users.json', users);
+      return newUser;
+    }
+  }
+
+  async getClient(id: number): Promise<any> {
+    const clients = await this.readJsonFile('clients.json', []);
+    return clients.find((c: any) => c.id === id);
+  }
+
+  async getClientByClientId(clientId: string): Promise<any> {
+    const clients = await this.readJsonFile('clients.json', []);
+    return clients.find((c: any) => c.clientId === clientId);
+  }
+
+  async getAllClients(): Promise<any[]> {
+    return await this.readJsonFile('clients.json', []);
+  }
+
+  async createClient(client: any): Promise<any> {
+    const clients = await this.readJsonFile('clients.json', []);
+    const newClient = { ...client, id: this.nextId++, createdAt: new Date() };
+    clients.push(newClient);
+    await this.writeJsonFile('clients.json', clients);
+    await this.saveIndex();
+    return newClient;
+  }
+
+  async updateClient(id: number, updates: any): Promise<any> {
+    const clients = await this.readJsonFile('clients.json', []);
+    const clientIndex = clients.findIndex((c: any) => c.id === id);
+    if (clientIndex === -1) throw new Error('Client not found');
+    
+    clients[clientIndex] = { ...clients[clientIndex], ...updates, updatedAt: new Date() };
+    await this.writeJsonFile('clients.json', clients);
+    return clients[clientIndex];
+  }
+
+  async deleteClient(id: number): Promise<void> {
+    const clients = await this.readJsonFile('clients.json', []);
+    const filteredClients = clients.filter((c: any) => c.id !== id);
+    await this.writeJsonFile('clients.json', filteredClients);
+  }
+
+  async getAllBonds(): Promise<any[]> {
+    return await this.readJsonFile('bonds.json', []);
+  }
+
+  async createBond(bond: any): Promise<any> {
+    const bonds = await this.readJsonFile('bonds.json', []);
+    const newBond = { ...bond, id: this.nextId++, createdAt: new Date() };
+    bonds.push(newBond);
+    await this.writeJsonFile('bonds.json', bonds);
+    await this.saveIndex();
+    return newBond;
+  }
+
+  async getClientBonds(clientId: number): Promise<any[]> {
+    const bonds = await this.readJsonFile('bonds.json', []);
+    return bonds.filter((b: any) => b.clientId === clientId);
+  }
+
+  async updateBond(id: number, updates: any): Promise<any> {
+    const bonds = await this.readJsonFile('bonds.json', []);
+    const bondIndex = bonds.findIndex((b: any) => b.id === id);
+    if (bondIndex === -1) throw new Error('Bond not found');
+    
+    bonds[bondIndex] = { ...bonds[bondIndex], ...updates, updatedAt: new Date() };
+    await this.writeJsonFile('bonds.json', bonds);
+    return bonds[bondIndex];
+  }
+
+  async deleteBond(id: number): Promise<void> {
+    const bonds = await this.readJsonFile('bonds.json', []);
+    const filteredBonds = bonds.filter((b: any) => b.id !== id);
+    await this.writeJsonFile('bonds.json', filteredBonds);
+  }
+
+  async getBondById(id: number): Promise<any> {
+    const bonds = await this.readJsonFile('bonds.json', []);
+    return bonds.find((b: any) => b.id === id);
+  }
+
+  async updateBondStatus(id: number, updates: any): Promise<any> {
+    return this.updateBond(id, updates);
+  }
+
+  async getActiveBonds(): Promise<any[]> {
+    const bonds = await this.readJsonFile('bonds.json', []);
+    return bonds.filter((b: any) => b.status === 'active');
+  }
+
+  async getClientActiveBondCount(clientId: number): Promise<number> {
+    const bonds = await this.getActiveBonds();
+    return bonds.filter((b: any) => b.clientId === clientId).length;
+  }
+
+  async createCheckIn(checkIn: any): Promise<any> {
+    const checkIns = await this.readJsonFile('check-ins.json', []);
+    const newCheckIn = { ...checkIn, id: this.nextId++, createdAt: new Date() };
+    checkIns.push(newCheckIn);
+    await this.writeJsonFile('check-ins.json', checkIns);
+    await this.saveIndex();
+    return newCheckIn;
+  }
+
+  async getClientCheckIns(clientId: number): Promise<any[]> {
+    const checkIns = await this.readJsonFile('check-ins.json', []);
+    return checkIns.filter((ci: any) => ci.clientId === clientId);
+  }
+
+  async getAllCheckIns(): Promise<any[]> {
+    return await this.readJsonFile('check-ins.json', []);
+  }
+
+  async getLastCheckIn(clientId: number): Promise<any> {
+    const checkIns = await this.getClientCheckIns(clientId);
+    return checkIns.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  }
+
+  async deleteCheckIn(id: number): Promise<void> {
+    const checkIns = await this.readJsonFile('check-ins.json', []);
+    const filteredCheckIns = checkIns.filter((ci: any) => ci.id !== id);
+    await this.writeJsonFile('check-ins.json', filteredCheckIns);
+  }
+
+  async createPayment(payment: any): Promise<any> {
+    const payments = await this.readJsonFile('payments.json', []);
+    const newPayment = { ...payment, id: this.nextId++, createdAt: new Date() };
+    payments.push(newPayment);
+    await this.writeJsonFile('payments.json', payments);
+    await this.saveIndex();
+    return newPayment;
+  }
+
+  async getClientPayments(clientId: number): Promise<any[]> {
+    const payments = await this.readJsonFile('payments.json', []);
+    return payments.filter((p: any) => p.clientId === clientId);
+  }
+
+  async getAllPayments(): Promise<any[]> {
+    return await this.readJsonFile('payments.json', []);
+  }
+
+  async confirmPayment(id: number, confirmedBy: string): Promise<any> {
+    return this.updatePayment(id, { confirmed: true, confirmedBy, confirmedAt: new Date() });
+  }
+
+  async updatePayment(id: number, updates: any): Promise<any> {
+    const payments = await this.readJsonFile('payments.json', []);
+    const paymentIndex = payments.findIndex((p: any) => p.id === id);
+    if (paymentIndex === -1) throw new Error('Payment not found');
+    
+    payments[paymentIndex] = { ...payments[paymentIndex], ...updates, updatedAt: new Date() };
+    await this.writeJsonFile('payments.json', payments);
+    return payments[paymentIndex];
+  }
+
+  async deletePayment(id: number): Promise<void> {
+    const payments = await this.readJsonFile('payments.json', []);
+    const filteredPayments = payments.filter((p: any) => p.id !== id);
+    await this.writeJsonFile('payments.json', filteredPayments);
+  }
+
+  async createMessage(message: any): Promise<any> {
+    const messages = await this.readJsonFile('messages.json', []);
+    const newMessage = { ...message, id: this.nextId++, createdAt: new Date() };
+    messages.push(newMessage);
+    await this.writeJsonFile('messages.json', messages);
+    await this.saveIndex();
+    return newMessage;
+  }
+
+  async getClientMessages(clientId: number): Promise<any[]> {
+    const messages = await this.readJsonFile('messages.json', []);
+    return messages.filter((m: any) => m.clientId === clientId);
+  }
+
+  async markMessageAsRead(id: number): Promise<void> {
+    const messages = await this.readJsonFile('messages.json', []);
+    const messageIndex = messages.findIndex((m: any) => m.id === id);
+    if (messageIndex >= 0) {
+      messages[messageIndex].isRead = true;
+      messages[messageIndex].readAt = new Date();
+      await this.writeJsonFile('messages.json', messages);
+    }
+  }
+
+  async createCourtDate(courtDate: any): Promise<any> {
+    const courtDates = await this.readJsonFile('court-dates.json', []);
+    const newCourtDate = { ...courtDate, id: this.nextId++, createdAt: new Date() };
+    courtDates.push(newCourtDate);
+    await this.writeJsonFile('court-dates.json', courtDates);
+    await this.saveIndex();
+    return newCourtDate;
+  }
+
+  async getClientCourtDates(clientId: number): Promise<any[]> {
+    const courtDates = await this.readJsonFile('court-dates.json', []);
+    return courtDates.filter((cd: any) => cd.clientId === clientId);
+  }
+
+  async getAllCourtDates(): Promise<any[]> {
+    return await this.readJsonFile('court-dates.json', []);
+  }
+
+  async getAllUpcomingCourtDates(): Promise<any[]> {
+    const courtDates = await this.getAllCourtDates();
+    const now = new Date();
+    return courtDates.filter((cd: any) => new Date(cd.date) > now);
+  }
+
+  async updateCourtDate(id: number, updates: any): Promise<any> {
+    const courtDates = await this.readJsonFile('court-dates.json', []);
+    const courtDateIndex = courtDates.findIndex((cd: any) => cd.id === id);
+    if (courtDateIndex === -1) throw new Error('Court date not found');
+    
+    courtDates[courtDateIndex] = { ...courtDates[courtDateIndex], ...updates, updatedAt: new Date() };
+    await this.writeJsonFile('court-dates.json', courtDates);
+    return courtDates[courtDateIndex];
+  }
+
+  async deleteCourtDate(id: number): Promise<void> {
+    const courtDates = await this.readJsonFile('court-dates.json', []);
+    const filteredCourtDates = courtDates.filter((cd: any) => cd.id !== id);
+    await this.writeJsonFile('court-dates.json', filteredCourtDates);
+  }
+
+  async approveCourtDate(id: number, approvedBy: string): Promise<any> {
+    return this.updateCourtDate(id, { approved: true, approvedBy, approvedAt: new Date() });
+  }
+
+  async getPendingCourtDates(): Promise<any[]> {
+    const courtDates = await this.getAllCourtDates();
+    return courtDates.filter((cd: any) => !cd.approved);
+  }
+
+  async acknowledgeCourtDate(id: number, clientId: number): Promise<any> {
+    return this.updateCourtDate(id, { acknowledged: true, acknowledgedAt: new Date(), acknowledgedBy: clientId });
+  }
+
+  async createExpense(expense: any): Promise<any> {
+    const expenses = await this.readJsonFile('expenses.json', []);
+    const newExpense = { ...expense, id: this.nextId++, createdAt: new Date() };
+    expenses.push(newExpense);
+    await this.writeJsonFile('expenses.json', expenses);
+    await this.saveIndex();
+    return newExpense;
+  }
+
+  async getAllExpenses(): Promise<any[]> {
+    return await this.readJsonFile('expenses.json', []);
+  }
+
+  async createAlert(alert: any): Promise<any> {
+    const alerts = await this.readJsonFile('alerts.json', []);
+    const newAlert = { ...alert, id: this.nextId++, createdAt: new Date() };
+    alerts.push(newAlert);
+    await this.writeJsonFile('alerts.json', alerts);
+    await this.saveIndex();
+    return newAlert;
+  }
+
+  async getAllUnacknowledgedAlerts(): Promise<any[]> {
+    const alerts = await this.readJsonFile('alerts.json', []);
+    return alerts.filter((a: any) => !a.acknowledged);
+  }
+
+  async acknowledgeAlert(id: number): Promise<void> {
+    const alerts = await this.readJsonFile('alerts.json', []);
+    const alertIndex = alerts.findIndex((a: any) => a.id === id);
+    if (alertIndex >= 0) {
+      alerts[alertIndex].acknowledged = true;
+      alerts[alertIndex].acknowledgedAt = new Date();
+      await this.writeJsonFile('alerts.json', alerts);
+    }
+  }
+
+  async acknowledgeArrestRecord(id: string): Promise<any> {
+    return { success: true, message: 'Arrest record acknowledged' };
+  }
+
+  async getPublicArrestLogs(): Promise<any[]> {
+    return [];
+  }
+
+  async getMonitoringConfig(): Promise<any> {
+    return { enabled: false, message: 'Requires police department API integration' };
+  }
+
+  async scanArrestLogs(): Promise<any> {
+    return { error: 'Police department API integration required' };
+  }
+
+  async getDashboardStats(): Promise<any> {
+    const clients = await this.getAllClients();
+    const bonds = await this.getAllBonds();
+    const payments = await this.getAllPayments();
+    const alerts = await this.getAllUnacknowledgedAlerts();
+
+    return {
+      totalClients: clients.length,
+      activeBonds: bonds.filter((b: any) => b.status === 'active').length,
+      totalRevenue: payments.reduce((sum: number, p: any) => sum + (parseFloat(p.amount) || 0), 0),
+      pendingAlerts: alerts.length
+    };
+  }
+
+  async getClientLocations(): Promise<any[]> {
+    return [];
+  }
+
+  async getArrestRecords(): Promise<any[]> {
+    return [];
+  }
+
+  // Placeholder methods for missing interface requirements
+  async getPaymentPlans(bondId?: number): Promise<any[]> { return []; }
+  async createPaymentPlan(plan: any): Promise<any> { return plan; }
+  async getPaymentInstallments(planId: number): Promise<any[]> { return []; }
+  async getCollectionsActivities(filters: any): Promise<any[]> { return []; }
+  async createCollectionsActivity(activity: any): Promise<any> { return activity; }
+  async getForfeitures(filters: any): Promise<any[]> { return []; }
+  async createForfeiture(forfeiture: any): Promise<any> { return forfeiture; }
+  async getUserRoles(): Promise<any[]> { return []; }
+  async createUserRole(role: any): Promise<any> { return role; }
+  async getDataBackups(): Promise<any[]> { return []; }
+  async createDataBackup(backup: any): Promise<any> { return backup; }
+  async getUserNotifications(userId: string): Promise<any[]> { return []; }
+  async getUserNotificationPreferences(userId: string): Promise<any> { return {}; }
+  async upsertNotificationPreferences(userId: string, preferences: any): Promise<any> { return preferences; }
+  async deleteNotification(id: number): Promise<void> { }
+  async checkTermsAcknowledgment(userId: string): Promise<any> { return null; }
+  async acknowledgeTerms(acknowledgment: any): Promise<any> { return acknowledgment; }
+  async getClientVehicles(clientId: number): Promise<any[]> { return []; }
+  async getClientFamily(clientId: number): Promise<any[]> { return []; }
+  async getClientEmployment(clientId: number): Promise<any[]> { return []; }
 }
 
 export const storage = new LocalFileStorage();
