@@ -48,6 +48,38 @@ export interface IStorage {
   
   // Bond operations
   createBond(bond: InsertBond): Promise<Bond>;
+  getAllBonds(): Promise<Bond[]>;
+  getBondById(id: number): Promise<Bond | undefined>;
+  updateBondStatus(id: number, updates: any): Promise<Bond>;
+  
+  // Payment Plan operations
+  getPaymentPlans(bondId?: number): Promise<any[]>;
+  createPaymentPlan(plan: any): Promise<any>;
+  getPaymentInstallments(planId: number): Promise<any[]>;
+  
+  // Collections operations
+  getCollectionsActivities(filters: any): Promise<any[]>;
+  createCollectionsActivity(activity: any): Promise<any>;
+  
+  // Forfeiture operations
+  getForfeitures(filters: any): Promise<any[]>;
+  createForfeiture(forfeiture: any): Promise<any>;
+  
+  // User Role operations
+  getUserRoles(): Promise<any[]>;
+  createUserRole(role: any): Promise<any>;
+  
+  // Data Backup operations
+  getDataBackups(): Promise<any[]>;
+  createDataBackup(backup: any): Promise<any>;
+  
+  // Dashboard and monitoring operations
+  getDashboardStats(): Promise<any>;
+  getClientLocations(): Promise<any[]>;
+  getArrestRecords(): Promise<any[]>;
+  getPublicArrestLogs(): Promise<any[]>;
+  getMonitoringConfig(): Promise<any>;
+  scanArrestLogs(): Promise<any>;
   getClientBonds(clientId: number): Promise<Bond[]>;
   getAllBonds(): Promise<Bond[]>;
   updateBond(id: number, updates: Partial<InsertBond>): Promise<Bond>;

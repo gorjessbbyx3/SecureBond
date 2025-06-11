@@ -1299,11 +1299,270 @@ export class LocalFileStorage implements IStorage {
       acknowledgedAt: new Date(),
     };
     
-    const acknowledgments = await this.readJsonFile<TermsAcknowledgment>(path.join(this.dataDir, 'terms-acknowledgments.json'), []);
+    const acknowledgments = await this.readJsonFile<TermsAcknowledgment[]>(path.join(this.dataDir, 'terms-acknowledgments.json'), []);
     acknowledgments.push(termsAck);
     await this.writeJsonFile(path.join(this.dataDir, 'terms-acknowledgments.json'), acknowledgments);
     await this.saveIndex();
     return termsAck;
+  }
+
+  // Bond & Forfeiture Management Methods
+  async getAllBonds(): Promise<Bond[]> {
+    return await this.readJsonFile<Bond[]>(path.join(this.dataDir, 'bonds.json'), []);
+  }
+
+  async getBondById(id: number): Promise<Bond | undefined> {
+    const bonds = await this.getAllBonds();
+    return bonds.find(bond => bond.id === id);
+  }
+
+  async updateBondStatus(id: number, updates: any): Promise<Bond> {
+    const bonds = await this.getAllBonds();
+    const bondIndex = bonds.findIndex(bond => bond.id === id);
+    
+    if (bondIndex === -1) {
+      throw new Error('Bond not found');
+    }
+
+    bonds[bondIndex] = { ...bonds[bondIndex], ...updates };
+    await this.writeJsonFile(path.join(this.dataDir, 'bonds.json'), bonds);
+    await this.saveIndex();
+    
+    return bonds[bondIndex];
+  }
+
+  // Payment Plans
+  async getPaymentPlans(bondId?: number): Promise<any[]> {
+    const plans = await this.readJsonFile<any[]>(path.join(this.dataDir, 'payment-plans.json'), []);
+    return bondId ? plans.filter(plan => plan.bondId === bondId) : plans;
+  }
+
+  async createPaymentPlan(planData: any): Promise<any> {
+    const plans = await this.getPaymentPlans();
+    const newPlan = {
+      ...planData,
+      id: this.getNextId(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    plans.push(newPlan);
+    await this.writeJsonFile(path.join(this.dataDir, 'payment-plans.json'), plans);
+    await this.saveIndex();
+    
+    return newPlan;
+  }
+
+  async getPaymentInstallments(planId: number): Promise<any[]> {
+    const installments = await this.readJsonFile<any[]>(path.join(this.dataDir, 'payment-installments.json'), []);
+    return installments.filter(installment => installment.paymentPlanId === planId);
+  }
+
+  // Collections Activities
+  async getCollectionsActivities(filters: any): Promise<any[]> {
+    const activities = await this.readJsonFile<any[]>(path.join(this.dataDir, 'collections-activities.json'), []);
+    let filtered = activities;
+    
+    if (filters.bondId) {
+      filtered = filtered.filter(activity => activity.bondId === filters.bondId);
+    }
+    if (filters.clientId) {
+      filtered = filtered.filter(activity => activity.clientId === filters.clientId);
+    }
+    
+    return filtered.sort((a, b) => new Date(b.contactAttemptedAt).getTime() - new Date(a.contactAttemptedAt).getTime());
+  }
+
+  async createCollectionsActivity(activityData: any): Promise<any> {
+    const activities = await this.getCollectionsActivities({});
+    const newActivity = {
+      ...activityData,
+      id: this.getNextId(),
+      createdAt: new Date()
+    };
+    
+    activities.push(newActivity);
+    await this.writeJsonFile(path.join(this.dataDir, 'collections-activities.json'), activities);
+    await this.saveIndex();
+    
+    return newActivity;
+  }
+
+  // Forfeitures
+  async getForfeitures(filters: any): Promise<any[]> {
+    const forfeitures = await this.readJsonFile<any[]>(path.join(this.dataDir, 'forfeitures.json'), []);
+    let filtered = forfeitures;
+    
+    if (filters.status) {
+      filtered = filtered.filter(forfeiture => forfeiture.status === filters.status);
+    }
+    if (filters.priority) {
+      filtered = filtered.filter(forfeiture => forfeiture.priority === filters.priority);
+    }
+    
+    return filtered.sort((a, b) => new Date(b.initiatedDate).getTime() - new Date(a.initiatedDate).getTime());
+  }
+
+  async createForfeiture(forfeitureData: any): Promise<any> {
+    const forfeitures = await this.getForfeitures({});
+    const newForfeiture = {
+      ...forfeitureData,
+      id: this.getNextId(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    forfeitures.push(newForfeiture);
+    await this.writeJsonFile(path.join(this.dataDir, 'forfeitures.json'), forfeitures);
+    await this.saveIndex();
+    
+    return newForfeiture;
+  }
+
+  // User Roles
+  async getUserRoles(): Promise<any[]> {
+    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'user-roles.json'), []);
+  }
+
+  async createUserRole(roleData: any): Promise<any> {
+    const roles = await this.getUserRoles();
+    const newRole = {
+      ...roleData,
+      id: this.getNextId(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    roles.push(newRole);
+    await this.writeJsonFile(path.join(this.dataDir, 'user-roles.json'), roles);
+    await this.saveIndex();
+    
+    return newRole;
+  }
+
+  // Data Backups
+  async getDataBackups(): Promise<any[]> {
+    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'data-backups.json'), []);
+  }
+
+  async createDataBackup(backupData: any): Promise<any> {
+    const backups = await this.getDataBackups();
+    const newBackup = {
+      ...backupData,
+      id: this.getNextId(),
+      startedAt: new Date()
+    };
+    
+    backups.push(newBackup);
+    await this.writeJsonFile(path.join(this.dataDir, 'data-backups.json'), backups);
+    await this.saveIndex();
+    
+    return newBackup;
+  }
+
+  // Dashboard Stats (authentic data calculations)
+  async getDashboardStats(): Promise<any> {
+    const clients = await this.getAllClients();
+    const bonds = await this.getAllBonds();
+    const checkIns = await this.readJsonFile<CheckIn[]>(path.join(this.dataDir, 'check-ins.json'), []);
+    const payments = await this.readJsonFile<Payment[]>(path.join(this.dataDir, 'payments.json'), []);
+    const courtDates = await this.readJsonFile<CourtDate[]>(path.join(this.dataDir, 'court-dates.json'), []);
+    const alerts = await this.readJsonFile<Alert[]>(path.join(this.dataDir, 'alerts.json'), []);
+
+    const today = new Date();
+    const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const activeClients = clients.filter(client => client.isActive).length;
+    const upcomingCourtDates = courtDates.filter(cd => 
+      cd.courtDate && new Date(cd.courtDate) >= today && new Date(cd.courtDate) <= sevenDaysFromNow
+    ).length;
+    
+    const pendingPayments = payments.filter(payment => payment.status === 'pending').length;
+    const totalRevenue = payments
+      .filter(payment => payment.status === 'confirmed')
+      .reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
+    
+    const pendingAlerts = alerts.filter(alert => alert.status === 'pending').length;
+
+    return {
+      totalClients: clients.length,
+      activeClients,
+      upcomingCourtDates,
+      pendingPayments,
+      totalRevenue,
+      pendingAlerts,
+      totalBonds: bonds.length,
+      activeBonds: bonds.filter(bond => bond.status === 'active').length
+    };
+  }
+
+  // Client Locations (authentic data from check-ins)
+  async getClientLocations(): Promise<any[]> {
+    const clients = await this.getAllClients();
+    const checkIns = await this.readJsonFile<CheckIn[]>(path.join(this.dataDir, 'check-ins.json'), []);
+    
+    return clients
+      .filter(client => client.isActive)
+      .map(client => {
+        const latestCheckIn = checkIns
+          .filter(checkIn => checkIn.clientId === client.id)
+          .sort((a, b) => new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime())[0];
+        
+        const hoursAgo = latestCheckIn 
+          ? (Date.now() - new Date(latestCheckIn.checkInTime).getTime()) / (1000 * 60 * 60)
+          : 999;
+
+        let status: 'compliant' | 'overdue' | 'missing' = 'compliant';
+        if (hoursAgo > 72) status = 'missing';
+        else if (hoursAgo > 24) status = 'overdue';
+
+        return {
+          id: client.id,
+          clientId: client.clientId,
+          fullName: client.fullName,
+          lastCheckIn: latestCheckIn?.checkInTime || null,
+          location: latestCheckIn ? {
+            latitude: latestCheckIn.latitude,
+            longitude: latestCheckIn.longitude,
+            address: latestCheckIn.location
+          } : null,
+          status
+        };
+      });
+  }
+
+  // Arrest Records (placeholder for authentic police data integration)
+  async getArrestRecords(): Promise<any[]> {
+    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'arrest-records.json'), []);
+  }
+
+  async getPublicArrestLogs(): Promise<any[]> {
+    return await this.readJsonFile<any[]>(path.join(this.dataDir, 'public-arrest-logs.json'), []);
+  }
+
+  async getMonitoringConfig(): Promise<any> {
+    return await this.readJsonFile<any>(path.join(this.dataDir, 'monitoring-config.json'), {
+      counties: ['honolulu', 'hawaii'],
+      agencies: ['hpd', 'hawaii_pd'],
+      scanInterval: 180000,
+      isEnabled: true
+    });
+  }
+
+  async scanArrestLogs(): Promise<any> {
+    // Authentic arrest log scanning would integrate with real police APIs
+    const clients = await this.getAllClients();
+    const existingRecords = await this.getArrestRecords();
+    
+    // This would be replaced with real police API integration
+    const newRecords = 0;
+    
+    return {
+      success: true,
+      newRecords,
+      timestamp: new Date().toISOString(),
+      clientsMonitored: clients.filter(c => c.isActive).length
+    };
   }
 }
 
