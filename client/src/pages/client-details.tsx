@@ -33,6 +33,7 @@ export default function ClientDetails() {
   const [isAddingBond, setIsAddingBond] = useState(false);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
   const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+  const [isSearchingRecords, setIsSearchingRecords] = useState(false);
 
   // Fetch client data
   const { data: client, isLoading } = useQuery({
@@ -162,6 +163,51 @@ export default function ClientDetails() {
       queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/files`] });
       setIsUploadingDocument(false);
       toast({ title: "Document Uploaded", description: "Document has been uploaded successfully." });
+    },
+  });
+
+  // Add bond mutation
+  const addBondMutation = useMutation({
+    mutationFn: async (bondData: any) => {
+      return apiRequest("/api/bonds", "POST", bondData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/bonds`] });
+      setIsAddingBond(false);
+      toast({ 
+        title: "Bond Created", 
+        description: "Bond has been successfully created and assigned to client." 
+      });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to create bond",
+        variant: "destructive"
+      });
+    },
+  });
+
+  // Search court records mutation
+  const searchRecordsMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/clients/${clientId}/search-court-history`, "POST");
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/court-dates`] });
+      setIsSearchingRecords(false);
+      toast({ 
+        title: "Search Complete", 
+        description: `Found ${data.recordsFound || 0} court records. ${data.recordsCreated || 0} new records added.`
+      });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Search Error", 
+        description: error.message || "Failed to search court records",
+        variant: "destructive"
+      });
+      setIsSearchingRecords(false);
     },
   });
 
@@ -917,39 +963,115 @@ export default function ClientDetails() {
             </div>
           </TabsContent>
 
-          <TabsContent value="court">
+          <TabsContent value="court" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Court Dates & Records</h3>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => searchRecordsMutation.mutate()}
+                  disabled={searchRecordsMutation.isPending}
+                  className="flex items-center gap-2"
+                >
+                  {searchRecordsMutation.isPending ? (
+                    <Clock className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                  {searchRecordsMutation.isPending ? "Searching..." : "Search Past Records"}
+                </Button>
+              </div>
+            </div>
+
             <Card>
               <CardHeader>
-                <CardTitle>Court Dates</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Scheduled Court Dates
+                </CardTitle>
+                <CardDescription>
+                  Upcoming and past court appearances for this client
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {courtDates.length > 0 ? (
                   <div className="space-y-4">
                     {courtDates.map((court: any) => (
-                      <div key={court.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-medium">{court.courtType}</h4>
-                            <p className="text-sm text-slate-600">
-                              Date: {new Date(court.courtDate).toLocaleDateString()}
-                            </p>
-                            <p className="text-sm text-slate-600">Location: {court.courtLocation}</p>
-                            {court.charges && (
-                              <p className="text-sm text-slate-600">Charges: {court.charges}</p>
-                            )}
+                      <Card key={court.id} className="border-l-4 border-l-blue-500">
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-medium">{court.courtType || "Court Appearance"}</h4>
+                                <Badge variant={court.completed ? "secondary" : "default"}>
+                                  {court.completed ? "Completed" : "Upcoming"}
+                                </Badge>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-600">
+                                <div>
+                                  <span className="font-medium">Date:</span> {new Date(court.courtDate).toLocaleDateString()}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Time:</span> {court.courtTime || "TBD"}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Location:</span> {court.courtLocation || "TBD"}
+                                </div>
+                                {court.caseNumber && (
+                                  <div>
+                                    <span className="font-medium">Case:</span> {court.caseNumber}
+                                  </div>
+                                )}
+                              </div>
+                              {court.charges && (
+                                <div className="text-sm">
+                                  <span className="font-medium">Charges:</span> {court.charges}
+                                </div>
+                              )}
+                              {court.notes && (
+                                <div className="text-sm bg-blue-50 p-2 rounded">
+                                  <span className="font-medium">Notes:</span> {court.notes}
+                                </div>
+                              )}
+                              {court.source && (
+                                <div className="text-xs text-slate-500">
+                                  Source: {court.source}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <Badge variant={court.completed ? "secondary" : "default"}>
-                            {court.completed ? "Completed" : "Upcoming"}
-                          </Badge>
-                        </div>
-                      </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-500">No court dates scheduled</p>
+                  <div className="text-center py-8">
+                    <Calendar className="h-12 w-12 mx-auto mb-4 text-slate-300" />
+                    <p className="text-slate-500 mb-4">No court dates found</p>
+                    <p className="text-sm text-slate-400">
+                      Use the "Search Past Records" button to find historical court records and arrest logs
+                    </p>
+                  </div>
                 )}
               </CardContent>
             </Card>
+
+            {/* Search Results Info */}
+            {searchRecordsMutation.isPending && (
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 animate-spin text-blue-600" />
+                    <div>
+                      <p className="font-medium text-blue-800">Searching Court Records</p>
+                      <p className="text-sm text-blue-600">
+                        Scanning Hawaii court systems and arrest logs for {client?.fullName}...
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="files">
