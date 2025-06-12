@@ -1,5 +1,5 @@
 // Comprehensive geolocation system test
-const axios = require('axios');
+import axios from 'axios';
 
 const BASE_URL = 'http://localhost:5000';
 
