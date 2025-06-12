@@ -1,0 +1,12 @@
+[
+  {
+    "clientId": "TEST001",
+    "latitude": 21.3099,
+    "longitude": -157.8581,
+    "accuracy": 10,
+    "address": "21.3099, -157.8581",
+    "timestamp": "2025-06-12T12:30:29.939Z",
+    "withinJurisdiction": true,
+    "source": "gps"
+  }
+]

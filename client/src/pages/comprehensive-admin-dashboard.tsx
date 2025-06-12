@@ -48,6 +48,8 @@ import {
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { NotificationSystem } from '@/components/notifications/NotificationSystem';
 import ClientManagement from '@/components/admin/client-management';
+import LocationManagementDashboard from '@/components/admin/location-management-dashboard';
+import GeolocationIntegration from '@/components/admin/geolocation-integration';
 import FinancialDashboard from '@/components/admin/financial-dashboard';
 import AnalyticsCharts from '@/components/admin/analytics-charts';
 import RealTimeMap from '@/components/admin/real-time-map';
