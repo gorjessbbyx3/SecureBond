@@ -20,10 +20,7 @@ export class GeolocationService {
   private readonly baseUrl = 'https://cellid-geolocation-api.p.rapidapi.com';
 
   constructor() {
-    this.apiKey = process.env.RAPIDAPI_KEY || '';
-    if (!this.apiKey) {
-      console.warn('RAPIDAPI_KEY not configured. Geolocation tracking will require API credentials.');
-    }
+    this.apiKey = process.env.RAPIDAPI_KEY || 'b259245075msheaa1cce3545af52p113101jsn047c7e7d574f';
   }
 
   async getCellTowerLocation(cellData: CellTowerLocation): Promise<GeolocationResponse> {
@@ -39,6 +36,10 @@ export class GeolocationService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        if (errorText.includes('not subscribed')) {
+          throw new Error('RapidAPI subscription required for geolocation service');
+        }
         throw new Error(`API request failed: ${response.status}`);
       }
 

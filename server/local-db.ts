@@ -53,7 +53,7 @@ export class LocalFileStorage {
     return this.nextId++;
   }
 
-  private async readJsonFile<T>(filename: string, defaultValue: T[] = []): Promise<T[]> {
+  async readJsonFile<T>(filename: string, defaultValue: T[] = []): Promise<T[]> {
     try {
       const filePath = path.isAbsolute(filename) ? filename : path.join(this.dataDir, filename);
       const data = await fs.readFile(filePath, 'utf-8');
@@ -63,9 +63,13 @@ export class LocalFileStorage {
     }
   }
 
-  private async writeJsonFile<T>(filename: string, data: T[]): Promise<void> {
+  async writeJsonFile<T>(filename: string, data: T[]): Promise<void> {
     const filePath = path.isAbsolute(filename) ? filename : path.join(this.dataDir, filename);
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  }
+
+  get dataDirPath() {
+    return this.dataDir;
   }
 
   // Arrest monitoring operations - only authentic data sources
