@@ -10,6 +10,7 @@ import { healthEndpoint, healthCheckMiddleware } from "./middleware/healthCheck"
 import { performanceMiddleware, performanceStatsEndpoint, performanceMetricsEndpoint } from "./middleware/performance";
 import { securityAuditMiddleware, securityReportEndpoint, securityEventsEndpoint } from "./middleware/securityAudit";
 import { auditLogger } from "./utils/auditLogger";
+import { geolocationService } from "./services/geolocationService";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import bcrypt from 'bcrypt';
 import { 
@@ -3405,6 +3406,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error scanning arrest logs:', error);
       res.status(500).json({ message: 'Failed to scan arrest logs' });
+    }
+  });
+
+  // Client location tracking endpoints using RapidAPI geolocation
+  app.post('/api/clients/:clientId/location', isAuthenticated, async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const { locationData } = req.body;
+      
+      if (!locationData) {
+        return res.status(400).json({ message: 'Location data is required' });
+      }
+
+      const locationResult = await geolocationService.trackClientLocation(clientId, locationData);
+      
+      // Store location in client tracking file
+      const locations = await storage.readJsonFile('client-locations.json', []);
+      locations.push(locationResult);
+      await storage.writeJsonFile('client-locations.json', locations);
+      
+      res.json(locationResult);
+    } catch (error) {
+      console.error('Error tracking client location:', error);
+      res.status(500).json({ message: 'Failed to track location' });
+    }
+  });
+
+  app.get('/api/clients/:clientId/location-history', isAuthenticated, async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const { limit = 50 } = req.query;
+      
+      const locations = await storage.readJsonFile('client-locations.json', []);
+      const clientLocations = locations
+        .filter((loc: any) => loc.clientId === clientId)
+        .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, parseInt(limit as string));
+      
+      res.json(clientLocations);
+    } catch (error) {
+      console.error('Error fetching location history:', error);
+      res.status(500).json({ message: 'Failed to fetch location history' });
+    }
+  });
+
+  app.get('/api/admin/client-locations/real-time', isAuthenticated, async (req, res) => {
+    try {
+      const locations = await storage.readJsonFile('client-locations.json', []);
+      const recentLocations = locations
+        .filter((loc: any) => {
+          const locationTime = new Date(loc.timestamp);
+          const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000); // Last 24 hours
+          return locationTime > cutoff;
+        })
+        .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      res.json(recentLocations);
+    } catch (error) {
+      console.error('Error fetching real-time locations:', error);
+      res.status(500).json({ message: 'Failed to fetch real-time locations' });
+    }
+  });
+
+  app.post('/api/admin/geofence/check', isAuthenticated, async (req, res) => {
+    try {
+      const { clientId, latitude, longitude } = req.body;
+      
+      if (!clientId || !latitude || !longitude) {
+        return res.status(400).json({ message: 'Client ID, latitude, and longitude are required' });
+      }
+      
+      const isWithinJurisdiction = await geolocationService.validateLocation(latitude, longitude);
+      
+      if (!isWithinJurisdiction) {
+        // Create alert for jurisdiction violation
+        const alert = {
+          id: Date.now(),
+          clientId,
+          type: 'jurisdiction_violation',
+          severity: 'high',
+          message: `Client ${clientId} detected outside Hawaii jurisdiction`,
+          location: { latitude, longitude },
+          timestamp: new Date().toISOString(),
+          acknowledged: false
+        };
+        
+        await storage.createAlert(alert);
+        
+        // Send notification
+        await notificationService.createNotification({
+          title: 'Jurisdiction Violation Alert',
+          message: alert.message,
+          type: 'security',
+          priority: 'high',
+          clientId
+        });
+      }
+      
+      res.json({ 
+        withinJurisdiction: isWithinJurisdiction,
+        alertCreated: !isWithinJurisdiction 
+      });
+    } catch (error) {
+      console.error('Error checking geofence:', error);
+      res.status(500).json({ message: 'Failed to check geofence' });
     }
   });
 
