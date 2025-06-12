@@ -338,6 +338,10 @@ export default function ComprehensiveAdminDashboard() {
               <TrendingUp className="h-4 w-4" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="location" className="flex items-center gap-2 text-xs">
+              <MapPin className="h-4 w-4" />
+              Location
+            </TabsTrigger>
             <TabsTrigger value="monitoring" className="flex items-center gap-2 text-xs">
               <Target className="h-4 w-4" />
               Monitoring
@@ -1231,6 +1235,32 @@ export default function ComprehensiveAdminDashboard() {
               </CardHeader>
               <CardContent>
                 <RealTimeMap />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Location Tracking Tab */}
+          <TabsContent value="location" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Location Tracking & Geolocation</h3>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-green-600">GPS & Cell Tower Tracking Active</span>
+              </div>
+            </div>
+
+            <LocationManagementDashboard />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5" />
+                  Geolocation Integration Settings
+                </CardTitle>
+                <CardDescription>Configure GPS and cell tower triangulation services</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <GeolocationIntegration />
               </CardContent>
             </Card>
           </TabsContent>
