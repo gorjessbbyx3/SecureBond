@@ -40,7 +40,7 @@ export default function TermsOfService() {
             <p className="text-slate-600">SecureBond Bail Bond Management System</p>
             <p className="text-sm text-slate-500 mt-2">Effective Date: June 11, 2025</p>
             <p className="text-sm text-slate-500">Version: {CURRENT_VERSION}</p>
-            <p className="text-sm text-slate-500">Developer: gorJessCo</p>
+            <p className="text-sm text-slate-500">Developer: GoJess & Co</p>
             
             {hasAcceptedTerms && (
               <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg">

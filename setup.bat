@@ -247,7 +247,7 @@ echo - SENDGRID_API_KEY environment variable
 echo - ADMIN_PASSWORD environment variable
 echo - MAINTENANCE_PASSWORD environment variable
 echo.
-echo Technical Support: gorJessCo@cyberservices.net
+echo Developer: GoJess & Co
 echo.
 echo ================================================
 echo Setup complete! Your SecureBond system is ready.

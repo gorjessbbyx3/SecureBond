@@ -71,8 +71,8 @@ DATABASE_URL=your_production_database_url
 6. Initialize audit logging
 7. Deploy to production environment
 
-## 📞 Support Contact
-Technical Support: gorJessCo@cyberservices.net
+## 📞 Developer Information
+Developed by: GoJess & Co
 
 ---
 **IMPORTANT**: This system handles sensitive criminal justice data. Ensure all security protocols are followed before deployment.

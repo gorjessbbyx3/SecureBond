@@ -79,7 +79,7 @@ export default function TermsAcknowledgmentBanner({ onAcknowledge }: TermsAcknow
                   <li>• This application is a digital tool for licensed bail bond companies</li>
                   <li>• It does not provide legal advice or representation</li>
                   <li>• Users are responsible for compliance with all applicable laws</li>
-                  <li>• The developer is not liable for missed court appearances or legal consequences</li>
+                  <li>• GoJess & Co is not liable for missed court appearances or legal consequences</li>
                 </ul>
               </div>
 

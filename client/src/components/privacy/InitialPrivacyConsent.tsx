@@ -103,7 +103,7 @@ export default function InitialPrivacyConsent({ onAccept, onDecline }: InitialPr
               <li>• Access and review your personal data</li>
               <li>• Request corrections to inaccurate information</li>
               <li>• File complaints with supervisory authorities</li>
-              <li>• Contact us at gorJessCo@cyberservices.net for privacy concerns</li>
+              <li>• Contact GoJess & Co for privacy concerns</li>
             </ul>
           </div>
 

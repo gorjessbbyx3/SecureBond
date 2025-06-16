@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
             </div>
             <p className="text-slate-600">SecureBond Bail Bond Management System</p>
             <p className="text-sm text-slate-500 mt-2">Effective Date: June 11, 2025</p>
-            <p className="text-sm text-slate-500">Developer: gorJessCo</p>
+            <p className="text-sm text-slate-500">Developer: GoJess & Co</p>
           </div>
 
           <Card className="mb-6">
@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
             </CardHeader>
             <CardContent>
               <p className="text-slate-700 leading-relaxed">
-                This Privacy Policy describes how gorJessCo ("we," "our," or "us") collects, uses, and protects 
+                This Privacy Policy describes how GoJess & Co ("we," "our," or "us") collects, uses, and protects 
                 your information when you use the SecureBond bail bond management system. We are committed to 
                 protecting your privacy and ensuring the security of your personal information in compliance 
                 with applicable laws and regulations.
