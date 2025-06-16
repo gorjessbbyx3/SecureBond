@@ -695,17 +695,7 @@ export class LocalFileStorage {
     return { success: true, message: 'Arrest record acknowledged' };
   }
 
-  async getPublicArrestLogs(): Promise<any[]> {
-    return [];
-  }
-
-  async getMonitoringConfig(): Promise<any> {
-    return { enabled: false, message: 'Requires police department API integration' };
-  }
-
-  async scanArrestLogs(): Promise<any> {
-    return { error: 'Police department API integration required' };
-  }
+  // Duplicate methods removed - using primary implementations above
 
   async getDashboardStats(): Promise<any> {
     const clients = await this.getAllClients();

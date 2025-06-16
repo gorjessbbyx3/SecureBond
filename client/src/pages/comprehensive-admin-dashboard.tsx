@@ -50,6 +50,7 @@ import { NotificationSystem } from '@/components/notifications/NotificationSyste
 import ClientManagement from '@/components/admin/client-management';
 import LocationManagementDashboard from '@/components/admin/location-management-dashboard';
 import GeolocationIntegration from '@/components/admin/geolocation-integration';
+import ApiEndpointDashboard from '@/components/admin/api-endpoint-dashboard';
 import FinancialDashboard from '@/components/admin/financial-dashboard';
 import AnalyticsCharts from '@/components/admin/analytics-charts';
 import RealTimeMap from '@/components/admin/real-time-map';
@@ -341,6 +342,10 @@ export default function ComprehensiveAdminDashboard() {
             <TabsTrigger value="location" className="flex items-center gap-2 text-xs">
               <MapPin className="h-4 w-4" />
               Location
+            </TabsTrigger>
+            <TabsTrigger value="endpoints" className="flex items-center gap-2 text-xs">
+              <Activity className="h-4 w-4" />
+              API Status
             </TabsTrigger>
             <TabsTrigger value="monitoring" className="flex items-center gap-2 text-xs">
               <Target className="h-4 w-4" />
@@ -1263,6 +1268,11 @@ export default function ComprehensiveAdminDashboard() {
                 <GeolocationIntegration />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* API Endpoints Dashboard Tab */}
+          <TabsContent value="endpoints" className="space-y-6">
+            <ApiEndpointDashboard />
           </TabsContent>
 
           {/* Monitoring Tab */}
