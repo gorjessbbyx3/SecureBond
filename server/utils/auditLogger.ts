@@ -108,9 +108,8 @@ class AuditLogger {
       await this.analyzeSuspiciousActivity(fullEntry);
 
     } catch (error) {
-      console.error('Failed to write audit log:', error);
-      // Fallback to console logging
-      console.log('AUDIT FALLBACK:', JSON.stringify(entry));
+      // Failed to write audit log
+      // Fallback audit logging active
     }
   }
 

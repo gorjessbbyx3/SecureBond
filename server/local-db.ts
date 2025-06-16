@@ -743,11 +743,21 @@ export class LocalFileStorage {
   async createDataBackup(backup: any): Promise<any> { return backup; }
   async getUserNotifications(userId: string): Promise<any[]> { return []; }
   async getUserNotificationPreferences(userId: string): Promise<any> { return {}; }
-  async upsertNotificationPreferences(userId: string, preferences: any): Promise<any> { return preferences; }
+  async upsertNotificationPreferences(preferences: any): Promise<any> { return preferences; }
   async deleteNotification(id: number): Promise<void> { }
   async checkTermsAcknowledgment(userId: string): Promise<any> { return null; }
   async acknowledgeTerms(acknowledgment: any): Promise<any> { return acknowledgment; }
   async getClientVehicles(clientId: number): Promise<any[]> { return []; }
+  async createClientVehicle(vehicle: any): Promise<any> { return vehicle; }
+  async createFamilyMember(family: any): Promise<any> { return family; }
+  async createEmploymentInfo(employment: any): Promise<any> { return employment; }
+  async getClientFiles(clientId: number): Promise<any[]> { return []; }
+  async createCourtDateReminder(reminder: any): Promise<any> { return reminder; }
+  async getCourtDateReminders(): Promise<any[]> { return []; }
+  async acknowledgeReminder(reminderId: string): Promise<any> { return {}; }
+  async getClientApprovedCourtDates(clientId: number): Promise<any[]> { return []; }
+  async getPrivacyAcknowledgment(userId: string): Promise<any> { return null; }
+  async createPrivacyAcknowledgment(acknowledgment: any): Promise<any> { return acknowledgment; }
   async getClientFamily(clientId: number): Promise<any[]> { return []; }
   async getClientEmployment(clientId: number): Promise<any[]> { return []; }
 }

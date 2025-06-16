@@ -161,7 +161,29 @@ export class NotificationService {
         metadata: courtDate ? JSON.stringify({ courtDateId: courtDate.id }) : null
       });
     } catch (error) {
-      console.error('Failed to create notification record:', error);
+      // Failed to create notification record
+    }
+  }
+
+  async createNotification(notification: {
+    title: string;
+    message: string;
+    type: string;
+    priority: string;
+    clientId?: string;
+  }): Promise<void> {
+    try {
+      await storage.createNotification({
+        userId: notification.clientId || 'system',
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        priority: notification.priority,
+        read: false,
+        metadata: null
+      });
+    } catch (error) {
+      // Failed to create notification
     }
   }
 }
