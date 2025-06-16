@@ -17,10 +17,7 @@ export const useApiEndpoints = () => {
   const useGeofenceCheck = () => {
     return useMutation({
       mutationFn: (clientData: { clientId: string; latitude: number; longitude: number }) =>
-        apiRequest(`/api/admin/geofence/check`, {
-          method: 'POST',
-          body: JSON.stringify(clientData),
-        }),
+        apiRequest(`/api/admin/geofence/check`, 'POST', clientData),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/jurisdiction-violations'] });
       },
@@ -36,10 +33,7 @@ export const useApiEndpoints = () => {
 
   const updateCourtScrapingConfig = useMutation({
     mutationFn: (config: any) =>
-      apiRequest(`/api/court-scraping/config`, {
-        method: 'PUT',
-        body: JSON.stringify(config),
-      }),
+      apiRequest(`/api/court-scraping/config`, 'PUT', config),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/court-scraping/config'] });
     },
@@ -84,18 +78,14 @@ export const useApiEndpoints = () => {
   const useDataBackup = () => {
     return useMutation({
       mutationFn: () =>
-        apiRequest(`/api/data/backup`, {
-          method: 'POST',
-        }),
+        apiRequest(`/api/data/backup`, 'POST'),
     });
   };
 
   const useDataExport = () => {
     return useMutation({
       mutationFn: (exportType: string) =>
-        apiRequest(`/api/data/export?type=${exportType}`, {
-          method: 'GET',
-        }),
+        apiRequest(`/api/data/export?type=${exportType}`, 'GET'),
     });
   };
 
@@ -108,10 +98,7 @@ export const useApiEndpoints = () => {
 
   const createCheckIn = useMutation({
     mutationFn: (checkInData: any) =>
-      apiRequest(`/api/check-ins`, {
-        method: 'POST',
-        body: JSON.stringify(checkInData),
-      }),
+      apiRequest(`/api/check-ins`, 'POST', checkInData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/check-ins'] });
     },

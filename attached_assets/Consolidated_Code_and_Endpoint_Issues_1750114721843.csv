@@ -1,0 +1,839 @@
+Location,Issue,Suggestion,Demo Usage,Type
+/mnt/data/SecureBond_extracted/SecureBond/test-geolocation.js,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/tailwind.config.ts,Mixed module systems (CommonJS + ESModules),,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/client/src/hooks/useErrorContext.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/client/src/hooks/usePrivacyAcknowledgment.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/client/src/lib/api.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/courtReminderService.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/courtReminderService.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/courtScraper.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/courtScraper.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/index.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/local-db-corrupted.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/local-db-corrupted.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/local-db.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/replitAuth.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/routes.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/routes.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/storage.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/vite.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/middleware/audit.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/middleware/auth.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/middleware/performance.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/middleware/security.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/middleware/securityAudit.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/routes/admin.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/routes/dashboard.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/services/arrestLogScraper.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/services/geolocationService.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/services/notificationService.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/services/notificationService.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/services/sendgrid.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/auditLogger.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/auditLogger.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/locationTracker.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/locationTracker.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/logger.ts,Unstripped 'console.log' – should be removed in production,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/logger.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/mnt/data/SecureBond_extracted/SecureBond/shared/schema.ts,Use of 'any' type – reduces type safety,,,Static Code Issue
+/api/data/backup,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/data/backup"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/analytics/client-behavior,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/analytics/client-behavior"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/check-ins,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/check-ins"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/client/court-dates,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/client/court-dates"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/data/export,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/data/export"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/client-locations/real-time,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/client-locations/real-time"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/court-scraping/config,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/court-scraping/config"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/dashboard/recent-activity,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/dashboard/recent-activity"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-monitoring/public-logs,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-monitoring/public-logs"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/location/patterns,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/location/patterns"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/system/security/events,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/system/security/events"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/messages,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/messages"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/trigger-reminders,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/trigger-reminders"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/test-email,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/test-email"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/staff/login,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/staff/login"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/test-sms,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/test-sms"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/payment-plans,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/payment-plans"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/callback,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/callback"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/auth/login,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/auth/login"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/auth/maintenance-login,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/auth/maintenance-login"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/geofence/check,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/geofence/check"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/system/health,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/system/health"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/expenses,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/expenses"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/system/performance/stats,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/system/performance/stats"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/analytics/revenue,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/analytics/revenue"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/client/bonds,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/client/bonds"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/alerts/unacknowledged,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/alerts/unacknowledged"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/court-reminders,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/court-reminders"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-logs/update-status,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-logs/update-status"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/bonds/active,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/bonds/active"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/skip-bail-risk,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/skip-bail-risk"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/auth/client-login,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/auth/client-login"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/upcoming-court-dates,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/upcoming-court-dates"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/credentials,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/credentials"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/white-pages/search,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/white-pages/search"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/notification-stats,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/notification-stats"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/analytics/compliance,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/analytics/compliance"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/client/checkins,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/client/checkins"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/tracking/location,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/tracking/location"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/roles,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/roles"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/court-dates/search,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/court-dates/search"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/bonds,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/bonds"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/collections/activities,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/collections/activities"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/audit/logs,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/audit/logs"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/alerts,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/alerts"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/clients,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/clients"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/analytics/overview,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/analytics/overview"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/court-scraping/search,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/court-scraping/search"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/audit/compliance-report,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/audit/compliance-report"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/analytics/geographic,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/analytics/geographic"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/forfeitures,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/forfeitures"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-monitoring/scan,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-monitoring/scan"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/auth/client,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/auth/client"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/court-dates/upcoming,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/court-dates/upcoming"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-logs/log-contact,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-logs/log-contact"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/login,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/login"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/system/performance/metrics,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/system/performance/metrics"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/court-dates,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/court-dates"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/system/security/report,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/system/security/report"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/dashboard-stats,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/dashboard-stats"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-logs/recent,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-logs/recent"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/terms/acknowledge,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/terms/acknowledge"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/analytics/top-locations,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/analytics/top-locations"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/court-dates/pending,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/court-dates/pending"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-monitoring/config,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-monitoring/config"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/data/storage-info,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/data/storage-info"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/tracking/active,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/tracking/active"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/payments,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/payments"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/client/login-phone,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/client/login-phone"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/notification-preferences,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/notification-preferences"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-monitoring/search-logs,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-monitoring/search-logs"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/data/cleanup,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/data/cleanup"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-logs/convert-to-client,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-logs/convert-to-client"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/client/login,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/client/login"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/dashboard/stats,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/dashboard/stats"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/arrest-monitoring/records,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/arrest-monitoring/records"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/notifications,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/notifications"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/auth/admin-login,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/auth/admin-login"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/clients/locations,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/clients/locations"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/clients/bulk-upload,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/clients/bulk-upload"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/admin/backups,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/admin/backups"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/logout,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/logout"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/api/court-dates/reminders,Unlinked backend endpoint,Consider exposing this endpoint on the frontend or removing if obsolete,"// Example frontend call using fetch
+fetch(""/api/court-dates/reminders"", {
+  method: ""GET"",
+  headers: {
+    ""Content-Type"": ""application/json""
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));",Unlinked API Endpoint
+/mnt/data/SecureBond_extracted/SecureBond/test-geolocation.js,Generic Error Logging,Avoid generic logs; use structured logging or error tracking.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/test-geolocation.js,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/test-geolocation.js,Insecure HTTP,Use HTTPS instead of HTTP for secure data transmission.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/courtReminderService.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/courtScraper.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/index.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/local-db-corrupted.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/routes.ts,Generic Error Logging,Avoid generic logs; use structured logging or error tracking.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/routes.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/vite.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/middleware/performance.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/middleware/securityAudit.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/routes/admin.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/routes/dashboard.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/services/arrestLogScraper.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/services/geolocationService.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/services/notificationService.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/services/sendgrid.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/auditLogger.ts,Generic Error Logging,Avoid generic logs; use structured logging or error tracking.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/auditLogger.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/locationTracker.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/logger.ts,Generic Error Logging,Avoid generic logs; use structured logging or error tracking.,,Code Smell / Security Warning
+/mnt/data/SecureBond_extracted/SecureBond/server/utils/logger.ts,Direct Console Use,Remove or replace with a logging utility.,,Code Smell / Security Warning
+SecureBond/client/src/hooks/use-toast,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/client/src/hooks/useErrorContext,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/client/src/hooks/usePrivacyAcknowledgment,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/client/src/hooks/useTermsStatus,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/client/src/lib/api,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/client/src/lib/authUtils,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/client/src/lib/types,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/client/src/lib/utils,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/server/db,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/server/index,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/server/local-db-corrupted,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/server/routes/admin,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/server/services/arrestLogScraper,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/server/utils/locationTracker,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+SecureBond/shared/schema,Module not imported or linked across client/server/shared,Verify whether this file is obsolete or needs to be integrated,,Unlinked Module
+Deployment Readiness,"Unlinked endpoints, modules, and code quality issues may break tenant app","Integrate missing frontend API calls, refactor unlinked modules, remove insecure patterns, and run production build/test suite (`npm run build`, `tsc --noEmit`).","// To test the tenant app build
+npm install
+npm run build
+npm run preview
+
+// To check for TypeScript and linking errors
+tsc --noEmit",Deployment Risk

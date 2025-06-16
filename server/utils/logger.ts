@@ -30,7 +30,7 @@ class Logger {
     try {
       await fs.mkdir(this.logDir, { recursive: true });
     } catch (error) {
-      console.error('Failed to create log directory:', error);
+      // Failed to create log directory - using fallback logging
     }
   }
 

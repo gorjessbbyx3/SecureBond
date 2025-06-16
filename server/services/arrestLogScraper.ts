@@ -43,11 +43,11 @@ export class ArrestLogScraper {
       // Real arrest logs would require authenticated access to HPD's records management system
       // Website is accessible and monitored but contains no public structured arrest data
       
-      console.log(`HPD website monitoring: accessible (${html.length} chars), but no public arrest data available`);
+      // HPD website monitoring: accessible but requires authenticated access
       
       // Check if the page content indicates this is the correct arrest logs page
       if (html.includes('Arrest Logs') && html.includes('Honolulu Police Department')) {
-        console.log('Confirmed: HPD arrest logs page accessible - requires authenticated access for actual data');
+        // Confirmed: HPD arrest logs page accessible - requires authenticated access for actual data
       }
 
       return records;
