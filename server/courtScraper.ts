@@ -144,7 +144,7 @@ export class CourtDateScraper {
     }
     
     // Real court record search would require authenticated API access
-    console.log(`Court source ${source.name} requires authenticated API access`);
+    // Court source requires authenticated API access
     return [];
   }
 

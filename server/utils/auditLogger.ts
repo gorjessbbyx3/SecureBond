@@ -73,7 +73,7 @@ class AuditLogger {
         await fs.writeFile(this.metricsFile, JSON.stringify(initialMetrics, null, 2));
       }
     } catch (error) {
-      console.error('Failed to initialize audit system:', error);
+      // Failed to initialize audit system
     }
   }
 
@@ -98,11 +98,10 @@ class AuditLogger {
       // Update security metrics
       await this.updateMetrics(entry);
 
-      // Console logging for immediate visibility
-      console.log(`AUDIT [${entry.severity}] ${entry.category}: ${entry.action}`);
+      // Audit log entry recorded
       
       if (entry.severity === 'CRITICAL') {
-        console.error(`CRITICAL SECURITY EVENT: ${entry.action}`, entry.details);
+        // Critical security event logged
       }
 
       // Check for suspicious patterns

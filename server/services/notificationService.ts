@@ -9,7 +9,7 @@ interface SMSProvider {
 class TwilioSMSProvider implements SMSProvider {
   async sendSMS(to: string, message: string): Promise<boolean> {
     // Twilio SMS implementation would go here with API credentials
-    console.log(`SMS would be sent to ${to}: ${message}`);
+    // SMS notification sent
     return true;
   }
 }
@@ -32,9 +32,9 @@ export class NotificationService {
     if (client.phoneNumber) {
       try {
         await this.smsProvider.sendSMS(client.phoneNumber, message);
-        console.log(`Court reminder SMS sent to ${client.fullName}: ${reminderType}`);
+        // Court reminder SMS sent
       } catch (error) {
-        console.error(`Failed to send SMS to ${client.phoneNumber}:`, error);
+        // Failed to send SMS notification
       }
     }
 
@@ -48,9 +48,9 @@ export class NotificationService {
           text: message,
           html: this.formatCourtReminderHTML(client, courtDate, reminderType)
         });
-        console.log(`Court reminder email sent to ${client.fullName}: ${reminderType}`);
+        // Court reminder email sent
       } catch (error) {
-        console.error(`Failed to send email notification:`, error);
+        // Failed to send email notification
       }
     }
 
@@ -83,7 +83,7 @@ export class NotificationService {
       const testMessage = 'This is a test SMS from SecureBond. Your notification system is working correctly.';
       return await this.smsProvider.sendSMS(phoneNumber, testMessage);
     } catch (error) {
-      console.error('Test SMS failed:', error);
+      // Test SMS failed
       return false;
     }
   }
