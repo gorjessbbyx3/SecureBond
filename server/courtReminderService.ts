@@ -47,7 +47,7 @@ export class CourtReminderService {
     const now = new Date();
     const pendingReminders = await this.getPendingReminders(now);
 
-    console.log(`Processing ${pendingReminders.length} pending court reminders`);
+    // Processing pending court reminders
 
     for (const reminder of pendingReminders) {
       try {

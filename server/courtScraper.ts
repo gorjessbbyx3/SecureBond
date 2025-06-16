@@ -102,7 +102,7 @@ export class CourtDateScraper {
         
       } catch (error) {
         const errorMsg = `Error searching ${source.name}: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        console.error(errorMsg);
+        // Error searching court source
         result.errors.push(errorMsg);
       }
     }
@@ -117,7 +117,7 @@ export class CourtDateScraper {
 
     result.success = result.courtDates.length > 0 || result.errors.length === 0;
     
-    console.log(`Court date search completed. Found ${result.courtDates.length} potential matches.`);
+    // Court date search completed
     return result;
   }
 
@@ -136,7 +136,7 @@ export class CourtDateScraper {
     nameComponents: any, 
     options: any
   ): Promise<CourtDate[]> {
-    console.log(`Searching ${source.name} for ${nameComponents.fullName}`);
+    // Searching court source for client
     
     // Handle RSS feeds for real-time court document updates
     if (source.type === 'rss') {

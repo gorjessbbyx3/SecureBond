@@ -4,10 +4,7 @@ import axios from 'axios';
 const BASE_URL = 'http://localhost:5000';
 
 async function testGeolocationSystem() {
-  console.log('🗺️  Testing Comprehensive Geolocation System\n');
-
   // Test 1: GPS Location Tracking (Hawaii coordinates)
-  console.log('📍 Testing GPS Location Tracking...');
   try {
     const gpsResponse = await axios.post(`${BASE_URL}/api/clients/TEST001/location`, {
       locationData: {
@@ -16,13 +13,12 @@ async function testGeolocationSystem() {
         accuracy: 10
       }
     });
-    console.log('✅ GPS tracking successful:', gpsResponse.data);
+    // GPS tracking successful
   } catch (error) {
-    console.log('❌ GPS tracking error:', error.response?.data || error.message);
+    // GPS tracking error
   }
 
   // Test 2: Cell Tower Triangulation (requires RapidAPI subscription)
-  console.log('\n📡 Testing Cell Tower Triangulation...');
   try {
     const cellTowerResponse = await axios.post(`${BASE_URL}/api/clients/TEST002/location`, {
       locationData: {
