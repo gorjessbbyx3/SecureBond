@@ -23,7 +23,8 @@ import {
   Plus,
   Trash2,
   Edit,
-  Bell
+  Bell,
+  Key
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -258,6 +259,30 @@ export function BusinessSettings() {
       id: staff.id,
       data: { ...staff, isActive: !staff.isActive }
     });
+  };
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: (staffId: number) => 
+      apiRequest("POST", `/api/admin/staff/${staffId}/reset-password`),
+    onSuccess: (data) => {
+      toast({
+        title: "Password Reset",
+        description: `New temporary password: ${data.temporaryPassword}. The staff member must change this on first login.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Reset Failed",
+        description: error.message || "Failed to reset password",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleResetPassword = (staff: StaffMember) => {
+    if (confirm(`Reset password for ${staff.fullName}? A new temporary password will be generated.`)) {
+      resetPasswordMutation.mutate(staff.id);
+    }
   };
 
   const availablePermissions = [
@@ -663,6 +688,14 @@ export function BusinessSettings() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleResetPassword(staff)}
+                      >
+                        <Key className="h-4 w-4 mr-1" />
+                        Reset Password
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"

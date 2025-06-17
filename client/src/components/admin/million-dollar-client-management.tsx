@@ -23,7 +23,8 @@ import {
   Eye,
   Edit2,
   Trash2,
-  UserPlus
+  UserPlus,
+  Key
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -131,6 +132,30 @@ export function MillionDollarClientManagement() {
   const handleViewProfile = (clientId: number) => {
     // Navigate to detailed client profile page
     setLocation(`/admin-dashboard/clients/${clientId}`);
+  };
+
+  const resetClientPasswordMutation = useMutation({
+    mutationFn: (clientId: number) => 
+      apiRequest("POST", `/api/clients/${clientId}/reset-password`),
+    onSuccess: (data: any) => {
+      toast({
+        title: "Password Reset",
+        description: `New temporary password: ${data.temporaryPassword}. Client must change this on first login.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Reset Failed",
+        description: error.message || "Failed to reset client password",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleResetClientPassword = (client: any) => {
+    if (confirm(`Reset password for ${client.name}? A new temporary password will be generated.`)) {
+      resetClientPasswordMutation.mutate(client.id);
+    }
   };
 
   const handleGlobalAIAnalysis = async () => {
@@ -398,7 +423,7 @@ export function MillionDollarClientManagement() {
                             <Brain className="h-3 w-3 mr-1" />
                             AI Recommendations
                           </Button>
-                          <div className="grid grid-cols-2 gap-1">
+                          <div className="grid grid-cols-3 gap-1">
                             <Button 
                               size="sm" 
                               variant="outline" 
@@ -407,6 +432,15 @@ export function MillionDollarClientManagement() {
                             >
                               <PhoneCall className="h-3 w-3 mr-1" />
                               Contact
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs"
+                              onClick={() => handleResetClientPassword(client)}
+                            >
+                              <Key className="h-3 w-3 mr-1" />
+                              Reset PWD
                             </Button>
                             <Button 
                               size="sm" 
