@@ -1,0 +1,21 @@
+[
+  {
+    "id": 1,
+    "state": "TX",
+    "stateName": "Texas",
+    "bondLimits": {
+      "minimum": 500,
+      "maximum": 50000
+    },
+    "regulations": {
+      "requiresLicense": true
+    },
+    "courtSystems": [
+      "Travis County",
+      "Austin Municipal"
+    ],
+    "isActive": true,
+    "createdAt": "2025-06-17T00:04:00.434Z",
+    "updatedAt": "2025-06-17T00:04:00.434Z"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "companyName": "Test Bail Bonds LLC",
+    "licenseNumber": "TB2024-001",
+    "state": "TX",
+    "address": "123 Test Street",
+    "city": "Austin",
+    "zipCode": "78701",
+    "phone": "(512) 555-UPDATED",
+    "email": "admin@testbailbonds.com",
+    "isActive": true,
+    "createdAt": "2025-06-17T00:04:00.424Z",
+    "updatedAt": "2025-06-17T00:04:00.431Z"
+  }
+]
