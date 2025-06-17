@@ -3776,3 +3776,5 @@ function generatePortfolioInsights(clients: any[], payments: any[], checkIns: an
     portfolioHealth: activeClients > 0 ? (totalRevenue / activeClients) : 0
   };
 }
+
+
