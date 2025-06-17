@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { storage } from "../local-db";
+import bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { 
   insertCompanyConfigurationSchema,
   insertStateConfigurationSchema,
@@ -302,6 +304,250 @@ router.delete("/business-rules/:id", async (req, res) => {
   } catch (error) {
     console.error("Error deleting business rule:", error);
     res.status(400).json({ error: "Failed to delete business rule" });
+  }
+});
+
+// Staff Management Routes
+router.post("/staff", async (req, res) => {
+  try {
+    const staffData = req.body;
+    
+    // Generate temporary password
+    const tempPassword = randomBytes(8).toString('hex');
+    const hashedTempPassword = await bcrypt.hash(tempPassword, 10);
+    
+    // Create staff member
+    const staff = await storage.createStaff({
+      ...staffData,
+      companyId: 1, // Default company ID for now
+    });
+    
+    // Create user credentials
+    const credential = await storage.createUserCredential({
+      staffId: staff.id,
+      credentialType: 'staff_access',
+      username: staffData.email || `staff${staff.employeeId}`,
+      temporaryPassword: hashedTempPassword,
+      passwordResetRequired: true,
+      createdBy: 'admin'
+    });
+    
+    res.json({
+      staff,
+      credentials: {
+        username: credential.username,
+        temporaryPassword: tempPassword, // Send plain password for initial setup
+        activationToken: credential.activationToken
+      }
+    });
+  } catch (error) {
+    console.error("Error creating staff:", error);
+    res.status(400).json({ error: "Failed to create staff member" });
+  }
+});
+
+router.get("/staff", async (req, res) => {
+  try {
+    const staff = await storage.getAllStaff();
+    res.json(staff);
+  } catch (error) {
+    console.error("Error fetching staff:", error);
+    res.status(500).json({ error: "Failed to fetch staff" });
+  }
+});
+
+router.get("/staff/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const staff = await storage.getStaff(id);
+    if (!staff) {
+      return res.status(404).json({ error: "Staff member not found" });
+    }
+    res.json(staff);
+  } catch (error) {
+    console.error("Error fetching staff member:", error);
+    res.status(500).json({ error: "Failed to fetch staff member" });
+  }
+});
+
+router.put("/staff/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const staff = await storage.updateStaff(id, updates);
+    res.json(staff);
+  } catch (error) {
+    console.error("Error updating staff:", error);
+    res.status(400).json({ error: "Failed to update staff member" });
+  }
+});
+
+router.delete("/staff/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteStaff(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting staff:", error);
+    res.status(400).json({ error: "Failed to delete staff member" });
+  }
+});
+
+// Client Management Routes with Credential Assignment
+router.post("/clients", async (req, res) => {
+  try {
+    const clientData = req.body;
+    
+    // Generate client ID and temporary password
+    const clientId = `CLT-${Date.now()}`;
+    const tempPassword = randomBytes(8).toString('hex');
+    const hashedTempPassword = await bcrypt.hash(tempPassword, 10);
+    
+    // Create client
+    const client = await storage.createClient({
+      ...clientData,
+      clientId,
+      password: hashedTempPassword,
+      temporaryPassword: hashedTempPassword,
+      companyId: 1, // Default company ID for now
+      accountStatus: 'pending'
+    });
+    
+    // Create user credentials for client portal access
+    const credential = await storage.createUserCredential({
+      clientId: client.id,
+      credentialType: 'client_portal',
+      username: clientData.email || clientId,
+      temporaryPassword: hashedTempPassword,
+      passwordResetRequired: true,
+      createdBy: 'admin'
+    });
+    
+    res.json({
+      client,
+      credentials: {
+        clientId: client.clientId,
+        username: credential.username,
+        temporaryPassword: tempPassword, // Send plain password for initial setup
+        activationToken: credential.activationToken,
+        portalUrl: `/client-portal/activate?token=${credential.activationToken}`
+      }
+    });
+  } catch (error) {
+    console.error("Error creating client:", error);
+    res.status(400).json({ error: "Failed to create client" });
+  }
+});
+
+router.get("/clients", async (req, res) => {
+  try {
+    const clients = await storage.getAllClients();
+    res.json(clients);
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+    res.status(500).json({ error: "Failed to fetch clients" });
+  }
+});
+
+router.get("/clients/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const client = await storage.getClient(id);
+    if (!client) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+    res.json(client);
+  } catch (error) {
+    console.error("Error fetching client:", error);
+    res.status(500).json({ error: "Failed to fetch client" });
+  }
+});
+
+router.put("/clients/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+    const client = await storage.updateClient(id, updates);
+    res.json(client);
+  } catch (error) {
+    console.error("Error updating client:", error);
+    res.status(400).json({ error: "Failed to update client" });
+  }
+});
+
+// User Credential Management Routes
+router.post("/activate-account", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: "Token and new password are required" });
+    }
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const credential = await storage.activateUserAccount(token, hashedPassword);
+    
+    res.json({
+      success: true,
+      message: "Account activated successfully",
+      username: credential.username
+    });
+  } catch (error) {
+    console.error("Error activating account:", error);
+    res.status(400).json({ error: error.message || "Failed to activate account" });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    const credential = await storage.getUserCredential(username);
+    if (!credential) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Generate new temporary password
+    const tempPassword = randomBytes(8).toString('hex');
+    const hashedTempPassword = await bcrypt.hash(tempPassword, 10);
+    const newToken = `token_${Date.now()}`;
+    
+    await storage.updateUserCredential(credential.id, {
+      temporaryPassword: hashedTempPassword,
+      passwordResetRequired: true,
+      activationToken: newToken,
+      activationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    });
+    
+    res.json({
+      success: true,
+      temporaryPassword: tempPassword,
+      activationToken: newToken,
+      message: "Password reset successfully. Please use the temporary password to log in."
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(400).json({ error: "Failed to reset password" });
+  }
+});
+
+router.get("/user-credentials", async (req, res) => {
+  try {
+    const credentials = await storage.readJsonFile('user-credentials.json', []);
+    // Remove sensitive data before sending
+    const sanitized = credentials.map((cred: any) => ({
+      id: cred.id,
+      username: cred.username,
+      credentialType: cred.credentialType,
+      isActive: cred.isActive,
+      passwordResetRequired: cred.passwordResetRequired,
+      lastLogin: cred.lastLogin,
+      createdAt: cred.createdAt
+    }));
+    res.json(sanitized);
+  } catch (error) {
+    console.error("Error fetching user credentials:", error);
+    res.status(500).json({ error: "Failed to fetch user credentials" });
   }
 });
 

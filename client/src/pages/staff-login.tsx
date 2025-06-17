@@ -1,214 +1,245 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Users, Lock, AlertCircle, CheckCircle } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
+import { Eye, EyeOff, Users, AlertCircle } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function StaffLogin() {
   const [, setLocation] = useLocation();
-  const [email, setEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "staff">("staff");
+  const [needsPasswordReset, setNeedsPasswordReset] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
-    mutationFn: async ({ email, password, role }: { email: string; password: string; role: string }) => {
-      return await apiRequest("/api/staff/login", "POST", { email, password, role });
+    mutationFn: async (credentials: { username: string; password: string }) => {
+      return await apiRequest("/api/auth/staff-login", {
+        method: "POST",
+        body: JSON.stringify(credentials),
+      });
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["/api/auth/user"], data);
-      
-      // Redirect based on role
-      if ((data as any).role === "admin") {
-        setLocation("/admin");
+      if (data.passwordResetRequired) {
+        setNeedsPasswordReset(true);
+        toast({
+          title: "Password Reset Required",
+          description: "Please set a new password to continue.",
+        });
       } else {
-        setLocation("/staff-dashboard");
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${data.user.firstName}!`,
+        });
+        setLocation("/admin");
       }
-      
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${(data as any).firstName || (data as any).email}!`,
-      });
     },
     onError: (error) => {
       toast({
         title: "Login Failed",
-        description: "Invalid credentials. Please check your email and password.",
+        description: "Invalid username or password.",
         variant: "destructive",
       });
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (data: { username: string; currentPassword: string; newPassword: string }) => {
+      return await apiRequest("/api/auth/reset-staff-password", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: (data) => {
       toast({
-        title: "Missing Information",
-        description: "Please enter both email and password.",
+        title: "Password Updated",
+        description: "Your password has been successfully updated.",
+      });
+      setLocation("/admin");
+    },
+    onError: (error) => {
+      toast({
+        title: "Password Reset Failed",
+        description: "Failed to update password. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({ username, password });
+  };
+
+  const handlePasswordReset = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords do not match.",
         variant: "destructive",
       });
       return;
     }
-    loginMutation.mutate({ email, password, role });
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    resetPasswordMutation.mutate({
+      username,
+      currentPassword: password,
+      newPassword
+    });
   };
 
-  return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background with gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 opacity-20 bg-white bg-opacity-5"></div>
-      </div>
-
-      <Header 
-        title="Aloha Bail Bond Staff" 
-        subtitle="Professional Bail Bond Management System" 
-      />
-      
-      <main className="relative container mx-auto px-4 py-8 flex items-center justify-center min-h-[80vh]">
-        <div className="w-full max-w-md space-y-8">
-          {/* Enhanced Header */}
-          <div className="text-center space-y-4">
-            <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20">
-              <Users className="h-10 w-10 text-white" />
-            </div>
-            
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold text-white tracking-wide">
-                ALOHA BAIL BOND
-              </h1>
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent flex-1"></div>
-                <h2 className="text-2xl font-semibold text-white/90 px-4">
-                  Staff Portal
-                </h2>
-                <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent flex-1"></div>
-              </div>
-              <p className="text-white/70 text-lg">
-                Professional Bail Bond Management System
-              </p>
+  if (needsPasswordReset) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <AlertCircle className="h-12 w-12 mx-auto text-orange-500 mb-4" />
+            <CardTitle>Password Reset Required</CardTitle>
+            <CardDescription>
+              Please set a new password to access your staff account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordReset} className="space-y-4">
+              <Alert>
+                <AlertDescription>
+                  For security, you must set a new password before accessing the system.
+                </AlertDescription>
+              </Alert>
               
-              {/* Security badges */}
-              <div className="flex justify-center gap-2 mt-4">
-                <Badge variant="outline" className="bg-white/10 border-white/20 text-white/80">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Secure Access
-                </Badge>
-                <Badge variant="outline" className="bg-white/10 border-white/20 text-white/80">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  CJIS Compliant
-                </Badge>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter your new password"
+                    required
+                    minLength={8}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your new password"
+                  required
+                  minLength={8}
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={resetPasswordMutation.isPending || newPassword !== confirmPassword || newPassword.length < 8}
+              >
+                {resetPasswordMutation.isPending ? "Updating..." : "Update Password"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <Users className="h-12 w-12 mx-auto text-blue-500 mb-4" />
+          <CardTitle>Staff Login</CardTitle>
+          <CardDescription>
+            Access your staff dashboard with your credentials
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
-          </div>
 
-          {/* Login Form */}
-          <Card className="bg-white/95 backdrop-blur-sm border-white/20 shadow-2xl">
-            <CardHeader className="space-y-1">
-              <CardTitle className="flex items-center gap-2 text-gray-900">
-                <Users className="h-5 w-5" />
-                Staff Login
-              </CardTitle>
-              <CardDescription className="text-gray-600">
-                Enter your credentials to access the staff portal
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Role Selection */}
-                <div className="space-y-2">
-                  <Label>Access Level</Label>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant={role === "staff" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setRole("staff")}
-                      className="flex-1"
-                    >
-                      <Users className="h-4 w-4 mr-2" />
-                      Staff
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={role === "admin" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setRole("admin")}
-                      className="flex-1"
-                    >
-                      <Lock className="h-4 w-4 mr-2" />
-                      Admin
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="staff@alohabailbond.com"
-                    required
-                  />
-                </div>
-
-                {/* Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    required
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loginMutation.isPending}
-                >
-                  {loginMutation.isPending ? "Signing In..." : "Sign In"}
-                </Button>
-              </form>
-
-
-            </CardContent>
-          </Card>
-
-          {/* Client Access Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Are you a client?
-            </p>
             <Button 
-              variant="outline" 
-              onClick={() => setLocation("/client-login")}
-              className="w-full"
+              type="submit" 
+              className="w-full" 
+              disabled={loginMutation.isPending}
             >
-              Access Client Portal
+              {loginMutation.isPending ? "Signing In..." : "Sign In"}
             </Button>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
+
+            <div className="text-center">
+              <Button variant="link" className="text-sm">
+                Forgot your password?
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

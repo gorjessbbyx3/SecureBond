@@ -33,8 +33,32 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").notNull().default("client"), // client, admin, maintenance
+  role: varchar("role").notNull().default("client"), // client, admin, staff, maintenance
   companyId: integer("company_id").references(() => companyConfigurations.id),
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  permissions: jsonb("permissions"), // Role-based permissions
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Staff management table for employee accounts
+export const staff = pgTable("staff", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  companyId: integer("company_id").references(() => companyConfigurations.id),
+  employeeId: varchar("employee_id").unique().notNull(),
+  position: varchar("position").notNull(), // manager, agent, receptionist, admin
+  department: varchar("department"), // operations, sales, administration
+  phone: varchar("phone"),
+  address: text("address"),
+  emergencyContact: jsonb("emergency_contact"),
+  hireDate: date("hire_date"),
+  salary: decimal("salary", { precision: 10, scale: 2 }),
+  permissions: jsonb("permissions"),
+  workSchedule: jsonb("work_schedule"),
+  isActive: boolean("is_active").default(true),
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -122,7 +146,10 @@ export const clients = pgTable("clients", {
   companyId: integer("company_id").references(() => companyConfigurations.id).notNull(),
   clientId: varchar("client_id").unique().notNull(), // Auto-generated client ID
   password: varchar("password").notNull(), // Hashed password for client login
+  temporaryPassword: varchar("temporary_password"), // For initial account setup
+  passwordResetRequired: boolean("password_reset_required").default(true),
   fullName: varchar("full_name").notNull(),
+  email: varchar("email"),
   phoneNumber: varchar("phone_number"),
   address: text("address"),
   city: varchar("city"),
@@ -134,8 +161,12 @@ export const clients = pgTable("clients", {
   customData: jsonb("custom_data"), // Store custom field values
   riskLevel: varchar("risk_level").default("medium"), // low, medium, high, critical
   isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
   lastCheckIn: timestamp("last_check_in"),
   missedCheckIns: integer("missed_check_ins").default(0),
+  accountStatus: varchar("account_status").default("pending"), // pending, active, suspended, inactive
+  activationToken: varchar("activation_token"),
+  activationTokenExpires: timestamp("activation_token_expires"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -536,8 +567,35 @@ export const insertBusinessRuleSchema = createInsertSchema(businessRules).omit({
 });
 
 // Types
+// Credential creation tracking table
+export const userCredentials = pgTable("user_credentials", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  clientId: integer("client_id").references(() => clients.id),
+  staffId: integer("staff_id").references(() => staff.id),
+  credentialType: varchar("credential_type").notNull(), // client_portal, staff_access, admin_access
+  username: varchar("username").unique().notNull(),
+  temporaryPassword: varchar("temporary_password").notNull(),
+  permanentPassword: varchar("permanent_password"),
+  passwordResetRequired: boolean("password_reset_required").default(true),
+  activationToken: varchar("activation_token"),
+  activationTokenExpires: timestamp("activation_token_expires"),
+  lastLogin: timestamp("last_login"),
+  loginAttempts: integer("login_attempts").default(0),
+  lockedUntil: timestamp("locked_until"),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Insert and select types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type InsertStaff = typeof staff.$inferInsert;
+export type Staff = typeof staff.$inferSelect;
+export type InsertUserCredential = typeof userCredentials.$inferInsert;
+export type UserCredential = typeof userCredentials.$inferSelect;
 
 // Terms of Service acknowledgment tracking
 export const termsAcknowledgments = pgTable("terms_acknowledgments", {

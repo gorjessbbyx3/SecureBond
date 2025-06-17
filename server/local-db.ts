@@ -418,6 +418,111 @@ export class LocalFileStorage {
     }
   }
 
+  // Staff management operations
+  async createStaff(staffData: any): Promise<any> {
+    const staff = await this.readJsonFile('staff.json', []);
+    const newStaff = {
+      id: this.getNextId(),
+      employeeId: `EMP-${Date.now()}`,
+      ...staffData,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    staff.push(newStaff);
+    await this.writeJsonFile('staff.json', staff);
+    await this.saveIndex();
+    return newStaff;
+  }
+
+  async getAllStaff(): Promise<any[]> {
+    return await this.readJsonFile('staff.json', []);
+  }
+
+  async getStaff(id: number): Promise<any> {
+    const staff = await this.readJsonFile('staff.json', []);
+    return staff.find((s: any) => s.id === id);
+  }
+
+  async updateStaff(id: number, updates: any): Promise<any> {
+    const staff = await this.readJsonFile('staff.json', []);
+    const staffIndex = staff.findIndex((s: any) => s.id === id);
+    if (staffIndex === -1) throw new Error('Staff member not found');
+    
+    staff[staffIndex] = { ...staff[staffIndex], ...updates, updatedAt: new Date() };
+    await this.writeJsonFile('staff.json', staff);
+    return staff[staffIndex];
+  }
+
+  async deleteStaff(id: number): Promise<void> {
+    const staff = await this.readJsonFile('staff.json', []);
+    const filteredStaff = staff.filter((s: any) => s.id !== id);
+    await this.writeJsonFile('staff.json', filteredStaff);
+  }
+
+  // User credential management
+  async createUserCredential(credentialData: any): Promise<any> {
+    const credentials = await this.readJsonFile('user-credentials.json', []);
+    const newCredential = {
+      id: this.getNextId(),
+      username: credentialData.username || `user${Date.now()}`,
+      temporaryPassword: credentialData.temporaryPassword,
+      activationToken: credentialData.activationToken || `token_${Date.now()}`,
+      activationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      ...credentialData,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    credentials.push(newCredential);
+    await this.writeJsonFile('user-credentials.json', credentials);
+    await this.saveIndex();
+    return newCredential;
+  }
+
+  async getUserCredential(username: string): Promise<any> {
+    const credentials = await this.readJsonFile('user-credentials.json', []);
+    return credentials.find((c: any) => c.username === username);
+  }
+
+  async updateUserCredential(id: number, updates: any): Promise<any> {
+    const credentials = await this.readJsonFile('user-credentials.json', []);
+    const credIndex = credentials.findIndex((c: any) => c.id === id);
+    if (credIndex === -1) throw new Error('User credential not found');
+    
+    credentials[credIndex] = { ...credentials[credIndex], ...updates, updatedAt: new Date() };
+    await this.writeJsonFile('user-credentials.json', credentials);
+    return credentials[credIndex];
+  }
+
+  async activateUserAccount(token: string, newPassword: string): Promise<any> {
+    const credentials = await this.readJsonFile('user-credentials.json', []);
+    const credential = credentials.find((c: any) => c.activationToken === token);
+    
+    if (!credential) {
+      throw new Error('Invalid activation token');
+    }
+    
+    if (new Date() > new Date(credential.activationTokenExpires)) {
+      throw new Error('Activation token has expired');
+    }
+    
+    const updatedCredential = {
+      ...credential,
+      permanentPassword: newPassword,
+      passwordResetRequired: false,
+      activationToken: null,
+      activationTokenExpires: null,
+      updatedAt: new Date()
+    };
+    
+    const credIndex = credentials.findIndex((c: any) => c.id === credential.id);
+    credentials[credIndex] = updatedCredential;
+    await this.writeJsonFile('user-credentials.json', credentials);
+    
+    return updatedCredential;
+  }
+
   async getClient(id: number): Promise<any> {
     const clients = await this.readJsonFile('clients.json', []);
     return clients.find((c: any) => c.id === id);
