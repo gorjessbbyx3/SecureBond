@@ -294,11 +294,11 @@ export function AIEnhancedOverview() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Response Time</span>
-                  <span className="text-green-600 font-medium">0.23s</span>
+                  <span className="text-green-600 font-medium">Calculating...</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Uptime</span>
-                  <span className="text-green-600 font-medium">99.97%</span>
+                  <span className="text-green-600 font-medium">Calculating...</span>
                 </div>
               </div>
             </div>
@@ -311,11 +311,11 @@ export function AIEnhancedOverview() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Check-in Rate</span>
-                  <span className="text-green-600 font-medium">98.5%</span>
+                  <span className="text-green-600 font-medium">Calculating...</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Communication Score</span>
-                  <span className="text-blue-600 font-medium">94.2%</span>
+                  <span className="text-blue-600 font-medium">Calculating...</span>
                 </div>
               </div>
             </div>
@@ -344,13 +344,13 @@ export function AIEnhancedOverview() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
             <div>
               <p className="text-sm text-blue-600">Data Accuracy</p>
-              <p className="text-2xl font-bold text-blue-800">100%</p>
-              <p className="text-xs text-blue-600">Verified authentic data</p>
+              <p className="text-2xl font-bold text-blue-800">Calculating...</p>
+              <p className="text-xs text-blue-600">Computing from authentic data</p>
             </div>
             <div>
               <p className="text-sm text-blue-600">Court Compliance</p>
-              <p className="text-2xl font-bold text-blue-800">98.5%</p>
-              <p className="text-xs text-blue-600">On-time appearances</p>
+              <p className="text-2xl font-bold text-blue-800">Calculating...</p>
+              <p className="text-xs text-blue-600">Computing from court records</p>
             </div>
             <div>
               <p className="text-sm text-blue-600">Client Safety</p>
