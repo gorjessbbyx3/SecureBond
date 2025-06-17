@@ -1,0 +1,21 @@
+[
+  {
+    "fullName": "Test Client",
+    "email": "test@client.com",
+    "phoneNumber": "555-9876",
+    "address": "123 Test St",
+    "city": "Honolulu",
+    "state": "HI",
+    "zipCode": "96814",
+    "dateOfBirth": "1985-03-15",
+    "emergencyContact": "Emergency Contact",
+    "emergencyPhone": "555-1111",
+    "clientId": "CLT-1750119453812",
+    "password": "$2b$10$RiHwgaPL1D0VzG4vEhJ/q.gilvQ3sNWrQSl3YlHJtml9OtAPqYzbG",
+    "temporaryPassword": "$2b$10$RiHwgaPL1D0VzG4vEhJ/q.gilvQ3sNWrQSl3YlHJtml9OtAPqYzbG",
+    "companyId": 1,
+    "accountStatus": "pending",
+    "id": 3,
+    "createdAt": "2025-06-17T00:17:33.867Z"
+  }
+]

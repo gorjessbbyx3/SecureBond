@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "employeeId": "EMP-1750119448076",
+    "firstName": "Test",
+    "lastName": "Staff",
+    "email": "test@staff.com",
+    "position": "agent",
+    "department": "operations",
+    "phone": "555-0123",
+    "hireDate": "2024-06-01",
+    "salary": 50000,
+    "companyId": 1,
+    "isActive": true,
+    "createdAt": "2025-06-17T00:17:28.076Z",
+    "updatedAt": "2025-06-17T00:17:28.076Z"
+  }
+]
