@@ -264,10 +264,11 @@ export function BusinessSettings() {
   const resetPasswordMutation = useMutation({
     mutationFn: (staffId: number) => 
       apiRequest("POST", `/api/admin/staff/${staffId}/reset-password`),
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
-        title: "Password Reset",
-        description: `New temporary password: ${data.temporaryPassword}. The staff member must change this on first login.`,
+        title: "Staff Password Reset Successful",
+        description: `Temporary password: ${data.temporaryPassword} - Give this to the staff member for first login.`,
+        duration: 10000,
       });
     },
     onError: (error: any) => {

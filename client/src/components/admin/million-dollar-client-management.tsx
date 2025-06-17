@@ -139,8 +139,9 @@ export function MillionDollarClientManagement() {
       apiRequest("POST", `/api/clients/${clientId}/reset-password`),
     onSuccess: (data: any) => {
       toast({
-        title: "Password Reset",
-        description: `New temporary password: ${data.temporaryPassword}. Client must change this on first login.`,
+        title: "Password Reset Successful",
+        description: `Temporary password: ${data.temporaryPassword} - Give this to the client for first login.`,
+        duration: 10000,
       });
     },
     onError: (error: any) => {
