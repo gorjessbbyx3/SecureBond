@@ -44,6 +44,7 @@ export function MillionDollarClientManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [riskFilter, setRiskFilter] = useState("all");
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -80,6 +81,81 @@ export function MillionDollarClientManagement() {
       });
     },
   });
+
+  // Handler functions for client actions
+  const handleAIAnalysis = async (clientId: number) => {
+    try {
+      toast({
+        title: "AI Analysis Starting",
+        description: "Generating comprehensive risk assessment...",
+      });
+      
+      // Generate AI analysis for the specific client
+      const response = await apiRequest(`/api/admin/ai-analysis/${clientId}`, "POST");
+      
+      toast({
+        title: "AI Analysis Complete",
+        description: "Risk assessment has been updated with latest insights.",
+      });
+      
+      // Refresh client data
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+    } catch (error: any) {
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Unable to generate AI analysis",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleContactClient = (client: any) => {
+    const phoneNumber = client.phoneNumber || client.phone;
+    const email = client.email;
+    
+    if (phoneNumber) {
+      // Open phone dialer
+      window.open(`tel:${phoneNumber}`, '_self');
+    } else if (email) {
+      // Open email client
+      window.open(`mailto:${email}?subject=Aloha Bail Bond - Client Communication`, '_self');
+    } else {
+      toast({
+        title: "No Contact Information",
+        description: "Phone number or email not available for this client",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleViewProfile = (clientId: number) => {
+    // Navigate to detailed client profile page
+    setLocation(`/admin-dashboard/clients/${clientId}`);
+  };
+
+  const handleGlobalAIAnalysis = async () => {
+    try {
+      toast({
+        title: "Global AI Analysis",
+        description: "Running comprehensive analysis on all clients...",
+      });
+      
+      const response = await apiRequest("/api/admin/ai-analysis/global", "POST");
+      
+      toast({
+        title: "Analysis Complete",
+        description: "Global risk assessment completed successfully.",
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+    } catch (error: any) {
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Unable to run global analysis",
+        variant: "destructive",
+      });
+    }
+  };
 
   const updateClientMutation = useMutation({
     mutationFn: async ({ clientId, data }: { clientId: number; data: any }) => {
@@ -193,7 +269,7 @@ export function MillionDollarClientManagement() {
               <UserPlus className="h-4 w-4 mr-2" />
               Add New Client
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleGlobalAIAnalysis}>
               <Brain className="h-4 w-4 mr-2" />
               AI Analysis
             </Button>
@@ -314,16 +390,30 @@ export function MillionDollarClientManagement() {
                         </div>
                         
                         <div className="mt-3 space-y-2">
-                          <Button size="sm" className="w-full text-xs">
+                          <Button 
+                            size="sm" 
+                            className="w-full text-xs"
+                            onClick={() => handleAIAnalysis(client.id)}
+                          >
                             <Brain className="h-3 w-3 mr-1" />
                             AI Recommendations
                           </Button>
                           <div className="grid grid-cols-2 gap-1">
-                            <Button size="sm" variant="outline" className="text-xs">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs"
+                              onClick={() => handleContactClient(client)}
+                            >
                               <PhoneCall className="h-3 w-3 mr-1" />
                               Contact
                             </Button>
-                            <Button size="sm" variant="outline" className="text-xs">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs"
+                              onClick={() => handleViewProfile(client.id)}
+                            >
                               <FileText className="h-3 w-3 mr-1" />
                               Profile
                             </Button>

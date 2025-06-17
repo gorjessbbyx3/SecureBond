@@ -1489,6 +1489,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Analysis endpoints
+  app.post('/api/admin/ai-analysis/:id', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ message: "Client not found" });
+      }
+
+      // Get comprehensive client data for AI analysis
+      const payments = await storage.getAllPayments();
+      const checkIns = await storage.getAllCheckIns();
+      const courtDates = await storage.getAllCourtDates();
+      const alerts = await storage.getAllAlerts();
+      
+      const clientPayments = payments.filter((p: any) => p.clientId === clientId);
+      const clientCheckIns = checkIns.filter((c: any) => c.clientId === clientId);
+      const clientCourtDates = courtDates.filter((cd: any) => cd.clientId === clientId);
+      const clientAlerts = alerts.filter((a: any) => a.clientId === clientId);
+
+      // Generate comprehensive AI risk analysis
+      const analysis = {
+        clientId,
+        timestamp: new Date().toISOString(),
+        riskScore: calculateRiskScore(client, clientPayments, clientCheckIns, clientCourtDates, clientAlerts),
+        recommendations: generateRecommendations(client, clientPayments, clientCheckIns, clientCourtDates),
+        financialProfile: analyzeFinancialProfile(clientPayments),
+        complianceProfile: analyzeComplianceProfile(clientCheckIns, clientCourtDates),
+        riskFactors: identifyRiskFactors(client, clientPayments, clientCheckIns, clientAlerts)
+      };
+
+      // Log the AI analysis for audit
+      auditLogger.logSystemEvent({
+        action: 'ai_analysis_generated',
+        entityType: 'client',
+        entityId: clientId.toString(),
+        details: { analysisType: 'individual', riskScore: analysis.riskScore },
+        userId: 'system'
+      });
+
+      res.json({
+        success: true,
+        analysis,
+        message: "AI analysis completed successfully"
+      });
+    } catch (error) {
+      console.error("Error generating AI analysis:", error);
+      res.status(500).json({ message: "Failed to generate AI analysis" });
+    }
+  });
+
+  app.post('/api/admin/ai-analysis/global', isAuthenticated, async (req, res) => {
+    try {
+      const clients = await storage.getAllClients();
+      const payments = await storage.getAllPayments();
+      const checkIns = await storage.getAllCheckIns();
+      const courtDates = await storage.getAllCourtDates();
+      const alerts = await storage.getAllAlerts();
+
+      const globalAnalysis = {
+        timestamp: new Date().toISOString(),
+        totalClients: clients.length,
+        highRiskClients: 0,
+        averageRiskScore: 0,
+        systemRecommendations: [],
+        portfolioInsights: {}
+      };
+
+      let totalRiskScore = 0;
+      const clientAnalyses = [];
+
+      // Analyze each client
+      for (const client of clients) {
+        const clientPayments = payments.filter((p: any) => p.clientId === client.id);
+        const clientCheckIns = checkIns.filter((c: any) => c.clientId === client.id);
+        const clientCourtDates = courtDates.filter((cd: any) => cd.clientId === client.id);
+        const clientAlerts = alerts.filter((a: any) => a.clientId === client.id);
+
+        const riskScore = calculateRiskScore(client, clientPayments, clientCheckIns, clientCourtDates, clientAlerts);
+        totalRiskScore += riskScore;
+        
+        if (riskScore < 40) {
+          globalAnalysis.highRiskClients++;
+        }
+
+        clientAnalyses.push({
+          clientId: client.id,
+          riskScore,
+          recommendations: generateRecommendations(client, clientPayments, clientCheckIns, clientCourtDates)
+        });
+      }
+
+      globalAnalysis.averageRiskScore = clients.length > 0 ? totalRiskScore / clients.length : 0;
+      globalAnalysis.portfolioInsights = generatePortfolioInsights(clients, payments, checkIns);
+
+      // Log global analysis
+      auditLogger.logSystemEvent({
+        action: 'global_ai_analysis_generated',
+        entityType: 'system',
+        entityId: 'global',
+        details: { 
+          totalClients: clients.length, 
+          averageRiskScore: globalAnalysis.averageRiskScore,
+          highRiskCount: globalAnalysis.highRiskClients
+        },
+        userId: 'system'
+      });
+
+      res.json({
+        success: true,
+        globalAnalysis,
+        clientAnalyses,
+        message: "Global AI analysis completed successfully"
+      });
+    } catch (error) {
+      console.error("Error generating global AI analysis:", error);
+      res.status(500).json({ message: "Failed to generate global AI analysis" });
+    }
+  });
+
   // Analytics and advanced features
   app.get('/api/analytics/overview', isAuthenticated, async (req, res) => {
     try {
@@ -3520,4 +3641,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// AI Analysis Helper Functions
+function calculateRiskScore(client: any, payments: any[], checkIns: any[], courtDates: any[], alerts: any[]): number {
+  let riskScore = 100; // Start with perfect score
+
+  // Payment compliance (30% of score)
+  const paymentHistory = payments.filter(p => p.confirmed);
+  const missedPayments = payments.filter(p => !p.confirmed && new Date(p.dueDate) < new Date());
+  if (payments.length > 0) {
+    const paymentCompliance = (paymentHistory.length / payments.length) * 30;
+    riskScore = Math.min(riskScore, 70 + paymentCompliance);
+  }
+
+  // Check-in compliance (25% of score)
+  const recentCheckIns = checkIns.filter(ci => 
+    new Date(ci.checkInTime) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  );
+  if (recentCheckIns.length < 4) { // Less than weekly check-ins
+    riskScore -= (4 - recentCheckIns.length) * 5;
+  }
+
+  // Court appearance compliance (25% of score)
+  const missedCourtDates = courtDates.filter(cd => 
+    new Date(cd.courtDate) < new Date() && !cd.clientAcknowledged
+  );
+  riskScore -= missedCourtDates.length * 10;
+
+  // Alert history (20% of score)
+  const criticalAlerts = alerts.filter(a => a.severity === 'critical' || a.severity === 'high');
+  riskScore -= criticalAlerts.length * 5;
+
+  return Math.max(0, Math.min(100, riskScore));
+}
+
+function generateRecommendations(client: any, payments: any[], checkIns: any[], courtDates: any[]): string[] {
+  const recommendations = [];
+
+  // Payment recommendations
+  const overduePayments = payments.filter(p => !p.confirmed && new Date(p.dueDate) < new Date());
+  if (overduePayments.length > 0) {
+    recommendations.push(`Contact client immediately - ${overduePayments.length} overdue payment(s)`);
+  }
+
+  // Check-in recommendations
+  const lastCheckIn = checkIns.sort((a, b) => new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime())[0];
+  if (!lastCheckIn || new Date(lastCheckIn.checkInTime) < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+    recommendations.push('Schedule check-in reminder - overdue by more than 7 days');
+  }
+
+  // Court date recommendations
+  const upcomingCourtDates = courtDates.filter(cd => 
+    new Date(cd.courtDate) > new Date() && new Date(cd.courtDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  );
+  if (upcomingCourtDates.length > 0) {
+    recommendations.push('Send court date reminders - upcoming appearance within 7 days');
+  }
+
+  // Default positive recommendations
+  if (recommendations.length === 0) {
+    recommendations.push('Client showing good compliance - maintain current monitoring level');
+    recommendations.push('Consider reduced supervision based on excellent track record');
+  }
+
+  return recommendations;
+}
+
+function analyzeFinancialProfile(payments: any[]): any {
+  const totalPaid = payments.filter(p => p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount || '0'), 0);
+  const totalOwed = payments.filter(p => !p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount || '0'), 0);
+  
+  return {
+    totalPaid,
+    totalOwed,
+    paymentCompliance: payments.length > 0 ? (payments.filter(p => p.confirmed).length / payments.length) * 100 : 100,
+    averagePaymentAmount: payments.length > 0 ? totalPaid / payments.filter(p => p.confirmed).length : 0
+  };
+}
+
+function analyzeComplianceProfile(checkIns: any[], courtDates: any[]): any {
+  const recentCheckIns = checkIns.filter(ci => 
+    new Date(ci.checkInTime) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  );
+  
+  const completedCourtDates = courtDates.filter(cd => cd.clientAcknowledged);
+  
+  return {
+    checkInFrequency: recentCheckIns.length,
+    courtCompliance: courtDates.length > 0 ? (completedCourtDates.length / courtDates.length) * 100 : 100,
+    lastCheckIn: checkIns.length > 0 ? checkIns.sort((a, b) => new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime())[0].checkInTime : null
+  };
+}
+
+function identifyRiskFactors(client: any, payments: any[], checkIns: any[], alerts: any[]): string[] {
+  const riskFactors = [];
+
+  // Financial risk factors
+  const overduePayments = payments.filter(p => !p.confirmed && new Date(p.dueDate) < new Date());
+  if (overduePayments.length > 0) {
+    riskFactors.push(`${overduePayments.length} overdue payment(s)`);
+  }
+
+  // Compliance risk factors
+  const lastCheckIn = checkIns.sort((a, b) => new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime())[0];
+  if (!lastCheckIn || new Date(lastCheckIn.checkInTime) < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)) {
+    riskFactors.push('No check-in in past 14 days');
+  }
+
+  // Alert-based risk factors
+  const recentAlerts = alerts.filter(a => 
+    new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  );
+  if (recentAlerts.length > 2) {
+    riskFactors.push(`${recentAlerts.length} recent alerts`);
+  }
+
+  return riskFactors;
+}
+
+function generatePortfolioInsights(clients: any[], payments: any[], checkIns: any[]): any {
+  const totalRevenue = payments.filter(p => p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount || '0'), 0);
+  const activeClients = clients.filter(c => c.isActive).length;
+  const averageCheckInRate = clients.length > 0 ? 
+    clients.reduce((sum, client) => {
+      const clientCheckIns = checkIns.filter(ci => ci.clientId === client.id);
+      return sum + (clientCheckIns.length > 0 ? 1 : 0);
+    }, 0) / clients.length : 0;
+
+  return {
+    totalRevenue,
+    activeClients,
+    averageCheckInRate: averageCheckInRate * 100,
+    portfolioHealth: activeClients > 0 ? (totalRevenue / activeClients) : 0
+  };
 }

@@ -17,5 +17,21 @@
     "accountStatus": "pending",
     "id": 3,
     "createdAt": "2025-06-17T00:17:33.867Z"
+  },
+  {
+    "fullName": "Jessica Reina Houtz",
+    "clientId": "houtz.jessica",
+    "password": "$2b$10$sXvmAssET3mfmzk78Q.VEO3EJYI.G6OFb9JSLkRpcYXVKqZ7g6RhS",
+    "phoneNumber": "8084529779",
+    "address": "98-862 Kaonohi Street Apt. C",
+    "dateOfBirth": "1994-07-07",
+    "emergencyContact": "Tomoko Houtz",
+    "emergencyPhone": "8083985056",
+    "courtLocation": "Honolulu",
+    "charges": "kidnapping",
+    "isActive": false,
+    "missedCheckIns": 0,
+    "id": 5,
+    "createdAt": "2025-06-17T19:45:00.970Z"
   }
 ]
