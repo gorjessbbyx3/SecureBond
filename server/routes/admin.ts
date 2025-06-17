@@ -2,6 +2,19 @@ import { Router } from "express";
 import { storage } from "../local-db";
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+
+// Authentication middleware
+const isAuthenticated = (req: any, res: any, next: any) => {
+  const adminRole = req.session?.adminRole;
+  const clientId = req.session?.clientId;
+  const userId = req.user?.claims?.sub;
+  
+  if (adminRole || clientId || userId) {
+    return next();
+  }
+  
+  return res.status(401).json({ message: "Unauthorized access" });
+};
 import { 
   insertCompanyConfigurationSchema,
   insertStateConfigurationSchema,
@@ -308,7 +321,7 @@ router.delete("/business-rules/:id", async (req, res) => {
 });
 
 // Staff Management Routes
-router.post("/staff", async (req, res) => {
+router.post("/staff", isAuthenticated, async (req, res) => {
   try {
     const staffData = req.body;
     
@@ -346,7 +359,7 @@ router.post("/staff", async (req, res) => {
   }
 });
 
-router.get("/staff", async (req, res) => {
+router.get("/staff", isAuthenticated, async (req, res) => {
   try {
     const staff = await storage.getAllStaff();
     res.json(staff);
@@ -394,7 +407,7 @@ router.delete("/staff/:id", async (req, res) => {
 });
 
 // Client Management Routes with Credential Assignment
-router.post("/clients", async (req, res) => {
+router.post("/clients", isAuthenticated, async (req, res) => {
   try {
     const clientData = req.body;
     
@@ -439,7 +452,7 @@ router.post("/clients", async (req, res) => {
   }
 });
 
-router.get("/clients", async (req, res) => {
+router.get("/clients", isAuthenticated, async (req, res) => {
   try {
     const clients = await storage.getAllClients();
     res.json(clients);

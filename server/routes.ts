@@ -92,6 +92,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(performanceMiddleware);
   app.use(securityAuditMiddleware);
 
+  // Register admin routes
+  app.use('/api/admin', adminRoutes);
+
   // System monitoring endpoints
   app.get('/api/system/health', healthEndpoint);
   app.get('/api/system/performance/stats', performanceStatsEndpoint);
