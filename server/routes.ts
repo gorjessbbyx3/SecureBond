@@ -3639,6 +3639,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Password reset for clients - shows temporary password to admin
+  app.post('/api/clients/:id/reset-password', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      
+      // Generate a secure temporary password
+      const temporaryPassword = Math.random().toString(36).slice(-4) + 
+                               Math.random().toString(36).slice(-4).toUpperCase() + 
+                               Math.floor(Math.random() * 100);
+      
+      // Update client with temporary password
+      const clients = await storage.readJsonFile('clients.json', []);
+      const clientIndex = clients.findIndex((c: any) => c.id === clientId);
+      
+      if (clientIndex === -1) {
+        return res.status(404).json({ message: 'Client not found' });
+      }
+      
+      clients[clientIndex].temporaryPassword = temporaryPassword;
+      clients[clientIndex].mustChangePassword = true;
+      clients[clientIndex].passwordResetAt = new Date().toISOString();
+      
+      await storage.writeJsonFile('clients.json', clients);
+      
+      // Return the temporary password to admin
+      res.json({ 
+        success: true, 
+        temporaryPassword,
+        message: `Temporary password generated for ${clients[clientIndex].name}: ${temporaryPassword}`
+      });
+      
+    } catch (error) {
+      console.error('Password reset error:', error);
+      res.status(500).json({ message: 'Failed to reset client password' });
+    }
+  });
+
+  // Password reset for staff - shows temporary password to admin  
+  app.post('/api/admin/staff/:id/reset-password', isAuthenticated, async (req, res) => {
+    try {
+      const staffId = parseInt(req.params.id);
+      
+      // Generate a secure temporary password
+      const temporaryPassword = Math.random().toString(36).slice(-4) + 
+                               Math.random().toString(36).slice(-4).toUpperCase() + 
+                               Math.floor(Math.random() * 100);
+      
+      // Update staff with temporary password
+      const staff = await storage.readJsonFile('staff.json', []);
+      const staffIndex = staff.findIndex((s: any) => s.id === staffId);
+      
+      if (staffIndex === -1) {
+        return res.status(404).json({ message: 'Staff member not found' });
+      }
+      
+      staff[staffIndex].temporaryPassword = temporaryPassword;
+      staff[staffIndex].mustChangePassword = true;
+      staff[staffIndex].passwordResetAt = new Date().toISOString();
+      
+      await storage.writeJsonFile('staff.json', staff);
+      
+      // Return the temporary password to admin
+      res.json({ 
+        success: true, 
+        temporaryPassword,
+        message: `Temporary password generated for ${staff[staffIndex].fullName}: ${temporaryPassword}`
+      });
+      
+    } catch (error) {
+      console.error('Staff password reset error:', error);
+      res.status(500).json({ message: 'Failed to reset staff password' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
