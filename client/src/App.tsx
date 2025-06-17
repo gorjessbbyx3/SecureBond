@@ -58,6 +58,11 @@ function Router() {
           <AdminDashboard />
         </ProtectedRoute>
       </Route>
+      <Route path="/admin-dashboard/clients/:id">
+        <ProtectedRoute requiredRole="admin">
+          <ClientDetails />
+        </ProtectedRoute>
+      </Route>
       <Route path="/admin">
         <ProtectedRoute requiredRole="admin">
           <AdminDashboard />

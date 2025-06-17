@@ -781,6 +781,10 @@ export class LocalFileStorage {
     return newAlert;
   }
 
+  async getAllAlerts(): Promise<any[]> {
+    return await this.readJsonFile('alerts.json', []);
+  }
+
   async getAllUnacknowledgedAlerts(): Promise<any[]> {
     const alerts = await this.readJsonFile('alerts.json', []);
     return alerts.filter((a: any) => !a.acknowledged);

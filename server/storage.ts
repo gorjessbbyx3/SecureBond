@@ -131,6 +131,7 @@ export interface IStorage {
   // Alert operations
   createAlert(alert: InsertAlert): Promise<Alert>;
   getClientAlerts(clientId: number): Promise<Alert[]>;
+  getAllAlerts(): Promise<Alert[]>;
   getAllUnacknowledgedAlerts(): Promise<Alert[]>;
   acknowledgeAlert(id: number, acknowledgedBy: string): Promise<Alert>;
   
