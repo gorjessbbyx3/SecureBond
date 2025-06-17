@@ -30,6 +30,7 @@ import { randomBytes } from "crypto";
 import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";
+import adminRoutes from "./routes/admin";
 // Temporarily commenting out middleware imports to get server running
 // import { requireAuth, requireRole, requireAnyRole, type AuthenticatedRequest } from "./middleware/auth";
 // import { validateBody, validateQuery, validateParams } from "./middleware/validation";
