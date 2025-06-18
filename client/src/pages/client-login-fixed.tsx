@@ -10,7 +10,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorContext, mapApiErrorToContext } from "@/hooks/useErrorContext";
-import { BrandedHeader } from "@/components/ui/branded-header";
 import Footer from "@/components/layout/footer";
 
 export default function ClientLogin() {
@@ -41,28 +40,19 @@ export default function ClientLogin() {
       });
     },
     onError: (error) => {
-      // Clear previous errors
       clearErrors();
       
-      // Map API error to contextual error information
       const contextualError = mapApiErrorToContext(
         error, 
         loginMethod === "id" ? "/api/auth/client-login" : "/api/auth/client-login-phone",
-        loginMethod === "id" ? "clientId" : "phoneNumber"
+        { clientId, phoneNumber }
       );
       
-      // Add error to context for tooltip display
-      if (loginMethod === "id") {
-        addError("clientId", contextualError);
-        addError("password", contextualError);
-      } else {
-        addError("phoneNumber", contextualError);
-        addError("password", contextualError);
-      }
+      addError(contextualError.field, contextualError.message);
       
       toast({
-        title: "Login Failed",
-        description: "Invalid credentials. Please check your information and try again.",
+        title: "Login Failed", 
+        description: contextualError.message,
         variant: "destructive",
       });
     },
@@ -188,7 +178,7 @@ export default function ClientLogin() {
                     errorKey="phoneNumber"
                     helperText="Your registered phone number"
                     required
-                    />
+                  />
                 )}
 
                 {/* Password */}
@@ -202,41 +192,51 @@ export default function ClientLogin() {
                   }}
                   placeholder="Enter your password"
                   errorKey="password"
-                  helperText="Your account password"
+                  helperText="Password provided with your bond contract"
                   required
                 />
 
                 {/* Submit Button */}
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   disabled={loginMutation.isPending}
                 >
-                  {loginMutation.isPending ? "Signing In..." : "Sign In"}
+                  {loginMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Signing in...
+                    </>
+                  ) : (
+                    <>
+                      <User className="mr-2 w-4 h-4" />
+                      Sign In to Client Portal
+                    </>
+                  )}
                 </Button>
-              </form>
 
-              {/* Help Information */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">Need Help?</h4>
-                <div className="space-y-2 text-sm text-blue-700">
-                  <p>• Your Client ID starts with "SB" followed by numbers and letters</p>
-                  <p>• Your password was provided when you signed your bond contract</p>
-                  <p>• Contact us at (808) 555-BAIL if you need assistance</p>
+                {/* Help Section */}
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-medium text-blue-900 mb-2">Need Help?</h4>
+                  <div className="space-y-2 text-sm text-blue-700">
+                    <p>• Your Client ID starts with "SB" followed by numbers and letters</p>
+                    <p>• Your password was provided when you signed your bond contract</p>
+                    <p>• Contact us at (808) 555-BAIL if you need assistance</p>
+                  </div>
                 </div>
-              </div>
+              </form>
             </CardContent>
           </Card>
 
           {/* Staff Access Link */}
-          <div className="text-center">
+          <div className="text-center mt-6">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               Are you a staff member?
             </p>
             <Button 
               variant="outline" 
               onClick={() => setLocation("/staff-login")}
-              className="w-full"
+              className="w-full backdrop-blur-sm bg-white/80 dark:bg-gray-800/80"
             >
               Access Staff Portal
             </Button>
