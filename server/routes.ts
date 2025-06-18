@@ -3531,15 +3531,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const locationResult = await geolocationService.trackClientLocation(clientId, locationData);
       
       // Store location in client tracking file
-      // Store location data using proper method
-      await storage.createCheckIn({
-        clientId: parseInt(clientId),
-        latitude: locationData.latitude,
-        longitude: locationData.longitude,
-        timestamp: new Date(),
-        location: `${locationData.latitude}, ${locationData.longitude}`,
-        notes: 'Automated location tracking'
-      });
+      // Store location data in tracking system
+      try {
+        await storage.createCheckIn({
+          clientId: parseInt(clientId),
+          latitude: locationData.latitude || 0,
+          longitude: locationData.longitude || 0,
+          timestamp: new Date(),
+          location: `${locationData.latitude || 0}, ${locationData.longitude || 0}`,
+          notes: 'Automated location tracking'
+        });
+      } catch (checkInError) {
+        console.error('Check-in storage error:', checkInError);
+      }
       
       res.json(locationResult);
     } catch (error) {
