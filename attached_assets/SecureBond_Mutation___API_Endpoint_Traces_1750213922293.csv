@@ -1,0 +1,301 @@
+File,Hook Traces / API Handlers
+/mnt/data/securebond_extracted/SecureBond/package-lock.json,"Line 3006: ""node_modules/@rollup/rollup-linux-powerpc64le-gnu"": {
+Line 3008: ""resolved"": ""https://registry.npmjs.org/@rollup/rollup-linux-powerpc64le-gnu/-/rollup-linux-powerpc64le-gnu-4.24.4.tgz"",
+Line 4715: ""integrity"": ""sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg=="",
+Line 8332: ""@rollup/rollup-linux-powerpc64le-gnu"": ""4.24.4"","
+/mnt/data/securebond_extracted/SecureBond/.config/.semgrep/semgrep_rules.json,"Line 3311: ""regex"": ""(?!(?i).*(client|endpoint|vpn|_ec2_|aws_|authorize|author|define|config|credential|setting|sample|xxxxxx|000000|buffer|delete|aaaaaa|fewfwef|getenv|env_|system|example|ecdsa|sha256|sha1|sha2|md5|alert|wizard|target|onboard|welcome|page|exploit|experiment|expire|rabbitmq|scraper|widget|music|dns_|dns-|yahoo|want|json|action|script|fix_|fix-|develop|compas|stripe|service|master|metric|tech|gitignore|rich|open|stack|irc_|irc-|sublime|kohana|has_|has-|fabric|wordpres|role|osx_|osx-|boost|addres|queue|working|sandbox|internet|print|vision|tracking|being|generator|traffic|world|pull|rust|watcher|small|auth|full|hash|more|install|auto|complete|learn|paper|installer|research|acces|last|binding|spine|into|chat|algorithm|resource|uploader|video|maker|next|proc|lock|robot|snake|patch|matrix|drill|terminal|term|stuff|genetic|generic|identity|audit|pattern|audio|web_|web-|crud|problem|statu|cms-|cms_|arch|coffee|workflow|changelog|another|uiview|content|kitchen|gnu_|gnu-|gnu\\.|conf|couchdb|client|opencv|rendering|update|concept|varnish|gui_|gui-|gui\\.|version|shared|extra|product|still|not_|not-|not\\.|drop|ring|png_|png-|png\\.|actively|import|output|backup|start|embedded|registry|pool|semantic|instagram|bash|system|ninja|drupal|jquery|polyfill|physic|league|guide|pack|synopsi|sketch|injection|svg_|svg-|svg\\.|friendly|wave|convert|manage|camera|link|slide|timer|wrapper|gallery|url_|url-|url\\.|todomvc|requirej|party|http|payment|async|library|home|coco|gaia|display|universal|func|metadata|hipchat|under|room|config|personal|realtime|resume|database|testing|tiny|basic|forum|meetup|yet_|yet-|yet\\.|cento|dead|fluentd|editor|utilitie|run_|run-|run\\.|box_|box-|box\\.|bot_|bot-|bot\\.|making|sample|group|monitor|ajax|parallel|cassandra|ultimate|site|get_|get-|get\\.|gen_|gen-|gen\\.|gem_|gem-|gem\\.|extended|image|knife|asset|nested|zero|plugin|bracket|mule|mozilla|number|act_|act-|act\\.|map_|map-|map\\.|micro|debug|openshift|chart|expres|backend|task|source|translate|jbos|composer|sqlite|profile|mustache|mqtt|yeoman|have|builder|smart|like|oauth|school|guideline|captcha|filter|bitcoin|bridge|color|toolbox|discovery|new_|new-|new\\.|dashboard|when|setting|level|post|standard|port|platform|yui_|yui-|yui\\.|grunt|animation|haskell|icon|latex|cheat|lua_|lua-|lua\\.|gulp|case|author|without|simulator|wifi|directory|lisp|list|flat|adventure|story|storm|gpu_|gpu-|gpu\\.|store|caching|attention|solr|logger|demo|shortener|hadoop|finder|phone|pipeline|range|textmate|showcase|app_|app-|app\\.|idiomatic|edit|our_|our-|our\\.|out_|out-|out\\.|sentiment|linked|why_|why-|why\\.|local|cube|gmail|job_|job-|job\\.|rpc_|rpc-|rpc\\.|contest|tcp_|tcp-|tcp\\.|usage|buildout|weather|transfer|automated|sphinx|issue|sas_|sas-|sas\\.|parallax|jasmine|addon|machine|solution|dsl_|dsl-|dsl\\.|episode|menu|theme|best|adapter|debugger|chrome|tutorial|life|step|people|joomla|paypal|developer|solver|team|current|love|visual|date|data|canva|container|future|xml_|xml-|xml\\.|twig|nagio|spatial|original|sync|archived|refinery|science|mapping|gitlab|play|ext_|ext-|ext\\.|session|impact|set_|set-|set\\.|see_|see-|see\\.|migration|commit|community|shopify|what'|cucumber|statamic|mysql|location|tower|line|code|amqp|hello|send|index|high|notebook|alloy|python|field|document|soap|edition|email|php_|php-|php\\.|command|transport|official|upload|study|secure|angularj|akka|scalable|package|request|con_|con-|con\\.|flexible|security|comment|module|flask|graph|flash|apache|change|window|space|lambda|sheet|bookmark|carousel|friend|objective|jekyll|bootstrap|first|article|gwt_|gwt-|gwt\\.|classic|media|websocket|touch|desktop|real|read|recorder|moved|storage|validator|add-on|pusher|scs_|scs-|scs\\.|inline|asp_|asp-|asp\\.|timeline|base|encoding|ffmpeg|kindle|tinymce|pretty|jpa_|jpa-|jpa\\.|used|user|required|webhook|download|resque|espresso|cloud|mongo|benchmark|pure|cakephp|modx|mode|reactive|fuel|written|flickr|mail|brunch|meteor|dynamic|neo_|neo-|neo\\.|new_|new-|new\\.|net_|net-|net\\.|typo|type|keyboard|erlang|adobe|logging|ckeditor|message|iso_|iso-|iso\\.|hook|ldap|folder|reference|railscast|www_|www-|www\\.|tracker|azure|fork|form|digital|exporter|skin|string|template|designer|gollum|fluent|entity|language|alfred|summary|wiki|kernel|calendar|plupload|symfony|foundry|remote|talk|search|dev_|dev-|dev\\.|del_|del-|del\\.|token|idea|sencha|selector|interface|create|fun_|fun-|fun\\.|groovy|query|grail|red_|red-|red\\.|laravel|monkey|slack|supported|instant|value|center|latest|work|but_|but-|but\\.|bug_|bug-|bug\\.|virtual|tweet|statsd|studio|path|real-time|frontend|notifier|coding|tool|firmware|flow|random|mediawiki|bosh|been|beer|lightbox|theory|origin|redmine|hub_|hub-|hub\\.|require|pro_|pro-|pro\\.|ant_|ant-|ant\\.|any_|any-|any\\.|recipe|closure|mapper|event|todo|model|redi|provider|rvm_|rvm-|rvm\\.|program|memcached|rail|silex|foreman|activity|license|strategy|batch|streaming|fast|use_|use-|use\\.|usb_|usb-|usb\\.|impres|academy|slider|please|layer|cros|now_|now-|now\\.|miner|extension|own_|own-|own\\.|app_|app-|app\\.|debian|symphony|example|feature|serie|tree|project|runner|entry|leetcode|layout|webrtc|logic|login|worker|toolkit|mocha|support|back|inside|device|jenkin|contact|fake|awesome|ocaml|bit_|bit-|bit\\.|drive|screen|prototype|gist|binary|nosql|rest|overview|dart|dark|emac|mongoid|solarized|homepage|emulator|commander|django|yandex|gradle|xcode|writer|crm_|crm-|crm\\.|jade|startup|error|using|format|name|spring|parser|scratch|magic|try_|try-|try\\.|rack|directive|challenge|slim|counter|element|chosen|doc_|doc-|doc\\.|meta|should|button|packet|stream|hardware|android|infinite|password|software|ghost|xamarin|spec|chef|interview|hubot|mvc_|mvc-|mvc\\.|exercise|leaflet|launcher|air_|air-|air\\.|photo|board|boxen|way_|way-|way\\.|computing|welcome|notepad|portfolio|cat_|cat-|cat\\.|can_|can-|can\\.|magento|yaml|domain|card|yii_|yii-|yii\\.|checker|browser|upgrade|only|progres|aura|ruby_|ruby-|ruby\\.|polymer|util|lite|hackathon|rule|log_|log-|log\\.|opengl|stanford|skeleton|history|inspector|help|soon|selenium|lab_|lab-|lab\\.|scheme|schema|look|ready|leveldb|docker|game|minimal|logstash|messaging|within|heroku|mongodb|kata|suite|picker|win_|win-|win\\.|wip_|wip-|wip\\.|panel|started|starter|front-end|detector|deploy|editing|based|admin|capture|spree|page|bundle|goal|rpg_|rpg-|rpg\\.|setup|side|mean|reader|cookbook|mini|modern|seed|dom_|dom-|dom\\.|doc_|doc-|doc\\.|dot_|dot-|dot\\.|syntax|sugar|loader|website|make|kit_|kit-|kit\\.|protocol|human|daemon|golang|manager|countdown|connector|swagger|map_|map-|map\\.|mac_|mac-|mac\\.|man_|man-|man\\.|orm_|orm-|orm\\.|org_|org-|org\\.|little|zsh_|zsh-|zsh\\.|shop|show|workshop|money|grid|server|octopres|svn_|svn-|svn\\.|ember|embed|general|file|important|dropbox|portable|public|docpad|fish|sbt_|sbt-|sbt\\.|done|para|network|common|readme|popup|simple|purpose|mirror|single|cordova|exchange|object|design|gateway|account|lamp|intellij|math|mit_|mit-|mit\\.|control|enhanced|emitter|multi|add_|add-|add\\.|about|socket|preview|vagrant|cli_|cli-|cli\\.|powerful|top_|top-|top\\.|radio|watch|fluid|amazon|report|couchbase|automatic|detection|sprite|pyramid|portal|advanced|plu_|plu-|plu\\.|runtime|git_|git-|git\\.|uri_|uri-|uri\\.|haml|node|sql_|sql-|sql\\.|cool|core|obsolete|handler|iphone|extractor|array|copy|nlp_|nlp-|nlp\\.|reveal|pop_|pop-|pop\\.|engine|parse|check|html|nest|all_|all-|all\\.|chinese|buildpack|what|tag_|tag-|tag\\.|proxy|style|cookie|feed|restful|compiler|creating|prelude|context|java|rspec|mock|backbone|light|spotify|flex|related|shell|which|clas|webapp|swift|ansible|unity|console|tumblr|export|campfire|conway'|made|riak|hero|here|unix|unit|glas|smtp|how_|how-|how\\.|hot_|hot-|hot\\.|debug|release|diff|player|easy|right|old_|old-|old\\.|animate|time|push|explorer|course|training|nette|router|draft|structure|note|salt|where|spark|trello|power|method|social|via_|via-|via\\.|vim_|vim-|vim\\.|select|webkit|github|ftp_|ftp-|ftp\\.|creator|mongoose|led_|led-|led\\.|movie|currently|pdf_|pdf-|pdf\\.|load|markdown|phalcon|input|custom|atom|oracle|phonegap|ubuntu|great|rdf_|rdf-|rdf\\.|popcorn|firefox|zip_|zip-|zip\\.|cuda|dotfile|static|openwrt|viewer|powered|graphic|les_|les-|les\\.|doe_|doe-|doe\\.|maven|word|eclipse|lab_|lab-|lab\\.|hacking|steam|analytic|option|abstract|archive|reality|switcher|club|write|kafka|arduino|angular|online|title|don't|contao|notice|analyzer|learning|zend|external|staging|busines|tdd_|tdd-|tdd\\.|scanner|building|snippet|modular|bower|stm_|stm-|stm\\.|lib_|lib-|lib\\.|alpha|mobile|clean|linux|nginx|manifest|some|raspberry|gnome|ide_|ide-|ide\\.|block|statistic|info|drag|youtube|koan|facebook|paperclip|art_|art-|art\\.|quality|tab_|tab-|tab\\.|need|dojo|shield|computer|stat|state|twitter|utility|converter|hosting|devise|liferay|updated|force|tip_|tip-|tip\\.|behavior|active|call|answer|deck|better|principle|ches|bar_|bar-|bar\\.|reddit|three|haxe|just|plug-in|agile|manual|tetri|super|beta|parsing|doctrine|minecraft|useful|perl|sharing|agent|switch|view|dash|channel|repo|pebble|profiler|warning|cluster|running|markup|evented|mod_|mod-|mod\\.|share|csv_|csv-|csv\\.|response|good|house|connect|built|build|find|ipython|webgl|big_|big-|big\\.|google|scala|sdl_|sdl-|sdl\\.|sdk_|sdk-|sdk\\.|native|day_|day-|day\\.|puppet|text|routing|helper|linkedin|crawler|host|guard|merchant|poker|over|writing|free|classe|component|craft|nodej|phoenix|longer|quick|lazy|memory|clone|hacker|middleman|factory|motion|multiple|tornado|hack|ssh_|ssh-|ssh\\.|review|vimrc|driver|driven|blog|particle|table|intro|importer|thrift|xmpp|framework|refresh|react|font|librarie|variou|formatter|analysi|karma|scroll|tut_|tut-|tut\\.|apple|tag_|tag-|tag\\.|tab_|tab-|tab\\.|category|ionic|cache|homebrew|reverse|english|getting|shipping|clojure|boot|book|branch|combination|combo))""
+Line 7792: ""message"": ""AWS AppSync GraphQL Key detected"",
+Line 19410: ""id"": ""vendored-rules.javascript.grpc.security.grpc-nodejs-insecure-connection"",
+Line 19431: ""https://blog.gopheracademy.com/advent-2017/go-grpc-beyond-basics/#:~:text=disables%20transport%20security""
+Line 19437: ""grpc"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/Dashboard.tsx,"Line 1: import { useQuery } from '@tanstack/react-query';
+Line 26: const { data: stats, isLoading, error } = useQuery<DashboardStats>({
+Line 33: const { data: recentActivity } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/SystemHealth.tsx,"Line 1: import { useQuery } from '@tanstack/react-query';
+Line 47: const { data: metrics, isLoading, error } = useQuery<SystemMetrics>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/admin-settings.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 41: const queryClient = useQueryClient();
+Line 55: const { data: adminCredentials } = useQuery({
+Line 61: const { data: staffMembers } = useQuery({
+Line 67: const changePasswordMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/ai-enhanced-overview.tsx,"Line 19: import { useQuery } from ""@tanstack/react-query"";
+Line 53: const { data: clients = [] } = useQuery({
+Line 57: const { data: payments = [] } = useQuery({
+Line 61: const { data: courtDates = [] } = useQuery({
+Line 65: const { data: checkIns = [] } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/analytics-charts.tsx,"Line 6: import { useQuery } from ""@tanstack/react-query"";
+Line 10: const { data: analytics } = useQuery({
+Line 14: const { data: payments = [] } = useQuery<Payment[]>({
+Line 18: const { data: clients = [] } = useQuery<Client[]>({
+Line 22: const { data: expenses = [] } = useQuery<Expense[]>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/arrest-monitoring-system.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 80: const queryClient = useQueryClient();
+Line 83: const { data: arrestRecords, isLoading: recordsLoading } = useQuery({
+Line 89: const { data: publicArrestLogs, isLoading: publicLogsLoading } = useQuery({
+Line 95: const { data: monitoringConfig, isLoading: configLoading } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/automated-court-reminders.tsx,"Line 2: import { useQuery, useMutation } from '@tanstack/react-query';
+Line 67: const { data: stats, isLoading: statsLoading } = useQuery<NotificationStats>({
+Line 73: const { data: reminders, isLoading: remindersLoading } = useQuery<CourtReminder[]>({
+Line 79: const { data: upcomingDates, isLoading: datesLoading } = useQuery({
+Line 85: const testEmailMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/bulk-client-upload.tsx,"Line 9: import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 29: const queryClient = useQueryClient();
+Line 31: const uploadMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/business-settings.tsx,"Line 30: import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+Line 78: const queryClient = useQueryClient();
+Line 126: const { data: staffMembers = [] } = useQuery<StaffMember[]>({
+Line 130: const saveBusinessProfileMutation = useMutation({
+Line 141: const saveBusinessGoalsMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-analytics-dashboard.tsx,"Line 7: import { useQuery } from ""@tanstack/react-query"";
+Line 12: const { data: clients = [] } = useQuery<Client[]>({
+Line 16: const { data: payments = [] } = useQuery<Payment[]>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-management-broken.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 80: const queryClient = useQueryClient();
+Line 99: const { data: clients, isLoading: clientsLoading } = useQuery({
+Line 103: const { data: adminCredentials } = useQuery({
+Line 107: const createClientMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-management.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 80: const queryClient = useQueryClient();
+Line 99: const { data: clients, isLoading } = useQuery({
+Line 103: const createClientMutation = useMutation({
+Line 135: const updateClientMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/company-configuration.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 40: const queryClient = useQueryClient();
+Line 44: const { data: companyConfig, isLoading } = useQuery<CompanyConfiguration>({
+Line 111: const createCompanyMutation = useMutation({
+Line 120: const updateCompanyMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-date-approvals.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 12: const queryClient = useQueryClient();
+Line 14: const { data: pendingCourtDates = [], isLoading } = useQuery({
+Line 18: const { data: allClients = [] } = useQuery({
+Line 22: const approveCourtDateMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-date-reminder-system.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 82: const queryClient = useQueryClient();
+Line 101: const { data: courtDates, isLoading: courtDatesLoading } = useQuery({
+Line 105: const { data: clients } = useQuery({
+Line 109: const { data: reminders, isLoading: remindersLoading } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-scraping-management.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+Line 41: const queryClient = useQueryClient();
+Line 44: const { data: clients = [] } = useQuery<Client[]>({
+Line 49: const { data: courtDates = [] } = useQuery<CourtDate[]>({
+Line 60: const manualScrapeMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/dashboard-stats.tsx,"Line 6: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 17: const queryClient = useQueryClient();
+Line 19: const { data: stats } = useQuery<DashboardStatsType>({
+Line 23: const { data: alerts } = useQuery<Alert[]>({
+Line 27: const { data: clients } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/data-management.tsx,"Line 8: import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+Line 29: const queryClient = useQueryClient();
+Line 31: const { data: storageInfo } = useQuery<StorageInfo>({
+Line 35: const exportDataMutation = useMutation({
+Line 48: const backupDataMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/financial-dashboard.tsx,"Line 14: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 59: const queryClient = useQueryClient();
+Line 76: const { data: payments, isLoading: paymentsLoading } = useQuery({
+Line 81: const { data: expenses, isLoading: expensesLoading } = useQuery({
+Line 86: const confirmPaymentMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/geolocation-integration.tsx,"Line 2: import { useMutation } from ""@tanstack/react-query"";
+Line 35: const testGPSMutation = useMutation({
+Line 93: const testCellTowerMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/location-management-dashboard.tsx,"Line 2: import { useQuery, useMutation } from ""@tanstack/react-query"";
+Line 30: const { data: locations = [], isLoading, refetch } = useQuery({
+Line 36: const trackGPSMutation = useMutation({
+Line 60: const geofenceCheckMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/million-dollar-client-management.tsx,"Line 29: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 51: const queryClient = useQueryClient();
+Line 53: const { data: clients = [] } = useQuery({
+Line 57: const { data: alerts = [] } = useQuery({
+Line 61: const { data: payments = [] } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/million-dollar-financial.tsx,"Line 22: import { useQuery } from ""@tanstack/react-query"";
+Line 51: const { data: payments = [] } = useQuery({
+Line 55: const { data: clients = [] } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/notification-center.tsx,"Line 8: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 16: const queryClient = useQueryClient();
+Line 18: const { data: notifications, isLoading } = useQuery<Notification[]>({
+Line 22: const markAsReadMutation = useMutation({
+Line 31: const handleActionMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/real-time-location-tracker.tsx,"Line 2: import { useQuery, useMutation } from ""@tanstack/react-query"";
+Line 42: const { data: locations = [], isLoading, refetch } = useQuery({
+Line 48: const trackLocationMutation = useMutation({
+Line 70: const geofenceCheckMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/real-time-map.tsx,"Line 5: import { useQuery } from ""@tanstack/react-query"";
+Line 20: const { data: clients = [] } = useQuery<Client[]>({
+Line 25: const { data: checkIns = [] } = useQuery<CheckIn[]>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/recent-arrest-logs.tsx,"Line 2: import { useQuery, useMutation } from '@tanstack/react-query';
+Line 85: const { data: arrestLogs, isLoading, refetch } = useQuery<ArrestRecord[]>({
+Line 91: const { data: contactHistory } = useQuery<ContactLog[]>({
+Line 97: const logContactMutation = useMutation({
+Line 129: const updateStatusMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/roi-analysis-tab.tsx,"Line 17: import { useQuery } from ""@tanstack/react-query"";
+Line 20: const { data: payments = [] } = useQuery({
+Line 24: const { data: clients = [] } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/security-audit-dashboard.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 70: const queryClient = useQueryClient();
+Line 82: const { data: metrics, isLoading: metricsLoading } = useQuery<SecurityMetrics>({
+Line 88: const { data: auditData, isLoading: logsLoading, refetch: refetchLogs } = useQuery({
+Line 100: const complianceReportMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/skip-bail-monitoring.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 87: const queryClient = useQueryClient();
+Line 92: const { data: clients = [] } = useQuery({
+Line 97: const { data: riskAssessments = [], isLoading: assessmentsLoading } = useQuery<SkipBailRiskAssessment[]>({
+Line 103: const { data: locationPattern, isLoading: patternLoading } = useQuery<LocationPattern>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/state-configuration.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 78: const queryClient = useQueryClient();
+Line 84: const { data: stateConfigs = [] } = useQuery<StateConfiguration[]>({
+Line 89: const { data: statePricing = [] } = useQuery<StatePricing[]>({
+Line 156: const createStateConfigMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/system-monitoring-dashboard.tsx,"Line 7: import { useQuery } from ""@tanstack/react-query"";
+Line 49: const { data: healthData, refetch: refetchHealth } = useQuery({
+Line 54: const { data: performanceData, refetch: refetchPerformance } = useQuery({
+Line 59: const { data: metricsData } = useQuery({
+Line 64: const { data: securityData } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/top-locations.tsx,"Line 1: import { useQuery } from ""@tanstack/react-query"";
+Line 14: const { data: topLocations = [], isLoading } = useQuery<LocationData[]>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/analytics/client-analytics.tsx,"Line 14: import { useQuery } from ""@tanstack/react-query"";
+Line 20: const { data: clients } = useQuery({
+Line 24: const { data: checkIns } = useQuery({
+Line 28: const { data: courtDates } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/charts/revenue-chart.tsx,"Line 4: import { useQuery } from ""@tanstack/react-query"";
+Line 7: const { data: revenueData } = useQuery({
+Line 11: const { data: payments } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/check-in-form.tsx,"Line 5: import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 31: const queryClient = useQueryClient();
+Line 251: const checkInMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/court-date-notifications.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 17: const queryClient = useQueryClient();
+Line 19: const { data: courtDates = [], isLoading } = useQuery({
+Line 23: const { data: notifications = [] } = useQuery({
+Line 27: const acknowledgeCourtDateMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/payment-upload.tsx,"Line 9: import { useMutation, useQueryClient, useQuery } from ""@tanstack/react-query"";
+Line 20: const queryClient = useQueryClient();
+Line 27: const { data: payments, isLoading } = useQuery({
+Line 31: const paymentMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/authentic-alerts.tsx,"Line 13: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 19: const queryClient = useQueryClient();
+Line 21: const { data: alerts, isLoading } = useQuery({
+Line 25: const acknowledgeAlertMutation = useMutation({
+Line 47: const dismissAlertMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/court-reminders.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 43: const queryClient = useQueryClient();
+Line 45: const { data: upcomingReminders = [], isLoading: upcomingLoading } = useQuery({
+Line 50: const { data: overdueCourtDates = [], isLoading: overdueLoading } = useQuery({
+Line 55: const confirmReminderMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/performance-metrics.tsx,"Line 14: import { useQuery } from ""@tanstack/react-query"";
+Line 17: const { data: clients } = useQuery({
+Line 21: const { data: payments } = useQuery({
+Line 25: const { data: checkIns } = useQuery({
+Line 29: const { data: courtDates } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/quick-stats.tsx,"Line 13: import { useQuery } from ""@tanstack/react-query"";
+Line 20: const { data: stats } = useQuery({
+Line 24: const { data: recentActivity } = useQuery({
+Line 28: const { data: alerts } = useQuery({
+Line 32: const { data: payments } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/smart-alerts.tsx,"Line 14: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 20: const queryClient = useQueryClient();
+Line 22: const { data: alerts } = useQuery({
+Line 26: const { data: clients } = useQuery({
+Line 30: const { data: checkIns } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/NotificationSystem.tsx,"Line 1: import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+Line 24: const queryClient = useQueryClient();
+Line 26: const { data: notifications = [], isLoading } = useQuery({
+Line 33: const markAsReadMutation = useMutation({
+Line 41: const confirmNotificationMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/enhanced-notification-center.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 17: const queryClient = useQueryClient();
+Line 20: const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+Line 25: const { data: unreadCount = 0 } = useQuery<number>({
+Line 30: const markAsReadMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/notification-center.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+Line 86: const queryClient = useQueryClient();
+Line 90: const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+Line 95: const { data: unreadNotifications = [] } = useQuery<Notification[]>({
+Line 100: const markAsReadMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/notification-preferences.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+Line 47: const queryClient = useQueryClient();
+Line 49: const { data: preferences, isLoading } = useQuery({
+Line 83: const updatePreferencesMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/terms/terms-acknowledgment-banner.tsx,"Line 7: import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 18: const queryClient = useQueryClient();
+Line 20: const acknowledgeMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/contexts/BrandingContext.tsx,"Line 2: import { useQuery } from '@tanstack/react-query';
+Line 34: const { data: companyConfig, isLoading } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useApiEndpoints.ts,"Line 1: import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+Line 6: const queryClient = useQueryClient();
+Line 10: return useQuery({
+Line 18: return useMutation({
+Line 29: return useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useAuth.ts,"Line 1: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 15: const queryClient = useQueryClient();
+Line 17: const { data: user, isLoading, error, refetch } = useQuery<AuthUser>({
+Line 30: const logoutMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useTermsStatus.ts,"Line 1: import { useQuery } from ""@tanstack/react-query"";
+Line 4: const { data: termsStatus, isLoading } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/admin-login.tsx,"Line 9: import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 19: const queryClient = useQueryClient();
+Line 24: const loginMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-dashboard-mobile.tsx,"Line 7: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 19: const queryClient = useQueryClient();
+Line 22: const logoutMutation = useMutation({
+Line 41: const { data: clientData, isLoading: clientLoading } = useQuery<any>({
+Line 46: const { data: clientBonds = [] } = useQuery<any[]>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-dashboard.tsx,"Line 7: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 23: const queryClient = useQueryClient();
+Line 94: const logoutMutation = useMutation({
+Line 113: const { data: clientData, isLoading: clientLoading } = useQuery<any>({
+Line 118: const { data: clientBonds = [] } = useQuery<any[]>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-details.tsx,"Line 3: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 26: const queryClient = useQueryClient();
+Line 39: const { data: client, isLoading } = useQuery({
+Line 44: const { data: bonds = [] } = useQuery({
+Line 49: const { data: courtDates = [] } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-login.tsx,"Line 9: import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 23: const queryClient = useQueryClient();
+Line 26: const loginMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-portal-activation.tsx,"Line 3: import { useMutation } from ""@tanstack/react-query"";
+Line 26: const activateAccountMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-portal-preview.tsx,"Line 2: import { useQuery } from ""@tanstack/react-query"";
+Line 19: const { data: clients } = useQuery({
+Line 23: const { data: selectedClient } = useQuery({
+Line 28: const { data: courtDates } = useQuery({
+Line 33: const { data: payments } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-profile.tsx,"Line 2: import { useQuery, useMutation } from ""@tanstack/react-query"";
+Line 91: const { data: client, isLoading } = useQuery({
+Line 96: const { data: courtDates = [] } = useQuery({
+Line 101: const { data: payments = [] } = useQuery({
+Line 106: const { data: checkIns = [] } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/comprehensive-admin-dashboard.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+Line 121: const queryClient = useQueryClient();
+Line 128: const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery<DashboardStats>({
+Line 133: const { data: clients = [], isLoading: clientsLoading } = useQuery<Client[]>({
+Line 138: const { data: bonds = [], isLoading: bondsLoading } = useQuery<Bond[]>({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/enhanced-admin-dashboard.tsx,"Line 9: import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+Line 31: const queryClient = useQueryClient();
+Line 35: const { data: alerts } = useQuery({
+Line 39: const logoutMutation = useMutation({
+Line 60: const refreshDataMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/landing.tsx,"Line 10: import { useMutation } from ""@tanstack/react-query"";
+Line 27: const loginMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/maintenance-dashboard.tsx,"Line 8: import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 17: const queryClient = useQueryClient();
+Line 27: const logoutMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/maintenance-login.tsx,"Line 9: import { useMutation } from ""@tanstack/react-query"";
+Line 23: const loginMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/not-found.tsx,Line 15: Did you forget to add the page to the router?
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/staff-dashboard.tsx,"Line 27: import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+Line 36: const queryClient = useQueryClient();
+Line 41: const { data: clients = [] } = useQuery({
+Line 45: const { data: checkIns = [] } = useQuery({
+Line 49: const { data: alerts = [] } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/staff-login.tsx,"Line 3: import { useMutation } from ""@tanstack/react-query"";
+Line 23: const loginMutation = useMutation({
+Line 54: const resetPasswordMutation = useMutation({"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/user-management.tsx,"Line 2: import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+Line 58: const queryClient = useQueryClient();
+Line 61: const { data: staff = [], isLoading: loadingStaff } = useQuery({
+Line 65: const { data: clients = [], isLoading: loadingClients } = useQuery({
+Line 69: const { data: credentials = [], isLoading: loadingCredentials } = useQuery({"
+/mnt/data/securebond_extracted/SecureBond/server/routes/admin.ts,"Line 27: const router = Router();
+Line 30: router.post(""/company-configuration"", async (req, res) => {
+Line 41: router.get(""/company-configuration/:id"", async (req, res) => {
+Line 55: router.put(""/company-configuration/:id"", async (req, res) => {
+Line 67: router.get(""/company-configurations"", async (req, res) => {"
