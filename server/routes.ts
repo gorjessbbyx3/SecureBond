@@ -2973,7 +2973,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           locationCounts.set(location, (locationCounts.get(location) || 0) + 1);
           
           // Parse location into components (basic parsing)
-          const parts = location.split(',').map(p => p.trim());
+          const parts = location.split(',').map((p: string) => p.trim());
           const address = parts[0] || location;
           const city = parts[1] || 'Unknown';
           const state = parts[2] || 'HI';
@@ -3223,7 +3223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id || `admin-${Date.now()}`;
       const currentVersion = '2025-06-01';
       
-      const hasAcknowledged = await storage.checkTermsAcknowledgment(userId, currentVersion);
+      const hasAcknowledged = await storage.checkTermsAcknowledgment(userId);
       
       res.json({
         acknowledged: hasAcknowledged,
@@ -3531,9 +3531,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const locationResult = await geolocationService.trackClientLocation(clientId, locationData);
       
       // Store location in client tracking file
-      const locations = await storage.readJsonFile('client-locations.json', []);
-      locations.push(locationResult);
-      await storage.writeJsonFile('client-locations.json', locations);
+      // Store location data using proper method
+      await storage.createCheckIn({
+        clientId: parseInt(clientId),
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        timestamp: new Date(),
+        location: `${locationData.latitude}, ${locationData.longitude}`,
+        notes: 'Automated location tracking'
+      });
       
       res.json(locationResult);
     } catch (error) {
@@ -3641,9 +3647,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Client not found' });
       }
       
-      clients[clientIndex].temporaryPassword = temporaryPassword;
-      clients[clientIndex].mustChangePassword = true;
-      clients[clientIndex].passwordResetAt = new Date().toISOString();
+      (clients[clientIndex] as any).temporaryPassword = temporaryPassword;
+      (clients[clientIndex] as any).mustChangePassword = true;
+      (clients[clientIndex] as any).passwordResetAt = new Date().toISOString();
       
       await storage.writeJsonFile('clients.json', clients);
       
@@ -3651,7 +3657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         success: true, 
         temporaryPassword,
-        message: `Temporary password generated for ${clients[clientIndex].name}: ${temporaryPassword}`
+        message: `Temporary password generated for ${(clients[clientIndex] as any).fullName}: ${temporaryPassword}`
       });
       
     } catch (error) {
@@ -3678,9 +3684,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Staff member not found' });
       }
       
-      staff[staffIndex].temporaryPassword = temporaryPassword;
-      staff[staffIndex].mustChangePassword = true;
-      staff[staffIndex].passwordResetAt = new Date().toISOString();
+      (staff[staffIndex] as any).temporaryPassword = temporaryPassword;
+      (staff[staffIndex] as any).mustChangePassword = true;
+      (staff[staffIndex] as any).passwordResetAt = new Date().toISOString();
       
       await storage.writeJsonFile('staff.json', staff);
       
@@ -3688,7 +3694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         success: true, 
         temporaryPassword,
-        message: `Temporary password generated for ${staff[staffIndex].fullName}: ${temporaryPassword}`
+        message: `Temporary password generated for ${(staff[staffIndex] as any).fullName}: ${temporaryPassword}`
       });
       
     } catch (error) {
