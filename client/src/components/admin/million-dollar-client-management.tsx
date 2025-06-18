@@ -50,22 +50,22 @@ export function MillionDollarClientManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: clients = [], isLoading: clientsLoading, error: clientsError } = useQuery({
+  const { data: clients = [], isLoading: clientsLoading, error: clientsError } = useQuery<any[]>({
     queryKey: ["/api/clients"],
     retry: 1,
   });
 
-  const { data: alerts = [], isLoading: alertsLoading } = useQuery({
+  const { data: alerts = [], isLoading: alertsLoading } = useQuery<any[]>({
     queryKey: ["/api/alerts/unacknowledged"],
     retry: 1,
   });
 
-  const { data: payments = [], isLoading: paymentsLoading } = useQuery({
+  const { data: payments = [], isLoading: paymentsLoading } = useQuery<any[]>({
     queryKey: ["/api/payments"],
     retry: 1,
   });
 
-  const { data: checkIns = [], isLoading: checkInsLoading } = useQuery({
+  const { data: checkIns = [], isLoading: checkInsLoading } = useQuery<any[]>({
     queryKey: ["/api/check-ins"],
     retry: 1,
   });
@@ -229,6 +229,32 @@ export function MillionDollarClientManagement() {
     createClientMutation.mutate(data);
   };
 
+  // Export functionality
+  const exportClientsMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/data/export", { type: "clients" });
+    },
+    onSuccess: (response: any) => {
+      toast({
+        title: "Export Complete",
+        description: `Client data exported to ${response.path || 'Downloads folder'}`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Export Failed",
+        description: error.message || "Failed to export client data",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleExportClients = () => {
+    exportClientsMutation.mutate();
+  };
+
+
+
   // Enhanced AI risk profiling for each client
   const generateRiskProfile = (clientId: number): ClientRiskProfile => {
     const clientPayments = payments.filter((p: any) => p.clientId === clientId);
@@ -302,6 +328,14 @@ export function MillionDollarClientManagement() {
             <Button variant="outline" onClick={handleGlobalAIAnalysis}>
               <Brain className="h-4 w-4 mr-2" />
               AI Analysis
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleExportClients}
+              disabled={exportClientsMutation.isPending}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {exportClientsMutation.isPending ? 'Exporting...' : 'Export Data'}
             </Button>
           </div>
 
