@@ -1983,8 +1983,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Recent arrest logs endpoints - requires authentic police department data integration
   app.get('/api/arrest-logs/recent', isAuthenticated, async (req, res) => {
     try {
-      // Only return authentic arrest logs from configured police department APIs
+      // Fetch authentic arrest logs from configured police department APIs
       const recentLogs = await storage.getPublicArrestLogs();
+      
+      // If no logs from storage, attempt to fetch from live sources
+      if (recentLogs.length === 0) {
+        console.log('Fetching fresh arrest logs from police department sources...');
+        
+        // Use the court scraper to get arrest logs
+        const { courtScraper } = await import('./courtScraper');
+        const arrestResult = await courtScraper.searchArrestLogs('*', {
+          dateRange: { 
+            start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
+            end: new Date() 
+          }
+        });
+        
+        if (arrestResult.success && arrestResult.arrests.length > 0) {
+          // Convert arrest data to the expected format
+          const formattedLogs = arrestResult.arrests.map((arrest: any) => ({
+            id: `arrest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            arrestDate: arrest.arrestDate || new Date().toISOString().split('T')[0],
+            arrestTime: arrest.arrestTime || '00:00',
+            name: arrest.name || 'Unknown',
+            age: arrest.age || null,
+            address: arrest.address || null,
+            charges: Array.isArray(arrest.charges) ? arrest.charges : [arrest.charges || 'Unknown'],
+            arrestingAgency: arrest.source || 'Police Department',
+            bookingNumber: arrest.bookingNumber || `BK${Date.now()}`,
+            bondAmount: arrest.bondAmount || null,
+            releaseStatus: arrest.releaseStatus || 'in_custody',
+            contactStatus: 'not_contacted',
+            priority: arrest.priority || 'medium',
+            source: arrest.source || 'Police Department',
+            createdAt: new Date().toISOString()
+          }));
+          
+          res.json(formattedLogs);
+          return;
+        }
+      }
+      
       res.json(recentLogs);
     } catch (error) {
       console.error('Error fetching recent arrest logs:', error);
@@ -2071,6 +2110,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error converting to client:', error);
       res.status(500).json({ success: false, message: 'Failed to convert to client' });
+    }
+  });
+
+  // RSS Civil/Criminal/Federal Documents Feed
+  app.get('/api/court-documents/rss-feed', isAuthenticated, async (req, res) => {
+    try {
+      const { clientName, documentType = 'all' } = req.query;
+      
+      console.log('Fetching RSS civil/criminal/federal documents feed...');
+      
+      // Fetch from Hawaii Federal District Court RSS feed
+      const { courtScraper } = await import('./courtScraper');
+      
+      if (clientName) {
+        // Search for specific client documents
+        const searchResult = await courtScraper.searchCourtDates(clientName as string, {
+          state: 'HI',
+          maxResults: 50
+        });
+        
+        // Filter RSS documents from the search results
+        const rssDocuments = searchResult.courtDates.filter(doc => 
+          doc.source.includes('Federal') || doc.source.includes('RSS')
+        );
+        
+        res.json({
+          success: true,
+          documents: rssDocuments,
+          totalFound: rssDocuments.length,
+          source: 'Hawaii Federal District Court RSS',
+          lastUpdated: new Date().toISOString()
+        });
+      } else {
+        // General RSS feed for all recent court documents
+        const generalSearch = await courtScraper.searchCourtDates('*', {
+          state: 'HI',
+          maxResults: 100
+        });
+        
+        const allRSSDocuments = generalSearch.courtDates.filter(doc => 
+          doc.source.includes('Federal') || doc.source.includes('RSS')
+        );
+        
+        // Categorize documents by type
+        const categorized = {
+          civil: allRSSDocuments.filter(doc => 
+            doc.caseType?.toLowerCase().includes('civil') || 
+            doc.caseNumber?.includes('cv-')
+          ),
+          criminal: allRSSDocuments.filter(doc => 
+            doc.caseType?.toLowerCase().includes('criminal') || 
+            doc.caseNumber?.includes('cr-')
+          ),
+          federal: allRSSDocuments.filter(doc => 
+            doc.source.includes('Federal')
+          )
+        };
+        
+        res.json({
+          success: true,
+          documents: documentType === 'all' ? allRSSDocuments : categorized[documentType as keyof typeof categorized] || [],
+          categorized,
+          totalFound: allRSSDocuments.length,
+          breakdown: {
+            civil: categorized.civil.length,
+            criminal: categorized.criminal.length,
+            federal: categorized.federal.length
+          },
+          source: 'Hawaii Federal District Court RSS',
+          lastUpdated: new Date().toISOString()
+        });
+      }
+    } catch (error: any) {
+      console.error('Error fetching RSS court documents:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch RSS court documents feed',
+        error: error.message || 'Unknown error occurred'
+      });
     }
   });
 
