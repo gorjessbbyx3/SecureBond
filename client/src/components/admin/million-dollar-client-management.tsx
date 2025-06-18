@@ -24,7 +24,8 @@ import {
   Edit2,
   Trash2,
   UserPlus,
-  Key
+  Key,
+  Download
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -135,6 +136,12 @@ export function MillionDollarClientManagement() {
 
   const handleViewProfile = (clientId: number) => {
     // Navigate to detailed client profile page
+    setSelectedClientId(clientId);
+    toast({
+      title: "Client Profile",
+      description: `Opening profile for client ID: ${clientId}`,
+    });
+    // In a full implementation, this would navigate to a detailed client page
     setLocation(`/admin-dashboard/clients/${clientId}`);
   };
 
