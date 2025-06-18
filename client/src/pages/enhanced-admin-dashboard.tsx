@@ -24,6 +24,7 @@ import { BusinessSettings } from "@/components/admin/business-settings";
 import { SystemMonitoringDashboard } from "@/components/admin/system-monitoring-dashboard";
 import { AutomatedCourtReminders } from "@/components/admin/automated-court-reminders";
 import { RecentArrestLogs } from "@/components/admin/recent-arrest-logs";
+import { RSSDocumentsFeed } from "@/components/admin/rss-documents-feed";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -214,6 +215,13 @@ export default function EnhancedAdminDashboard() {
             >
               <Activity className="h-4 w-4" />
               System Health
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rss-documents" 
+              className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all duration-200 hover:bg-purple-100"
+            >
+              <Database className="h-4 w-4" />
+              RSS Documents
             </TabsTrigger>
           </TabsList>
 
@@ -548,6 +556,25 @@ export default function EnhancedAdminDashboard() {
               </Card>
               
               <SystemMonitoringDashboard />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="rss-documents" className="space-y-6">
+            <div className="grid gap-6">
+              {/* RSS Documents Header */}
+              <Card className="border-2 border-purple-200 bg-purple-50 dark:bg-purple-950">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                    <Database className="h-6 w-6" />
+                    RSS Civil/Criminal/Federal Documents Feed
+                  </CardTitle>
+                  <CardDescription className="text-purple-700 dark:text-purple-300">
+                    Real-time court document feeds from Hawaii Federal District Court RSS - civil, criminal, and federal cases
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <RSSDocumentsFeed />
             </div>
           </TabsContent>
         </Tabs>
