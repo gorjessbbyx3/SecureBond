@@ -1,0 +1,904 @@
+File,Build Context
+/mnt/data/securebond_extracted/SecureBond/drizzle.config.ts,"import { defineConfig } from ""drizzle-kit"";
+
+if (!process.env.DATABASE_URL) {
+  throw new Error(""DATABASE_URL, ensure the database is provisioned"");
+}"
+/mnt/data/securebond_extracted/SecureBond/package-lock.json,"{
+  ""name"": ""rest-express"",
+  ""version"": ""1.0.0"",
+  ""lockfileVersion"": 3,
+  ""requires"": true,"
+/mnt/data/securebond_extracted/SecureBond/postcss.config.js,"export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },"
+/mnt/data/securebond_extracted/SecureBond/tailwind.config.ts,"import type { Config } from ""tailwindcss"";
+
+export default {
+  darkMode: [""class""],
+  content: [""./client/index.html"", ""./client/src/**/*.{js,jsx,ts,tsx}""],"
+/mnt/data/securebond_extracted/SecureBond/vite.config.ts,"import { defineConfig } from ""vite"";
+import react from ""@vitejs/plugin-react"";
+import path from ""path"";
+import runtimeErrorOverlay from ""@replit/vite-plugin-runtime-error-modal"";
+"
+/mnt/data/securebond_extracted/SecureBond/.config/.semgrep/semgrep_rules.json,"{
+  ""rules"": [
+    {
+      ""id"": ""vendored-rules.generic.bicep.security.secure-parameter-for-secrets"",
+      ""languages"": ["
+/mnt/data/securebond_extracted/SecureBond/client/src/App.tsx,"import { Switch, Route } from ""wouter"";
+import { queryClient } from ""./lib/queryClient"";
+import { QueryClientProvider } from ""@tanstack/react-query"";
+import { Toaster } from ""@/components/ui/toaster"";
+import { TooltipProvider } from ""@/components/ui/tooltip"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/index.css,"@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/Dashboard.tsx,"import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ErrorBoundary.tsx,"import React, { Component, ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle } from 'lucide-react';
+
+interface Props {"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ErrorContextProvider.tsx,"import React from ""react"";
+import { ErrorContextContext, useErrorContextProvider } from ""@/hooks/useErrorContext"";
+
+interface ErrorContextProviderProps {
+  children: React.ReactNode;"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/LoadingSpinner.tsx,"import { Loader2 } from ""lucide-react"";
+import { cn } from ""@/lib/utils"";
+
+interface LoadingSpinnerProps {
+  size?: ""sm"" | ""md"" | ""lg"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ProtectedRoute.tsx,"import { ReactNode } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { LoadingScreen } from '@/components/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Shield, AlertCircle } from 'lucide-react';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/SystemHealth.tsx,"import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/admin-settings.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/ai-enhanced-overview.tsx,"import { useState, useEffect } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { Progress } from ""@/components/ui/progress"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/analytics-charts.tsx,"import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { Badge } from ""@/components/ui/badge"";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Area, AreaChart } from ""recharts"";
+import { TrendingUp, TrendingDown, DollarSign, Users, Calendar, Activity } from ""lucide-react"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/api-endpoint-dashboard.tsx,"import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useApiEndpoints } from '@/hooks/useApiEndpoints';
+import { LoadingSpinner } from '@/components/LoadingSpinner';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/arrest-monitoring-system.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/automated-court-reminders.tsx,"import React, { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/bond-form.tsx,"import { useState } from ""react"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+import { Textarea } from ""@/components/ui/textarea"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/bulk-client-upload.tsx,"import { useState } from ""react"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/business-settings.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-analytics-dashboard.tsx,"import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { Badge } from ""@/components/ui/badge"";
+import { Progress } from ""@/components/ui/progress"";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, ScatterChart, Scatter } from ""recharts"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-management-broken.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { z } from ""zod"";
+import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-management.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Link } from ""wouter"";
+import { z } from ""zod"";
+import { useForm } from ""react-hook-form"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/company-configuration.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-date-approvals.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-date-reminder-system.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { z } from ""zod"";
+import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-scraping-management.tsx,"import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/dashboard-stats.tsx,"import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Progress } from ""@/components/ui/progress"";
+import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { Users, DollarSign, Calendar, AlertTriangle, TrendingUp, Clock, ExternalLink } from ""lucide-react"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/data-management.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+import { Progress } from ""@/components/ui/progress"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/financial-dashboard.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/geolocation-integration.tsx,"import { useState } from ""react"";
+import { useMutation } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/location-management-dashboard.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/logo-upload.tsx,"import { useState } from ""react"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/million-dollar-client-management.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/million-dollar-financial.tsx,"import { useState, useEffect } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { Progress } from ""@/components/ui/progress"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/new-client-form.tsx,"import { useState } from ""react"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+import { Switch } from ""@/components/ui/switch"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/notification-center.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+import { ScrollArea } from ""@/components/ui/scroll-area"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/real-time-location-tracker.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/real-time-map.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { MapPin, Navigation, Users, AlertTriangle, Clock, Zap } from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/recent-arrest-logs.tsx,"import React, { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/roi-analysis-tab.tsx,"import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Progress } from ""@/components/ui/progress"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { "
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/security-audit-dashboard.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/skip-bail-monitoring.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/state-configuration.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/system-configuration.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+import { Button } from ""@/components/ui/button"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/system-monitoring-dashboard.tsx,"import { useState, useEffect } from ""react"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { Progress } from ""@/components/ui/progress"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/top-locations.tsx,"import { useQuery } from ""@tanstack/react-query"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { MapPin, Users, TrendingUp } from ""lucide-react"";
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/analytics/client-analytics.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { 
+  Users, "
+/mnt/data/securebond_extracted/SecureBond/client/src/components/charts/revenue-chart.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { DollarSign, TrendingUp, Calendar } from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/check-in-form.tsx,"import { useState, useEffect, useRef } from ""react"";
+import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";
+import { z } from ""zod"";
+import { useMutation, useQueryClient } from ""@tanstack/react-query"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/court-date-notifications.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/payment-upload.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Textarea } from ""@/components/ui/textarea"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/authentic-alerts.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+import { 
+  AlertTriangle, "
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/court-reminders.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/performance-metrics.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Progress } from ""@/components/ui/progress"";
+import { Badge } from ""@/components/ui/badge"";
+import { 
+  Target, "
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/quick-stats.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { 
+  Users, 
+  DollarSign, "
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/smart-alerts.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+import { 
+  AlertTriangle, "
+/mnt/data/securebond_extracted/SecureBond/client/src/components/enhanced/DataTable.tsx,"import { useState, useMemo } from 'react';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, "
+/mnt/data/securebond_extracted/SecureBond/client/src/components/layout/footer.tsx,"import { Phone, Mail } from ""lucide-react"";
+import { Link } from ""wouter"";
+
+export default function Footer() {
+  return ("
+/mnt/data/securebond_extracted/SecureBond/client/src/components/layout/header.tsx,"import { Shield, Clock } from ""lucide-react"";
+
+interface HeaderProps {
+  title?: string;
+  subtitle?: string;"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/mobile/mobile-card.tsx,"import { ReactNode } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { cn } from ""@/lib/utils"";
+
+interface MobileCardProps {"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/mobile/mobile-navigation.tsx,"import { Home, Users, FileText, Settings, Bell, Menu, X } from ""lucide-react"";
+import { useState } from ""react"";
+import { Link, useLocation } from ""wouter"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/NotificationSystem.tsx,"import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Bell, Check, X, AlertCircle, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/enhanced-notification-center.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Card, CardContent } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/notification-center.tsx,"import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Bell, Settings, X, Check, AlertTriangle, Info, Calendar, DollarSign, UserX, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/notification-preferences.tsx,"import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Settings, Bell, Mail, Smartphone, Clock, Volume2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/privacy/ComplianceFramework.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { Shield, CheckCircle, AlertTriangle, FileText, Lock, Eye } from ""lucide-react"";
+
+export default function ComplianceFramework() {"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/privacy/DataCollectionNotice.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Checkbox } from ""@/components/ui/checkbox"";
+import { Alert, AlertDescription } from ""@/components/ui/alert"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/privacy/InitialPrivacyConsent.tsx,"import { useState } from ""react"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Checkbox } from ""@/components/ui/checkbox"";
+import { Alert, AlertDescription } from ""@/components/ui/alert"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/terms/terms-acknowledgment-banner.tsx,"import { useState } from ""react"";
+import { Button } from ""@/components/ui/button"";
+import { Card, CardContent } from ""@/components/ui/card"";
+import { Checkbox } from ""@/components/ui/checkbox"";
+import { Link } from ""wouter"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/accordion.tsx,"import * as React from ""react""
+import * as AccordionPrimitive from ""@radix-ui/react-accordion""
+import { ChevronDown } from ""lucide-react""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/alert-dialog.tsx,"import * as React from ""react""
+import * as AlertDialogPrimitive from ""@radix-ui/react-alert-dialog""
+
+import { cn } from ""@/lib/utils""
+import { buttonVariants } from ""@/components/ui/button"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/alert.tsx,"import * as React from ""react""
+import { cva, type VariantProps } from ""class-variance-authority""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/aspect-ratio.tsx,"import * as AspectRatioPrimitive from ""@radix-ui/react-aspect-ratio""
+
+const AspectRatio = AspectRatioPrimitive.Root
+
+export { AspectRatio }"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/avatar.tsx,"""use client""
+
+import * as React from ""react""
+import * as AvatarPrimitive from ""@radix-ui/react-avatar""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/badge.tsx,"import * as React from ""react""
+import { cva, type VariantProps } from ""class-variance-authority""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/branded-header.tsx,"import { useBranding } from ""@/contexts/BrandingContext"";
+import { Building2 } from ""lucide-react"";
+
+interface BrandedHeaderProps {
+  title?: string;"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/breadcrumb.tsx,"import * as React from ""react""
+import { Slot } from ""@radix-ui/react-slot""
+import { ChevronRight, MoreHorizontal } from ""lucide-react""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/button.tsx,"import * as React from ""react""
+import { Slot } from ""@radix-ui/react-slot""
+import { cva, type VariantProps } from ""class-variance-authority""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/calendar.tsx,"import * as React from ""react""
+import { ChevronLeft, ChevronRight } from ""lucide-react""
+import { DayPicker } from ""react-day-picker""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/card.tsx,"import * as React from ""react""
+
+import { cn } from ""@/lib/utils""
+
+const Card = React.forwardRef<"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/carousel.tsx,"import * as React from ""react""
+import useEmblaCarousel, {
+  type UseEmblaCarouselType,
+} from ""embla-carousel-react""
+import { ArrowLeft, ArrowRight } from ""lucide-react"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/chart.tsx,"""use client""
+
+import * as React from ""react""
+import * as RechartsPrimitive from ""recharts""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/checkbox.tsx,"import * as React from ""react""
+import * as CheckboxPrimitive from ""@radix-ui/react-checkbox""
+import { Check } from ""lucide-react""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/collapsible.tsx,"""use client""
+
+import * as CollapsiblePrimitive from ""@radix-ui/react-collapsible""
+
+const Collapsible = CollapsiblePrimitive.Root"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/command.tsx,"import * as React from ""react""
+import { type DialogProps } from ""@radix-ui/react-dialog""
+import { Command as CommandPrimitive } from ""cmdk""
+import { Search } from ""lucide-react""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/context-menu.tsx,"import * as React from ""react""
+import * as ContextMenuPrimitive from ""@radix-ui/react-context-menu""
+import { Check, ChevronRight, Circle } from ""lucide-react""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/dialog.tsx,"""use client""
+
+import * as React from ""react""
+import * as DialogPrimitive from ""@radix-ui/react-dialog""
+import { X } from ""lucide-react"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/drawer.tsx,"""use client""
+
+import * as React from ""react""
+import { Drawer as DrawerPrimitive } from ""vaul""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/dropdown-menu.tsx,"import * as React from ""react""
+import * as DropdownMenuPrimitive from ""@radix-ui/react-dropdown-menu""
+import { Check, ChevronRight, Circle } from ""lucide-react""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/enhanced-input.tsx,"import React, { forwardRef } from ""react"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+import ErrorTooltip from ""@/components/ui/error-tooltip"";
+import { useErrorContext } from ""@/hooks/useErrorContext"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/error-tooltip.tsx,"import React, { useState } from ""react"";
+import { cn } from ""@/lib/utils"";
+import { AlertCircle, Info, AlertTriangle, X } from ""lucide-react"";
+
+interface ErrorTooltipProps {"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/form.tsx,"""use client""
+
+import * as React from ""react""
+import * as LabelPrimitive from ""@radix-ui/react-label""
+import { Slot } from ""@radix-ui/react-slot"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/hover-card.tsx,"""use client""
+
+import * as React from ""react""
+import * as HoverCardPrimitive from ""@radix-ui/react-hover-card""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/input-otp.tsx,"import * as React from ""react""
+import { OTPInput, OTPInputContext } from ""input-otp""
+import { Dot } from ""lucide-react""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/input.tsx,"import * as React from ""react""
+
+import { cn } from ""@/lib/utils""
+
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<""input"">>("
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/label.tsx,"import * as React from ""react""
+import * as LabelPrimitive from ""@radix-ui/react-label""
+import { cva, type VariantProps } from ""class-variance-authority""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/menubar.tsx,"""use client""
+
+import * as React from ""react""
+import * as MenubarPrimitive from ""@radix-ui/react-menubar""
+import { Check, ChevronRight, Circle } from ""lucide-react"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/navigation-menu.tsx,"import * as React from ""react""
+import * as NavigationMenuPrimitive from ""@radix-ui/react-navigation-menu""
+import { cva } from ""class-variance-authority""
+import { ChevronDown } from ""lucide-react""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/pagination.tsx,"import * as React from ""react""
+import { ChevronLeft, ChevronRight, MoreHorizontal } from ""lucide-react""
+
+import { cn } from ""@/lib/utils""
+import { ButtonProps, buttonVariants } from ""@/components/ui/button"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/popover.tsx,"import * as React from ""react""
+import * as PopoverPrimitive from ""@radix-ui/react-popover""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/progress.tsx,"import * as React from ""react""
+import * as ProgressPrimitive from ""@radix-ui/react-progress""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/radio-group.tsx,"import * as React from ""react""
+import * as RadioGroupPrimitive from ""@radix-ui/react-radio-group""
+import { Circle } from ""lucide-react""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/resizable.tsx,"""use client""
+
+import { GripVertical } from ""lucide-react""
+import * as ResizablePrimitive from ""react-resizable-panels""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/scroll-area.tsx,"import * as React from ""react""
+import * as ScrollAreaPrimitive from ""@radix-ui/react-scroll-area""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/select.tsx,"""use client""
+
+import * as React from ""react""
+import * as SelectPrimitive from ""@radix-ui/react-select""
+import { Check, ChevronDown, ChevronUp } from ""lucide-react"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/separator.tsx,"import * as React from ""react""
+import * as SeparatorPrimitive from ""@radix-ui/react-separator""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/sheet.tsx,"""use client""
+
+import * as React from ""react""
+import * as SheetPrimitive from ""@radix-ui/react-dialog""
+import { cva, type VariantProps } from ""class-variance-authority"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/sidebar.tsx,"import * as React from ""react""
+import { Slot } from ""@radix-ui/react-slot""
+import { VariantProps, cva } from ""class-variance-authority""
+import { PanelLeft } from ""lucide-react""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/skeleton.tsx,"import { cn } from ""@/lib/utils""
+
+function Skeleton({
+  className,
+  ...props"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/slider.tsx,"import * as React from ""react""
+import * as SliderPrimitive from ""@radix-ui/react-slider""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/switch.tsx,"import * as React from ""react""
+import * as SwitchPrimitives from ""@radix-ui/react-switch""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/table.tsx,"import * as React from ""react""
+
+import { cn } from ""@/lib/utils""
+
+const Table = React.forwardRef<"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/tabs.tsx,"import * as React from ""react""
+import * as TabsPrimitive from ""@radix-ui/react-tabs""
+
+import { cn } from ""@/lib/utils""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/textarea.tsx,"import * as React from ""react""
+
+import { cn } from ""@/lib/utils""
+
+const Textarea = React.forwardRef<"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/toast.tsx,"import * as React from ""react""
+import * as ToastPrimitives from ""@radix-ui/react-toast""
+import { cva, type VariantProps } from ""class-variance-authority""
+import { X } from ""lucide-react""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/toaster.tsx,"import { useToast } from ""@/hooks/use-toast""
+import {
+  Toast,
+  ToastClose,
+  ToastDescription,"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/toggle-group.tsx,"""use client""
+
+import * as React from ""react""
+import * as ToggleGroupPrimitive from ""@radix-ui/react-toggle-group""
+import { type VariantProps } from ""class-variance-authority"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/toggle.tsx,"import * as React from ""react""
+import * as TogglePrimitive from ""@radix-ui/react-toggle""
+import { cva, type VariantProps } from ""class-variance-authority""
+
+import { cn } from ""@/lib/utils"""
+/mnt/data/securebond_extracted/SecureBond/client/src/components/ui/tooltip.tsx,"""use client""
+
+import * as React from ""react""
+import * as TooltipPrimitive from ""@radix-ui/react-tooltip""
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/contexts/BrandingContext.tsx,"import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
+
+interface BrandingSettings {
+  companyName: string;"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/use-mobile.tsx,"import * as React from ""react""
+
+const MOBILE_BREAKPOINT = 768
+
+export function useIsMobile() {"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/use-toast.ts,"import * as React from ""react""
+
+import type {
+  ToastActionElement,
+  ToastProps,"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useApiEndpoints.ts,"import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+
+// Comprehensive API endpoint integration for production readiness
+export const useApiEndpoints = () => {"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useAuth.ts,"import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+
+interface AuthUser {
+  id: string;"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useErrorContext.ts,"import { useState, useCallback, useContext, createContext } from ""react"";
+
+export interface ErrorContext {
+  code?: string;
+  message?: string;"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/usePrivacyAcknowledgment.ts,"import { useState, useEffect } from ""react"";
+import { useAuth } from ""./useAuth"";
+import { apiRequest } from ""@/lib/queryClient"";
+
+interface PrivacyAcknowledgment {"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useTermsStatus.ts,"import { useQuery } from ""@tanstack/react-query"";
+
+export function useTermsStatus() {
+  const { data: termsStatus, isLoading } = useQuery({
+    queryKey: [""/api/terms/status""],"
+/mnt/data/securebond_extracted/SecureBond/client/src/lib/api.ts,"import { queryClient } from './queryClient';
+
+export class ApiError extends Error {
+  constructor(
+    message: string,"
+/mnt/data/securebond_extracted/SecureBond/client/src/lib/authUtils.ts,"export function isUnauthorizedError(error: Error): boolean {
+  return /^401: .*Unauthorized/.test(error.message);
+}"
+/mnt/data/securebond_extracted/SecureBond/client/src/lib/queryClient.ts,"import { QueryClient, QueryFunction } from ""@tanstack/react-query"";
+
+async function throwIfResNotOk(res: Response) {
+  if (!res.ok) {
+    const text = (await res.text()) || res.statusText;"
+/mnt/data/securebond_extracted/SecureBond/client/src/lib/types.ts,"export interface ClientSession {
+  id: number;
+  clientId: string;
+  fullName: string;
+}"
+/mnt/data/securebond_extracted/SecureBond/client/src/lib/utils.ts,"import { clsx, type ClassValue } from ""clsx""
+import { twMerge } from ""tailwind-merge""
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/admin-login.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { Card, CardContent } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-dashboard-mobile.tsx,"import { useState, useMemo } from ""react"";
+import { useLocation } from ""wouter"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-dashboard.tsx,"import { useState, useMemo, useEffect } from ""react"";
+import { useLocation } from ""wouter"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-details.tsx,"import { useState } from ""react"";
+import { useRoute, useLocation } from ""wouter"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-login.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Label } from ""@/components/ui/label"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-portal-activation.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { useMutation } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-portal-preview.tsx,"import { useState } from ""react"";
+import { useQuery } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-profile.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation } from ""@tanstack/react-query"";
+import { useRoute } from ""wouter"";
+import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/comprehensive-admin-dashboard.tsx,"import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/enhanced-admin-dashboard.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/landing.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { Card, CardContent } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/maintenance-dashboard.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/maintenance-login.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { Card, CardContent } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/not-found.tsx,"import { Card, CardContent } from ""@/components/ui/card"";
+import { AlertCircle } from ""lucide-react"";
+
+export default function NotFound() {
+  return ("
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/privacy-policy.tsx,"import { ScrollArea } from ""@/components/ui/scroll-area"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Shield, Lock, Eye, Users, FileText, Mail } from ""lucide-react"";
+import { Link } from ""wouter"";
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/staff-dashboard.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/staff-login.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { useMutation } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/terms-of-service.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { CheckCircle, FileText, AlertTriangle, Scale, Shield, Users, Gavel, XCircle } from ""lucide-react"";
+import { useState } from ""react"";
+import { useAuth } from ""@/hooks/useAuth"";"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/user-management.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";"
+/mnt/data/securebond_extracted/SecureBond/server/courtReminderService.ts,"import { storage } from './storage';
+import { notificationService } from './services/notificationService';
+import { 
+  type CourtDate, 
+  type CourtDateReminder, "
+/mnt/data/securebond_extracted/SecureBond/server/courtScraper.ts,"import { JSDOM } from 'jsdom';
+
+interface CourtDate {
+  name: string;
+  caseNumber?: string;"
+/mnt/data/securebond_extracted/SecureBond/server/db.ts,"import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from ""ws"";
+import * as schema from ""@shared/schema"";
+"
+/mnt/data/securebond_extracted/SecureBond/server/local-db-corrupted.ts,"import * as fs from 'fs/promises';
+import * as path from 'path';
+import {
+  users,
+  clients,"
+/mnt/data/securebond_extracted/SecureBond/server/local-db.ts,"import * as fs from 'fs/promises';
+import * as path from 'path';
+import { 
+  CompanyConfiguration, 
+  InsertCompanyConfiguration,"
+/mnt/data/securebond_extracted/SecureBond/server/replitAuth.ts,"import * as client from ""openid-client"";
+import { Strategy, type VerifyFunction } from ""openid-client/passport"";
+
+import passport from ""passport"";
+import session from ""express-session"";"
+/mnt/data/securebond_extracted/SecureBond/server/routes.ts,"import type { Express } from ""express"";
+import { createServer, type Server } from ""http"";
+import session from ""express-session"";
+import { storage } from ""./storage"";
+import { courtScraper } from ""./courtScraper"";"
+/mnt/data/securebond_extracted/SecureBond/server/storage.ts,"import {
+  type User,
+  type UpsertUser,
+  type Client,
+  type InsertClient,"
+/mnt/data/securebond_extracted/SecureBond/server/vite.ts,"import express, { type Express } from ""express"";
+import fs from ""fs"";
+import path from ""path"";
+import { createServer as createViteServer, createLogger } from ""vite"";
+import { type Server } from ""http"";"
+/mnt/data/securebond_extracted/SecureBond/server/middleware/audit.ts,"import { Request, Response, NextFunction } from 'express';
+import { logger } from '../utils/logger';
+import { AuthenticatedRequest } from './auth';
+
+export const auditMiddleware = (action: string, resource: string) => {"
+/mnt/data/securebond_extracted/SecureBond/server/middleware/auth.ts,"import { Request, Response, NextFunction } from 'express';
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;"
+/mnt/data/securebond_extracted/SecureBond/server/middleware/healthCheck.ts,"import { Request, Response, NextFunction } from 'express';
+import { storage } from '../storage';
+import { sendGridService } from '../services/sendgrid';
+
+interface HealthStatus {"
+/mnt/data/securebond_extracted/SecureBond/server/middleware/performance.ts,"import { Request, Response, NextFunction } from 'express';
+import { performance } from 'perf_hooks';
+
+interface PerformanceMetrics {
+  requestId: string;"
+/mnt/data/securebond_extracted/SecureBond/server/middleware/security.ts,"import { Request, Response, NextFunction } from 'express';
+import { rateLimit } from 'express-rate-limit';
+
+// Rate limiting for login attempts
+export const loginRateLimit = rateLimit({"
+/mnt/data/securebond_extracted/SecureBond/server/middleware/securityAudit.ts,"import { Request, Response, NextFunction } from 'express';
+import { storage } from '../storage';
+
+interface SecurityEvent {
+  id: string;"
+/mnt/data/securebond_extracted/SecureBond/server/middleware/validation.ts,"import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
+
+export const validateBody = (schema: z.ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {"
+/mnt/data/securebond_extracted/SecureBond/server/routes/admin.ts,"import { Router } from ""express"";
+import { storage } from ""../local-db"";
+import bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
+"
+/mnt/data/securebond_extracted/SecureBond/server/routes/dashboard.ts,"import { Express } from 'express';
+import { requireAuth, requireRole, type AuthenticatedRequest } from '../middleware/auth';
+import { storage } from '../storage';
+
+export function registerDashboardRoutes(app: Express) {"
+/mnt/data/securebond_extracted/SecureBond/server/services/arrestLogScraper.ts,"import { load } from 'cheerio';
+
+interface ArrestRecord {
+  id: string;
+  name: string;"
+/mnt/data/securebond_extracted/SecureBond/server/services/geolocationService.ts,"// Using built-in fetch (Node.js 18+)
+
+interface CellTowerLocation {
+  mcc: number;  // Mobile Country Code
+  mnc: number;  // Mobile Network Code  "
+/mnt/data/securebond_extracted/SecureBond/server/services/notificationService.ts,"import { sendGridService } from './sendgrid';
+import { storage } from '../storage';
+import type { Client, CourtDate, Notification } from '@shared/schema';
+
+interface SMSProvider {"
+/mnt/data/securebond_extracted/SecureBond/server/services/sendgrid.ts,"import { MailService } from '@sendgrid/mail';
+
+if (!process.env.SENDGRID_API_KEY) {
+  console.warn(""SENDGRID_API_KEY environment variable not set. Email functionality will be disabled."");
+}"
+/mnt/data/securebond_extracted/SecureBond/server/utils/auditLogger.ts,"import { promises as fs } from 'fs';
+import path from 'path';
+
+export interface AuditLogEntry {
+  id: string;"
+/mnt/data/securebond_extracted/SecureBond/server/utils/locationTracker.ts,"import { promises as fs } from 'fs';
+import path from 'path';
+import { auditLogger } from './auditLogger';
+
+export interface LocationData {"
+/mnt/data/securebond_extracted/SecureBond/server/utils/logger.ts,"import fs from 'fs/promises';
+import path from 'path';
+
+export enum LogLevel {
+  ERROR = 'ERROR',"
+/mnt/data/securebond_extracted/SecureBond/shared/schema.ts,"import {
+  pgTable,
+  text,
+  varchar,
+  timestamp,"

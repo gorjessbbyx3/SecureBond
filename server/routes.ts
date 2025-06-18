@@ -571,7 +571,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           complianceRelevant: true,
         });
 
-        req.session.user = { username, role };
+        (req.session as any).user = { username, role };
         return res.json({ 
           success: true, 
           role, 
@@ -592,7 +592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(401).json({ message: "Invalid password" });
         }
         
-        req.session.user = { 
+        (req.session as any).user = { 
           id: client.id,
           clientId: client.clientId, 
           fullName: client.fullName,

@@ -1,0 +1,1433 @@
+File,Hook Context Blocks
+/mnt/data/securebond_extracted/SecureBond/client/src/components/Dashboard.tsx,"import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+---
+export function Dashboard() {
+const { user } = useAuth();
+
+const { data: stats, isLoading, error } = useQuery<DashboardStats>({
+queryKey: ['/api/dashboard/stats'],
+queryFn: () => api.get('/api/dashboard/stats'),
+enabled: !!user && user.role === 'admin',
+---
+refetchInterval: 30000, // Refresh every 30 seconds
+});
+
+const { data: recentActivity } = useQuery({
+queryKey: ['/api/dashboard/activity'],
+queryFn: () => api.get('/api/dashboard/recent-activity'),
+enabled: !!user && user.role === 'admin',"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/SystemHealth.tsx,"import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+---
+}
+
+export function SystemHealth() {
+const { data: metrics, isLoading, error } = useQuery<SystemMetrics>({
+queryKey: ['/api/system/health'],
+queryFn: () => api.get('/api/system/health'),
+refetchInterval: 30000, // Refresh every 30 seconds"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/admin-settings.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+---
+
+export default function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+const [showNewPassword, setShowNewPassword] = useState(false);
+---
+const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
+
+// Fetch current admin info
+const { data: adminCredentials } = useQuery({
+queryKey: [""/api/admin/credentials""],
+enabled: isOpen,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/ai-enhanced-overview.tsx,"Zap,
+BarChart3
+} from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+
+interface RiskMetrics {
+criticalRisk: number;
+---
+operationalScore: 0
+});
+
+const { data: clients = [] } = useQuery({
+queryKey: [""/api/clients""],
+});
+
+---
+queryKey: [""/api/clients""],
+});
+
+const { data: payments = [] } = useQuery({
+queryKey: [""/api/payments""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/analytics-charts.tsx,"import { Badge } from ""@/components/ui/badge"";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Area, AreaChart } from ""recharts"";
+import { TrendingUp, TrendingDown, DollarSign, Users, Calendar, Activity } from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+import type { Client, Payment, Expense } from ""@shared/schema"";
+
+export default function AnalyticsCharts() {
+---
+import type { Client, Payment, Expense } from ""@shared/schema"";
+
+export default function AnalyticsCharts() {
+const { data: analytics } = useQuery({
+queryKey: ['/api/analytics/overview'],
+});
+
+---
+queryKey: ['/api/analytics/overview'],
+});
+
+const { data: payments = [] } = useQuery<Payment[]>({
+queryKey: ['/api/payments'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/arrest-monitoring-system.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+---
+const [recordsPerPage] = useState(10);
+
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+// Fetch arrest records with automatic updates
+const { data: arrestRecords, isLoading: recordsLoading } = useQuery({
+---
+const queryClient = useQueryClient();
+
+// Fetch arrest records with automatic updates
+const { data: arrestRecords, isLoading: recordsLoading } = useQuery({
+queryKey: [""/api/arrest-monitoring/records""],
+refetchInterval: 60000, // Refresh every minute for real-time updates
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/automated-court-reminders.tsx,"import React, { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+---
+const { toast } = useToast();
+
+// Fetch notification statistics
+const { data: stats, isLoading: statsLoading } = useQuery<NotificationStats>({
+queryKey: ['/api/admin/notification-stats'],
+refetchInterval: 30000 // Refresh every 30 seconds
+});
+---
+});
+
+// Fetch upcoming reminders
+const { data: reminders, isLoading: remindersLoading } = useQuery<CourtReminder[]>({
+queryKey: ['/api/admin/court-reminders'],
+refetchInterval: 60000 // Refresh every minute
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/bulk-client-upload.tsx,"import { Progress } from ""@/components/ui/progress"";
+import { Alert, AlertDescription } from ""@/components/ui/alert"";
+import { FileText, Upload, CheckCircle, AlertCircle, X } from ""lucide-react"";
+import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+
+---
+const [selectedFile, setSelectedFile] = useState<File | null>(null);
+const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const uploadMutation = useMutation({
+mutationFn: async (file: File) => {
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const uploadMutation = useMutation({
+mutationFn: async (file: File) => {
+const formData = new FormData();
+formData.append('csvFile', file);"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/business-settings.tsx,"Key
+} from ""lucide-react"";
+import { useToast } from ""@/hooks/use-toast"";
+import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+
+interface BusinessProfile {
+---
+
+export function BusinessSettings() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const [sendGridConfig, setSendGridConfig] = useState({
+apiKey: """",
+---
+permissions: [] as string[]
+});
+
+const { data: staffMembers = [] } = useQuery<StaffMember[]>({
+queryKey: [""/api/admin/staff""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-analytics-dashboard.tsx,"import { Progress } from ""@/components/ui/progress"";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, ScatterChart, Scatter } from ""recharts"";
+import { Users, AlertTriangle, TrendingUp, Calendar, MapPin, Clock, DollarSign, Activity } from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+import type { Client, Payment, CheckIn } from ""@shared/schema"";
+import { format, startOfMonth, endOfMonth, subMonths, parseISO } from ""date-fns"";
+
+---
+import { format, startOfMonth, endOfMonth, subMonths, parseISO } from ""date-fns"";
+
+export default function ClientAnalyticsDashboard() {
+const { data: clients = [] } = useQuery<Client[]>({
+queryKey: ['/api/clients'],
+});
+
+---
+queryKey: ['/api/clients'],
+});
+
+const { data: payments = [] } = useQuery<Payment[]>({
+queryKey: ['/api/payments'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-management-broken.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { z } from ""zod"";
+import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";
+---
+const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const form = useForm<ClientFormData>({
+resolver: zodResolver(clientFormSchema),
+---
+},
+});
+
+const { data: clients, isLoading: clientsLoading } = useQuery({
+queryKey: [""/api/clients""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/client-management.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Link } from ""wouter"";
+import { z } from ""zod"";
+import { useForm } from ""react-hook-form"";
+---
+const [viewingClient, setViewingClient] = useState<Client | null>(null);
+
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const form = useForm<ClientFormData>({
+resolver: zodResolver(clientFormSchema),
+---
+},
+});
+
+const { data: clients, isLoading } = useQuery({
+queryKey: [""/api/clients""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/company-configuration.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+---
+
+export function CompanyConfigurationManager({ companyId }: CompanyConfigurationManagerProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState(""profile"");
+
+// Fetch company configuration
+---
+const [activeTab, setActiveTab] = useState(""profile"");
+
+// Fetch company configuration
+const { data: companyConfig, isLoading } = useQuery<CompanyConfiguration>({
+queryKey: [""/api/admin/company-configuration"", companyId],
+enabled: !!companyId,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-date-approvals.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+
+export function CourtDateApprovals() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: pendingCourtDates = [], isLoading } = useQuery({
+queryKey: [""/api/court-dates/pending""],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: pendingCourtDates = [], isLoading } = useQuery({
+queryKey: [""/api/court-dates/pending""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-date-reminder-system.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { z } from ""zod"";
+import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";
+---
+const [selectedView, setSelectedView] = useState<'all' | 'upcoming' | 'overdue' | 'today'>('upcoming');
+
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const form = useForm<CourtDateFormData>({
+resolver: zodResolver(courtDateFormSchema),
+---
+});
+
+// Fetch court dates and clients
+const { data: courtDates, isLoading: courtDatesLoading } = useQuery({
+queryKey: [""/api/court-dates""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/court-scraping-management.tsx,"import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+---
+const [deleteReason, setDeleteReason] = useState('');
+const [deletingCourtDate, setDeletingCourtDate] = useState<CourtDate | null>(null);
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+// Get all clients
+const { data: clients = [] } = useQuery<Client[]>({
+---
+const queryClient = useQueryClient();
+
+// Get all clients
+const { data: clients = [] } = useQuery<Client[]>({
+queryKey: ['/api/clients'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/dashboard-stats.tsx,"import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { Users, DollarSign, Calendar, AlertTriangle, TrendingUp, Clock, ExternalLink } from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import { DashboardStats as DashboardStatsType, Alert } from ""@/lib/types"";
+---
+
+export default function DashboardStats({ role = 'admin' }: DashboardStatsProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: stats } = useQuery<DashboardStatsType>({
+queryKey: ['/api/dashboard/stats'],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: stats } = useQuery<DashboardStatsType>({
+queryKey: ['/api/dashboard/stats'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/data-management.tsx,"import { Progress } from ""@/components/ui/progress"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { Download, Upload, HardDrive, Shield, RefreshCw, Calendar, FileText, Database } from ""lucide-react"";
+import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+
+---
+export default function DataManagement() {
+const [exportProgress, setExportProgress] = useState(0);
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: storageInfo } = useQuery<StorageInfo>({
+queryKey: ['/api/data/storage-info'],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: storageInfo } = useQuery<StorageInfo>({
+queryKey: ['/api/data/storage-info'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/financial-dashboard.tsx,"import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from ""@/components/ui/alert-dialog"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { DollarSign, Plus, Edit, Trash2, Check, X, TrendingUp, TrendingDown, Calendar, Receipt, Eye } from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import { useForm } from ""react-hook-form"";
+---
+
+export default function FinancialDashboard() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
+const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+const [selectedPeriod, setSelectedPeriod] = useState(""month"");
+---
+});
+
+// Fetch payments
+const { data: payments, isLoading: paymentsLoading } = useQuery({
+queryKey: [""/api/payments""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/geolocation-integration.tsx,"import { useState } from ""react"";
+import { useMutation } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+---
+const [testResults, setTestResults] = useState<GeolocationTestResult[]>([]);
+
+// Test GPS location tracking
+const testGPSMutation = useMutation({
+mutationFn: async () => {
+return new Promise<GeolocationTestResult>((resolve, reject) => {
+navigator.geolocation.getCurrentPosition(
+---
+});
+
+// Test cell tower location tracking
+const testCellTowerMutation = useMutation({
+mutationFn: async (): Promise<GeolocationTestResult> => {
+try {
+const response = await apiRequest(""POST"", `/api/clients/${testClient}/location`, {"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/location-management-dashboard.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+const [selectedClient, setSelectedClient] = useState<string>("""");
+
+// Fetch real-time client locations
+const { data: locations = [], isLoading, refetch } = useQuery({
+queryKey: ['/api/admin/client-locations/real-time'],
+refetchInterval: 30000, // Refresh every 30 seconds
+});
+---
+});
+
+// Track GPS location mutation
+const trackGPSMutation = useMutation({
+mutationFn: async ({ clientId, latitude, longitude }: { clientId: string; latitude: number; longitude: number }) => {
+const response = await apiRequest(""POST"", `/api/clients/${clientId}/location`, {
+locationData: { lat: latitude, lon: longitude }"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/million-dollar-client-management.tsx,"UserPlus,
+Key
+} from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { useLocation } from ""wouter"";
+import { useToast } from ""@/hooks/use-toast"";
+import { apiRequest } from ""@/lib/queryClient"";
+---
+const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: clients = [] } = useQuery({
+queryKey: [""/api/clients""],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: clients = [] } = useQuery({
+queryKey: [""/api/clients""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/million-dollar-financial.tsx,"Brain,
+Zap
+} from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+
+interface FinancialMetrics {
+totalRevenue: number;
+---
+revenueProjection: 0
+});
+
+const { data: payments = [] } = useQuery({
+queryKey: [""/api/payments""],
+});
+
+---
+queryKey: [""/api/payments""],
+});
+
+const { data: clients = [] } = useQuery({
+queryKey: [""/api/clients""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/notification-center.tsx,"import { ScrollArea } from ""@/components/ui/scroll-area"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { Bell, AlertTriangle, CheckCircle, Clock, Phone, MapPin, DollarSign, Calendar } from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import { Notification } from ""@/lib/types"";
+---
+export default function NotificationCenter() {
+const [activeTab, setActiveTab] = useState(""all"");
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: notifications, isLoading } = useQuery<Notification[]>({
+queryKey: ['/api/notifications'],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: notifications, isLoading } = useQuery<Notification[]>({
+queryKey: ['/api/notifications'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/real-time-location-tracker.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+});
+
+// Fetch real-time client locations
+const { data: locations = [], isLoading, refetch } = useQuery({
+queryKey: ['/api/admin/client-locations/real-time'],
+refetchInterval: 30000, // Refresh every 30 seconds
+});
+---
+});
+
+// Track client location mutation
+const trackLocationMutation = useMutation({
+mutationFn: async ({ clientId, locationData }: { clientId: string; locationData: any }) => {
+const response = await apiRequest(""POST"", `/api/clients/${clientId}/location`, { locationData });
+return response.json();"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/real-time-map.tsx,"import { Badge } from ""@/components/ui/badge"";
+import { Button } from ""@/components/ui/button"";
+import { MapPin, Navigation, Users, AlertTriangle, Clock, Zap } from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+import type { Client, CheckIn } from ""@shared/schema"";
+
+interface ClientLocation {
+---
+}
+
+export default function RealTimeMap() {
+const { data: clients = [] } = useQuery<Client[]>({
+queryKey: ['/api/clients'],
+});
+
+---
+});
+
+// Get actual client check-in data with locations
+const { data: checkIns = [] } = useQuery<CheckIn[]>({
+queryKey: ['/api/check-ins'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/recent-arrest-logs.tsx,"import React, { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+---
+const { toast } = useToast();
+
+// Fetch recent arrest logs
+const { data: arrestLogs, isLoading, refetch } = useQuery<ArrestRecord[]>({
+queryKey: ['/api/arrest-logs/recent'],
+refetchInterval: 300000 // Refresh every 5 minutes
+});
+---
+});
+
+// Fetch contact history for selected record
+const { data: contactHistory } = useQuery<ContactLog[]>({
+queryKey: ['/api/arrest-logs/contact-history', selectedRecord?.id],
+enabled: !!selectedRecord?.id
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/roi-analysis-tab.tsx,"Award,
+Sparkles
+} from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+
+export default function ROIAnalysisTab() {
+const { data: payments = [] } = useQuery({
+---
+import { useQuery } from ""@tanstack/react-query"";
+
+export default function ROIAnalysisTab() {
+const { data: payments = [] } = useQuery({
+queryKey: [""/api/payments""],
+});
+
+---
+queryKey: [""/api/payments""],
+});
+
+const { data: clients = [] } = useQuery({
+queryKey: [""/api/clients""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/security-audit-dashboard.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+
+export function SecurityAuditDashboard() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [searchFilters, setSearchFilters] = useState({
+startDate: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
+endDate: format(new Date(), 'yyyy-MM-dd'),
+---
+});
+
+// Fetch security metrics
+const { data: metrics, isLoading: metricsLoading } = useQuery<SecurityMetrics>({
+queryKey: [""/api/admin/audit/metrics""],
+refetchInterval: 30000, // Refresh every 30 seconds
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/skip-bail-monitoring.tsx,"import { useState, useEffect } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+
+export function SkipBailMonitoring() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [selectedClientId, setSelectedClientId] = useState<string>("""");
+const [riskFilter, setRiskFilter] = useState<string>("""");
+
+---
+const [riskFilter, setRiskFilter] = useState<string>("""");
+
+// Fetch all clients for selection
+const { data: clients = [] } = useQuery({
+queryKey: [""/api/clients""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/state-configuration.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+---
+
+export function StateConfigurationManager({ companyId }: StateConfigurationManagerProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [selectedState, setSelectedState] = useState<string>("""");
+const [editingConfig, setEditingConfig] = useState<StateConfiguration | null>(null);
+const [activeTab, setActiveTab] = useState(""overview"");
+---
+const [activeTab, setActiveTab] = useState(""overview"");
+
+// Fetch state configurations
+const { data: stateConfigs = [] } = useQuery<StateConfiguration[]>({
+queryKey: [""/api/admin/state-configurations""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/system-monitoring-dashboard.tsx,"import { Button } from ""@/components/ui/button"";
+import { Progress } from ""@/components/ui/progress"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { useQuery } from ""@tanstack/react-query"";
+import { RefreshCw, Activity, Database, Mail, Server, AlertTriangle, CheckCircle, Clock, TrendingUp, TrendingDown } from ""lucide-react"";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from ""recharts"";
+
+---
+export function SystemMonitoringDashboard() {
+const [autoRefresh, setAutoRefresh] = useState(true);
+
+const { data: healthData, refetch: refetchHealth } = useQuery({
+queryKey: [""/api/system/health""],
+refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds
+});
+---
+refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds
+});
+
+const { data: performanceData, refetch: refetchPerformance } = useQuery({
+queryKey: [""/api/system/performance/stats""],
+refetchInterval: autoRefresh ? 10000 : false, // Refresh every 10 seconds
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/admin/top-locations.tsx,"import { useQuery } from ""@tanstack/react-query"";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { MapPin, Users, TrendingUp } from ""lucide-react"";
+---
+}
+
+export default function TopLocations() {
+const { data: topLocations = [], isLoading } = useQuery<LocationData[]>({
+queryKey: ['/api/analytics/top-locations'],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/analytics/client-analytics.tsx,"CheckCircle,
+XCircle
+} from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+import { useState } from ""react"";
+
+export default function ClientAnalytics() {
+---
+export default function ClientAnalytics() {
+const [selectedTimeframe, setSelectedTimeframe] = useState(""week"");
+
+const { data: clients } = useQuery({
+queryKey: [""/api/clients""],
+});
+
+---
+queryKey: [""/api/clients""],
+});
+
+const { data: checkIns } = useQuery({
+queryKey: [""/api/checkins""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/charts/revenue-chart.tsx,"import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+import { DollarSign, TrendingUp, Calendar } from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+
+export default function RevenueChart() {
+const { data: revenueData } = useQuery({
+---
+import { useQuery } from ""@tanstack/react-query"";
+
+export default function RevenueChart() {
+const { data: revenueData } = useQuery({
+queryKey: [""/api/analytics/revenue""],
+});
+
+---
+queryKey: [""/api/analytics/revenue""],
+});
+
+const { data: payments } = useQuery({
+queryKey: [""/api/payments""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/check-in-form.tsx,"import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";
+import { z } from ""zod"";
+import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from ""@/components/ui/form"";
+---
+
+export function CheckInForm({ clientId }: CheckInFormProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [location, setLocation] = useState<string>("""");
+const [locationError, setLocationError] = useState<string>("""");
+const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+---
+}
+};
+
+const checkInMutation = useMutation({
+mutationFn: async (data: CheckInFormData) => {
+// Critical validation - no check-in without GPS
+if (!data.location) {"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/court-date-notifications.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+
+export function CourtDateNotifications({ clientId }: CourtDateNotificationsProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: courtDates = [], isLoading } = useQuery({
+queryKey: [""/api/client/court-dates""],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: courtDates = [], isLoading } = useQuery({
+queryKey: [""/api/client/court-dates""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/client/payment-upload.tsx,"import { Label } from ""@/components/ui/label"";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ""@/components/ui/select"";
+import { DollarSign, Upload, CreditCard, AlertCircle } from ""lucide-react"";
+import { useMutation, useQueryClient, useQuery } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import type { PaymentFormData } from ""@/lib/types"";
+---
+
+export default function PaymentUpload({ clientId }: PaymentUploadProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [amount, setAmount] = useState("""");
+const [paymentMethod, setPaymentMethod] = useState("""");
+const [notes, setNotes] = useState("""");
+---
+const [receiptFile, setReceiptFile] = useState<File | null>(null);
+
+// Fetch client payments
+const { data: payments, isLoading } = useQuery({
+queryKey: [""/api/clients"", clientId, ""payments""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/authentic-alerts.tsx,"X,
+Eye
+} from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+
+---
+
+export default function AuthenticAlerts() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: alerts, isLoading } = useQuery({
+queryKey: [""/api/alerts/unacknowledged""],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: alerts, isLoading } = useQuery({
+queryKey: [""/api/alerts/unacknowledged""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/court-reminders.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+
+export default function CourtReminders() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: upcomingReminders = [], isLoading: upcomingLoading } = useQuery({
+queryKey: [""/api/court-reminders/upcoming""],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: upcomingReminders = [], isLoading: upcomingLoading } = useQuery({
+queryKey: [""/api/court-reminders/upcoming""],
+refetchInterval: 30000, // Refresh every 30 seconds
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/performance-metrics.tsx,"Clock,
+AlertTriangle
+} from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+
+export default function PerformanceMetrics() {
+const { data: clients } = useQuery({
+---
+import { useQuery } from ""@tanstack/react-query"";
+
+export default function PerformanceMetrics() {
+const { data: clients } = useQuery({
+queryKey: [""/api/clients""],
+});
+
+---
+queryKey: [""/api/clients""],
+});
+
+const { data: payments } = useQuery({
+queryKey: [""/api/payments""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/quick-stats.tsx,"Clock,
+MapPin
+} from ""lucide-react"";
+import { useQuery } from ""@tanstack/react-query"";
+
+interface QuickStatsProps {
+role?: ""admin"" | ""staff"" | ""client"";
+---
+}
+
+export default function QuickStats({ role = ""admin"" }: QuickStatsProps) {
+const { data: stats } = useQuery({
+queryKey: [""/api/dashboard/stats""],
+});
+
+---
+queryKey: [""/api/dashboard/stats""],
+});
+
+const { data: recentActivity } = useQuery({
+queryKey: [""/api/dashboard/recent-activity""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/dashboard/smart-alerts.tsx,"X,
+Eye
+} from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+
+---
+
+export default function SmartAlerts() {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: alerts } = useQuery({
+queryKey: [""/api/alerts/unacknowledged""],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: alerts } = useQuery({
+queryKey: [""/api/alerts/unacknowledged""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/NotificationSystem.tsx,"import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Bell, Check, X, AlertCircle, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+---
+export function NotificationSystem() {
+const { user } = useAuth();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: notifications = [], isLoading } = useQuery({
+queryKey: ['/api/notifications', user?.id],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: notifications = [], isLoading } = useQuery({
+queryKey: ['/api/notifications', user?.id],
+queryFn: () => api.get<Notification[]>('/api/notifications'),
+enabled: !!user,"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/enhanced-notification-center.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Card, CardContent } from ""@/components/ui/card"";
+import { Badge } from ""@/components/ui/badge"";
+---
+export function EnhancedNotificationCenter() {
+const [isOpen, setIsOpen] = useState(false);
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const { user } = useAuth();
+
+const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+---
+const queryClient = useQueryClient();
+const { user } = useAuth();
+
+const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+queryKey: [""/api/notifications/user"", user?.id || 'anonymous'],
+refetchInterval: 15000, // Refresh every 15 seconds
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/notification-center.tsx,"import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Bell, Settings, X, Check, AlertTriangle, Info, Calendar, DollarSign, UserX, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+---
+export function NotificationCenter() {
+const [isOpen, setIsOpen] = useState(false);
+const [showPreferences, setShowPreferences] = useState(false);
+const queryClient = useQueryClient();
+const { user } = useAuth();
+const userId = user?.id || 'anonymous';
+
+---
+const { user } = useAuth();
+const userId = user?.id || 'anonymous';
+
+const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+queryKey: ['/api/notifications/user', userId],
+refetchInterval: 30000, // Poll every 30 seconds for real-time updates
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/notifications/notification-preferences.tsx,"import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Settings, Bell, Mail, Smartphone, Clock, Volume2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+---
+
+export function NotificationPreferences({ open, onOpenChange, userId }: NotificationPreferencesProps) {
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: preferences, isLoading } = useQuery({
+queryKey: ['/api/notification-preferences', userId],
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const { data: preferences, isLoading } = useQuery({
+queryKey: ['/api/notification-preferences', userId],
+enabled: open,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/components/terms/terms-acknowledgment-banner.tsx,"import { Checkbox } from ""@/components/ui/checkbox"";
+import { Link } from ""wouter"";
+import { X, FileText, AlertTriangle } from ""lucide-react"";
+import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+
+---
+export default function TermsAcknowledgmentBanner({ onAcknowledge }: TermsAcknowledgmentBannerProps) {
+const [hasRead, setHasRead] = useState(false);
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const acknowledgeMutation = useMutation({
+mutationFn: async () => {
+---
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+const acknowledgeMutation = useMutation({
+mutationFn: async () => {
+await apiRequest(""/api/terms/acknowledge"", ""POST"", {
+version: ""2025-06-01"","
+/mnt/data/securebond_extracted/SecureBond/client/src/contexts/BrandingContext.tsx,"import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
+
+interface BrandingSettings {
+companyName: string;
+---
+const [branding, setBranding] = useState<BrandingSettings>(defaultBranding);
+
+// Fetch company configuration for branding
+const { data: companyConfig, isLoading } = useQuery({
+queryKey: [""/api/admin/company-configuration/1""], // Default company ID
+retry: false,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useApiEndpoints.ts,"import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+
+// Comprehensive API endpoint integration for production readiness
+---
+
+// Comprehensive API endpoint integration for production readiness
+export const useApiEndpoints = () => {
+const queryClient = useQueryClient();
+
+// Real-time location tracking
+const useRealTimeLocations = () => {
+---
+
+// Real-time location tracking
+const useRealTimeLocations = () => {
+return useQuery({
+queryKey: ['/api/admin/client-locations/real-time'],
+refetchInterval: 5000, // Refresh every 5 seconds
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useAuth.ts,"import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+
+interface AuthUser {
+---
+}
+
+export function useAuth() {
+const queryClient = useQueryClient();
+
+const { data: user, isLoading, error, refetch } = useQuery<AuthUser>({
+queryKey: [""/api/auth/user""],
+---
+export function useAuth() {
+const queryClient = useQueryClient();
+
+const { data: user, isLoading, error, refetch } = useQuery<AuthUser>({
+queryKey: [""/api/auth/user""],
+retry: (failureCount, error) => {
+// Don't retry on authentication errors"
+/mnt/data/securebond_extracted/SecureBond/client/src/hooks/useTermsStatus.ts,"import { useQuery } from ""@tanstack/react-query"";
+
+export function useTermsStatus() {
+const { data: termsStatus, isLoading } = useQuery({
+---
+import { useQuery } from ""@tanstack/react-query"";
+
+export function useTermsStatus() {
+const { data: termsStatus, isLoading } = useQuery({
+queryKey: [""/api/terms/status""],
+retry: false,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/admin-login.tsx,"import { Label } from ""@/components/ui/label"";
+import { Alert, AlertDescription } from ""@/components/ui/alert"";
+import { UserRoundCheck, Lock, User, AlertTriangle, ArrowLeft } from ""lucide-react"";
+import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import Header from ""@/components/layout/header"";
+---
+export default function AdminLogin() {
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [username, setUsername] = useState("""");
+const [password, setPassword] = useState("""");
+const [loginError, setLoginError] = useState("""");
+---
+const [password, setPassword] = useState("""");
+const [loginError, setLoginError] = useState("""");
+
+const loginMutation = useMutation({
+mutationFn: async (credentials: AdminCredentials): Promise<LoginResponse> => {
+const response = await apiRequest(""POST"", ""/api/auth/admin-login"", credentials);
+return response.json();"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-dashboard-mobile.tsx,"import { Badge } from ""@/components/ui/badge"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { CheckCircle, Calendar, DollarSign, MessageSquare, LogOut, Clock, MapPin } from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import CheckInForm from ""@/components/client/check-in-form"";
+---
+export default function ClientDashboard() {
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState(""overview"");
+
+const logoutMutation = useMutation({
+---
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState(""overview"");
+
+const logoutMutation = useMutation({
+mutationFn: async () => {
+await apiRequest(""POST"", ""/api/auth/logout"");
+},"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-dashboard.tsx,"import { Badge } from ""@/components/ui/badge"";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { CheckCircle, Calendar, DollarSign, MessageSquare, LogOut, Clock, MapPin } from ""lucide-react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import { useAuth } from ""@/hooks/useAuth"";
+---
+export default function ClientDashboard() {
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState(""overview"");
+const { isAuthenticated, isLoading } = useAuth();
+const { hasAcknowledged, isLoading: privacyLoading, acknowledgePrivacy } = usePrivacyAcknowledgment();
+---
+);
+}
+
+const logoutMutation = useMutation({
+mutationFn: async () => {
+await apiRequest(""POST"", ""/api/auth/logout"");
+},"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-details.tsx,"import { useState } from ""react"";
+import { useRoute, useLocation } from ""wouter"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+const [, params] = useRoute(""/client/:id"");
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const clientId = params?.id ? parseInt(params.id) : null;
+
+const [isAddingVehicle, setIsAddingVehicle] = useState(false);
+---
+const [isSearchingRecords, setIsSearchingRecords] = useState(false);
+
+// Fetch client data
+const { data: client, isLoading } = useQuery({
+queryKey: [`/api/clients/${clientId}`],
+enabled: !!clientId,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-login.tsx,"import { EnhancedInput } from ""@/components/ui/enhanced-input"";
+import { Alert, AlertDescription } from ""@/components/ui/alert"";
+import { User, Lock, Phone, AlertCircle } from ""lucide-react"";
+import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import { useErrorContext, mapApiErrorToContext } from ""@/hooks/useErrorContext"";
+---
+const [phoneNumber, setPhoneNumber] = useState("""");
+const [loginMethod, setLoginMethod] = useState<""id"" | ""phone"">(""id"");
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const { addError, removeError, clearErrors } = useErrorContext();
+
+const loginMutation = useMutation({
+---
+const queryClient = useQueryClient();
+const { addError, removeError, clearErrors } = useErrorContext();
+
+const loginMutation = useMutation({
+mutationFn: async ({ clientId, password, phoneNumber }: { clientId?: string; password?: string; phoneNumber?: string }) => {
+if (loginMethod === ""id"") {
+return await apiRequest(""POST"", ""/api/auth/client-login"", { clientId, password });"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-portal-activation.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { useMutation } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+---
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get(""token"");
+
+const activateAccountMutation = useMutation({
+mutationFn: async (data: { token: string; newPassword: string }) => {
+return await apiRequest(""/api/admin/activate-account"", {
+method: ""POST"","
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-portal-preview.tsx,"import { useState } from ""react"";
+import { useQuery } from ""@tanstack/react-query"";
+import { Card, CardContent, CardHeader, CardTitle } from ""@/components/ui/card"";
+import { Button } from ""@/components/ui/button"";
+import { Badge } from ""@/components/ui/badge"";
+---
+const [, setLocation] = useLocation();
+const [selectedClientId, setSelectedClientId] = useState<string>("""");
+
+const { data: clients } = useQuery({
+queryKey: [""/api/clients""],
+});
+
+---
+queryKey: [""/api/clients""],
+});
+
+const { data: selectedClient } = useQuery({
+queryKey: [""/api/clients"", selectedClientId],
+enabled: !!selectedClientId,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/client-profile.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation } from ""@tanstack/react-query"";
+import { useRoute } from ""wouter"";
+import { useForm } from ""react-hook-form"";
+import { zodResolver } from ""@hookform/resolvers/zod"";
+---
+const { toast } = useToast();
+const [isEditing, setIsEditing] = useState(false);
+
+const { data: client, isLoading } = useQuery({
+queryKey: ['/api/clients', clientId],
+enabled: !!clientId,
+});
+---
+enabled: !!clientId,
+});
+
+const { data: courtDates = [] } = useQuery({
+queryKey: ['/api/clients', clientId, 'court-dates'],
+enabled: !!clientId,
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/comprehensive-admin-dashboard.tsx,"import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+---
+export default function ComprehensiveAdminDashboard() {
+const { user } = useAuth();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState('overview');
+const [searchTerm, setSearchTerm] = useState('');
+const [filterStatus, setFilterStatus] = useState('all');
+---
+const [dateRange, setDateRange] = useState('30d');
+
+// Main dashboard data
+const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery<DashboardStats>({
+queryKey: ['/api/dashboard/stats'],
+refetchInterval: 30000, // Refresh every 30 seconds
+});"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/enhanced-admin-dashboard.tsx,"import { Badge } from ""@/components/ui/badge"";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from ""@/components/ui/dialog"";
+import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye, Users, DollarSign, Calendar, MapPin, Shield, Activity, Database, Upload, Building2 } from ""lucide-react"";
+import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+
+---
+export default function EnhancedAdminDashboard() {
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState(""overview"");
+const [showSettings, setShowSettings] = useState(false);
+
+---
+const [activeTab, setActiveTab] = useState(""overview"");
+const [showSettings, setShowSettings] = useState(false);
+
+const { data: alerts } = useQuery({
+queryKey: [""/api/alerts/unacknowledged""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/landing.tsx,"import { Checkbox } from ""@/components/ui/checkbox"";
+import { Alert, AlertDescription } from ""@/components/ui/alert"";
+import { Shield, UserCircle, Lock, IdCard, Eye, EyeOff, ArrowRight, UserRoundCheck, Wrench, Users, AlertTriangle } from ""lucide-react"";
+import { useMutation } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import Header from ""@/components/layout/header"";
+---
+const [showPassword, setShowPassword] = useState(false);
+const [loginError, setLoginError] = useState("""");
+
+const loginMutation = useMutation({
+mutationFn: async (credentials: ClientCredentials): Promise<LoginResponse> => {
+const response = await apiRequest(""POST"", ""/api/auth/client-login"", credentials);
+return response.json();"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/maintenance-dashboard.tsx,"import { Tabs, TabsContent, TabsList, TabsTrigger } from ""@/components/ui/tabs"";
+import { Badge } from ""@/components/ui/badge"";
+import { Server, Database, Activity, Settings, LogOut, AlertTriangle, CheckCircle } from ""lucide-react"";
+import { useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { useToast } from ""@/hooks/use-toast"";
+import Header from ""@/components/layout/header"";
+import Footer from ""@/components/layout/footer"";
+---
+export default function MaintenanceDashboard() {
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState(""overview"");
+
+// System management state
+---
+storage: ""healthy""
+});
+
+const logoutMutation = useMutation({
+mutationFn: async () => {
+// Clear session and redirect to login
+return fetch(""/api/auth/logout"", {"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/maintenance-login.tsx,"import { Label } from ""@/components/ui/label"";
+import { Alert, AlertDescription } from ""@/components/ui/alert"";
+import { Wrench, Lock, User, AlertTriangle, ArrowLeft } from ""lucide-react"";
+import { useMutation } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import Header from ""@/components/layout/header"";
+---
+const [password, setPassword] = useState("""");
+const [loginError, setLoginError] = useState("""");
+
+const loginMutation = useMutation({
+mutationFn: async (credentials: AdminCredentials): Promise<LoginResponse> => {
+const response = await apiRequest(""POST"", ""/api/auth/admin-login"", credentials);
+return response.json();"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/staff-dashboard.tsx,"Search,
+RefreshCw
+} from ""lucide-react"";
+import { useMutation, useQuery, useQueryClient } from ""@tanstack/react-query"";
+import { apiRequest } from ""@/lib/queryClient"";
+import { useToast } from ""@/hooks/use-toast"";
+import Header from ""@/components/layout/header"";
+---
+export default function StaffDashboard() {
+const [, setLocation] = useLocation();
+const { toast } = useToast();
+const queryClient = useQueryClient();
+const [activeTab, setActiveTab] = useState(""overview"");
+const [showSettings, setShowSettings] = useState(false);
+
+---
+const [showSettings, setShowSettings] = useState(false);
+
+// Fetch operational data
+const { data: clients = [] } = useQuery({
+queryKey: [""/api/clients""],
+});
+"
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/staff-login.tsx,"import { useState } from ""react"";
+import { useLocation } from ""wouter"";
+import { useMutation } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+---
+const [confirmPassword, setConfirmPassword] = useState("""");
+const { toast } = useToast();
+
+const loginMutation = useMutation({
+mutationFn: async (credentials: { username: string; password: string }) => {
+return await apiRequest(""/api/auth/staff-login"", {
+method: ""POST"",
+---
+},
+});
+
+const resetPasswordMutation = useMutation({
+mutationFn: async (data: { username: string; currentPassword: string; newPassword: string }) => {
+return await apiRequest(""/api/auth/reset-staff-password"", {
+method: ""POST"","
+/mnt/data/securebond_extracted/SecureBond/client/src/pages/user-management.tsx,"import { useState } from ""react"";
+import { useQuery, useMutation, useQueryClient } from ""@tanstack/react-query"";
+import { Button } from ""@/components/ui/button"";
+import { Input } from ""@/components/ui/input"";
+import { Label } from ""@/components/ui/label"";
+---
+const [showClientForm, setShowClientForm] = useState(false);
+const [showCredentials, setShowCredentials] = useState<Record<number, boolean>>({});
+const { toast } = useToast();
+const queryClient = useQueryClient();
+
+// Staff queries and mutations
+const { data: staff = [], isLoading: loadingStaff } = useQuery({
+---
+const queryClient = useQueryClient();
+
+// Staff queries and mutations
+const { data: staff = [], isLoading: loadingStaff } = useQuery({
+queryKey: [""/api/admin/staff""],
+});
+"
