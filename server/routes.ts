@@ -2654,7 +2654,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (status === 'attended') {
         // Remove any existing court alerts for this specific court date
-        const courtAlerts = await storage.getAlerts();
+        const courtAlerts = await storage.getAllAlerts();
         for (const alert of courtAlerts.filter((a: any) => 
           a.alertType === 'court_date' && 
           !a.acknowledged &&
