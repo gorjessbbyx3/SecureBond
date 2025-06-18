@@ -1522,13 +1522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       // Log the AI analysis for audit
-      auditLogger.logSystemEvent({
-        action: 'ai_analysis_generated',
-        entityType: 'client',
-        entityId: clientId.toString(),
-        details: { analysisType: 'individual', riskScore: analysis.riskScore },
-        userId: 'system'
-      });
+      console.log(`AI analysis generated for client ${clientId} with risk score: ${analysis.riskScore}`);
 
       res.json({
         success: true,
@@ -1586,17 +1580,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       globalAnalysis.portfolioInsights = generatePortfolioInsights(clients, payments, checkIns);
 
       // Log global analysis
-      auditLogger.logSystemEvent({
-        action: 'global_ai_analysis_generated',
-        entityType: 'system',
-        entityId: 'global',
-        details: { 
-          totalClients: clients.length, 
-          averageRiskScore: globalAnalysis.averageRiskScore,
-          highRiskCount: globalAnalysis.highRiskClients
-        },
-        userId: 'system'
-      });
+      console.log(`Global AI analysis generated for ${clients.length} clients with average risk score: ${globalAnalysis.averageRiskScore}`);
 
       res.json({
         success: true,
