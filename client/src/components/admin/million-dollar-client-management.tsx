@@ -50,20 +50,24 @@ export function MillionDollarClientManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [], isLoading: clientsLoading, error: clientsError } = useQuery({
     queryKey: ["/api/clients"],
+    retry: 1,
   });
 
-  const { data: alerts = [] } = useQuery({
+  const { data: alerts = [], isLoading: alertsLoading } = useQuery({
     queryKey: ["/api/alerts/unacknowledged"],
+    retry: 1,
   });
 
-  const { data: payments = [] } = useQuery({
+  const { data: payments = [], isLoading: paymentsLoading } = useQuery({
     queryKey: ["/api/payments"],
+    retry: 1,
   });
 
-  const { data: checkIns = [] } = useQuery({
+  const { data: checkIns = [], isLoading: checkInsLoading } = useQuery({
     queryKey: ["/api/check-ins"],
+    retry: 1,
   });
 
   const deleteClientMutation = useMutation({
