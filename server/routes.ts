@@ -1289,7 +1289,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const { acknowledgedBy } = req.body;
-      const alert = await storage.acknowledgeAlert(id, acknowledgedBy);
+      const alert = await storage.acknowledgeAlert(id);
       res.json(alert);
     } catch (error) {
       console.error("Error acknowledging alert:", error);
@@ -1889,7 +1889,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/notification-stats', isAuthenticated, async (req, res) => {
     try {
       const allReminders = await courtReminderService.getUpcomingCourtDates(30);
-      const notifications = await storage.getUserNotifications();
+      const notifications = await storage.getUserNotifications("1");
       
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1997,7 +1997,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { recordId } = req.params;
       
       // Only return authentic contact history from database
-      const contactHistory = await storage.readJsonFile(path.join(storage.dataDir, 'contact-history.json'), []);
+      const contactHistory = await storage.getClientFiles(parseInt(recordId));
       const recordHistory = contactHistory.filter((contact: any) => contact.arrestRecordId === recordId);
 
       res.json(recordHistory);
@@ -2654,13 +2654,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (status === 'attended') {
         // Remove any existing court alerts for this specific court date
-        const courtAlerts = await storage.getClientAlerts(updatedCourtDate.clientId!);
-        for (const alert of courtAlerts.filter(a => 
+        const courtAlerts = await storage.getAlerts();
+        for (const alert of courtAlerts.filter((a: any) => 
           a.alertType === 'court_date' && 
           !a.acknowledged &&
           a.message.includes(updatedCourtDate.courtType!)
         )) {
-          await storage.acknowledgeAlert(alert.id, 'admin');
+          await storage.acknowledgeAlert(alert.id);
         }
         
       } else if (status === 'missed') {
