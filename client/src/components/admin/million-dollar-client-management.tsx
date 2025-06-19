@@ -292,6 +292,82 @@ export function MillionDollarClientManagement() {
     return { tier: "BRONZE", color: "bg-orange-100 text-orange-800" };
   };
 
+  // Show loading state for initial data load
+  if (clientsLoading || paymentsLoading || checkInsLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">360° Client Intelligence Platform</h1>
+              <p className="text-purple-100">Loading client data...</p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold animate-pulse">Loading...</div>
+              <div className="text-purple-100">Gathering AI Insights</div>
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-6">
+          {[1, 2, 3].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-300 rounded w-32"></div>
+                    <div className="h-3 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    <div className="h-2 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    <div className="h-2 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    <div className="h-2 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if data loading failed
+  if (clientsError) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-6 w-6 text-red-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-red-900">Unable to Load Client Data</h3>
+              <p className="text-red-700">
+                {clientsError?.message || "There was an error loading client information. Please refresh the page or contact support."}
+              </p>
+            </div>
+          </div>
+          <Button 
+            className="mt-4" 
+            onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/clients"] })}
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Million Dollar Header */}
