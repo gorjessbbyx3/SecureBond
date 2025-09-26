@@ -43,7 +43,7 @@ export class NotificationService {
       try {
         await sendGridService.sendEmail({
           to: client.phoneNumber || 'client@example.com', // Use phone as fallback until email field added
-          from: 'notifications@securebond.com',
+          from: 'notifications@artofbail.com',
           subject: `Court Date Reminder - ${this.getReminderSubject(reminderType)}`,
           text: message,
           html: this.formatCourtReminderHTML(client, courtDate, reminderType)

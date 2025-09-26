@@ -37,7 +37,7 @@ export default function TermsOfService() {
               <Scale className="h-12 w-12 text-blue-600 mr-3" />
               <h1 className="text-3xl font-bold text-slate-900">Terms of Service</h1>
             </div>
-            <p className="text-slate-600">SecureBond Bail Bond Management System</p>
+            <p className="text-slate-600">Art of Bail Bond Management System</p>
             <p className="text-sm text-slate-500 mt-2">Effective Date: June 11, 2025</p>
             <p className="text-sm text-slate-500">Version: {CURRENT_VERSION}</p>
             <p className="text-sm text-slate-500">Developer: GoJess & Co</p>

@@ -68,7 +68,7 @@ export default function TermsAcknowledgmentBanner({ onAcknowledge }: TermsAcknow
               </h2>
               
               <p className="text-slate-600 mb-4">
-                Before accessing the Aloha Bail Bond management system, you must read and 
+                Before accessing the Art of Bail management system, you must read and 
                 acknowledge our Terms of Service. This agreement outlines important legal 
                 information about your use of this application.
               </p>

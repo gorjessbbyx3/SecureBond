@@ -48,7 +48,7 @@ export function MobileNavigation({ userRole = 'client', notificationCount = 0 }:
       {/* Mobile Header */}
       <div className="mobile-header md:hidden">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-blue-600">Aloha Bail Bond</h1>
+          <h1 className="text-lg font-semibold text-blue-600">Art of Bail</h1>
           <Button
             variant="ghost"
             size="sm"
