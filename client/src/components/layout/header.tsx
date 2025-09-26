@@ -5,7 +5,7 @@ interface HeaderProps {
   subtitle?: string;
 }
 
-export default function Header({ title = "Aloha Bail Bond", subtitle = "Professional Bail Services" }: HeaderProps) {
+export default function Header({ title = "Art of Bail", subtitle = "Professional Bail Services" }: HeaderProps) {
   const currentTime = new Date().toLocaleTimeString('en-US', { 
     hour: 'numeric', 
     minute: '2-digit',

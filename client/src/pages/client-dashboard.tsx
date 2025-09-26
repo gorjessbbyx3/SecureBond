@@ -60,7 +60,7 @@ export default function ClientDashboard() {
       await acknowledgePrivacy(dataTypes);
       toast({
         title: "Privacy Policy Acknowledged",
-        description: "You can now access the SecureBond system.",
+        description: "You can now access the Art of Bail system.",
         variant: "default"
       });
     } catch (error) {

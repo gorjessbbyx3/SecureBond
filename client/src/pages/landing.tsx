@@ -96,7 +96,7 @@ export default function Landing() {
           <div className="flex items-center justify-center">
             <div className="text-center flex flex-col items-center">
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-wide">
-                ALOHA BAIL BOND
+                ART OF BAIL
               </h1>
               <p className="text-blue-100 text-sm">Professional Bail Bond Services</p>
             </div>
@@ -113,7 +113,7 @@ export default function Landing() {
               <div className="w-24 h-20 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-4 p-3">
                 <img 
                   src={logoImage} 
-                  alt="Aloha Bail Bonds" 
+                  alt="Art of Bail" 
                   className="h-full w-auto object-contain"
                 />
               </div>
@@ -317,7 +317,7 @@ export default function Landing() {
             </div>
             <div className="mt-3 pt-3 border-t border-white/20">
               <p className="text-blue-100 text-xs">
-                © 2024 Aloha Bail Bond. Licensed and bonded bail bond services in Hawaii.
+                © 2024 Art of Bail. Licensed and bonded bail bond services.
               </p>
             </div>
           </div>
