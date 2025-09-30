@@ -11,6 +11,7 @@ import { performanceMiddleware, performanceStatsEndpoint, performanceMetricsEndp
 import { securityAuditMiddleware, securityReportEndpoint, securityEventsEndpoint } from "./middleware/securityAudit";
 import { auditLogger } from "./utils/auditLogger";
 import { geolocationService } from "./services/geolocationService";
+import { arrestLogScraper } from "./services/arrestLogScraper";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import bcrypt from 'bcrypt';
 import { 

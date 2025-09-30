@@ -14,12 +14,83 @@ interface ArrestRecord {
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
+interface ArrestLogPDF {
+  url: string;
+  filename: string;
+  timestamp: Date;
+}
+
 export class ArrestLogScraper {
   private readonly userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+  private readonly HPD_ARREST_LOGS_URL = 'https://www.honolulupd.org/information/arrest-logs/';
+
+  async getMostRecentPDF(): Promise<ArrestLogPDF | null> {
+    try {
+      const response = await fetch(this.HPD_ARREST_LOGS_URL, {
+        headers: {
+          'User-Agent': this.userAgent,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+        },
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const html = await response.text();
+      const $ = load(html);
+      
+      // Find all PDF links that match the arrest log pattern
+      const pdfLinks: ArrestLogPDF[] = [];
+      $('a[href*="Arrest_Log.pdf"]').each((index, element) => {
+        const href = $(element).attr('href');
+        const text = $(element).text().trim();
+        
+        if (href && text.includes('Arrest_Log.pdf')) {
+          // Extract timestamp from filename: YYYY-MM-DD-HH-MM-SS_Arrest_Log.pdf
+          const timestampMatch = text.match(/(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})/);
+          if (timestampMatch) {
+            const timestampStr = timestampMatch[1];
+            const [datePart, timePart] = timestampStr.split(/(?<=\d{2}-\d{2}-\d{2})-/);
+            const [year, month, day] = datePart.split('-');
+            const [hour, minute, second] = timePart.split('-');
+            const timestamp = new Date(
+              parseInt(year), 
+              parseInt(month) - 1, 
+              parseInt(day), 
+              parseInt(hour), 
+              parseInt(minute), 
+              parseInt(second)
+            );
+            
+            pdfLinks.push({
+              url: href,
+              filename: text,
+              timestamp: timestamp
+            });
+          }
+        }
+      });
+
+      // Sort by timestamp descending (most recent first)
+      pdfLinks.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+      // Return the most recent PDF
+      return pdfLinks.length > 0 ? pdfLinks[0] : null;
+    } catch (error) {
+      console.error('Error fetching HPD arrest log PDF:', error);
+      return null;
+    }
+  }
 
   async scrapeHonoluluPD(): Promise<ArrestRecord[]> {
     try {
-      const response = await fetch('https://www.honolulupd.org/information/arrest-logs/', {
+      const response = await fetch(this.HPD_ARREST_LOGS_URL, {
         headers: {
           'User-Agent': this.userAgent,
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',

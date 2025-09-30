@@ -17,7 +17,6 @@ import { MillionDollarFinancial } from "@/components/admin/million-dollar-financ
 import RealTimeMap from "@/components/admin/real-time-map";
 import CourtDateReminderSystem from "@/components/admin/court-date-reminder-system";
 import ArrestMonitoringSystem from "@/components/admin/arrest-monitoring-system";
-import ROIAnalysisTab from "@/components/admin/roi-analysis-tab";
 import DataManagement from "@/components/admin/data-management";
 import BulkClientUpload from "@/components/admin/bulk-client-upload";
 import { BusinessSettings } from "@/components/admin/business-settings";
@@ -104,7 +103,7 @@ export default function EnhancedAdminDashboard() {
               {/* Alerts Badge */}
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="h-5 w-5" />
-                {alerts?.length > 0 && (
+                {Array.isArray(alerts) && alerts.length > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
                     {alerts.length}
                   </Badge>
@@ -187,13 +186,6 @@ export default function EnhancedAdminDashboard() {
             >
               <AlertTriangle className="h-4 w-4" />
               Monitoring
-            </TabsTrigger>
-            <TabsTrigger 
-              value="roi" 
-              className="flex items-center gap-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white transition-all duration-200 hover:bg-indigo-100"
-            >
-              <TrendingUp className="h-4 w-4" />
-              ROI Analysis
             </TabsTrigger>
             <TabsTrigger 
               value="data-management" 
@@ -359,24 +351,6 @@ export default function EnhancedAdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="roi" className="space-y-6">
-            <div className="grid gap-6">
-              {/* ROI Analysis Header */}
-              <Card className="border-2 border-indigo-200 bg-indigo-50 dark:bg-indigo-950">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-xl text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
-                    <TrendingUp className="h-6 w-6" />
-                    Return on Investment Analysis & Business Intelligence
-                  </CardTitle>
-                  <CardDescription className="text-indigo-700 dark:text-indigo-300">
-                    Advanced ROI analytics, revenue optimization opportunities, and business growth insights
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-              
-              <ROIAnalysisTab />
-            </div>
-          </TabsContent>
 
           <TabsContent value="data-management" className="space-y-6">
             <div className="grid gap-6">
