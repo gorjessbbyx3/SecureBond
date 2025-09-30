@@ -14,6 +14,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import type { LoginResponse, ClientCredentials } from "@/lib/types";
 import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 08_07_36 PM_1749535833870.png";
+import headerBgImage from "@assets/1B9B4163-2685-48D8-97EC-A717439897AD_1759220450849.png";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
@@ -109,16 +110,18 @@ export default function Landing() {
           {/* Main Sign In Card */}
           <Card className="secure-card overflow-hidden backdrop-blur-sm bg-white/95 shadow-2xl border-2 border-gray-300">
             {/* Card Header */}
-            <div className="professional-gradient px-8 py-6 text-center">
-              <div className="w-24 h-20 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-4 p-3">
+            <div className="relative px-8 py-12 text-center overflow-hidden">
+              <div className="absolute inset-0 z-0">
                 <img 
-                  src={logoImage} 
-                  alt="Art of Bail" 
-                  className="h-full w-auto object-contain"
+                  src={headerBgImage} 
+                  alt="Art of Bail - Freedom Starts Here" 
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>
-              <p className="text-blue-100 text-sm">Secure access to your account</p>
+              <div className="relative z-10">
+                <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>
+                <p className="text-blue-100 text-sm">Secure access to your account</p>
+              </div>
             </div>
 
             {/* Card Body */}
