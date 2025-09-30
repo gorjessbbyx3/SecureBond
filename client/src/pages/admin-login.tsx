@@ -50,7 +50,7 @@ export default function AdminLogin() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
-    
+
     if (!username || !password) {
       setLoginError("Please enter both username and password.");
       return;
@@ -62,7 +62,7 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header title="Admin Portal" subtitle="Bondsman Administration" />
-      
+
       <main className="flex-grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <Card className="secure-card overflow-hidden">

@@ -534,28 +534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Logout endpoint for maintenance dashboard
-  app.post('/api/auth/logout', async (req, res) => {
-    try {
-      // Destroy session if using sessions
-      if (req.session) {
-        req.session.destroy((err) => {
-          if (err) {
-            console.error("Session destruction error:", err);
-          }
-        });
-      }
-
-      // Clear any authentication cookies
-      res.clearCookie('connect.sid');
-      res.clearCookie('session');
-
-      res.json({ message: "Logged out successfully" });
-    } catch (error) {
-      console.error("Error during logout:", error);
-      res.status(500).json({ message: "Failed to logout" });
-    }
-  });
+  
 
   // Client authentication
   app.post('/api/auth/client-login', async (req, res) => {
@@ -2306,32 +2285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(transformedLogs);
 
-        if (arrestResult.success && arrestResult.arrests.length > 0) {
-          // Convert arrest data to the expected format
-          const formattedLogs = arrestResult.arrests.map((arrest: any) => ({
-            id: `arrest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            arrestDate: arrest.arrestDate || new Date().toISOString().split('T')[0],
-            arrestTime: arrest.arrestTime || '00:00',
-            name: arrest.name || 'Unknown',
-            age: arrest.age || null,
-            address: arrest.address || null,
-            charges: Array.isArray(arrest.charges) ? arrest.charges : [arrest.charges || 'Unknown'],
-            arrestingAgency: arrest.source || 'Police Department',
-            bookingNumber: arrest.bookingNumber || `BK${Date.now()}`,
-            bondAmount: arrest.bondAmount || null,
-            releaseStatus: arrest.releaseStatus || 'in_custody',
-            contactStatus: 'not_contacted',
-            priority: arrest.priority || 'medium',
-            source: arrest.source || 'Police Department',
-            createdAt: new Date().toISOString()
-          }));
-
-          res.json(formattedLogs);
-          return;
-        }
-      }
-
-      res.json(recentLogs);
+        res.json(recentLogs);
     } catch (error) {
       console.error('Error fetching recent arrest logs:', error);
       res.status(500).json({ message: 'Failed to fetch recent arrest logs' });

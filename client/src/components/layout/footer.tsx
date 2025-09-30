@@ -18,6 +18,11 @@ export default function Footer() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-xs text-slate-500">
               <span>Developer: GoJess & Co</span>
+              <p className="text-sm mt-1">
+                <span className="hover:text-blue-200 transition-colors cursor-pointer" onClick={() => window.open('http://artofbailhawaii.com', '_blank')}>
+                  artofbailhawaii.com
+                </span>
+              </p>
             </div>
           </div>
         </div>
