@@ -727,7 +727,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Production admin credentials - CHANGE THESE BEFORE DEPLOYMENT
   let adminCredentials = {
-    admin: { username: 'admin', password: process.env.ADMIN_PASSWORD || 'SecureBond2025!' },
+    admin: { username: 'admin', password: process.env.ADMIN_PASSWORD || 'Wordpass3211!' },
     maintenance: { username: 'maintenance', password: process.env.MAINTENANCE_PASSWORD || 'MaintenanceSecure2025!' }
   };
 
