@@ -33,6 +33,7 @@ import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";
 import adminRoutes from "./routes/admin";
+import teamworkRoutes from "./routes/teamwork";
 // Temporarily commenting out middleware imports to get server running
 // import { requireAuth, requireRole, requireAnyRole, type AuthenticatedRequest } from "./middleware/auth";
 // import { validateBody, validateQuery, validateParams } from "./middleware/validation";
@@ -96,6 +97,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register admin routes
   app.use('/api/admin', adminRoutes);
+  
+  // Register teamwork routes (tasks, assignments, notes, etc.)
+  app.use(teamworkRoutes);
 
   // System monitoring endpoints
   app.get('/api/system/health', healthEndpoint);

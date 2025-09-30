@@ -38,19 +38,19 @@ export default function StaffDashboard() {
   const [showSettings, setShowSettings] = useState(false);
 
   // Fetch operational data
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ["/api/clients"],
   });
 
-  const { data: checkIns = [] } = useQuery({
+  const { data: checkIns = [] } = useQuery<CheckIn[]>({
     queryKey: ["/api/check-ins"],
   });
 
-  const { data: alerts = [] } = useQuery({
+  const { data: alerts = [] } = useQuery<Alert[]>({
     queryKey: ["/api/alerts/unacknowledged"],
   });
 
-  const { data: courtDates = [] } = useQuery({
+  const { data: courtDates = [] } = useQuery<CourtDate[]>({
     queryKey: ["/api/court-dates"],
   });
 
@@ -58,7 +58,7 @@ export default function StaffDashboard() {
   const logoutMutation = useMutation({
     mutationFn: () => apiRequest("/api/auth/logout", { method: "POST" }),
     onSuccess: () => {
-      queryClient.clear();
+      queryClient.invalidateQueries();
       setLocation("/staff-login");
     },
   });
@@ -82,26 +82,22 @@ export default function StaffDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-      <Header>
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Staff Operations Dashboard</h1>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              Staff Portal
-            </Badge>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" onClick={() => setShowSettings(true)}>
+      <Header
+        title="Staff Operations Dashboard"
+        subtitle="Staff Portal"
+        rightSlot={
+          <>
+            <Button variant="outline" size="sm" onClick={() => setShowSettings(true)} data-testid="button-settings">
               <Settings className="h-4 w-4 mr-1" />
               Settings
             </Button>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
+            <Button variant="outline" size="sm" onClick={handleLogout} data-testid="button-logout">
               <LogOut className="h-4 w-4 mr-1" />
               Logout
             </Button>
-          </div>
-        </div>
-      </Header>
+          </>
+        }
+      />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}

@@ -451,6 +451,128 @@ export const privacyAcknowledgments = pgTable("privacy_acknowledgments", {
   acknowledgedAt: timestamp("acknowledged_at").notNull().defaultNow(),
 });
 
+// Client assignment system - assign clients to staff members
+export const clientAssignments = pgTable("client_assignments", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id).notNull(),
+  staffId: integer("staff_id").references(() => staff.id).notNull(),
+  assignedBy: varchar("assigned_by").references(() => users.id).notNull(),
+  assignedAt: timestamp("assigned_at").defaultNow(),
+  isPrimary: boolean("is_primary").default(true), // Primary case manager
+  assignmentType: varchar("assignment_type").default("case_manager"), // case_manager, backup, supervisor
+  notes: text("notes"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Task management system for staff
+export const tasks = pgTable("tasks", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id),
+  assignedTo: integer("assigned_to").references(() => staff.id).notNull(),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  taskType: varchar("task_type").notNull(), // follow_up_call, payment_reminder, court_reminder, check_in_verification, document_review
+  priority: varchar("priority").default("medium"), // low, medium, high, urgent
+  status: varchar("status").default("pending"), // pending, in_progress, completed, cancelled
+  dueDate: timestamp("due_date"),
+  completedAt: timestamp("completed_at"),
+  completedBy: varchar("completed_by").references(() => users.id),
+  notes: text("notes"),
+  metadata: jsonb("metadata"), // Additional task-specific data
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Activity log system - track all user actions
+export const activityLogs = pgTable("activity_logs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  clientId: integer("client_id").references(() => clients.id),
+  actionType: varchar("action_type").notNull(), // login, client_viewed, client_updated, payment_confirmed, alert_acknowledged, message_sent, etc.
+  actionDescription: text("action_description").notNull(),
+  entityType: varchar("entity_type"), // client, payment, court_date, alert, task, etc.
+  entityId: integer("entity_id"),
+  metadata: jsonb("metadata"), // Additional context about the action
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Client notes system - team collaboration
+export const clientNotes = pgTable("client_notes", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id).notNull(),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  noteType: varchar("note_type").default("general"), // general, call_log, meeting, warning, positive, shift_handoff
+  title: varchar("title"),
+  content: text("content").notNull(),
+  isPinned: boolean("is_pinned").default(false),
+  isInternal: boolean("is_internal").default(true), // Internal notes not visible to client
+  mentionedUsers: jsonb("mentioned_users"), // Array of user IDs mentioned with @
+  visibility: varchar("visibility").default("team"), // team, supervisor_only, private
+  tags: jsonb("tags"), // Array of tags for categorization
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Saved filters/views for admin dashboard
+export const savedFilters = pgTable("saved_filters", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  filterName: varchar("filter_name").notNull(),
+  filterType: varchar("filter_type").default("client"), // client, payment, court_date, alert
+  filterCriteria: jsonb("filter_criteria").notNull(), // Stored filter parameters
+  isDefault: boolean("is_default").default(false),
+  isShared: boolean("is_shared").default(false), // Share with team
+  sharedWith: jsonb("shared_with"), // Array of user IDs
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Compliance tracking - enhanced metrics for clients
+export const complianceTracking = pgTable("compliance_tracking", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id).notNull().unique(),
+  complianceScore: integer("compliance_score").default(100), // 0-100 scale
+  checkInStreak: integer("check_in_streak").default(0), // Consecutive successful check-ins
+  totalCheckIns: integer("total_check_ins").default(0),
+  missedCheckIns: integer("missed_check_ins").default(0),
+  courtAppearances: integer("court_appearances").default(0),
+  missedCourtDates: integer("missed_court_dates").default(0),
+  onTimePayments: integer("on_time_payments").default(0),
+  latePayments: integer("late_payments").default(0),
+  totalPayments: integer("total_payments").default(0),
+  daysOnBail: integer("days_on_bail").default(0),
+  lastCheckInDate: timestamp("last_check_in_date"),
+  nextCheckInDue: timestamp("next_check_in_due"),
+  complianceStatus: varchar("compliance_status").default("good"), // excellent, good, warning, critical
+  riskLevel: varchar("risk_level").default("medium"), // low, medium, high, critical
+  lastCalculated: timestamp("last_calculated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Shift handoff notes
+export const shiftHandoffs = pgTable("shift_handoffs", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id),
+  fromStaffId: integer("from_staff_id").references(() => staff.id).notNull(),
+  toStaffId: integer("to_staff_id").references(() => staff.id),
+  handoffType: varchar("handoff_type").default("shift"), // shift, vacation, reassignment
+  priority: varchar("priority").default("normal"), // urgent, high, normal, low
+  summary: text("summary").notNull(),
+  actionRequired: boolean("action_required").default(false),
+  actionItems: jsonb("action_items"), // Array of specific actions needed
+  acknowledged: boolean("acknowledged").default(false),
+  acknowledgedAt: timestamp("acknowledged_at"),
+  acknowledgedBy: varchar("acknowledged_by").references(() => users.id),
+  shiftDate: timestamp("shift_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertClientSchema = createInsertSchema(clients).omit({
@@ -527,6 +649,48 @@ export const insertNotificationPreferencesSchema = createInsertSchema(notificati
 export const insertPrivacyAcknowledgmentSchema = createInsertSchema(privacyAcknowledgments).omit({
   id: true,
   acknowledgedAt: true,
+});
+
+// New feature schemas
+export const insertClientAssignmentSchema = createInsertSchema(clientAssignments).omit({
+  id: true,
+  assignedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const insertTaskSchema = createInsertSchema(tasks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  dueDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+  completedAt: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+});
+export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({
+  id: true,
+  createdAt: true,
+});
+export const insertClientNoteSchema = createInsertSchema(clientNotes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const insertSavedFilterSchema = createInsertSchema(savedFilters).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const insertComplianceTrackingSchema = createInsertSchema(complianceTracking).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const insertShiftHandoffSchema = createInsertSchema(shiftHandoffs).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  shiftDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+  acknowledgedAt: z.string().optional().transform((val) => val ? new Date(val) : undefined),
 });
 
 // New customization schemas
@@ -637,6 +801,22 @@ export type ClientVehicle = typeof clientVehicles.$inferSelect;
 export type FamilyMember = typeof familyMembers.$inferSelect;
 export type EmploymentInfo = typeof employmentInfo.$inferSelect;
 export type ClientFile = typeof clientFiles.$inferSelect;
+
+// New feature types
+export type InsertClientAssignment = z.infer<typeof insertClientAssignmentSchema>;
+export type ClientAssignment = typeof clientAssignments.$inferSelect;
+export type InsertTask = z.infer<typeof insertTaskSchema>;
+export type Task = typeof tasks.$inferSelect;
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type ActivityLog = typeof activityLogs.$inferSelect;
+export type InsertClientNote = z.infer<typeof insertClientNoteSchema>;
+export type ClientNote = typeof clientNotes.$inferSelect;
+export type InsertSavedFilter = z.infer<typeof insertSavedFilterSchema>;
+export type SavedFilter = typeof savedFilters.$inferSelect;
+export type InsertComplianceTracking = z.infer<typeof insertComplianceTrackingSchema>;
+export type ComplianceTracking = typeof complianceTracking.$inferSelect;
+export type InsertShiftHandoff = z.infer<typeof insertShiftHandoffSchema>;
+export type ShiftHandoff = typeof shiftHandoffs.$inferSelect;
 
 // New customization types
 export type InsertCompanyConfiguration = z.infer<typeof insertCompanyConfigurationSchema>;

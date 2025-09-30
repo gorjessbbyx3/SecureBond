@@ -31,6 +31,20 @@ import {
   type InsertTermsAcknowledgment,
   type PrivacyAcknowledgment,
   type InsertPrivacyAcknowledgment,
+  type ClientAssignment,
+  type InsertClientAssignment,
+  type Task,
+  type InsertTask,
+  type ActivityLog,
+  type InsertActivityLog,
+  type ClientNote,
+  type InsertClientNote,
+  type SavedFilter,
+  type InsertSavedFilter,
+  type ComplianceTracking,
+  type InsertComplianceTracking,
+  type ShiftHandoff,
+  type InsertShiftHandoff,
 } from "@shared/schema";
 import { LocalFileStorage } from "./local-db";
 
@@ -182,6 +196,58 @@ export interface IStorage {
   // Privacy acknowledgment operations
   getPrivacyAcknowledgment(userId: string): Promise<PrivacyAcknowledgment | undefined>;
   createPrivacyAcknowledgment(acknowledgment: InsertPrivacyAcknowledgment): Promise<PrivacyAcknowledgment>;
+  
+  // Client assignment operations
+  getAllClientAssignments(): Promise<ClientAssignment[]>;
+  getAssignmentsByStaff(staffId: number): Promise<ClientAssignment[]>;
+  getAssignmentsByClient(clientId: number): Promise<ClientAssignment[]>;
+  createClientAssignment(assignment: InsertClientAssignment): Promise<ClientAssignment>;
+  updateClientAssignment(id: number, updates: Partial<InsertClientAssignment>): Promise<ClientAssignment>;
+  deleteClientAssignment(id: number): Promise<void>;
+  
+  // Task management operations
+  getAllTasks(): Promise<Task[]>;
+  getTasksByStaff(staffId: number): Promise<Task[]>;
+  getTasksByClient(clientId: number): Promise<Task[]>;
+  getPendingTasksByStaff(staffId: number): Promise<Task[]>;
+  createTask(task: InsertTask): Promise<Task>;
+  updateTask(id: number, updates: Partial<InsertTask>): Promise<Task>;
+  completeTask(id: number, completedBy: string, notes?: string): Promise<Task>;
+  deleteTask(id: number): Promise<void>;
+  
+  // Activity log operations
+  getActivityLogs(limit: number): Promise<ActivityLog[]>;
+  getActivityLogsByClient(clientId: number): Promise<ActivityLog[]>;
+  getActivityLogsByUser(userId: string): Promise<ActivityLog[]>;
+  createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
+  
+  // Client notes operations
+  getClientNotes(clientId: number): Promise<ClientNote[]>;
+  createClientNote(note: InsertClientNote): Promise<ClientNote>;
+  updateClientNote(id: number, updates: Partial<InsertClientNote>): Promise<ClientNote>;
+  deleteClientNote(id: number): Promise<void>;
+  
+  // Saved filter operations
+  getSavedFiltersByUser(userId: string): Promise<SavedFilter[]>;
+  createSavedFilter(filter: InsertSavedFilter): Promise<SavedFilter>;
+  updateSavedFilter(id: number, updates: Partial<InsertSavedFilter>): Promise<SavedFilter>;
+  deleteSavedFilter(id: number): Promise<void>;
+  
+  // Compliance tracking operations
+  getComplianceTracking(clientId: number): Promise<ComplianceTracking | undefined>;
+  upsertComplianceTracking(tracking: InsertComplianceTracking): Promise<ComplianceTracking>;
+  recalculateComplianceScore(clientId: number): Promise<ComplianceTracking>;
+  
+  // Shift handoff operations
+  getAllShiftHandoffs(): Promise<ShiftHandoff[]>;
+  getShiftHandoffsForStaff(staffId: number): Promise<ShiftHandoff[]>;
+  getUnacknowledgedHandoffs(): Promise<ShiftHandoff[]>;
+  getUnacknowledgedHandoffsForStaff(staffId: number): Promise<ShiftHandoff[]>;
+  createShiftHandoff(handoff: InsertShiftHandoff): Promise<ShiftHandoff>;
+  acknowledgeShiftHandoff(id: number, acknowledgedBy: string): Promise<ShiftHandoff>;
+  
+  // Dashboard helper operations
+  getClientsWithAssignments(): Promise<any[]>;
 }
 
 // In-memory storage for development
