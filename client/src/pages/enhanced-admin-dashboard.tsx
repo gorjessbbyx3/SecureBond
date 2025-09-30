@@ -137,85 +137,98 @@ export default function EnhancedAdminDashboard() {
       <main className="container mx-auto px-6 py-8">
         {/* Enhanced Dashboard Tabs - Improved Organization */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 h-14 text-sm bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-            <TabsTrigger 
-              value="overview" 
-              className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200 hover:bg-blue-100"
-            >
-              <BarChart3 className="h-4 w-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger 
-              value="clients" 
-              className="flex items-center gap-2 data-[state=active]:bg-orange-600 data-[state=active]:text-white transition-all duration-200 hover:bg-orange-100"
-            >
-              <Users className="h-4 w-4" />
-              Clients
-            </TabsTrigger>
-            <TabsTrigger 
-              value="financial" 
-              className="flex items-center gap-2 data-[state=active]:bg-green-600 data-[state=active]:text-white transition-all duration-200 hover:bg-green-100"
-            >
-              <DollarSign className="h-4 w-4" />
-              Financial
-            </TabsTrigger>
-            <TabsTrigger 
-              value="court-dates" 
-              className="flex items-center gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white transition-all duration-200 hover:bg-red-100"
-            >
-              <Calendar className="h-4 w-4" />
-              Court Dates
-            </TabsTrigger>
-            <TabsTrigger 
-              value="tracking" 
-              className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all duration-200 hover:bg-purple-100"
-            >
-              <MapPin className="h-4 w-4" />
-              Live Tracking
-            </TabsTrigger>
-            <TabsTrigger 
-              value="arrest-logs" 
-              className="flex items-center gap-2 data-[state=active]:bg-pink-600 data-[state=active]:text-white transition-all duration-200 hover:bg-pink-100"
-            >
-              <Shield className="h-4 w-4" />
-              Recent Arrests
-            </TabsTrigger>
-            <TabsTrigger 
-              value="arrest-monitoring" 
-              className="flex items-center gap-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white transition-all duration-200 hover:bg-indigo-100"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              Monitoring
-            </TabsTrigger>
-            <TabsTrigger 
-              value="data-management" 
-              className="flex items-center gap-2 data-[state=active]:bg-gray-600 data-[state=active]:text-white transition-all duration-200 hover:bg-gray-100"
-            >
-              <Settings className="h-4 w-4" />
-              Admin Tools
-            </TabsTrigger>
-            <TabsTrigger 
-              value="business-settings" 
-              className="flex items-center gap-2 data-[state=active]:bg-slate-600 data-[state=active]:text-white transition-all duration-200 hover:bg-slate-100"
-            >
-              <Building2 className="h-4 w-4" />
-              Business Setup
-            </TabsTrigger>
-            <TabsTrigger 
-              value="system-monitoring" 
-              className="flex items-center gap-2 data-[state=active]:bg-cyan-600 data-[state=active]:text-white transition-all duration-200 hover:bg-cyan-100"
-            >
-              <Activity className="h-4 w-4" />
-              System Health
-            </TabsTrigger>
-            <TabsTrigger 
-              value="rss-documents" 
-              className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all duration-200 hover:bg-purple-100"
-            >
-              <Database className="h-4 w-4" />
-              RSS Documents
-            </TabsTrigger>
-          </TabsList>
+          <div className="relative w-full overflow-x-auto pb-2">
+            <TabsList className="inline-flex w-auto h-auto gap-2 bg-transparent p-0">
+              <TabsTrigger 
+                value="overview" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-600 transition-all duration-200 hover:bg-blue-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-overview"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger 
+                value="clients" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:border-orange-600 transition-all duration-200 hover:bg-orange-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-clients"
+              >
+                <Users className="h-4 w-4" />
+                Clients
+              </TabsTrigger>
+              <TabsTrigger 
+                value="financial" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:border-green-600 transition-all duration-200 hover:bg-green-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-financial"
+              >
+                <DollarSign className="h-4 w-4" />
+                Financial
+              </TabsTrigger>
+              <TabsTrigger 
+                value="court-dates" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-red-600 transition-all duration-200 hover:bg-red-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-court-dates"
+              >
+                <Calendar className="h-4 w-4" />
+                Court Dates
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tracking" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 transition-all duration-200 hover:bg-purple-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-tracking"
+              >
+                <MapPin className="h-4 w-4" />
+                Live Tracking
+              </TabsTrigger>
+              <TabsTrigger 
+                value="arrest-logs" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-pink-600 data-[state=active]:text-white data-[state=active]:border-pink-600 transition-all duration-200 hover:bg-pink-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-arrest-logs"
+              >
+                <Shield className="h-4 w-4" />
+                Recent Arrests
+              </TabsTrigger>
+              <TabsTrigger 
+                value="arrest-monitoring" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:border-indigo-600 transition-all duration-200 hover:bg-indigo-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-monitoring"
+              >
+                <AlertTriangle className="h-4 w-4" />
+                Monitoring
+              </TabsTrigger>
+              <TabsTrigger 
+                value="data-management" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:border-gray-600 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-data-management"
+              >
+                <Settings className="h-4 w-4" />
+                Admin Tools
+              </TabsTrigger>
+              <TabsTrigger 
+                value="business-settings" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-slate-600 data-[state=active]:text-white data-[state=active]:border-slate-600 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-business-settings"
+              >
+                <Building2 className="h-4 w-4" />
+                Business Setup
+              </TabsTrigger>
+              <TabsTrigger 
+                value="system-monitoring" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:border-cyan-600 transition-all duration-200 hover:bg-cyan-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-system-monitoring"
+              >
+                <Activity className="h-4 w-4" />
+                System Health
+              </TabsTrigger>
+              <TabsTrigger 
+                value="rss-documents" 
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 transition-all duration-200 hover:bg-purple-50 dark:hover:bg-slate-600 whitespace-nowrap"
+                data-testid="tab-rss-documents"
+              >
+                <Database className="h-4 w-4" />
+                RSS Documents
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6">

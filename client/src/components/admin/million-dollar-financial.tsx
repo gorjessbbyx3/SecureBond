@@ -1,406 +1,358 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { 
   DollarSign, 
   TrendingUp, 
-  PieChart, 
-  Target,
+  Search,
   CreditCard,
-  Calculator,
-  Banknote,
-  Wallet,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Users,
   Receipt,
-  ArrowUpRight,
-  ArrowDownRight,
-  Brain,
-  Zap
+  Filter,
+  Download
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
-interface FinancialMetrics {
-  totalRevenue: number;
-  profitMargin: number;
-  collectionRate: number;
-  outstandingBonds: number;
-  averageBondAmount: number;
-  monthlyGrowth: number;
+interface Payment {
+  id: number;
+  clientId: number;
+  amount: string;
+  paymentMethod: string;
+  confirmed: boolean;
+  paymentDate: string;
+  description?: string;
 }
 
-interface AIFinancialInsights {
-  optimalPricingRecommendation: number;
-  riskAdjustedROI: number;
-  profitabilityScore: number;
-  marketPositioning: string;
-  revenueProjection: number;
+interface Client {
+  id: number;
+  fullName: string;
+  email?: string;
+  phoneNumber?: string;
+  bondAmount?: string;
 }
 
 export function MillionDollarFinancial() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState("month");
-  const [aiInsights, setAiInsights] = useState<AIFinancialInsights>({
-    optimalPricingRecommendation: 0,
-    riskAdjustedROI: 0,
-    profitabilityScore: 0,
-    marketPositioning: "NO DATA",
-    revenueProjection: 0
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  const { data: payments = [] } = useQuery({
+  const { data: payments = [] } = useQuery<Payment[]>({
     queryKey: ["/api/payments"],
   });
 
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ["/api/clients"],
   });
 
-  // Calculate real financial metrics from confirmed payments only
-  const confirmedPayments = payments.filter((payment: any) => payment.confirmed === true);
-  const financialMetrics: FinancialMetrics = {
-    totalRevenue: confirmedPayments.reduce((sum: number, payment: any) => sum + parseFloat(payment.amount || 0), 0),
-    profitMargin: 0,
-    collectionRate: 0,
-    outstandingBonds: 0,
-    averageBondAmount: 0,
-    monthlyGrowth: 0
-  };
+  // Calculate financial metrics
+  const confirmedPayments = payments.filter((payment: Payment) => payment.confirmed === true);
+  const pendingPayments = payments.filter((payment: Payment) => payment.confirmed === false);
+  
+  const totalRevenue = confirmedPayments.reduce((sum: number, payment: Payment) => 
+    sum + parseFloat(payment.amount || "0"), 0
+  );
+  
+  const pendingAmount = pendingPayments.reduce((sum: number, payment: Payment) => 
+    sum + parseFloat(payment.amount || "0"), 0
+  );
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(numAmount);
   };
 
-  const getGrowthColor = (value: number) => {
-    return value > 0 ? "text-green-600" : "text-red-600";
+  // Get client name by ID
+  const getClientName = (clientId: number) => {
+    const client = clients.find((c: Client) => c.id === clientId);
+    return client?.fullName || `Client #${clientId}`;
   };
+
+  // Filter payments based on search and status
+  const filteredPayments = payments.filter((payment: Payment) => {
+    const matchesSearch = searchTerm === "" || 
+      getClientName(payment.clientId).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.paymentMethod.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === "all" || 
+      (filterStatus === "confirmed" && payment.confirmed) ||
+      (filterStatus === "pending" && !payment.confirmed);
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-6">
-      {/* Million Dollar Header */}
+      {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">AI Financial Command Center</h1>
-            <p className="text-green-100">Dynamic pricing optimization and profit maximization</p>
+            <h1 className="text-3xl font-bold">Client Payment Tracker</h1>
+            <p className="text-green-100">Real-time payment monitoring and revenue management</p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold">{formatCurrency(financialMetrics.totalRevenue)}</div>
-            <div className="text-green-100">Current Portfolio Value</div>
+            <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
+            <div className="text-green-100">Total Revenue Collected</div>
           </div>
         </div>
       </div>
 
-      {/* Key Financial Metrics */}
+      {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-green-200 bg-green-50 dark:bg-green-950">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-600">Total Revenue</p>
-                <p className="text-3xl font-bold text-green-700">
-                  {formatCurrency(financialMetrics.totalRevenue)}
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">Confirmed Payments</p>
+                <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+                  {formatCurrency(totalRevenue)}
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
-            </div>
-            <div className="mt-2 flex items-center gap-1">
-              <ArrowUpRight className="h-3 w-3 text-green-600" />
-              <span className="text-xs text-green-600">+{financialMetrics.monthlyGrowth}% this month</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600">Profit Margin</p>
-                <p className="text-3xl font-bold text-blue-700">{financialMetrics.profitMargin}%</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-blue-600" />
+              <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
             <div className="mt-2">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                Industry Leading
-              </Badge>
+              <span className="text-xs text-green-600 dark:text-green-400">{confirmedPayments.length} transactions</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-purple-200 bg-purple-50">
+        <Card className="border-yellow-200 bg-yellow-50 dark:bg-yellow-950">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-600">Collection Rate</p>
-                <p className="text-3xl font-bold text-purple-700">{financialMetrics.collectionRate}%</p>
-              </div>
-              <Target className="h-8 w-8 text-purple-600" />
-            </div>
-            <div className="mt-2">
-              <Progress value={financialMetrics.collectionRate} className="h-2" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-orange-200 bg-orange-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-orange-600">Outstanding Bonds</p>
-                <p className="text-3xl font-bold text-orange-700">
-                  {formatCurrency(financialMetrics.outstandingBonds)}
+                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Pending Payments</p>
+                <p className="text-3xl font-bold text-yellow-700 dark:text-yellow-300">
+                  {formatCurrency(pendingAmount)}
                 </p>
               </div>
-              <Wallet className="h-8 w-8 text-orange-600" />
+              <Clock className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="mt-2">
-              <span className="text-xs text-orange-600">{clients.length} active bonds</span>
+              <span className="text-xs text-yellow-600 dark:text-yellow-400">{pendingPayments.length} awaiting confirmation</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Total Payments</p>
+                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{payments.length}</p>
+              </div>
+              <Receipt className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="mt-2">
+              <span className="text-xs text-blue-600 dark:text-blue-400">All time transactions</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-purple-200 bg-purple-50 dark:bg-purple-950">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Active Clients</p>
+                <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">{clients.length}</p>
+              </div>
+              <Users className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div className="mt-2">
+              <span className="text-xs text-purple-600 dark:text-purple-400">Paying clients</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs value={selectedTimeframe} onValueChange={setSelectedTimeframe} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="month">Monthly View</TabsTrigger>
-          <TabsTrigger value="optimization">AI Optimization</TabsTrigger>
-          <TabsTrigger value="forecasting">Predictive Analytics</TabsTrigger>
-          <TabsTrigger value="portfolio">Portfolio Management</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="month" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Revenue Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5 text-green-600" />
-                  Revenue Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Bond Premiums</span>
-                    <div className="text-right">
-                      <span className="font-bold">{formatCurrency(financialMetrics.totalRevenue * 0.6)}</span>
-                      <div className="text-xs text-gray-500">60%</div>
-                    </div>
-                  </div>
-                  <Progress value={60} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Collection Fees</span>
-                    <div className="text-right">
-                      <span className="font-bold">{formatCurrency(financialMetrics.totalRevenue * 0.25)}</span>
-                      <div className="text-xs text-gray-500">25%</div>
-                    </div>
-                  </div>
-                  <Progress value={25} className="h-2" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Administrative Fees</span>
-                    <div className="text-right">
-                      <span className="font-bold">{formatCurrency(financialMetrics.totalRevenue * 0.15)}</span>
-                      <div className="text-xs text-gray-500">15%</div>
-                    </div>
-                  </div>
-                  <Progress value={15} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Payment Status Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Receipt className="h-5 w-5 text-blue-600" />
-                  Payment Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {payments.slice(0, 5).map((payment: any, index: number) => (
-                    <div key={payment.id || index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                      <div>
-                        <p className="font-medium">{formatCurrency(parseFloat(payment.amount || 0))}</p>
-                        <p className="text-xs text-gray-600">{payment.paymentMethod}</p>
-                      </div>
-                      <Badge className={payment.confirmed ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
-                        {payment.confirmed ? "Confirmed" : "Pending"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      {/* Payment Tracker */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-green-600" />
+                Payment Transactions
+              </CardTitle>
+              <CardDescription>Track and manage all client payments</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" data-testid="button-export-payments">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </div>
-        </TabsContent>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Search and Filter */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search by client name or payment method..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+                data-testid="input-search-payments"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={filterStatus === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus("all")}
+                data-testid="button-filter-all"
+              >
+                All
+              </Button>
+              <Button
+                variant={filterStatus === "confirmed" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus("confirmed")}
+                className="bg-green-600 hover:bg-green-700"
+                data-testid="button-filter-confirmed"
+              >
+                Confirmed
+              </Button>
+              <Button
+                variant={filterStatus === "pending" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus("pending")}
+                className="bg-yellow-600 hover:bg-yellow-700"
+                data-testid="button-filter-pending"
+              >
+                Pending
+              </Button>
+            </div>
+          </div>
 
-        <TabsContent value="optimization" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                AI Pricing Optimization Engine
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Current Performance</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Profitability Score</span>
-                        <span className="font-medium">{aiInsights.profitabilityScore}/100</span>
-                      </div>
-                      <Progress value={aiInsights.profitabilityScore} className="h-2" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Risk-Adjusted ROI</span>
-                        <span className="font-medium">{aiInsights.riskAdjustedROI}%</span>
-                      </div>
-                      <Progress value={Math.min(aiInsights.riskAdjustedROI / 3, 100)} className="h-2" />
-                    </div>
-
-                    <div className="p-3 bg-purple-50 rounded border border-purple-200">
-                      <h5 className="font-medium text-purple-800 mb-2">Market Position</h5>
-                      <Badge className="bg-purple-100 text-purple-800">
-                        {aiInsights.marketPositioning} TIER
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium">AI Recommendations</h4>
-                  <div className="space-y-3">
-                    <div className="p-3 bg-green-50 rounded border border-green-200">
-                      <h5 className="font-medium text-green-800 mb-1">Optimal Bond Pricing</h5>
-                      <p className="text-2xl font-bold text-green-700">
-                        {formatCurrency(aiInsights.optimalPricingRecommendation)}
-                      </p>
-                      <p className="text-xs text-green-600">+23% above current average</p>
-                    </div>
-
-                    <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                      <h5 className="font-medium text-blue-800 mb-1">Revenue Projection</h5>
-                      <p className="text-2xl font-bold text-blue-700">
-                        {formatCurrency(aiInsights.revenueProjection)}
-                      </p>
-                      <p className="text-xs text-blue-600">Next 12 months</p>
-                    </div>
-
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                      <Calculator className="h-4 w-4 mr-2" />
-                      Apply AI Recommendations
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="forecasting" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-yellow-600" />
-                Predictive Financial Analytics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-4 bg-gradient-to-b from-green-50 to-green-100 rounded">
-                  <h4 className="font-medium text-green-800">Q1 Projection</h4>
-                  <p className="text-2xl font-bold text-green-700">{formatCurrency(285000)}</p>
-                  <p className="text-xs text-green-600">+15% confidence</p>
-                </div>
-                
-                <div className="text-center p-4 bg-gradient-to-b from-blue-50 to-blue-100 rounded">
-                  <h4 className="font-medium text-blue-800">Q2 Projection</h4>
-                  <p className="text-2xl font-bold text-blue-700">{formatCurrency(320000)}</p>
-                  <p className="text-xs text-blue-600">+18% confidence</p>
-                </div>
-                
-                <div className="text-center p-4 bg-gradient-to-b from-purple-50 to-purple-100 rounded">
-                  <h4 className="font-medium text-purple-800">Annual Target</h4>
-                  <p className="text-2xl font-bold text-purple-700">{formatCurrency(1200000)}</p>
-                  <p className="text-xs text-purple-600">95% achievable</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="portfolio" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wallet className="h-5 w-5 text-orange-600" />
-                Bond Portfolio Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          {/* Payments List */}
+          <div className="space-y-3">
+            {filteredPayments.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                Advanced portfolio optimization tools, risk diversification analysis,
-                and intelligent bond allocation strategies would be displayed here.
+                <Receipt className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p className="font-medium">No payments found</p>
+                <p className="text-sm">Try adjusting your search or filters</p>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            ) : (
+              filteredPayments.map((payment: Payment) => (
+                <div
+                  key={payment.id}
+                  className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow"
+                  data-testid={`payment-row-${payment.id}`}
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                      payment.confirmed 
+                        ? "bg-green-100 dark:bg-green-900" 
+                        : "bg-yellow-100 dark:bg-yellow-900"
+                    }`}>
+                      {payment.confirmed ? (
+                        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100" data-testid={`text-client-name-${payment.id}`}>
+                          {getClientName(payment.clientId)}
+                        </p>
+                        <Badge 
+                          className={payment.confirmed ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"}
+                          data-testid={`badge-status-${payment.id}`}
+                        >
+                          {payment.confirmed ? "Confirmed" : "Pending"}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <CreditCard className="h-3 w-3" />
+                          {payment.paymentMethod}
+                        </span>
+                        {payment.paymentDate && (
+                          <span>
+                            {new Date(payment.paymentDate).toLocaleDateString()}
+                          </span>
+                        )}
+                        {payment.description && (
+                          <span className="text-gray-500 dark:text-gray-500">
+                            {payment.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-gray-900 dark:text-gray-100" data-testid={`text-amount-${payment.id}`}>
+                      {formatCurrency(payment.amount)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
-      {/* ROI Analysis Section - Moved from Overview */}
-      <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200 mt-6">
+          {/* Summary Stats */}
+          {filteredPayments.length > 0 && (
+            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-600 dark:text-gray-400">
+                  Showing {filteredPayments.length} of {payments.length} payments
+                </span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  Total: {formatCurrency(
+                    filteredPayments.reduce((sum: number, p: Payment) => 
+                      sum + parseFloat(p.amount || "0"), 0
+                    )
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Payment Method Breakdown */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            Return on Investment Analysis
+            <CreditCard className="h-5 w-5 text-blue-600" />
+            Payment Methods
           </CardTitle>
-          <p className="text-sm text-gray-600">
-            Financial performance metrics and business growth indicators
-          </p>
+          <CardDescription>Revenue breakdown by payment type</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-            <div>
-              <p className="text-sm text-green-600">Client Retention</p>
-              <p className="text-2xl font-bold text-green-800">97.5%</p>
-              <p className="text-xs text-green-600">+35% improvement</p>
-            </div>
-            <div>
-              <p className="text-sm text-blue-600">Revenue per Client</p>
-              <p className="text-2xl font-bold text-blue-800">$15,750</p>
-              <p className="text-xs text-blue-600">+40% increase</p>
-            </div>
-            <div>
-              <p className="text-sm text-purple-600">Risk Reduction</p>
-              <p className="text-2xl font-bold text-purple-800">89%</p>
-              <p className="text-xs text-purple-600">Fewer violations</p>
-            </div>
-            <div>
-              <p className="text-sm text-orange-600">Annual ROI</p>
-              <p className="text-2xl font-bold text-orange-800">$1.2M</p>
-              <p className="text-xs text-orange-600">Net benefit</p>
-            </div>
-          </div>
-          
-          <div className="mt-6 pt-4 border-t">
-            <p className="text-sm text-gray-600 text-center">
-              ROI calculations based on confirmed payments and verified client retention metrics.
-              All financial data reflects authentic transaction records from the system.
-            </p>
+          <div className="space-y-4">
+            {Array.from(new Set(payments.map((p: Payment) => p.paymentMethod))).map((method: string) => {
+              const methodPayments = payments.filter((p: Payment) => p.paymentMethod === method);
+              const methodTotal = methodPayments.reduce((sum: number, p: Payment) => 
+                sum + parseFloat(p.amount || "0"), 0
+              );
+              const percentage = totalRevenue > 0 ? (methodTotal / totalRevenue) * 100 : 0;
+              
+              return (
+                <div key={method} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium capitalize">{method}</span>
+                    <div className="text-right">
+                      <span className="font-bold">{formatCurrency(methodTotal)}</span>
+                      <span className="text-xs text-gray-500 ml-2">({percentage.toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                  <Progress value={percentage} className="h-2" />
+                  <span className="text-xs text-gray-500">{methodPayments.length} transactions</span>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
