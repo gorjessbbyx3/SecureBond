@@ -204,14 +204,6 @@ export default function EnhancedAdminDashboard() {
                 Admin Tools
               </TabsTrigger>
               <TabsTrigger 
-                value="business-settings" 
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-slate-600 data-[state=active]:text-white data-[state=active]:border-slate-600 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-600 whitespace-nowrap"
-                data-testid="tab-business-settings"
-              >
-                <Building2 className="h-4 w-4" />
-                Business Setup
-              </TabsTrigger>
-              <TabsTrigger 
                 value="system-monitoring" 
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:border-cyan-600 transition-all duration-200 hover:bg-cyan-50 dark:hover:bg-slate-600 whitespace-nowrap"
                 data-testid="tab-system-monitoring"
@@ -508,25 +500,6 @@ export default function EnhancedAdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="business-settings" className="space-y-6">
-            <div className="grid gap-6">
-              {/* Business Settings Header */}
-              <Card className="border-2 border-slate-200 bg-slate-50 dark:bg-slate-950">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Building2 className="h-6 w-6" />
-                    Business Setup & Configuration
-                  </CardTitle>
-                  <CardDescription className="text-slate-700 dark:text-slate-300">
-                    Configure your business profile, goals, staff accounts, and system settings
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-              
-              <BusinessSettings />
-            </div>
-          </TabsContent>
-
           <TabsContent value="system-monitoring" className="space-y-6">
             <div className="grid gap-6">
               {/* System Monitoring Header */}
@@ -578,7 +551,16 @@ export default function EnhancedAdminDashboard() {
                 Configure system preferences, security settings, and operational parameters.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+              {/* Business Setup Section */}
+              <div className="grid gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                <h4 className="font-medium flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Business Setup
+                </h4>
+                <BusinessSettings />
+              </div>
+
               {/* System Actions */}
               <div className="grid gap-4">
                 <h4 className="font-medium flex items-center gap-2">
