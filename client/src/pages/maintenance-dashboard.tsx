@@ -84,13 +84,13 @@ export default function MaintenanceDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header title="Aloha Bail Bond Maintenance" subtitle="System Administration Portal" />
+      <Header title="Art of Bail Maintenance" subtitle="System Administration Portal" />
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">System Maintenance</h1>
-            <p className="text-slate-600">Monitor and maintain Aloha Bail Bond operations</p>
+            <p className="text-slate-600">Monitor and maintain Art of Bail operations</p>
           </div>
           <Button onClick={handleLogout} variant="outline" className="flex items-center">
             <LogOut className="mr-2 w-4 h-4" />

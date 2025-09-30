@@ -124,7 +124,7 @@ export function MillionDollarClientManagement() {
       window.open(`tel:${phoneNumber}`, '_self');
     } else if (email) {
       // Open email client
-      window.open(`mailto:${email}?subject=Aloha Bail Bond - Client Communication`, '_self');
+      window.open(`mailto:${email}?subject=Art of Bail - Client Communication`, '_self');
     } else {
       toast({
         title: "No Contact Information",
