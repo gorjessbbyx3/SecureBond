@@ -110,15 +110,15 @@ export default function Landing() {
           {/* Main Sign In Card */}
           <Card className="secure-card overflow-hidden backdrop-blur-sm bg-white/95 shadow-2xl border-2 border-gray-300">
             {/* Card Header */}
-            <div className="relative px-8 py-12 text-center overflow-hidden">
+            <div className="relative px-8 py-16 text-center overflow-hidden min-h-[240px]">
               <div className="absolute inset-0 z-0">
                 <img 
                   src={headerBgImage} 
                   alt="Art of Bail - Freedom Starts Here" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
-              <div className="relative z-10">
+              <div className="relative z-10 mt-auto pt-32">
                 <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>
                 <p className="text-blue-100 text-sm">Secure access to your account</p>
               </div>
