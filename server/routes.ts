@@ -2234,21 +2234,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Recent arrest logs endpoints - requires authentic police department data integration
   app.get('/api/arrest-logs/recent', isAuthenticated, async (req, res) => {
     try {
-      // Fetch authentic arrest logs from configured police department APIs
-      const recentLogs = await storage.getPublicArrestLogs();
+      // First, try to get cached logs
+      let recentLogs = await storage.getPublicArrestLogs();
 
       // If no logs from storage, attempt to fetch from live sources
       if (recentLogs.length === 0) {
-        console.log('Fetching fresh arrest logs from police department sources...');
+        console.log('No cached arrest logs found. Fetching fresh data from police department sources...');
 
-        // Use the court scraper to get arrest logs
-        const { courtScraper } = await import('./courtScraper');
-        const arrestResult = await courtScraper.searchArrestLogs('*', {
-          dateRange: { 
-            start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
-            end: new Date() 
-          }
-        });
+        // Trigger a fresh scan
+        const scanResult = await storage.scanArrestLogs();
+        console.log('Scan result:', scanResult);
+
+        // Try to get logs again after scan
+        recentLogs = await storage.getPublicArrestLogs();
+      }
+
+      // Transform logs to match the expected format for the UI
+      const transformedLogs = recentLogs.map((log: any) => ({
+        id: log.id || `arrest_${Date.now()}_${Math.random()}`,
+        arrestDate: log.arrestDate || new Date().toISOString().split('T')[0],
+        arrestTime: log.arrestTime || '00:00',
+        name: log.name || 'Unknown',
+        age: log.age,
+        address: log.address,
+        charges: Array.isArray(log.charges) ? log.charges : [log.charges || 'Unknown charge'],
+        arrestingAgency: log.agency || 'Unknown Agency',
+        bookingNumber: log.bookingNumber || 'Unknown',
+        bondAmount: log.bondAmount || null,
+        releaseStatus: log.status === 'released' ? 'released' : 'in_custody',
+        contactStatus: 'not_contacted',
+        priority: log.severity || 'medium',
+        source: log.source || 'Police Department',
+        createdAt: log.createdAt || new Date().toISOString()
+      }));
+
+      res.json(transformedLogs);
 
         if (arrestResult.success && arrestResult.arrests.length > 0) {
           // Convert arrest data to the expected format

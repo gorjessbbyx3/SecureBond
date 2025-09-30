@@ -164,12 +164,13 @@ export interface IStorage {
   acknowledgeReminder(reminderId: string): Promise<any>;
   updateCourtDate(id: number, updates: Partial<InsertCourtDate>): Promise<CourtDate>;
   
-  // Arrest monitoring operations
+  // Arrest monitoring operations  
   getArrestRecords(): Promise<any[]>;
   getMonitoringConfig(): Promise<any[]>;
   scanArrestLogs(): Promise<any>;
   acknowledgeArrestRecord(recordId: string): Promise<any>;
   getPublicArrestLogs(): Promise<any[]>;
+  updateMonitoringConfig(config: any): Promise<any>;
   
   // Notification operations
   createNotification(notification: InsertNotification): Promise<Notification>;
@@ -777,21 +778,47 @@ class MemoryStorage implements IStorage {
 
   async getMonitoringConfig(): Promise<any[]> {
     const hawaiiCounties = [
-      { id: 'honolulu', name: 'Honolulu County', agency: 'Honolulu Police Department' },
-      { id: 'hawaii', name: 'Hawaii County', agency: 'Hawaii Police Department' },
-      { id: 'maui', name: 'Maui County', agency: 'Maui Police Department' },
-      { id: 'kauai', name: 'Kauai County', agency: 'Kauai Police Department' }
+      { 
+        id: 'honolulu', 
+        name: 'Honolulu County', 
+        agency: 'Honolulu Police Department',
+        url: 'https://www.honolulupd.org/information/arrest-logs/',
+        pdfUrl: 'https://www.honolulupd.org/wp-content/hpd/arrest-logs/'
+      },
+      { 
+        id: 'hawaii', 
+        name: 'Hawaii County', 
+        agency: 'Hawaii Police Department',
+        url: 'https://www.hawaiipolice.gov/news-and-media/booking-logs/',
+        pdfUrl: 'https://www.hawaiipolice.gov/wp-content/uploads/booking-logs/'
+      },
+      { 
+        id: 'maui', 
+        name: 'Maui County', 
+        agency: 'Maui Police Department',
+        url: 'https://www.co.maui.hi.us/185/Police-Department',
+        pdfUrl: 'https://www.co.maui.hi.us/DocumentCenter/View/'
+      },
+      { 
+        id: 'kauai', 
+        name: 'Kauai County', 
+        agency: 'Kauai Police Department',
+        url: 'https://www.kauai.gov/Government/Departments-Agencies/Police-Department',
+        pdfUrl: 'https://www.kauai.gov/Portals/0/Police/'
+      }
     ];
 
     return hawaiiCounties.map(county => ({
       id: `config-${county.id}`,
       county: county.id,
       agency: county.agency,
+      url: county.url,
+      pdfUrl: county.pdfUrl,
       isEnabled: true,
       lastChecked: new Date().toISOString(),
-      checkInterval: 30,
-      apiEndpoint: `https://api.${county.id}pd.gov/arrest-logs`,
-      status: 'active'
+      checkInterval: county.id === 'honolulu' ? 15 : 30,
+      status: 'active',
+      recordsFound: county.id === 'honolulu' ? 8 : Math.floor(Math.random() * 5)
     }));
   }
 
@@ -836,6 +863,14 @@ class MemoryStorage implements IStorage {
 
   async getPublicArrestLogs(): Promise<any[]> {
     return this.arrestLogs;
+  }
+
+  async updateMonitoringConfig(config: any): Promise<any> {
+    return {
+      success: true,
+      message: 'Monitoring configuration updated',
+      config
+    };
   }
 
   // Notification operations

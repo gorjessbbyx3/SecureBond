@@ -57,13 +57,29 @@ export class CourtDateScraper {
       name: 'Honolulu Police Department',
       url: 'https://www.honolulupd.org/information/arrest-logs/',
       type: 'arrest-logs',
-      enabled: true
+      enabled: true,
+      pdfUrlPattern: 'https://www.honolulupd.org/wp-content/hpd/arrest-logs/'
     },
     {
-      name: 'Hawaii Police Department',
+      name: 'Hawaii Police Department', 
       url: 'https://www.hawaiipolice.gov/news-and-media/booking-logs/',
       type: 'booking-logs',
-      enabled: true
+      enabled: true,
+      pdfUrlPattern: 'https://www.hawaiipolice.gov/wp-content/uploads/booking-logs/'
+    },
+    {
+      name: 'Maui Police Department',
+      url: 'https://www.co.maui.hi.us/185/Police-Department',
+      type: 'arrest-logs',
+      enabled: true,
+      pdfUrlPattern: 'https://www.co.maui.hi.us/DocumentCenter/View/'
+    },
+    {
+      name: 'Kauai Police Department',
+      url: 'https://www.kauai.gov/Government/Departments-Agencies/Police-Department',
+      type: 'arrest-logs', 
+      enabled: true,
+      pdfUrlPattern: 'https://www.kauai.gov/Portals/0/Police/'
     }
   ];
 
