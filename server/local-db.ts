@@ -169,9 +169,21 @@ export class LocalFileStorage {
   }
 
   async getPublicArrestLogs(): Promise<any[]> {
-    // Return only authentic arrest logs from configured data sources
-    // No mock data - system requires real police department integration
-    return await this.readJsonFile(path.join(this.dataDir, 'public-arrest-logs.json'), []);
+    try {
+      // Get persisted arrest logs with automatic cleanup
+      const { arrestLogScraper } = await import('./services/arrestLogScraper');
+      const persistedRecords = await arrestLogScraper.getPersistedRecords();
+      
+      if (persistedRecords.length > 0) {
+        return persistedRecords;
+      }
+      
+      // Fallback to file-based storage
+      return await this.readJsonFile(path.join(this.dataDir, 'public-arrest-logs.json'), []);
+    } catch (error) {
+      console.error('Error fetching public arrest logs:', error);
+      return await this.readJsonFile(path.join(this.dataDir, 'public-arrest-logs.json'), []);
+    }
   }
 
   async updateMonitoringConfig(config: any): Promise<any> {

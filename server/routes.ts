@@ -1569,6 +1569,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const searchResult = await courtScraper.searchArrestLogs(clientName, options || {});
+      
+      // Also search in persisted database records
+      const { arrestLogScraper } = await import('./services/arrestLogScraper');
+      const persistedRecords = await arrestLogScraper.getPersistedRecords();
+      
+      // Filter persisted records by client name if provided
+      if (clientName !== '*') {
+        const filteredPersisted = persistedRecords.filter((record: any) => 
+          record.name.toLowerCase().includes(clientName.toLowerCase())
+        );
+        
+        // Merge with search results, avoiding duplicates
+        const existingIds = new Set(searchResult.arrests.map((a: any) => a.id));
+        const uniquePersisted = filteredPersisted.filter((record: any) => !existingIds.has(record.id));
+        
+        searchResult.arrests.push(...uniquePersisted);
+        searchResult.totalFound = searchResult.arrests.length;
+      }
+      
       res.json(searchResult);
     } catch (error) {
       console.error('Error searching arrest logs:', error);
@@ -1608,11 +1627,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/arrest-monitoring/scan', isAuthenticated, async (req, res) => {
     try {
-      const result = await storage.scanArrestLogs();
+      // Use the arrest log scraper directly for fresh data
+      const { arrestLogScraper } = await import('./services/arrestLogScraper');
+      const records = await arrestLogScraper.scrapeHonoluluPD();
+      
+      const result = {
+        success: true,
+        newRecords: records.length,
+        lastScanned: new Date().toISOString(),
+        sourcesChecked: ['Honolulu Police Department'],
+        message: `Successfully scanned and persisted ${records.length} arrest records. Records will be retained for 3 days.`
+      };
+      
       res.json(result);
     } catch (error) {
       console.error('Error scanning arrest logs:', error);
-      res.status(500).json({ message: 'Failed to scan arrest logs' });
+      res.status(500).json({ 
+        success: false,
+        newRecords: 0,
+        lastScanned: new Date().toISOString(),
+        message: 'Failed to scan arrest logs',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

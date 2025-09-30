@@ -67,10 +67,23 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
-    
+
     // Start automated court reminder processing
-    log('Starting automated court reminder scheduler...');
-    
+    console.log('Starting automated court reminder scheduler...');
+    courtReminderService.startReminderScheduler();
+
+    // Set up automated arrest log cleanup (runs every 6 hours)
+    console.log('Starting automated arrest log cleanup scheduler...');
+    setInterval(async () => {
+      try {
+        const { arrestLogScraper } = await import('./services/arrestLogScraper');
+        await arrestLogScraper.getPersistedRecords(); // This triggers cleanup
+        console.log('Automated arrest log cleanup completed');
+      } catch (error) {
+        console.error('Error in automated arrest log cleanup:', error);
+      }
+    }, 6 * 60 * 60 * 1000); // 6 hours
+
     // Process reminders every 30 minutes
     setInterval(async () => {
       try {

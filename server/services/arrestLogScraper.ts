@@ -265,6 +265,8 @@ export class ArrestLogScraper {
         
         if (cached && (now - cached.timestamp) < this.CACHE_TTL) {
           console.log(`Using cached arrest records for: ${recentPDF.filename} (${cached.records.length} records)`);
+          // Even with cache, persist to database for 3-day retention
+          await this.persistArrestRecords(cached.records);
           return cached.records;
         }
         
@@ -284,6 +286,9 @@ export class ArrestLogScraper {
             
             if (records.length > 0) {
               console.log(`Successfully extracted ${records.length} arrest records from PDF`);
+              
+              // Persist to database for 3-day retention
+              await this.persistArrestRecords(records);
               
               // Cache the results
               this.pdfCache.set(recentPDF.url, {
@@ -397,6 +402,89 @@ export class ArrestLogScraper {
     // Currently only Honolulu PD has a public arrest log page
     
     return allRecords;
+  }
+
+  private async persistArrestRecords(records: ArrestRecord[]): Promise<void> {
+    try {
+      const { storage } = await import('../storage');
+      
+      // Clean up old records first (older than 3 days)
+      await this.cleanupOldRecords();
+      
+      // Get existing records to avoid duplicates
+      const existingLogs = await storage.readJsonFile('public-arrest-logs.json', []);
+      
+      for (const record of records) {
+        // Check if record already exists based on booking number and arrest date
+        const existingRecord = existingLogs.find((existing: any) => 
+          existing.bookingNumber === record.bookingNumber &&
+          existing.arrestDate === record.arrestDate
+        );
+        
+        if (!existingRecord) {
+          const persistedRecord = {
+            ...record,
+            persistedAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
+            source: 'HPD_Arrest_Log',
+            county: 'Honolulu'
+          };
+          
+          existingLogs.push(persistedRecord);
+          console.log(`Persisted arrest record: ${record.name} (${record.bookingNumber})`);
+        }
+      }
+      
+      // Save updated records
+      await storage.writeJsonFile('public-arrest-logs.json', existingLogs);
+      console.log(`Total arrest records in database: ${existingLogs.length}`);
+      
+    } catch (error) {
+      console.error('Error persisting arrest records:', error);
+    }
+  }
+
+  private async cleanupOldRecords(): Promise<void> {
+    try {
+      const { storage } = await import('../storage');
+      const existingLogs = await storage.readJsonFile('public-arrest-logs.json', []);
+      const now = new Date().getTime();
+      
+      // Filter out records older than 3 days
+      const validRecords = existingLogs.filter((record: any) => {
+        if (!record.expiresAt) {
+          // For records without expiry, check if they're older than 3 days based on persistedAt or arrestDate
+          const recordDate = new Date(record.persistedAt || record.arrestDate).getTime();
+          return (now - recordDate) < (3 * 24 * 60 * 60 * 1000);
+        }
+        return new Date(record.expiresAt).getTime() > now;
+      });
+      
+      const removedCount = existingLogs.length - validRecords.length;
+      if (removedCount > 0) {
+        await storage.writeJsonFile('public-arrest-logs.json', validRecords);
+        console.log(`Cleaned up ${removedCount} expired arrest records`);
+      }
+      
+    } catch (error) {
+      console.error('Error cleaning up old arrest records:', error);
+    }
+  }
+
+  async getPersistedRecords(): Promise<ArrestRecord[]> {
+    try {
+      const { storage } = await import('../storage');
+      const records = await storage.readJsonFile('public-arrest-logs.json', []);
+      
+      // Clean up expired records before returning
+      await this.cleanupOldRecords();
+      
+      // Return fresh records after cleanup
+      return await storage.readJsonFile('public-arrest-logs.json', []);
+    } catch (error) {
+      console.error('Error getting persisted records:', error);
+      return [];
+    }
   }
 }
 
