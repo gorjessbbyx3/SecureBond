@@ -17,5 +17,57 @@
     "isActive": true,
     "createdAt": "2025-06-17T00:04:00.434Z",
     "updatedAt": "2025-06-17T00:04:00.434Z"
+  },
+  {
+    "id": 7,
+    "state": "HI",
+    "stateName": "Hawaii",
+    "bondRegulations": {
+      "maxBondAmount": 500000,
+      "minimumDownPayment": 0.1,
+      "requiredDocuments": [
+        "photo_id",
+        "proof_of_residence",
+        "employment_verification"
+      ]
+    },
+    "courtSystems": {
+      "First Circuit": [
+        "Honolulu District Court",
+        "Honolulu Family Court"
+      ],
+      "Second Circuit": [
+        "Maui District Court",
+        "Molokai District Court"
+      ],
+      "Third Circuit": [
+        "Hilo District Court",
+        "Kona District Court"
+      ],
+      "Fifth Circuit": [
+        "Lihue District Court"
+      ]
+    },
+    "checkInRequirements": {
+      "frequency": "weekly",
+      "methods": [
+        "in_person",
+        "phone",
+        "app"
+      ],
+      "restrictedAreas": [
+        "airports",
+        "harbors"
+      ]
+    },
+    "feeStructures": {
+      "premiumRate": 0.1,
+      "minimumFee": 100,
+      "lateFee": 25,
+      "courtFee": 50
+    },
+    "isActive": true,
+    "createdAt": "2025-09-30T20:03:09.323Z",
+    "updatedAt": "2025-09-30T20:03:09.323Z"
   }
 ]

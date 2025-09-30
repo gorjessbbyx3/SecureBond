@@ -1,0 +1,60 @@
+[
+  {
+    "clientId": 1,
+    "courtDate": "2025-02-15T09:00:00.000Z",
+    "courtType": "arraignment",
+    "courtLocation": "Honolulu District Court, Room 3A",
+    "caseNumber": "1PC251234567",
+    "charges": "DUI, Reckless driving",
+    "notes": "First appearance - defendant must be present",
+    "adminApproved": true,
+    "approvedBy": "admin",
+    "approvedAt": "2025-09-30T20:03:09.527Z",
+    "source": "manual",
+    "id": 19,
+    "createdAt": "2025-09-30T20:03:09.529Z"
+  },
+  {
+    "clientId": 2,
+    "courtDate": "2025-02-20T14:00:00.000Z",
+    "courtType": "hearing",
+    "courtLocation": "Maui District Court, Room 1B",
+    "caseNumber": "2PC251234568",
+    "charges": "Assault in the third degree",
+    "notes": "Preliminary hearing scheduled",
+    "adminApproved": true,
+    "approvedBy": "admin",
+    "approvedAt": "2025-09-30T20:03:09.527Z",
+    "source": "manual",
+    "id": 20,
+    "createdAt": "2025-09-30T20:03:09.532Z"
+  },
+  {
+    "clientId": 3,
+    "courtDate": "2025-01-25T08:30:00.000Z",
+    "courtType": "trial",
+    "courtLocation": "Honolulu District Court, Room 2C",
+    "caseNumber": "1PC251234569",
+    "charges": "Theft in the fourth degree",
+    "notes": "Jury trial scheduled - 2 day estimated duration",
+    "adminApproved": false,
+    "source": "scraped",
+    "id": 21,
+    "createdAt": "2025-09-30T20:03:09.534Z"
+  },
+  {
+    "clientId": 1,
+    "courtDate": "2025-03-10T10:00:00.000Z",
+    "courtType": "sentencing",
+    "courtLocation": "Honolulu District Court, Room 3A",
+    "caseNumber": "1PC251234567",
+    "charges": "DUI, Reckless driving",
+    "notes": "Sentencing hearing if guilty plea entered",
+    "adminApproved": true,
+    "approvedBy": "admin",
+    "approvedAt": "2025-09-30T20:03:09.527Z",
+    "source": "manual",
+    "id": 22,
+    "createdAt": "2025-09-30T20:03:09.537Z"
+  }
+]

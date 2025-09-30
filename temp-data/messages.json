@@ -1,0 +1,47 @@
+[
+  {
+    "clientId": 1,
+    "senderId": "admin",
+    "senderType": "admin",
+    "message": "Good morning James. This is a reminder about your upcoming court date on February 15th at 9:00 AM. Please confirm receipt.",
+    "isRead": true,
+    "id": 38,
+    "createdAt": "2025-09-30T20:03:09.593Z"
+  },
+  {
+    "clientId": 2,
+    "senderId": "admin",
+    "senderType": "admin",
+    "message": "Kailani, your payment has been received and processed. Thank you for staying current with your obligations.",
+    "isRead": false,
+    "id": 39,
+    "createdAt": "2025-09-30T20:03:09.596Z"
+  },
+  {
+    "clientId": 3,
+    "senderId": "admin",
+    "senderType": "admin",
+    "message": "Robert, you have missed your last two check-ins. Please contact our office immediately at (808) 555-BAIL.",
+    "isRead": false,
+    "id": 40,
+    "createdAt": "2025-09-30T20:03:09.598Z"
+  },
+  {
+    "clientId": 1,
+    "senderId": "CLT-001",
+    "senderType": "client",
+    "message": "Hi, I received the court reminder. I will be there on time. Thank you.",
+    "isRead": true,
+    "id": 41,
+    "createdAt": "2025-09-30T20:03:09.600Z"
+  },
+  {
+    "clientId": 4,
+    "senderId": "admin",
+    "senderType": "admin",
+    "message": "Ana, welcome to our system. Please remember to check in weekly and keep us updated with any address changes.",
+    "isRead": false,
+    "id": 42,
+    "createdAt": "2025-09-30T20:03:09.602Z"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "clientId": 1,
+    "amount": "1000.00",
+    "paymentDate": "2025-01-15T12:00:00.000Z",
+    "paymentMethod": "credit_card",
+    "confirmed": true,
+    "confirmedBy": "admin",
+    "confirmedAt": "2025-01-15T12:30:00.000Z",
+    "notes": "Initial down payment - bond BND-2025-001",
+    "id": 23,
+    "createdAt": "2025-09-30T20:03:09.541Z"
+  },
+  {
+    "clientId": 2,
+    "amount": "2500.00",
+    "paymentDate": "2025-01-18T14:15:00.000Z",
+    "paymentMethod": "bank_transfer",
+    "confirmed": true,
+    "confirmedBy": "admin",
+    "confirmedAt": "2025-01-18T14:45:00.000Z",
+    "notes": "Down payment - bond BND-2025-002",
+    "id": 24,
+    "createdAt": "2025-09-30T20:03:09.543Z"
+  },
+  {
+    "clientId": 3,
+    "amount": "500.00",
+    "paymentDate": "2025-01-20T10:30:00.000Z",
+    "paymentMethod": "cash",
+    "confirmed": true,
+    "confirmedBy": "admin",
+    "confirmedAt": "2025-01-20T11:00:00.000Z",
+    "notes": "Full payment - bond BND-2025-003",
+    "id": 25,
+    "createdAt": "2025-09-30T20:03:09.546Z"
+  },
+  {
+    "clientId": 1,
+    "amount": "250.00",
+    "paymentDate": "2025-01-22T16:20:00.000Z",
+    "paymentMethod": "credit_card",
+    "confirmed": false,
+    "notes": "Monthly installment payment - pending confirmation",
+    "id": 26,
+    "createdAt": "2025-09-30T20:03:09.552Z"
+  },
+  {
+    "clientId": 2,
+    "amount": "300.00",
+    "paymentDate": "2025-01-24T11:45:00.000Z",
+    "paymentMethod": "check",
+    "confirmed": false,
+    "notes": "Partial payment towards balance - check needs to clear",
+    "id": 27,
+    "createdAt": "2025-09-30T20:03:09.555Z"
+  }
+]

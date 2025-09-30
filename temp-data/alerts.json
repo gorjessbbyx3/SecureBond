@@ -1,0 +1,40 @@
+[
+  {
+    "clientId": 3,
+    "alertType": "missed_checkin",
+    "severity": "high",
+    "message": "Robert Thompson has missed 2 consecutive weekly check-ins. Last contact: January 15, 2025",
+    "acknowledged": false,
+    "id": 34,
+    "createdAt": "2025-09-30T20:03:09.578Z"
+  },
+  {
+    "clientId": 5,
+    "alertType": "court_reminder",
+    "severity": "critical",
+    "message": "Tyler Wong has upcoming court date in 2 days (January 27, 2025) and has not acknowledged",
+    "acknowledged": false,
+    "id": 35,
+    "createdAt": "2025-09-30T20:03:09.581Z"
+  },
+  {
+    "clientId": 3,
+    "alertType": "payment_overdue",
+    "severity": "medium",
+    "message": "Monthly payment of $200 overdue by 5 days for Robert Thompson",
+    "acknowledged": false,
+    "id": 36,
+    "createdAt": "2025-09-30T20:03:09.587Z"
+  },
+  {
+    "clientId": 1,
+    "alertType": "location_violation",
+    "severity": "medium",
+    "message": "James Mitchell detected near restricted area (Honolulu Airport) at 2:30 PM",
+    "acknowledged": true,
+    "acknowledgedBy": "admin",
+    "acknowledgedAt": "2025-01-25T14:45:00.000Z",
+    "id": 37,
+    "createdAt": "2025-09-30T20:03:09.590Z"
+  }
+]

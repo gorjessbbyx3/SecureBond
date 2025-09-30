@@ -1,0 +1,47 @@
+[
+  {
+    "description": "Court filing fees - January",
+    "amount": "350.00",
+    "category": "court_fees",
+    "expenseDate": "2025-01-15T00:00:00.000Z",
+    "createdBy": "admin",
+    "id": 43,
+    "createdAt": "2025-09-30T20:03:09.605Z"
+  },
+  {
+    "description": "Office rent - January 2025",
+    "amount": "2500.00",
+    "category": "office_expenses",
+    "expenseDate": "2025-01-01T00:00:00.000Z",
+    "createdBy": "admin",
+    "id": 44,
+    "createdAt": "2025-09-30T20:03:09.607Z"
+  },
+  {
+    "description": "GPS monitoring equipment maintenance",
+    "amount": "450.00",
+    "category": "equipment",
+    "expenseDate": "2025-01-18T00:00:00.000Z",
+    "createdBy": "admin",
+    "id": 45,
+    "createdAt": "2025-09-30T20:03:09.610Z"
+  },
+  {
+    "description": "Insurance premium - liability coverage",
+    "amount": "800.00",
+    "category": "insurance",
+    "expenseDate": "2025-01-10T00:00:00.000Z",
+    "createdBy": "admin",
+    "id": 46,
+    "createdAt": "2025-09-30T20:03:09.614Z"
+  },
+  {
+    "description": "Legal consultation fees",
+    "amount": "1200.00",
+    "category": "legal",
+    "expenseDate": "2025-01-22T00:00:00.000Z",
+    "createdBy": "admin",
+    "id": 47,
+    "createdAt": "2025-09-30T20:03:09.617Z"
+  }
+]
