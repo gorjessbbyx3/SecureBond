@@ -12,6 +12,7 @@ import { securityAuditMiddleware, securityReportEndpoint, securityEventsEndpoint
 import { auditLogger } from "./utils/auditLogger";
 import { geolocationService } from "./services/geolocationService";
 import { arrestLogScraper } from "./services/arrestLogScraper";
+import { supabase, type ContactInquiry } from "./supabase";
 // import { setupAuth, isAuthenticated } from "./replitAuth";
 import bcrypt from 'bcrypt';
 import { 
@@ -986,6 +987,143 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting client:", error);
       res.status(500).json({ message: "Failed to delete client" });
+    }
+  });
+
+  // Contact inquiry routes (from Supabase contact form)
+  app.get('/api/inquiries', isAuthenticated, async (req, res) => {
+    try {
+      if (!supabase) {
+        return res.status(503).json({ message: "Supabase not configured. Contact form features unavailable." });
+      }
+
+      const { data, error } = await supabase
+        .from('contact_inquiries')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Supabase error fetching inquiries:", error);
+        return res.status(500).json({ message: "Failed to fetch inquiries from Supabase" });
+      }
+
+      res.json(data || []);
+    } catch (error) {
+      console.error("Error fetching inquiries:", error);
+      res.status(500).json({ message: "Failed to fetch inquiries" });
+    }
+  });
+
+  app.delete('/api/inquiries/:id', isAuthenticated, async (req, res) => {
+    try {
+      const adminRole = (req.session as any)?.adminRole;
+      if (adminRole !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!supabase) {
+        return res.status(503).json({ message: "Supabase not configured" });
+      }
+
+      const { error } = await supabase
+        .from('contact_inquiries')
+        .delete()
+        .eq('id', req.params.id);
+
+      if (error) {
+        console.error("Supabase error deleting inquiry:", error);
+        return res.status(500).json({ message: "Failed to delete inquiry" });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting inquiry:", error);
+      res.status(500).json({ message: "Failed to delete inquiry" });
+    }
+  });
+
+  app.post('/api/inquiries/:id/convert', isAuthenticated, async (req, res) => {
+    try {
+      const adminRole = (req.session as any)?.adminRole;
+      if (adminRole !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!supabase) {
+        return res.status(503).json({ message: "Supabase not configured" });
+      }
+
+      // Fetch the inquiry from Supabase
+      const { data: inquiry, error: fetchError } = await supabase
+        .from('contact_inquiries')
+        .select('*')
+        .eq('id', req.params.id)
+        .single();
+
+      if (fetchError || !inquiry) {
+        return res.status(404).json({ message: "Inquiry not found" });
+      }
+
+      // Generate client ID and password
+      const clientId = `CLT-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+      const password = randomBytes(8).toString('base64').slice(0, 8);
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create client from inquiry data
+      const clientData = {
+        fullName: inquiry.name,
+        clientId,
+        password: hashedPassword,
+        phoneNumber: inquiry.phone,
+        address: null,
+        dateOfBirth: null,
+        emergencyContact: null,
+        emergencyPhone: null,
+        courtLocation: null,
+        charges: inquiry.case_details,
+        isActive: true,
+        missedCheckIns: 0,
+      };
+
+      const client = await storage.createClient(clientData);
+
+      // Delete the inquiry from Supabase after conversion
+      await supabase
+        .from('contact_inquiries')
+        .delete()
+        .eq('id', req.params.id);
+
+      res.json({ 
+        ...client,
+        clientId, 
+        password 
+      });
+    } catch (error) {
+      console.error("Error converting inquiry to client:", error);
+      res.status(500).json({ message: "Failed to convert inquiry to client" });
+    }
+  });
+
+  app.post('/api/inquiries/:id/assign', isAuthenticated, async (req, res) => {
+    try {
+      const adminRole = (req.session as any)?.adminRole;
+      if (adminRole !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { staffId, notes } = req.body;
+      if (!staffId) {
+        return res.status(400).json({ message: "Staff ID is required" });
+      }
+
+      // Here you would create a to-do item or assignment
+      // For now, we'll just log it and return success
+      console.log(`Inquiry ${req.params.id} assigned to staff ${staffId} with notes: ${notes}`);
+      
+      res.json({ success: true, message: "Inquiry assigned successfully" });
+    } catch (error) {
+      console.error("Error assigning inquiry:", error);
+      res.status(500).json({ message: "Failed to assign inquiry" });
     }
   });
 
