@@ -46,30 +46,30 @@ interface PerformanceStats {
 export function SystemMonitoringDashboard() {
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const { data: healthData, refetch: refetchHealth } = useQuery({
+  const { data: healthData, refetch: refetchHealth } = useQuery<HealthStatus>({
     queryKey: ["/api/system/health"],
     refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds
   });
 
-  const { data: performanceData, refetch: refetchPerformance } = useQuery({
+  const { data: performanceData, refetch: refetchPerformance } = useQuery<{ status: string; data: PerformanceStats; timestamp: string }>({
     queryKey: ["/api/system/performance/stats"],
     refetchInterval: autoRefresh ? 10000 : false, // Refresh every 10 seconds
   });
 
-  const { data: metricsData } = useQuery({
+  const { data: metricsData } = useQuery<{ status: string; data: any[]; timestamp: string }>({
     queryKey: ["/api/system/performance/metrics"],
     refetchInterval: autoRefresh ? 60000 : false, // Refresh every minute
   });
 
-  const { data: securityData } = useQuery({
+  const { data: securityData } = useQuery<{ status: string; data: any; timestamp: string }>({
     queryKey: ["/api/system/security/report"],
     refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds
   });
 
-  const health = healthData as HealthStatus;
-  const performance = performanceData?.data as PerformanceStats;
-  const metrics = metricsData?.data as any[];
-  const security = securityData?.data as any;
+  const health = healthData;
+  const performance = performanceData?.data;
+  const metrics = metricsData?.data;
+  const security = securityData?.data;
 
   const formatUptime = (uptime: number) => {
     const seconds = Math.floor(uptime / 1000);
@@ -199,14 +199,14 @@ export function SystemMonitoringDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Response Time</CardTitle>
-            {performance?.averageResponseTime5Min <= 500 ? 
+            {(performance?.averageResponseTime5Min ?? 0) <= 500 ? 
               <TrendingUp className="h-4 w-4 text-green-600" /> : 
               <TrendingDown className="h-4 w-4 text-red-600" />
             }
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {performance?.averageResponseTime5Min || 0}ms
+              {performance?.averageResponseTime5Min ?? 0}ms
             </div>
             <p className="text-xs text-muted-foreground">
               5 min average
