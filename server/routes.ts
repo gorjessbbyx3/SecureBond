@@ -739,6 +739,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password, role } = req.body;
 
+      console.log('Admin login attempt:', { email: req.body.email, username, hasPassword: !!password, role });
+
       await auditLogger.log({
         eventType: 'ADMIN_LOGIN_ATTEMPT',
         category: 'AUTHENTICATION',
@@ -755,6 +757,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const creds = adminCredentials[role as keyof typeof adminCredentials];
+      console.log('Checking credentials:', { 
+        providedUsername: username, 
+        expectedUsername: creds?.username,
+        roleProvided: role,
+        credsFound: !!creds 
+      });
+      
       if (!creds || creds.username !== username || creds.password !== password) {
         await auditLogger.log({
           eventType: 'ADMIN_LOGIN_FAILED',
