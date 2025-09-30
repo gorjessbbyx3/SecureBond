@@ -305,6 +305,68 @@ export default function ClientDetails() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Activity Timeline */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Activity Timeline (Last 30 Days)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Recent Check-ins */}
+                  {checkIns.slice(0, 5).map((checkIn: any) => (
+                    <div key={checkIn.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <div className="flex-1">
+                        <p className="font-medium">Check-in completed</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(checkIn.checkInTime).toLocaleDateString()} at {new Date(checkIn.checkInTime).toLocaleTimeString()}
+                        </p>
+                        {checkIn.location && (
+                          <p className="text-xs text-gray-500">📍 {checkIn.location}</p>
+                        )}
+                      </div>
+                      <Badge variant="secondary">Verified</Badge>
+                    </div>
+                  ))}
+
+                  {/* Recent Payments */}
+                  {payments.slice(0, 3).map((payment: any) => (
+                    <div key={payment.id} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <DollarSign className="h-5 w-5 text-blue-500" />
+                      <div className="flex-1">
+                        <p className="font-medium">Payment received: ${payment.amount}</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(payment.paymentDate).toLocaleDateString()} via {payment.paymentMethod}
+                        </p>
+                      </div>
+                      <Badge variant={payment.confirmed ? "default" : "secondary"}>
+                        {payment.confirmed ? "Confirmed" : "Pending"}
+                      </Badge>
+                    </div>
+                  ))}
+
+                  {/* Court Dates */}
+                  {upcomingCourtDates.slice(0, 2).map((court: any) => (
+                    <div key={court.id} className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <Calendar className="h-5 w-5 text-purple-500" />
+                      <div className="flex-1">
+                        <p className="font-medium">Upcoming court date</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(court.courtDate).toLocaleDateString()} at {court.courtLocation || 'TBD'}
+                        </p>
+                      </div>
+                      <Badge variant="outline">
+                        {Math.ceil((new Date(court.courtDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Personal Information */}
               <Card>

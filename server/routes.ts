@@ -42,7 +42,7 @@ import adminRoutes from "./routes/admin";
 
 // Configure multer for file uploads
 const upload = multer({ 
-  storage: multer.memoryStorage(),
+  storage:multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
       cb(null, true);
@@ -60,7 +60,7 @@ const isAuthenticated = (req: any, res: any, next: any) => {
   // Check for authenticated session
   const adminRole = (req.session as any)?.adminRole;
   const clientId = (req.session as any)?.clientId;
-  
+
   if (adminRole || clientId || req.user?.claims?.sub) {
     next();
   } else {
@@ -152,44 +152,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.json(user);
         }
       }
-      
+
       return res.status(401).json({ message: "User not authenticated" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
-  // Client authentication endpoint - returns current logged in client
-  app.get('/api/auth/client', async (req: any, res) => {
-    try {
-      const clientId = (req.session as any)?.clientId;
-      if (!clientId) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-
-      const client = await storage.getClient(clientId);
-      if (!client) {
-        return res.status(404).json({ message: "Client not found" });
-      }
-
-      res.json({
-        id: client.id,
-        fullName: client.fullName,
-        clientId: client.clientId,
-        phoneNumber: client.phoneNumber,
-        address: client.address,
-        dateOfBirth: client.dateOfBirth,
-        emergencyContact: client.emergencyContact,
-        emergencyPhone: client.emergencyPhone,
-
-        isActive: client.isActive,
-        missedCheckIns: client.missedCheckIns,
-        createdAt: client.createdAt
-      });
-    } catch (error) {
-      console.error("Error fetching client:", error);
-      res.status(500).json({ message: "Failed to fetch client" });
     }
   });
 
@@ -243,22 +210,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/admin-login', async (req, res) => {
     try {
       const { email, password, username, role } = req.body;
-      
+
       // Admin credentials
       const ADMIN_CREDENTIALS = {
         email: 'admin@artofbail.com',
         username: 'admin',
         password: 'Wordpass3211!'
       };
-      
+
       // Verify credentials
       const isValidEmail = email === ADMIN_CREDENTIALS.email;
       const isValidUsername = username === ADMIN_CREDENTIALS.username;
-      
+
       if (!isValidEmail && !isValidUsername) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
-      
+
       // Verify password
       if (password !== ADMIN_CREDENTIALS.password) {
         await auditLogger.log({
@@ -270,17 +237,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ipAddress: req.ip,
           complianceRelevant: true
         });
-        
+
         return res.status(401).json({ message: "Invalid credentials" });
       }
-      
+
       (req.session as any).adminRole = 'admin';
       (req.session as any).user = {
         email: ADMIN_CREDENTIALS.email,
         username: ADMIN_CREDENTIALS.username,
         role: 'admin'
       };
-      
+
       await auditLogger.log({
         eventType: 'LOGIN_SUCCESS',
         category: 'AUTHENTICATION',
@@ -289,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { email: email || username },
         complianceRelevant: true
       });
-      
+
       res.json({
         success: true,
         role: 'admin',
@@ -305,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/maintenance-login', async (req, res) => {
     try {
       const { email, password } = req.body;
-      
+
       // SECURE: Default maintenance credentials (bcrypt hashed)
       // Default password is "secure_maint_2025" - CHANGE THIS IN PRODUCTION
       const MAINTENANCE_CREDENTIALS = {
@@ -313,21 +280,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Password hash for "secure_maint_2025"
         passwordHash: '$2b$10$tLvN5YUZFQxHzqJ8x8Y1oeN3vE1xH5jF6zLJ5QfJ6oDvN9YZJeKwD'
       };
-      
+
       if (email !== MAINTENANCE_CREDENTIALS.email) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
-      
+
       // Verify password with bcrypt
       const passwordMatch = await bcrypt.compare(password, MAINTENANCE_CREDENTIALS.passwordHash);
-      
+
       if (passwordMatch) {
         (req.session as any).adminRole = 'maintenance';
         (req.session as any).user = {
           email: MAINTENANCE_CREDENTIALS.email,
           role: 'maintenance'
         };
-        
+
         await auditLogger.log({
           eventType: 'LOGIN_SUCCESS',
           category: 'AUTHENTICATION',
@@ -336,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           details: { email },
           complianceRelevant: true
         });
-        
+
         res.json({
           success: true,
           role: 'maintenance',
@@ -352,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ipAddress: req.ip,
           complianceRelevant: true
         });
-        
+
         return res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
@@ -365,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/staff/login', async (req, res) => {
     try {
       const { email, password, role } = req.body;
-      
+
       // SECURE: Use same admin credentials as admin-login
       // Default password is "secure_admin_2025" - CHANGE THIS IN PRODUCTION
       const ADMIN_CREDENTIALS = {
@@ -373,14 +340,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Password hash for "secure_admin_2025"
         passwordHash: '$2b$10$rKvV5YUZFQxHzqJ8x8Y0oeN3vE0xH5jF6zLJ5QfJ6oDvN9YZJeKvC'
       };
-      
+
       if (email !== ADMIN_CREDENTIALS.email || role !== 'admin') {
         return res.status(401).json({ message: "Invalid credentials" });
       }
-      
+
       // Verify password with bcrypt
       const passwordMatch = await bcrypt.compare(password, ADMIN_CREDENTIALS.passwordHash);
-      
+
       if (passwordMatch) {
         (req.session as any).adminRole = 'admin';
         (req.session as any).user = {
@@ -390,7 +357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           firstName: 'Admin',
           lastName: 'User'
         };
-        
+
         await auditLogger.log({
           eventType: 'LOGIN_SUCCESS',
           category: 'AUTHENTICATION',
@@ -399,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           details: { email },
           complianceRelevant: true
         });
-        
+
         res.json({
           id: email,
           email,
@@ -417,7 +384,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ipAddress: req.ip,
           complianceRelevant: true
         });
-        
+
         return res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
@@ -430,11 +397,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/client/login', async (req, res) => {
     try {
       const { clientId, password } = req.body;
-      
+
       // Find client by clientId
       const clients = await storage.getAllClients();
       const client = clients.find(c => c.clientId === clientId);
-      
+
       if (!client) {
         return res.status(401).json({ message: "Invalid client ID" });
       }
@@ -468,11 +435,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/client/login-phone', async (req, res) => {
     try {
       const { phoneNumber, password } = req.body;
-      
+
       // Find client by phone number
       const clients = await storage.getAllClients();
       const client = clients.find(c => c.phoneNumber === phoneNumber);
-      
+
       if (!client) {
         return res.status(401).json({ message: "Invalid phone number" });
       }
@@ -526,7 +493,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/admin/credentials', async (req, res) => {
     try {
       const { role, username, password } = req.body;
-      
+
       if (!role || !username || !password) {
         return res.status(400).json({ message: "Role, username, and password are required" });
       }
@@ -534,7 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In a real app, you'd update the credentials in a secure store
       // For now, we'll just simulate success
       console.log(`Updated ${role} credentials for ${username}`);
-      
+
       res.json({ message: "Credentials updated successfully" });
     } catch (error) {
       console.error("Error updating credentials:", error);
@@ -547,7 +514,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = parseInt(req.params.id);
       const client = await storage.getClient(clientId);
-      
+
       if (!client) {
         return res.status(404).json({ message: "Client not found" });
       }
@@ -573,11 +540,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
       }
-      
+
       // Clear any authentication cookies
       res.clearCookie('connect.sid');
       res.clearCookie('session');
-      
+
       res.json({ message: "Logged out successfully" });
     } catch (error) {
       console.error("Error during logout:", error);
@@ -590,7 +557,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { clientId, password } = req.body;
       console.log('Client login attempt:', { clientId, hasPassword: !!password });
-      
+
       if (!clientId || !password) {
         return res.status(400).json({ message: "Client ID and password are required" });
       }
@@ -598,7 +565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Available storage methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(storage)));
       const client = await storage.getClientByClientId(clientId);
       console.log('Found client:', client ? { id: client.id, clientId: client.clientId, hasPassword: !!client.password } : 'null');
-      
+
       if (!client) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -609,7 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // First try plain text comparison for development
         isValidPassword = password === client.password;
         console.log('Plain text comparison result:', isValidPassword);
-        
+
         // If plain text fails, try bcrypt
         if (!isValidPassword) {
           try {
@@ -620,7 +587,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
-      
+
       if (!isValidPassword) {
         console.log('Password validation failed');
         return res.status(401).json({ message: "Invalid credentials" });
@@ -630,7 +597,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       (req.session as any).clientId = client.id;
       (req.session as any).clientRole = 'client';
       console.log('Client session stored, clientId:', client.id);
-      
+
       res.json({ 
         success: true, 
         id: client.id,
@@ -649,7 +616,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { username, password, role } = req.body;
     const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
-    
+
     try {
       if (role === 'admin' || role === 'maintenance') {
         // Handle admin login directly
@@ -690,23 +657,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Handle client login
         const clients = await storage.getAllClients();
         const client = clients.find((c: any) => c.clientId === username);
-        
+
         if (!client) {
           return res.status(401).json({ message: "Client not found" });
         }
-        
+
         // Simple password check for production use
         if (password !== 'client123') {
           return res.status(401).json({ message: "Invalid password" });
         }
-        
+
         (req.session as any).user = { 
           id: client.id,
           clientId: client.clientId, 
           fullName: client.fullName,
           role: 'client'
         };
-        
+
         res.json({ 
           success: true, 
           id: client.id,
@@ -731,7 +698,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/admin-login', async (req, res) => {
     const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
-    
+
     try {
       const { username, password, role } = req.body;
 
@@ -759,7 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         roleProvided: role,
         credsFound: !!creds 
       });
-      
+
       if (!creds || creds.username !== username || creds.password !== password) {
         await auditLogger.log({
           eventType: 'ADMIN_LOGIN_FAILED',
@@ -779,7 +746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       (req.session as any).adminRole = role;
-      
+
       await auditLogger.log({
         eventType: 'ADMIN_LOGIN_SUCCESS',
         category: 'AUTHENTICATION',
@@ -796,7 +763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         complianceRelevant: true,
       });
-      
+
       res.json({ success: true, role });
     } catch (error) {
       await auditLogger.log({
@@ -812,7 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         complianceRelevant: true,
       });
-      
+
       console.error("Admin login error:", error);
       res.status(500).json({ message: "Login failed" });
     }
@@ -893,22 +860,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/clients', isAuthenticated, async (req, res) => {
     try {
       const requestData = { ...req.body };
-      
+
       // Validate that client ID is provided
       if (!requestData.clientId) {
         return res.status(400).json({ message: "Client ID is required" });
       }
-      
+
       // Check if client ID already exists
       const existingClient = await storage.getClientByClientId(requestData.clientId);
       if (existingClient) {
         return res.status(400).json({ message: "Client ID already exists" });
       }
-      
+
       // Generate only the password
       const password = randomBytes(8).toString('base64').slice(0, 8);
       const hashedPassword = await bcrypt.hash(password, 10);
-      
+
       // Prepare client data with custom client ID and generated password
       const clientData = {
         fullName: requestData.fullName,
@@ -924,7 +891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive: requestData.isActive !== undefined ? requestData.isActive : true,
         missedCheckIns: requestData.missedCheckIns || 0,
       };
-      
+
       const client = await storage.createClient(clientData);
 
       // Automatically scrape court history for the new client
@@ -976,7 +943,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
-      
+
       const client = await storage.updateClient(id, updates);
       res.json(client);
     } catch (error) {
@@ -988,31 +955,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/clients/:id', isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      
+
       // Delete all related court dates first
       const clientCourtDates = await storage.getClientCourtDates(id);
       for (const courtDate of clientCourtDates) {
         await storage.deleteCourtDate(courtDate.id);
       }
-      
+
       // Delete all related bonds
       const clientBonds = await storage.getClientBonds(id);
       for (const bond of clientBonds) {
         await storage.deleteBond(bond.id);
       }
-      
+
       // Delete all related payments
       const clientPayments = await storage.getClientPayments(id);
       for (const payment of clientPayments) {
         await storage.deletePayment(payment.id);
       }
-      
+
       // Delete all related check-ins
       const clientCheckIns = await storage.getClientCheckIns(id);
       for (const checkIn of clientCheckIns) {
         await storage.deleteCheckIn(checkIn.id);
       }
-      
+
       // Finally delete the client
       await storage.deleteClient(id);
       res.json({ success: true });
@@ -1037,7 +1004,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Convert buffer to readable stream
       const stream = Readable.from(req.file.buffer.toString());
-      
+
       // Parse CSV data
       const parsePromise = new Promise<void>((resolve, reject) => {
         stream
@@ -1117,7 +1084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           // Check if client already exists by phone number or email
           const existingClient = await storage.getClientByClientId(row['Email']?.trim() || '');
-          
+
           if (existingClient) {
             // Update existing client (exclude clientId from updates)
             const { clientId: _, ...updateData } = clientData;
@@ -1429,7 +1396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/arrest-monitoring/search-logs', isAuthenticated, async (req, res) => {
     try {
       const { clientName, options } = req.body;
-      
+
       if (!clientName) {
         return res.status(400).json({ message: 'Client name is required' });
       }
@@ -1446,7 +1413,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/white-pages/search', isAuthenticated, async (req, res) => {
     try {
       const { name, city } = req.body;
-      
+
       if (!name) {
         return res.status(400).json({ message: 'Name is required' });
       }
@@ -1519,21 +1486,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const { reason, clientId } = req.body;
-      
+
       // Get all court dates to find the specific one
       const allCourtDates = await storage.getAllCourtDates();
       const courtDate = allCourtDates.find(d => d.id === id);
-      
+
       if (!courtDate) {
         return res.status(404).json({ message: "Court date not found" });
       }
-      
+
       // Check if it was auto-scraped
       const isAutoScraped = courtDate.notes?.includes('Auto-scraped') || courtDate.source?.includes('Court Records Search');
-      
+
       if (isAutoScraped) {
         console.log(`Deleting auto-scraped court record for client ${courtDate.clientId}: ${reason || 'Incorrect match'}`);
-        
+
         // Create alert for admin review of auto-scraping accuracy
         await storage.createAlert({
           clientId: courtDate.clientId || clientId,
@@ -1543,10 +1510,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           acknowledged: false
         });
       }
-      
+
       // Delete the court date
       await storage.deleteCourtDate(id);
-      
+
       res.json({ 
         success: true, 
         message: isAutoScraped ? 'Auto-scraped court record deleted and accuracy alert created' : 'Court record deleted'
@@ -1562,13 +1529,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = parseInt(req.params.id);
       const client = await storage.getClient(clientId);
-      
+
       if (!client) {
         return res.status(404).json({ message: "Client not found" });
       }
 
       console.log(`Manual court scraping initiated for client: ${client.fullName}`);
-      
+
       const courtSearchResult = await courtScraper.searchCourtDates(client.fullName, {
         state: 'HI',
         county: 'all',
@@ -1611,7 +1578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = parseInt(req.params.id);
       const client = await storage.getClient(clientId);
-      
+
       if (!client) {
         return res.status(404).json({ message: "Client not found" });
       }
@@ -1621,7 +1588,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const checkIns = await storage.getAllCheckIns();
       const courtDates = await storage.getAllCourtDates();
       const alerts = await storage.getAllAlerts();
-      
+
       const clientPayments = payments.filter((p: any) => p.clientId === clientId);
       const clientCheckIns = checkIns.filter((c: any) => c.clientId === clientId);
       const clientCourtDates = courtDates.filter((cd: any) => cd.clientId === clientId);
@@ -1681,7 +1648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const riskScore = calculateRiskScore(client, clientPayments, clientCheckIns, clientCourtDates, clientAlerts);
         totalRiskScore += riskScore;
-        
+
         if (riskScore < 40) {
           globalAnalysis.highRiskClients++;
         }
@@ -1718,24 +1685,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const payments = await storage.getAllPayments();
       const expenses = await storage.getAllExpenses();
       const checkIns = await storage.getAllCheckIns();
-      
+
       const now = new Date();
       const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      
+
       // Calculate monthly revenue for the last 12 months
       const monthlyRevenue: Record<number, number> = {};
       for (let i = 0; i < 12; i++) {
         const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-        
+
         const monthRevenue = payments
           .filter(p => {
             const paymentDate = new Date(p.paymentDate!);
             return p.confirmed && paymentDate >= monthDate && paymentDate < nextMonth;
           })
           .reduce((sum, p) => sum + parseFloat(p.amount), 0);
-        
+
         monthlyRevenue[monthDate.getMonth()] = monthRevenue;
       }
 
@@ -1747,7 +1714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const date = new Date(c.createdAt || now);
         return date >= lastMonth && date < currentMonth;
       }).length;
-      
+
       const clientGrowthRate = lastMonthClients > 0 ? 
         ((currentMonthClients - lastMonthClients) / lastMonthClients) * 100 : 
         (currentMonthClients > 0 ? 100 : 0);
@@ -1756,7 +1723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const recentCheckIns = checkIns.filter(ci => 
         ci.checkInTime && new Date(ci.checkInTime as Date) >= lastMonth
       );
-      
+
       // For compliance calculation, use actual data - assume 90% compliance rate based on existing check-ins
       const checkInCompliance = recentCheckIns.length > 0 ? 90.0 : 100.0;
 
@@ -1805,7 +1772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         };
       });
-      
+
       res.json(locationsData);
     } catch (error) {
       console.error("Error fetching client locations:", error);
@@ -1817,7 +1784,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/alerts/unacknowledged', isAuthenticated, async (req, res) => {
     try {
       const alerts = await storage.getAllUnacknowledgedAlerts();
-      
+
       // Enhance alerts with additional details for better display
       const enhancedAlerts = await Promise.all(alerts.map(async (alert: any) => {
         if (alert.clientId) {
@@ -1849,7 +1816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         return alert;
       }));
-      
+
       res.json(enhancedAlerts);
     } catch (error) {
       console.error("Error fetching alerts:", error);
@@ -1864,7 +1831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const payments = await storage.getAllPayments();
       const courtDates = await storage.getAllCourtDates();
       const expenses = await storage.getAllExpenses();
-      
+
       const activeClients = clients.filter(c => c.isActive).length;
       const totalRevenue = payments
         .filter(p => p.confirmed)
@@ -1873,7 +1840,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pendingAmount = payments
         .filter(p => !p.confirmed)
         .reduce((sum, p) => sum + parseFloat(p.amount), 0);
-      
+
       // Calculate upcoming court dates (next 30 days)
       const now = new Date();
       const thirtyDaysFromNow = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
@@ -1881,9 +1848,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const courtDate = cd.courtDate ? new Date(cd.courtDate) : null;
         return courtDate && courtDate >= now && courtDate <= thirtyDaysFromNow;
       }).length;
-      
+
       const totalExpenses = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
-      
+
       res.json({
         totalClients: clients.length,
         activeClients,
@@ -1905,7 +1872,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clients = await storage.getAllClients();
       const payments = await storage.getAllPayments();
       const expenses = await storage.getAllExpenses();
-      
+
       res.json({
         dataDirectory: (storage as any).getDataDirectory?.() || "Local Storage",
         totalSize: "45.2 MB",
@@ -1930,7 +1897,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const acknowledgment = await storage.getPrivacyAcknowledgment(userId);
-      
+
       if (acknowledgment) {
         res.json({
           acknowledged: true,
@@ -1950,7 +1917,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/privacy/acknowledgment', isAuthenticated, async (req, res) => {
     try {
       const { userId, version, dataTypes, ipAddress, userAgent } = req.body;
-      
+
       const acknowledgmentData = {
         userId,
         version,
@@ -1960,7 +1927,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const result = await storage.createPrivacyAcknowledgment(acknowledgmentData);
-      
+
       res.json({
         success: true,
         acknowledgment: result
@@ -1975,7 +1942,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { type } = req.body;
       let exportPath = "";
-      
+
       switch (type) {
         case 'clients':
           const clients = await storage.getAllClients();
@@ -1994,7 +1961,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         default:
           throw new Error("Invalid export type");
       }
-      
+
       res.json({ success: true, path: exportPath });
     } catch (error) {
       console.error("Export error:", error);
@@ -2007,10 +1974,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const allReminders = await courtReminderService.getUpcomingCourtDates(30);
       const notifications = await storage.getUserNotifications("1");
-      
+
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       const todayNotifications = notifications.filter(n => {
         const notifDate = new Date(n.createdAt!);
         const notifDay = new Date(notifDate.getFullYear(), notifDate.getMonth(), notifDate.getDate());
@@ -2053,7 +2020,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/test-email', isAuthenticated, async (req, res) => {
     try {
       const { email } = req.body;
-      
+
       if (!email) {
         return res.status(400).json({ success: false, message: 'Email address required' });
       }
@@ -2069,14 +2036,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {
     try {
       const { phone } = req.body;
-      
+
       if (!phone) {
         return res.status(400).json({ success: false, message: 'Phone number required' });
       }
 
       // Test SMS via notification service
       const success = await notificationService.sendTestSMS(phone);
-      
+
       res.json({
         success,
         message: success ? 'Test SMS sent successfully' : 'Failed to send test SMS - check Twilio configuration'
@@ -2102,11 +2069,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Fetch authentic arrest logs from configured police department APIs
       const recentLogs = await storage.getPublicArrestLogs();
-      
+
       // If no logs from storage, attempt to fetch from live sources
       if (recentLogs.length === 0) {
         console.log('Fetching fresh arrest logs from police department sources...');
-        
+
         // Use the court scraper to get arrest logs
         const { courtScraper } = await import('./courtScraper');
         const arrestResult = await courtScraper.searchArrestLogs('*', {
@@ -2115,7 +2082,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             end: new Date() 
           }
         });
-        
+
         if (arrestResult.success && arrestResult.arrests.length > 0) {
           // Convert arrest data to the expected format
           const formattedLogs = arrestResult.arrests.map((arrest: any) => ({
@@ -2135,12 +2102,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: arrest.source || 'Police Department',
             createdAt: new Date().toISOString()
           }));
-          
+
           res.json(formattedLogs);
           return;
         }
       }
-      
+
       res.json(recentLogs);
     } catch (error) {
       console.error('Error fetching recent arrest logs:', error);
@@ -2151,7 +2118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/arrest-logs/contact-history/:recordId', isAuthenticated, async (req, res) => {
     try {
       const { recordId } = req.params;
-      
+
       // Only return authentic contact history from database
       const contactHistory = await storage.getClientFiles(parseInt(recordId));
       const recordHistory = contactHistory.filter((contact: any) => contact.arrestRecordId === recordId);
@@ -2166,7 +2133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/arrest-logs/log-contact', isAuthenticated, async (req, res) => {
     try {
       const { arrestRecordId, contactType, notes, outcome, contactedBy, followUpRequired, followUpDate } = req.body;
-      
+
       // In a real implementation, this would save to the database
       const contactLog = {
         id: `contact_${Date.now()}`,
@@ -2200,7 +2167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/arrest-logs/update-status', isAuthenticated, async (req, res) => {
     try {
       const { recordId, contactStatus } = req.body;
-      
+
       // In a real implementation, this would update the database
       res.json({ 
         success: true, 
@@ -2215,10 +2182,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/arrest-logs/convert-to-client', isAuthenticated, async (req, res) => {
     try {
       const { arrestRecordId } = req.body;
-      
+
       // In a real implementation, this would create a new client record
       // and update the arrest record status to 'converted'
-      
+
       res.json({ 
         success: true, 
         clientId: `client_${Date.now()}`,
@@ -2234,24 +2201,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/court-documents/rss-feed', isAuthenticated, async (req, res) => {
     try {
       const { clientName, documentType = 'all' } = req.query;
-      
+
       console.log('Fetching RSS civil/criminal/federal documents feed...');
-      
+
       // Fetch from Hawaii Federal District Court RSS feed
       const { courtScraper } = await import('./courtScraper');
-      
+
       if (clientName) {
         // Search for specific client documents
         const searchResult = await courtScraper.searchCourtDates(clientName as string, {
           state: 'HI',
           maxResults: 50
         });
-        
+
         // Filter RSS documents from the search results
         const rssDocuments = searchResult.courtDates.filter(doc => 
           doc.source.includes('Federal') || doc.source.includes('RSS')
         );
-        
+
         res.json({
           success: true,
           documents: rssDocuments,
@@ -2265,11 +2232,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           state: 'HI',
           maxResults: 100
         });
-        
+
         const allRSSDocuments = generalSearch.courtDates.filter(doc => 
           doc.source.includes('Federal') || doc.source.includes('RSS')
         );
-        
+
         // Categorize documents by type
         const categorized = {
           civil: allRSSDocuments.filter(doc => 
@@ -2284,7 +2251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             doc.source.includes('Federal')
           )
         };
-        
+
         res.json({
           success: true,
           documents: documentType === 'all' ? allRSSDocuments : categorized[documentType as keyof typeof categorized] || [],
@@ -2337,16 +2304,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const payments = await storage.getAllPayments();
       const alerts = await storage.getAllUnacknowledgedAlerts();
       const upcomingCourtDates = await storage.getAllCourtDates();
-      
+
       const notifications = [];
-      
+
       // Check for missed court dates from court dates table
       const now = new Date();
       for (const client of clients) {
         if (client.isActive) {
           // Get all court dates for this client
           const clientCourtDates = await storage.getClientCourtDates(client.id);
-          
+
           for (const courtDate of clientCourtDates) {
             // Check if court date is past and not yet marked as attended/missed
             if (new Date(courtDate.courtDate) < now && courtDate.attendanceStatus === "pending" && !courtDate.completed) {
@@ -2357,7 +2324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 a.message.includes(courtDate.courtType) &&
                 !a.acknowledged
               );
-              
+
               if (!existingAlert) {
                 await storage.createAlert({
                   clientId: client.id,
@@ -2370,13 +2337,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         }
-        
+
         // Court dates are now handled via the courtDates table
       }
-      
+
       // Refresh alerts after potential new ones were created
       const updatedAlerts = await storage.getAllUnacknowledgedAlerts();
-      
+
       // Create notifications from unconfirmed payments
       const unconfirmedPayments = payments.filter(p => !p.confirmed);
       for (const payment of unconfirmedPayments) {
@@ -2392,7 +2359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           actionRequired: true,
         });
       }
-      
+
       // Create notifications from missed check-ins
       const missedCheckInClients = clients.filter(c => (c.missedCheckIns || 0) > 0);
       for (const client of missedCheckInClients) {
@@ -2411,7 +2378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           actionRequired: true,
         });
       }
-      
+
       // Add system alerts (use updated alerts list)
       for (const alert of updatedAlerts) {
         notifications.push({
@@ -2425,7 +2392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           actionRequired: true,
         });
       }
-      
+
       res.json(notifications);
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -2450,13 +2417,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const notificationId = req.params.id;
       const { action } = req.body;
-      
+
       // Process different actions based on notification type
       if (notificationId.startsWith('payment-') && action === 'confirm') {
         const paymentId = parseInt(notificationId.replace('payment-', ''));
         await storage.confirmPayment(paymentId, 'admin');
       }
-      
+
       res.json({ success: true });
     } catch (error) {
       console.error("Error handling notification action:", error);
@@ -2469,18 +2436,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clients = await storage.getAllClients();
       const checkIns = await storage.getAllCheckIns();
-      
+
       const riskAnalysis = clients.map(client => {
         const clientCheckIns = checkIns.filter(ci => ci.clientId === client.id);
         const missedCount = client.missedCheckIns || 0;
         const lastCheckIn = clientCheckIns.length > 0 ? 
           Math.max(...clientCheckIns.map(ci => new Date(ci.checkInTime || 0).getTime())) : 0;
-        
+
         let riskLevel = 'LOW';
         if (missedCount > 3) riskLevel = 'CRITICAL';
         else if (missedCount > 1) riskLevel = 'HIGH';
         else if (missedCount > 0) riskLevel = 'MEDIUM';
-        
+
         return {
           clientId: client.id,
           clientName: client.fullName,
@@ -2491,7 +2458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           complianceScore: Math.max(0, 100 - (missedCount * 15))
         };
       });
-      
+
       res.json(riskAnalysis);
     } catch (error) {
       console.error("Error fetching skip bail risk:", error);
@@ -2503,12 +2470,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { clientId } = req.query;
       const checkIns = await storage.getAllCheckIns();
-      
+
       let filteredCheckIns = checkIns;
       if (clientId) {
         filteredCheckIns = checkIns.filter(ci => ci.clientId === parseInt(clientId as string));
       }
-      
+
       const patterns = filteredCheckIns.map(checkIn => ({
         clientId: checkIn.clientId,
         location: checkIn.location,
@@ -2518,7 +2485,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lng: parseFloat(checkIn.location?.split(',')[1] || '0')
         }
       }));
-      
+
       res.json(patterns);
     } catch (error) {
       console.error("Error fetching location patterns:", error);
@@ -2531,24 +2498,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clientId = parseInt(req.params.clientId);
       const { days = '30' } = req.query;
       const daysAgo = parseInt(days as string);
-      
+
       const checkIns = await storage.getClientCheckIns(clientId);
       const cutoffDate = new Date(Date.now() - (daysAgo * 24 * 60 * 60 * 1000));
-      
+
       const recentCheckIns = checkIns.filter(ci => 
         new Date(ci.checkInTime || 0) > cutoffDate
       );
-      
+
       const locationFrequency: { [key: string]: number } = {};
       recentCheckIns.forEach(checkIn => {
         const location = checkIn.location || 'Unknown';
         locationFrequency[location] = (locationFrequency[location] || 0) + 1;
       });
-      
+
       const frequentLocations = Object.entries(locationFrequency)
         .map(([location, count]) => ({ location, count }))
         .sort((a, b) => b.count - a.count);
-      
+
       res.json(frequentLocations);
     } catch (error) {
       console.error("Error fetching frequent locations:", error);
@@ -2561,7 +2528,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const courtDateId = parseInt(req.params.id);
       const { clientId } = req.body;
-      
+
       const courtDate = await storage.acknowledgeCourtDate(courtDateId, clientId);
       res.json(courtDate);
     } catch (error) {
@@ -2574,7 +2541,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
-      
+
       const courtDate = await storage.updateCourtDate(id, updates);
       res.json(courtDate);
     } catch (error) {
@@ -2598,7 +2565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const { approvedBy } = req.body;
-      
+
       const courtDate = await storage.approveCourtDate(id, approvedBy);
       res.json(courtDate);
     } catch (error) {
@@ -2613,11 +2580,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clients = await storage.getAllClients();
       const checkIns = await storage.getAllCheckIns();
       const payments = await storage.getAllPayments();
-      
+
       const behaviorAnalytics = clients.map(client => {
         const clientCheckIns = checkIns.filter(ci => ci.clientId === client.id);
         const clientPayments = payments.filter(p => p.clientId === client.id);
-        
+
         return {
           clientId: client.id,
           clientName: client.fullName,
@@ -2627,7 +2594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           riskLevel: (client.missedCheckIns || 0) > 2 ? 'HIGH' : 'LOW'
         };
       });
-      
+
       res.json(behaviorAnalytics);
     } catch (error) {
       console.error("Error fetching client behavior analytics:", error);
@@ -2638,13 +2605,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/analytics/geographic', isAuthenticated, async (req, res) => {
     try {
       const checkIns = await storage.getAllCheckIns();
-      
+
       const geographicData = checkIns.map(checkIn => ({
         location: checkIn.location,
         timestamp: checkIn.checkInTime,
         clientId: checkIn.clientId
       }));
-      
+
       res.json(geographicData);
     } catch (error) {
       console.error("Error fetching geographic analytics:", error);
@@ -2658,7 +2625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalClients = clients.length;
       const compliantClients = clients.filter(c => (c.missedCheckIns || 0) === 0).length;
       const complianceRate = totalClients > 0 ? (compliantClients / totalClients) * 100 : 0;
-      
+
       res.json({
         totalClients,
         compliantClients,
@@ -2677,7 +2644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const confirmedPayments = payments.filter(p => p.confirmed);
       const totalRevenue = confirmedPayments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
       const pendingRevenue = payments.filter(p => !p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount), 0);
-      
+
       res.json({
         totalRevenue,
         pendingRevenue,
@@ -2728,7 +2695,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const { confirmedBy } = req.body;
-      
+
       const notification = await storage.confirmNotification(id, confirmedBy);
       res.json(notification);
     } catch (error) {
@@ -2742,13 +2709,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = parseInt(req.params.id);
       const checkIns = await storage.getClientCheckIns(clientId);
-      
+
       const trackingData = checkIns.map(checkIn => ({
         timestamp: checkIn.checkInTime,
         location: checkIn.location,
         notes: checkIn.notes
       }));
-      
+
       res.json(trackingData);
     } catch (error) {
       console.error("Error fetching client tracking data:", error);
@@ -2759,14 +2726,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/tracking/location', async (req, res) => {
     try {
       const { clientId, location, notes } = req.body;
-      
+
       const checkInData = {
         clientId: parseInt(clientId),
         location,
         notes,
         checkInTime: new Date()
       };
-      
+
       const checkIn = await storage.createCheckIn(checkInData);
       res.json(checkIn);
     } catch (error) {
@@ -2779,7 +2746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clients = await storage.getAllClients();
       const activeClients = clients.filter(c => c.isActive);
-      
+
       const activeSessions = await Promise.all(activeClients.map(async (client) => {
         const lastCheckIn = await storage.getLastCheckIn(client.id);
         return {
@@ -2790,7 +2757,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: lastCheckIn ? 'active' : 'inactive'
         };
       }));
-      
+
       res.json(activeSessions);
     } catch (error) {
       console.error("Error fetching active tracking sessions:", error);
@@ -2802,7 +2769,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/court-scraping/search', isAuthenticated, async (req, res) => {
     try {
       const { clientName, options } = req.body;
-      
+
       const searchResult = await courtScraper.searchCourtDates(clientName, options);
       res.json(searchResult);
     } catch (error) {
@@ -2836,7 +2803,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userAgent: req.get('User-Agent')
         }
       ];
-      
+
       res.json(auditLogs);
     } catch (error) {
       console.error("Error fetching audit logs:", error);
@@ -2847,7 +2814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/audit/compliance-report', isAuthenticated, async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
-      
+
       const report = {
         reportId: `COMP-${Date.now()}`,
         generatedAt: new Date().toISOString(),
@@ -2859,7 +2826,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           missedCheckIns: 3
         }
       };
-      
+
       res.json(report);
     } catch (error) {
       console.error("Error generating compliance report:", error);
@@ -2874,19 +2841,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const courtDateId = parseInt(req.params.courtDateId);
       const { status, notes } = req.body; // status: 'attended' | 'missed' | 'rescheduled'
-      
+
       // Update the specific court date attendance status
       const updatedCourtDate = await storage.updateCourtDate(courtDateId, {
         attendanceStatus: status,
         notes: notes ? `${notes}` : undefined,
         completed: status === 'attended' || status === 'missed'
       });
-      
+
       const client = await storage.getClient(updatedCourtDate.clientId!);
       if (!client) {
         return res.status(404).json({ message: 'Client not found' });
       }
-      
+
       if (status === 'attended') {
         // Remove any existing court alerts for this specific court date
         const courtAlerts = await storage.getAllAlerts();
@@ -2897,7 +2864,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )) {
           await storage.acknowledgeAlert(alert.id);
         }
-        
+
       } else if (status === 'missed') {
         // Create specific alert for this missed court appearance
         await storage.createAlert({
@@ -2908,7 +2875,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           acknowledged: false
         });
       }
-      
+
       res.json({ 
         success: true, 
         message: `${updatedCourtDate.courtType} status updated to ${status}`,
@@ -2969,7 +2936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const courtDateId = parseInt(req.params.id);
       const userId = (req.user as any)?.claims?.sub || 'admin';
-      
+
       const approvedCourtDate = await storage.approveCourtDate(courtDateId, userId);
       res.json(approvedCourtDate);
     } catch (error) {
@@ -2983,7 +2950,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const courtDateId = parseInt(req.params.id);
       const { clientId } = req.body;
-      
+
       if (!clientId) {
         return res.status(400).json({ message: 'Client ID is required' });
       }
@@ -3000,7 +2967,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get client from session - this should be implemented based on your auth system
       const clientId = (req.session as any)?.clientId || req.headers['x-client-id'];
-      
+
       if (!clientId) {
         return res.status(401).json({ message: 'Not authenticated' });
       }
@@ -3073,7 +3040,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = parseInt(req.params.id);
       const updates = req.body;
-      
+
       // Convert date strings to Date objects if needed
       if (updates.dateOfBirth && typeof updates.dateOfBirth === 'string') {
         updates.dateOfBirth = updates.dateOfBirth;
@@ -3081,7 +3048,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (updates.courtDate && typeof updates.courtDate === 'string') {
         updates.courtDate = new Date(updates.courtDate);
       }
-      
+
       const updatedClient = await storage.updateClient(clientId, updates);
       res.json(updatedClient);
     } catch (error) {
@@ -3197,22 +3164,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = parseInt(req.params.id);
       const checkIns = await storage.getClientCheckIns(clientId);
-      
+
       // Aggregate location data
       const locationCounts = new Map<string, number>();
       const locationDetails = new Map<string, { address: string; city: string; state: string; count: number }>();
-      
+
       checkIns.forEach(checkIn => {
         if (checkIn.location && checkIn.location.trim()) {
           const location = checkIn.location.trim();
           locationCounts.set(location, (locationCounts.get(location) || 0) + 1);
-          
+
           // Parse location into components (basic parsing)
           const parts = location.split(',').map((p: string) => p.trim());
           const address = parts[0] || location;
           const city = parts[1] || 'Unknown';
           const state = parts[2] || 'HI';
-          
+
           locationDetails.set(location, {
             address,
             city,
@@ -3221,12 +3188,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       });
-      
+
       // Convert to array and sort by frequency
       const topLocations = Array.from(locationDetails.values())
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
-      
+
       res.json(topLocations);
     } catch (error) {
       console.error('Error fetching client locations:', error);
@@ -3239,7 +3206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = parseInt(req.params.id);
       const payments = await storage.getClientPayments(clientId);
-      
+
       const totalAmount = payments.reduce((sum, payment) => sum + parseFloat(payment.amount || '0'), 0);
       const confirmedAmount = payments
         .filter(payment => payment.confirmed)
@@ -3247,14 +3214,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pendingAmount = payments
         .filter(payment => !payment.confirmed)
         .reduce((sum, payment) => sum + parseFloat(payment.amount || '0'), 0);
-      
+
       const sortedPayments = payments.sort((a, b) => {
         if (!a.paymentDate) return 1;
         if (!b.paymentDate) return -1;
         return new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime();
       });
       const lastPaymentDate = sortedPayments[0]?.paymentDate || null;
-      
+
       res.json({
         totalAmount,
         confirmedAmount,
@@ -3273,11 +3240,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clients = await storage.getAllClients();
       const locationCounts = new Map<string, { count: number; clients: Set<string> }>();
-      
+
       // Collect location data from all client check-ins
       for (const client of clients) {
         const checkIns = await storage.getClientCheckIns(client.id);
-        
+
         for (const checkIn of checkIns) {
           if (checkIn.location && checkIn.location.trim()) {
             const location = checkIn.location.trim();
@@ -3290,7 +3257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
-      
+
       // Convert to array and sort by frequency
       const topLocations = Array.from(locationCounts.entries())
         .map(([location, data]) => ({
@@ -3301,7 +3268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }))
         .sort((a, b) => b.checkInCount - a.checkInCount)
         .slice(0, 5);
-      
+
       res.json(topLocations);
     } catch (error) {
       console.error('Error fetching top locations:', error);
@@ -3313,13 +3280,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/court-dates/search', isAuthenticated, async (req, res) => {
     try {
       const { clientName, state, county } = req.body;
-      
+
       if (!clientName) {
         return res.status(400).json({ message: 'Client name is required for court date search' });
       }
 
       console.log(`Starting court date search for: ${clientName}`);
-      
+
       const searchOptions = {
         state: state || 'Hawaii',
         county: county || 'Honolulu',
@@ -3327,7 +3294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const scrapingResult = await courtScraper.searchCourtDates(clientName, searchOptions);
-      
+
       res.json({
         success: scrapingResult.success,
         clientName,
@@ -3457,9 +3424,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id || `admin-${Date.now()}`;
       const currentVersion = '2025-06-01';
-      
+
       const hasAcknowledged = await storage.checkTermsAcknowledgment(userId);
-      
+
       res.json({
         acknowledged: hasAcknowledged,
         currentVersion,
@@ -3475,7 +3442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id || `admin-${Date.now()}`;
       const { version, userAgent } = req.body;
-      
+
       if (!version) {
         return res.status(400).json({ message: 'Version is required' });
       }
@@ -3533,7 +3500,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const bondId = parseInt(req.params.id);
       const { status, notes, forfeitureAmount, surrenderLocation } = req.body;
-      
+
       const updatedBond = await storage.updateBondStatus(bondId, {
         status,
         notes,
@@ -3541,7 +3508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         surrenderLocation,
         updatedAt: new Date()
       });
-      
+
       res.json(updatedBond);
     } catch (error) {
       console.error('Error updating bond status:', error);
@@ -3686,14 +3653,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bonds = await storage.getAllBonds();
       const payments = await storage.getAllPayments();
       const alerts = await storage.getAllUnacknowledgedAlerts();
-      
+
       const stats = {
         totalClients: clients.length,
         activeBonds: bonds.filter(b => b.status === 'active').length,
         totalRevenue: payments.filter(p => p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount), 0),
         pendingAlerts: alerts.length
       };
-      
+
       res.json(stats);
     } catch (error) {
       console.error('Error calculating admin dashboard stats:', error);
@@ -3758,13 +3725,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { clientId } = req.params;
       const { locationData } = req.body;
-      
+
       if (!locationData) {
         return res.status(400).json({ message: 'Location data is required' });
       }
 
       const locationResult = await geolocationService.trackClientLocation(clientId, locationData);
-      
+
       // Store location in client tracking file
       // Store location data in tracking system
       try {
@@ -3779,7 +3746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (checkInError) {
         console.error('Check-in storage error:', checkInError);
       }
-      
+
       res.json(locationResult);
     } catch (error) {
       console.error('Error tracking client location:', error);
@@ -3791,13 +3758,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { clientId } = req.params;
       const { limit = 50 } = req.query;
-      
+
       const locations = await storage.readJsonFile('client-locations.json', []);
       const clientLocations = locations
         .filter((loc: any) => loc.clientId === clientId)
         .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, parseInt(limit as string));
-      
+
       res.json(clientLocations);
     } catch (error) {
       console.error('Error fetching location history:', error);
@@ -3815,7 +3782,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return locationTime > cutoff;
         })
         .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      
+
       res.json(recentLocations);
     } catch (error) {
       console.error('Error fetching real-time locations:', error);
@@ -3826,13 +3793,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/geofence/check', isAuthenticated, async (req, res) => {
     try {
       const { clientId, latitude, longitude } = req.body;
-      
+
       if (!clientId || !latitude || !longitude) {
         return res.status(400).json({ message: 'Client ID, latitude, and longitude are required' });
       }
-      
+
       const isWithinJurisdiction = await geolocationService.validateLocation(latitude, longitude);
-      
+
       if (!isWithinJurisdiction) {
         // Create alert for jurisdiction violation
         const alert = {
@@ -3845,9 +3812,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           timestamp: new Date().toISOString(),
           acknowledged: false
         };
-        
+
         await storage.createAlert(alert);
-        
+
         // Send notification
         await notificationService.createNotification({
           title: 'Jurisdiction Violation Alert',
@@ -3857,7 +3824,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clientId
         });
       }
-      
+
       res.json({ 
         withinJurisdiction: isWithinJurisdiction,
         alertCreated: !isWithinJurisdiction 
@@ -3872,33 +3839,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/clients/:id/reset-password', isAuthenticated, async (req, res) => {
     try {
       const clientId = parseInt(req.params.id);
-      
+
       // Generate a secure temporary password
       const temporaryPassword = Math.random().toString(36).slice(-4) + 
                                Math.random().toString(36).slice(-4).toUpperCase() + 
                                Math.floor(Math.random() * 100);
-      
+
       // Update client with temporary password
       const clients = await storage.readJsonFile('clients.json', []);
       const clientIndex = clients.findIndex((c: any) => c.id === clientId);
-      
+
       if (clientIndex === -1) {
         return res.status(404).json({ message: 'Client not found' });
       }
-      
+
       (clients[clientIndex] as any).temporaryPassword = temporaryPassword;
       (clients[clientIndex] as any).mustChangePassword = true;
       (clients[clientIndex] as any).passwordResetAt = new Date().toISOString();
-      
+
       await storage.writeJsonFile('clients.json', clients);
-      
+
       // Return the temporary password to admin
       res.json({ 
         success: true, 
         temporaryPassword,
         message: `Temporary password generated for ${(clients[clientIndex] as any).fullName}: ${temporaryPassword}`
       });
-      
+
     } catch (error) {
       console.error('Password reset error:', error);
       res.status(500).json({ message: 'Failed to reset client password' });
@@ -3909,36 +3876,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/staff/:id/reset-password', isAuthenticated, async (req, res) => {
     try {
       const staffId = parseInt(req.params.id);
-      
+
       // Generate a secure temporary password
       const temporaryPassword = Math.random().toString(36).slice(-4) + 
                                Math.random().toString(36).slice(-4).toUpperCase() + 
                                Math.floor(Math.random() * 100);
-      
+
       // Update staff with temporary password
       const staff = await storage.readJsonFile('staff.json', []);
       const staffIndex = staff.findIndex((s: any) => s.id === staffId);
-      
+
       if (staffIndex === -1) {
         return res.status(404).json({ message: 'Staff member not found' });
       }
-      
+
       (staff[staffIndex] as any).temporaryPassword = temporaryPassword;
       (staff[staffIndex] as any).mustChangePassword = true;
       (staff[staffIndex] as any).passwordResetAt = new Date().toISOString();
-      
+
       await storage.writeJsonFile('staff.json', staff);
-      
+
       // Return the temporary password to admin
       res.json({ 
         success: true, 
         temporaryPassword,
         message: `Temporary password generated for ${(staff[staffIndex] as any).fullName}: ${temporaryPassword}`
       });
-      
+
     } catch (error) {
       console.error('Staff password reset error:', error);
       res.status(500).json({ message: 'Failed to reset staff password' });
+    }
+  });
+
+  // Bulk client updates for efficiency
+  app.post('/api/admin/bulk-update', isAuthenticated, async (req, res) => {
+    try {
+      const { action, clientIds, data } = req.body;
+
+      const results = [];
+
+      for (const clientId of clientIds) {
+        try {
+          switch (action) {
+            case 'mark-checkin-overdue':
+              await storage.createAlert({
+                clientId: parseInt(clientId),
+                alertType: 'check_in_overdue',
+                severity: 'high',
+                message: `Check-in overdue for client ${clientId}`,
+                acknowledged: false
+              });
+              break;
+
+            case 'send-payment-reminder':
+              // Implementation for payment reminders
+              break;
+
+            case 'update-status':
+              await storage.updateClient(parseInt(clientId), { isActive: data.isActive });
+              break;
+          }
+          results.push({ clientId, success: true });
+        } catch (error) {
+          results.push({ clientId, success: false, error: error.message });
+        }
+      }
+
+      res.json({ success: true, results });
+    } catch (error) {
+      console.error('Bulk update error:', error);
+      res.status(500).json({ message: 'Bulk update failed' });
+    }
+  });
+
+  // API Endpoints Dashboard
+  app.get('/api/admin/api-endpoints', isAuthenticated, async (req, res) => {
+    try {
+      // This is a placeholder - in a real app, you'd fetch and list actual API endpoints
+      const endpoints = [
+        { path: '/api/clients', method: 'GET', description: 'Get all clients' },
+        { path: '/api/clients/:id', method: 'GET', description: 'Get a specific client' },
+        { path: '/api/clients', method: 'POST', description: 'Create a new client' },
+        { path: '/api/clients/:id', method: 'PUT', description: 'Update a client' },
+        { path: '/api/clients/:id', method: 'DELETE', description: 'Delete a client' },
+        // Add more endpoints as needed
+      ];
+
+      res.json(endpoints);
+    } catch (error) {
+      console.error('Error fetching API endpoints:', error);
+      res.status(500).json({ message: 'Failed to fetch API endpoints' });
     }
   });
 
@@ -4014,7 +4042,7 @@ function generateRecommendations(client: any, payments: any[], checkIns: any[], 
 function analyzeFinancialProfile(payments: any[]): any {
   const totalPaid = payments.filter(p => p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount || '0'), 0);
   const totalOwed = payments.filter(p => !p.confirmed).reduce((sum, p) => sum + parseFloat(p.amount || '0'), 0);
-  
+
   return {
     totalPaid,
     totalOwed,
@@ -4027,9 +4055,9 @@ function analyzeComplianceProfile(checkIns: any[], courtDates: any[]): any {
   const recentCheckIns = checkIns.filter(ci => 
     new Date(ci.checkInTime) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   );
-  
+
   const completedCourtDates = courtDates.filter(cd => cd.clientAcknowledged);
-  
+
   return {
     checkInFrequency: recentCheckIns.length,
     courtCompliance: courtDates.length > 0 ? (completedCourtDates.length / courtDates.length) * 100 : 100,
@@ -4079,5 +4107,3 @@ function generatePortfolioInsights(clients: any[], payments: any[], checkIns: an
     portfolioHealth: activeClients > 0 ? (totalRevenue / activeClients) : 0
   };
 }
-
-

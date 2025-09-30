@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { NotificationSystem } from '@/components/notifications/NotificationSystem';
+import { EnhancedDashboardOverview } from '@/components/admin/enhanced-dashboard-overview';
 import ClientManagement from '@/components/admin/client-management';
 import LocationManagementDashboard from '@/components/admin/location-management-dashboard';
 import GeolocationIntegration from '@/components/admin/geolocation-integration';
@@ -359,6 +360,7 @@ export default function ComprehensiveAdminDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            <EnhancedDashboardOverview />
             {/* Enhanced Key Metrics Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
               <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700">
