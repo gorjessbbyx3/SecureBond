@@ -25,6 +25,7 @@ interface ArrestLogPDF {
 export class ArrestLogScraper {
   private readonly userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
   private readonly HPD_ARREST_LOGS_URL = 'https://www.honolulupd.org/information/arrest-logs/';
+  private readonly HPD_PDF_BASE_URL = 'https://www.honolulupd.org/wp-content/hpd/arrest-logs/';
   private readonly MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB max
   private pdfCache: Map<string, { records: ArrestRecord[]; timestamp: number }> = new Map();
   private readonly CACHE_TTL = 3600000; // 1 hour in milliseconds
@@ -32,61 +33,61 @@ export class ArrestLogScraper {
 
   async getMostRecentPDF(): Promise<ArrestLogPDF | null> {
     try {
-      const response = await fetch(this.HPD_ARREST_LOGS_URL, {
-        headers: {
-          'User-Agent': this.userAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
-        },
-        signal: AbortSignal.timeout(30000),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const html = await response.text();
-      const $ = load(html);
+      // HPD posts PDFs with the pattern: YYYY-MM-DD-HH-MM-SS_Arrest_Log.pdf
+      // Try to find the most recent one by checking recent timestamps
+      const now = new Date();
+      const attempts: ArrestLogPDF[] = [];
       
-      // Find all PDF links
-      const pdfLinks: ArrestLogPDF[] = [];
-      
-      // Look for PDF links with various patterns
-      $('a[href$=".pdf"], a[href*="Arrest"], a[href*="arrest"], a[href*="booking"]').each((index, element) => {
-        const href = $(element).attr('href');
-        const text = $(element).text().trim();
+      // Try current hour and previous hours (up to 12 hours back)
+      for (let hoursBack = 0; hoursBack < 12; hoursBack++) {
+        const checkTime = new Date(now.getTime() - hoursBack * 60 * 60 * 1000);
         
-        if (href && href.toLowerCase().includes('.pdf')) {
-          let fullUrl = href;
-          if (!href.startsWith('http')) {
-            // Fix: Use base URL for proper relative path resolution
-            fullUrl = new URL(href, this.HPD_ARREST_LOGS_URL).toString();
-          }
+        // Try different minute intervals (00, 05, 10, 15, etc.)
+        for (const minutes of [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]) {
+          checkTime.setMinutes(minutes);
+          checkTime.setSeconds(0);
           
-          // Try to extract date from filename or text
-          const dateMatch = text.match(/(\d{4}[-_]\d{2}[-_]\d{2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})|(\w+\s+\d{1,2},?\s+\d{4})/);
-          let timestamp = new Date();
+          const year = checkTime.getFullYear();
+          const month = String(checkTime.getMonth() + 1).padStart(2, '0');
+          const day = String(checkTime.getDate()).padStart(2, '0');
+          const hour = String(checkTime.getHours()).padStart(2, '0');
+          const min = String(checkTime.getMinutes()).padStart(2, '0');
+          const sec = '00';
           
-          if (dateMatch) {
-            timestamp = new Date(dateMatch[0].replace(/_/g, '-'));
-          }
+          const filename = `${year}-${month}-${day}-${hour}-${min}-${sec}_Arrest_Log.pdf`;
+          const url = `${this.HPD_PDF_BASE_URL}${filename}`;
           
-          pdfLinks.push({
-            url: fullUrl,
-            filename: text || href.split('/').pop() || 'arrest_log.pdf',
-            timestamp: timestamp
+          attempts.push({
+            url,
+            filename,
+            timestamp: new Date(checkTime)
           });
         }
-      });
-
-      // Sort by timestamp descending (most recent first)
-      pdfLinks.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-      // Return the most recent PDF
-      return pdfLinks.length > 0 ? pdfLinks[0] : null;
+      }
+      
+      // Try each URL until we find one that exists
+      for (const attempt of attempts) {
+        try {
+          const response = await fetch(attempt.url, {
+            method: 'HEAD', // Just check if it exists without downloading
+            headers: {
+              'User-Agent': this.userAgent,
+            },
+            signal: AbortSignal.timeout(5000),
+          });
+          
+          if (response.ok) {
+            console.log(`Found HPD arrest log PDF: ${attempt.filename}`);
+            return attempt;
+          }
+        } catch (error) {
+          // Continue to next attempt
+          continue;
+        }
+      }
+      
+      console.log('No recent HPD arrest log PDF found');
+      return null;
     } catch (error) {
       console.error('Error fetching HPD arrest log PDF:', error);
       return null;

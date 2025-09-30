@@ -268,6 +268,7 @@ class MemoryStorage implements IStorage {
   private familyMembers: FamilyMember[] = [];
   private employmentInfo: EmploymentInfo[] = [];
   private clientFiles: ClientFile[] = [];
+  private arrestLogs: any[] = [];
   private nextId = 1;
 
   constructor() {
@@ -795,12 +796,33 @@ class MemoryStorage implements IStorage {
   }
 
   async scanArrestLogs(): Promise<any> {
-    return {
-      success: true,
-      newRecords: 0,
-      lastScanned: new Date().toISOString(),
-      sourcesChecked: ['Honolulu PD', 'Hawaii County PD', 'Maui PD', 'Kauai PD']
-    };
+    try {
+      const { ArrestLogScraper } = await import('./services/arrestLogScraper');
+      const scraper = new ArrestLogScraper();
+      const records = await scraper.scrapeHonoluluPD();
+      
+      // Store records in memory (in production, save to database)
+      this.arrestLogs = records.map((record: any) => ({
+        ...record,
+        county: 'honolulu',
+        createdAt: new Date().toISOString()
+      }));
+      
+      return {
+        success: true,
+        newRecords: records.length,
+        lastScanned: new Date().toISOString(),
+        sourcesChecked: ['Honolulu PD']
+      };
+    } catch (error) {
+      console.error('Error scanning arrest logs:', error);
+      return {
+        success: false,
+        newRecords: 0,
+        lastScanned: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 
   async acknowledgeArrestRecord(recordId: string): Promise<any> {
@@ -813,7 +835,7 @@ class MemoryStorage implements IStorage {
   }
 
   async getPublicArrestLogs(): Promise<any[]> {
-    return [];
+    return this.arrestLogs;
   }
 
   // Notification operations

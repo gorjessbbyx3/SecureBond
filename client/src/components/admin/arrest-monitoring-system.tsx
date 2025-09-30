@@ -109,6 +109,7 @@ export default function ArrestMonitoringSystem() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/arrest-monitoring/records"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/arrest-monitoring/public-logs"] });
       toast({
         title: "Scan Complete",
         description: `Found ${data.newRecords} new arrest records`,
@@ -118,6 +119,46 @@ export default function ArrestMonitoringSystem() {
       toast({
         title: "Scan Failed",
         description: error.message || "Failed to scan arrest logs",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Create client from arrest log mutation
+  const createClientFromArrestMutation = useMutation({
+    mutationFn: async (arrestLog: any) => {
+      // Extract name parts
+      const nameParts = arrestLog.name.split(',').map((s: string) => s.trim());
+      const lastName = nameParts[0] || '';
+      const firstName = nameParts[1]?.split(' ')[0] || '';
+      
+      const clientData = {
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`.trim(),
+        clientId: `CLI-${Date.now()}`,
+        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@temp.bail.com`,
+        phone: arrestLog.phoneNumber || '',
+        address: arrestLog.location || '',
+        isActive: true,
+        riskLevel: 'medium',
+        notes: `Created from arrest log:\nBooking: ${arrestLog.bookingNumber}\nCharges: ${arrestLog.charges?.join(', ')}\nArrest Date: ${arrestLog.arrestDate} ${arrestLog.arrestTime}\nLocation: ${arrestLog.location}`,
+      };
+      
+      const response = await apiRequest("POST", "/api/clients", clientData);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      toast({
+        title: "Client Profile Created",
+        description: `${data.fullName} has been added as a new client`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Create Client",
+        description: error.message || "Could not create client profile",
         variant: "destructive",
       });
     },
@@ -661,21 +702,19 @@ export default function ArrestMonitoringSystem() {
                                             description: `Call ${county.agency} for more details about ${log.name}`,
                                           });
                                         }}
+                                        data-testid={`button-contact-${index}`}
                                       >
                                         <Phone className="w-4 h-4 mr-1" />
                                         Contact
                                       </Button>
                                       <Button
                                         size="sm"
-                                        onClick={() => {
-                                          toast({
-                                            title: "Lead Added",
-                                            description: `${log.name} has been marked as a potential client`,
-                                          });
-                                        }}
+                                        onClick={() => createClientFromArrestMutation.mutate(log)}
+                                        disabled={createClientFromArrestMutation.isPending}
+                                        data-testid={`button-create-client-${index}`}
                                       >
                                         <UserPlus className="w-4 h-4 mr-1" />
-                                        Add Lead
+                                        {createClientFromArrestMutation.isPending ? 'Creating...' : 'Create Client Profile'}
                                       </Button>
                                     </div>
                                   </div>
