@@ -11,9 +11,18 @@ A comprehensive, mission-critical bail bond management system designed for multi
 - **Compliance**: CJIS/GDPR/CCPA ready with audit logging (2555 days retention)
 - **Final Audit**: All remaining recommendations addressed and deployment certified
 
-## Recent Changes (June 2025)
+## Recent Changes (September 2025)
 
-### ✅ Final Production Deployment Ready
+### ✅ Arrest Log Scraper Enhancement (September 30, 2025)
+- **PDF Parsing Capability**: Implemented real PDF downloading and parsing from Honolulu Police Department website
+- **Improved Data Extraction**: Enhanced name parsing to support multiple formats (LAST, FIRST MI; hyphens; suffixes)
+- **Performance Optimizations**: Added caching (1-hour TTL), request deduplication, and 10MB file size limits
+- **Production Safety**: Implemented timeout controls, thundering herd prevention, and proper error handling
+- **Dependencies**: Installed pdf-parse and @types/pdf-parse for PDF text extraction
+- **Integration**: Connected with existing court scraper and arrest logs API endpoints
+- **Future Enhancements**: Conditional caching (ETag/Last-Modified), retries with backoff, improved parsing heuristics
+
+### ✅ Final Production Deployment Ready (June 2025)
 - **Password Reset Functionality**: Implemented secure temporary password generation with admin display
 - **AI Analysis System**: Fixed HTTP errors and implemented comprehensive risk scoring with audit logging
 - **Client Pages Loading**: Resolved authentication and data loading issues across all client interfaces
