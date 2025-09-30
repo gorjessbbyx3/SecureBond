@@ -3909,8 +3909,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Bulk client updates for efficiency
+  // Global search endpoint (Admin only)
+  app.get('/api/search/global', isAuthenticated, async (req, res) => {
+    // Enforce admin-only access
+    const adminRole = (req.session as any)?.adminRole;
+    if (!adminRole) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    try {
+      const query = (req.query.query as string || '').toLowerCase();
+      
+      if (query.length < 2) {
+        return res.json([]);
+      }
+
+      const results: any[] = [];
+
+      // Search clients
+      const clients = await storage.getAllClients();
+      const matchingClients = clients.filter(client => 
+        client.fullName.toLowerCase().includes(query) ||
+        client.email?.toLowerCase().includes(query) ||
+        client.phone?.includes(query) ||
+        client.id?.toString().includes(query)
+      ).slice(0, 5);
+
+      matchingClients.forEach(client => {
+        results.push({
+          id: `client-${client.id}`,
+          type: 'client',
+          title: client.fullName,
+          subtitle: `${client.phone || ''} • ${client.email || ''}`,
+          status: client.isActive ? 'active' : 'inactive',
+          url: '/admin#clients'
+        });
+      });
+
+      // Search payments
+      const payments = await storage.getAllPayments();
+      const matchingPayments = payments.filter(payment => {
+        const client = clients.find(c => c.id === payment.clientId);
+        return client && (
+          client.fullName.toLowerCase().includes(query) ||
+          payment.amount?.toString().includes(query)
+        );
+      }).slice(0, 5);
+
+      for (const payment of matchingPayments) {
+        const client = clients.find(c => c.id === payment.clientId);
+        results.push({
+          id: `payment-${payment.id}`,
+          type: 'payment',
+          title: `$${payment.amount} payment`,
+          subtitle: client?.fullName || `Client ${payment.clientId}`,
+          status: payment.confirmed ? 'confirmed' : 'pending',
+          url: '/admin#financial'
+        });
+      }
+
+      // Search court dates
+      const courtDates = await storage.getAllCourtDates();
+      const matchingCourtDates = courtDates.filter(courtDate => {
+        const client = clients.find(c => c.id === courtDate.clientId);
+        return client && (
+          client.fullName.toLowerCase().includes(query) ||
+          courtDate.courtName?.toLowerCase().includes(query) ||
+          courtDate.caseNumber?.toLowerCase().includes(query)
+        );
+      }).slice(0, 5);
+
+      for (const courtDate of matchingCourtDates) {
+        const client = clients.find(c => c.id === courtDate.clientId);
+        const isPast = new Date(courtDate.courtDate) < new Date();
+        results.push({
+          id: `court-${courtDate.id}`,
+          type: 'court',
+          title: courtDate.courtName || 'Court Date',
+          subtitle: `${client?.fullName || 'Unknown'} • ${new Date(courtDate.courtDate).toLocaleDateString()}`,
+          status: isPast ? 'past' : 'upcoming',
+          url: '/admin#court-dates'
+        });
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error('Global search error:', error);
+      res.status(500).json({ message: 'Search failed' });
+    }
+  });
+
+  // Bulk client updates for efficiency (Admin only)
   app.post('/api/admin/bulk-update', isAuthenticated, async (req, res) => {
+    // Enforce admin-only access
+    const adminRole = (req.session as any)?.adminRole;
+    if (!adminRole) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
     try {
       const { action, clientIds, data } = req.body;
 
@@ -3939,7 +4035,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           results.push({ clientId, success: true });
         } catch (error) {
-          results.push({ clientId, success: false, error: error.message });
+          results.push({ clientId, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
         }
       }
 

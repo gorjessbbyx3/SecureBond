@@ -1,5 +1,4 @@
 import { load } from 'cheerio';
-import pdf from 'pdf-parse';
 
 interface ArrestRecord {
   id: string;
@@ -122,6 +121,8 @@ export class ArrestLogScraper {
       
       const buffer = Buffer.from(arrayBuffer);
       
+      // Dynamic import to avoid initialization issues with pdf-parse
+      const pdf = (await import('pdf-parse')).default;
       const data = await pdf(buffer);
       return data.text;
     } catch (error) {

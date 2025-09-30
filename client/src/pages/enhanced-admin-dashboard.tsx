@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye, Users, DollarSign, Calendar, MapPin, Shield, Activity, Database, Upload, Building2 } from "lucide-react";
+import { LogOut, Bell, Settings, Download, RefreshCw, AlertTriangle, Target, TrendingUp, BarChart3, Eye, Users, DollarSign, Calendar, MapPin, Shield, Activity, Database, Upload, Building2, Search, Zap } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +24,8 @@ import { SystemMonitoringDashboard } from "@/components/admin/system-monitoring-
 import { AutomatedCourtReminders } from "@/components/admin/automated-court-reminders";
 import { RecentArrestLogs } from "@/components/admin/recent-arrest-logs";
 import { RSSDocumentsFeed } from "@/components/admin/rss-documents-feed";
+import { GlobalSearch } from "@/components/admin/global-search";
+import { BulkOperations } from "@/components/admin/bulk-operations";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -31,6 +33,8 @@ export default function EnhancedAdminDashboard() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   const [showSettings, setShowSettings] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showBulkOps, setShowBulkOps] = useState(false);
 
   const { data: alerts } = useQuery({
     queryKey: ["/api/alerts/unacknowledged"],
@@ -81,6 +85,30 @@ export default function EnhancedAdminDashboard() {
     },
   });
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + K for search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearch(true);
+      }
+      // Ctrl/Cmd + N for new client (switch to clients tab)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        setActiveTab('clients');
+      }
+      // Ctrl/Cmd + R for refresh
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        refreshDataMutation.mutate();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [refreshDataMutation]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
@@ -100,6 +128,29 @@ export default function EnhancedAdminDashboard() {
             </div>
 
             <div className="flex items-center space-x-4">
+              {/* Global Search */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowSearch(true)}
+                className="gap-2"
+              >
+                <Search className="h-5 w-5" />
+                <kbd className="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+                  <span className="text-xs">⌘K</span>
+                </kbd>
+              </Button>
+
+              {/* Quick Actions - Bulk Operations */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowBulkOps(true)}
+                title="Bulk Operations"
+              >
+                <Zap className="h-5 w-5" />
+              </Button>
+
               {/* Alerts Badge */}
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="h-5 w-5" />
@@ -663,6 +714,12 @@ export default function EnhancedAdminDashboard() {
           </DialogContent>
         </Dialog>
       </main>
+
+      {/* Global Search Dialog */}
+      <GlobalSearch open={showSearch} onOpenChange={setShowSearch} />
+
+      {/* Bulk Operations Dialog */}
+      <BulkOperations open={showBulkOps} onOpenChange={setShowBulkOps} />
     </div>
   );
 }
