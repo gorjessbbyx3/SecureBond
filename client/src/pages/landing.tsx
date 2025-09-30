@@ -311,8 +311,13 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="text-center">
             <div className="text-white">
-              <p className="text-sm font-medium">1325 Nuuanu Ave. Ste 214, Honolulu, HI 96817</p>
-              <p className="text-sm mt-1">(808) 392-1468</p>
+              <p className="text-sm font-medium">1136 Union Mall Ste 304, Honolulu, HI 96813</p>
+              <p className="text-sm mt-1">(808) 947-3977</p>
+              <p className="text-sm mt-1">
+                <a href="http://artofbailhawaii.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-200 transition-colors">
+                  artofbailhawaii.com
+                </a>
+              </p>
             </div>
             <div className="mt-3 pt-3 border-t border-white/20">
               <p className="text-blue-100 text-xs">

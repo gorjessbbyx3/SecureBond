@@ -219,7 +219,7 @@ export default function ClientLogin() {
                   <div className="space-y-2 text-sm text-blue-700">
                     <p>• Your Client ID starts with "SB" followed by numbers and letters</p>
                     <p>• Your password was provided when you signed your bond contract</p>
-                    <p>• Contact us at (808) 555-BAIL if you need assistance</p>
+                    <p>• Contact us at (808) 947-3977 if you need assistance</p>
                   </div>
                 </div>
               </form>

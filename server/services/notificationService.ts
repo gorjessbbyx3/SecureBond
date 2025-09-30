@@ -59,7 +59,7 @@ export class NotificationService {
   }
 
   async sendPaymentReminder(client: Client, amount: string): Promise<void> {
-    const message = `Reminder: Your payment of $${amount} is due. Please contact us at (808) 555-0123 to make your payment. - SecureBond`;
+    const message = `Reminder: Your payment of $${amount} is due. Please contact us at (808) 947-3977 to make your payment. - Art of Bail`;
     
     if (client.phoneNumber) {
       await this.smsProvider.sendSMS(client.phoneNumber, message);
@@ -69,7 +69,7 @@ export class NotificationService {
   }
 
   async sendCheckInReminder(client: Client): Promise<void> {
-    const message = `Reminder: Your check-in is required today. Please call (808) 555-0123 or visit our office. - SecureBond`;
+    const message = `Reminder: Your check-in is required today. Please call (808) 947-3977 or visit our office. - Art of Bail`;
     
     if (client.phoneNumber) {
       await this.smsProvider.sendSMS(client.phoneNumber, message);
@@ -80,7 +80,7 @@ export class NotificationService {
 
   async sendTestSMS(phoneNumber: string): Promise<boolean> {
     try {
-      const testMessage = 'This is a test SMS from SecureBond. Your notification system is working correctly.';
+      const testMessage = 'This is a test SMS from Art of Bail. Your notification system is working correctly.';
       return await this.smsProvider.sendSMS(phoneNumber, testMessage);
     } catch (error) {
       // Test SMS failed
@@ -105,7 +105,7 @@ export class NotificationService {
 
     const urgency = urgencyMap[reminderType] || 'upcoming';
     
-    return `COURT REMINDER (${urgency}): ${client.fullName}, your court date is ${date} at ${location}. Case: ${courtDate.caseNumber || 'TBD'}. Contact SecureBond: (808) 555-0123`;
+    return `COURT REMINDER (${urgency}): ${client.fullName}, your court date is ${date} at ${location}. Case: ${courtDate.caseNumber || 'TBD'}. Contact Art of Bail: (808) 947-3977`;
   }
 
   private formatCourtReminderHTML(
@@ -127,8 +127,8 @@ export class NotificationService {
           <p style="margin: 8px 0;"><strong>Case Number:</strong> ${courtDate.caseNumber || 'TBD'}</p>
         </div>
         <p>Please ensure you appear on time for your scheduled court appearance. Missing your court date could result in serious consequences.</p>
-        <p>If you have any questions, please contact SecureBond immediately at (808) 555-0123.</p>
-        <p>Best regards,<br>SecureBond Team</p>
+        <p>If you have any questions, please contact Art of Bail immediately at (808) 947-3977.</p>
+        <p>Best regards,<br>Art of Bail Team</p>
       </div>
     `;
   }
