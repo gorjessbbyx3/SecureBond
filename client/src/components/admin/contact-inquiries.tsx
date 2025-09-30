@@ -75,9 +75,7 @@ export function ContactInquiries() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest(`/api/inquiries/${id}`, {
-        method: 'DELETE',
-      });
+      await apiRequest('DELETE', `/api/inquiries/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/inquiries'] });
@@ -97,11 +95,10 @@ export function ContactInquiries() {
 
   const convertMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/inquiries/${id}/convert`, {
-        method: 'POST',
-      });
+      const res = await apiRequest('POST', `/api/inquiries/${id}/convert`);
+      return await res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/inquiries'] });
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
       setShowConvertDialog(false);
@@ -122,11 +119,7 @@ export function ContactInquiries() {
 
   const assignMutation = useMutation({
     mutationFn: async ({ id, staffId, notes }: { id: string; staffId: string; notes: string }) => {
-      await apiRequest(`/api/inquiries/${id}/assign`, {
-        method: 'POST',
-        body: JSON.stringify({ staffId, notes }),
-        headers: { 'Content-Type': 'application/json' },
-      });
+      await apiRequest('POST', `/api/inquiries/${id}/assign`, { staffId, notes });
     },
     onSuccess: () => {
       setShowAssignDialog(false);

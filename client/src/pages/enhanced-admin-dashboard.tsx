@@ -26,6 +26,7 @@ import { RecentArrestLogs } from "@/components/admin/recent-arrest-logs";
 import { RSSDocumentsFeed } from "@/components/admin/rss-documents-feed";
 import { GlobalSearch } from "@/components/admin/global-search";
 import { BulkOperations } from "@/components/admin/bulk-operations";
+import { ContactInquiries } from "@/components/admin/contact-inquiries";
 
 export default function EnhancedAdminDashboard() {
   const [, setLocation] = useLocation();
@@ -289,6 +290,9 @@ export default function EnhancedAdminDashboard() {
               </Card>
               
               <AIEnhancedOverview />
+              
+              {/* Contact Inquiries Section */}
+              <ContactInquiries />
             </div>
           </TabsContent>
 
