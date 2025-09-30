@@ -118,10 +118,6 @@ export default function Landing() {
                   className="w-full h-full object-contain opacity-90"
                 />
               </div>
-              <div className="relative z-10 mt-auto pt-32">
-                <h2 className="text-2xl font-semibold text-white mb-2">Client Portal</h2>
-                <p className="text-blue-100 text-sm">Secure access to your account</p>
-              </div>
             </div>
 
             {/* Card Body */}
