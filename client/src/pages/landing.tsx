@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Shield, UserCircle, Lock, IdCard, Eye, EyeOff, ArrowRight, UserRoundCheck, Wrench, Users, AlertTriangle } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Shield, UserCircle, Lock as LockIcon, IdCard, Eye, EyeOff, ArrowRight, UserRoundCheck, Wrench, Users, AlertTriangle, Phone, MapPin } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +25,42 @@ export default function Landing() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Update time every second
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
+  const formatHSTTime = () => {
+    return currentTime.toLocaleString('en-US', {
+      timeZone: 'Pacific/Honolulu',
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }) + ' HST';
+  };
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: ClientCredentials): Promise<LoginResponse> => {
@@ -94,13 +131,41 @@ export default function Landing() {
       {/* Company Header */}
       <header className="relative z-10 bg-gradient-to-r from-blue-900/90 to-blue-800/90 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-center">
-            <div className="text-center flex flex-col items-center">
+          <div className="flex items-center justify-between">
+            {/* Lock Icon Dropdown - Top Left */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                  <LockIcon className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem onClick={navigateToAdminLogin} className="cursor-pointer">
+                  <UserRoundCheck className="mr-2 h-4 w-4" />
+                  <span>Admin Portal</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={navigateToStaffLogin} className="cursor-pointer">
+                  <Users className="mr-2 h-4 w-4" />
+                  <span>Staff Portal</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={navigateToMaintenanceLogin} className="cursor-pointer">
+                  <Wrench className="mr-2 h-4 w-4" />
+                  <span>Maintenance Portal</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Center - Company Name */}
+            <div className="flex-1 text-center flex flex-col items-center">
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-wide">
                 ART OF BAIL
               </h1>
               <p className="text-blue-100 text-sm">Professional Bail Bond Services</p>
+              <p className="text-blue-200 text-xs mt-1">{formatHSTTime()}</p>
             </div>
+
+            {/* Right - Spacer for balance */}
+            <div className="w-10"></div>
           </div>
         </div>
       </header>
@@ -152,7 +217,7 @@ export default function Landing() {
                     </Label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="text-slate-400 w-4 h-4" />
+                        <LockIcon className="text-slate-400 w-4 h-4" />
                       </div>
                       <Input
                         type={showPassword ? "text" : "password"}
@@ -238,70 +303,36 @@ export default function Landing() {
             </CardContent>
           </Card>
 
-          {/* Admin Access Links */}
-          <div className="mt-8 space-y-3">
-            {/* Admin Access */}
-            <Card className="bg-white rounded-lg shadow-md border border-slate-200">
-              <CardContent className="p-4">
-                <button
-                  onClick={navigateToAdminLogin}
-                  className="flex items-center justify-between group hover:bg-slate-50 -m-4 p-4 rounded-lg transition-colors w-full text-left"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                      <UserRoundCheck className="text-slate-600 w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-slate-900">Admin Access</h3>
-                      <p className="text-xs text-slate-500">Bondsman administration portal</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="text-slate-400 group-hover:text-slate-600 transition-colors w-4 h-4" />
-                </button>
-              </CardContent>
-            </Card>
-
-            {/* Staff Access */}
-            <Card className="bg-white rounded-lg shadow-md border border-slate-200">
-              <CardContent className="p-4">
-                <button
-                  onClick={navigateToStaffLogin}
-                  className="flex items-center justify-between group hover:bg-slate-50 -m-4 p-4 rounded-lg transition-colors w-full text-left"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                      <Users className="text-slate-600 w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-slate-900">Staff Access</h3>
-                      <p className="text-xs text-slate-500">Client management and operations</p>
+          {/* Call Art of Bail Button */}
+          <div className="mt-8">
+            {isMobile ? (
+              <a href="tel:8089473977" className="block">
+                <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg">
+                  <Phone className="mr-2 h-5 w-5" />
+                  Call Art of Bail
+                </Button>
+              </a>
+            ) : (
+              <Card className="bg-white rounded-lg shadow-md border border-slate-200">
+                <CardContent className="p-6">
+                  <div className="text-center space-y-3">
+                    <h3 className="text-lg font-semibold text-slate-900">Need Immediate Assistance?</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center text-slate-700">
+                        <Phone className="mr-2 h-4 w-4" />
+                        <a href="tel:8089473977" className="text-blue-600 hover:text-blue-800 font-medium">
+                          (808) 947-3977
+                        </a>
+                      </div>
+                      <div className="flex items-center justify-center text-slate-700">
+                        <MapPin className="mr-2 h-4 w-4" />
+                        <span className="text-sm">1136 Union Mall Ste 304, Honolulu, HI 96813</span>
+                      </div>
                     </div>
                   </div>
-                  <ArrowRight className="text-slate-400 group-hover:text-slate-600 transition-colors w-4 h-4" />
-                </button>
-              </CardContent>
-            </Card>
-
-            {/* Maintenance Access */}
-            <Card className="bg-white rounded-lg shadow-md border border-slate-200">
-              <CardContent className="p-4">
-                <button
-                  onClick={navigateToMaintenanceLogin}
-                  className="flex items-center justify-between group hover:bg-slate-50 -m-4 p-4 rounded-lg transition-colors w-full text-left"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                      <Wrench className="text-slate-600 w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-slate-900">System Maintenance</h3>
-                      <p className="text-xs text-slate-500">Technical support and system updates</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="text-slate-400 group-hover:text-slate-600 transition-colors w-4 h-4" />
-                </button>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
