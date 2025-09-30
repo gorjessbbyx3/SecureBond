@@ -306,49 +306,65 @@ export class CourtDateScraper {
     options: any
   ): Promise<any[]> {
     try {
-      // Note: These URLs require actual HTTP requests to fetch real data
-      // The following demonstrates the integration structure for real implementation
-      
       const arrests = [];
       
       if (source.name === 'Honolulu Police Department') {
-        // Real URL: https://www.honolulupd.org/information/arrest-logs/
-        // This would fetch actual arrest log data from HPD
-        arrests.push({
-          id: `hpd-${Date.now()}`,
-          source: 'Honolulu Police Department',
-          sourceUrl: source.url,
-          arrestDate: new Date().toISOString().split('T')[0],
-          name: `${firstName} ${lastName}`,
-          charges: ['Retrieved from HPD arrest logs'],
-          bookingNumber: `HPD-${Date.now().toString().slice(-6)}`,
-          location: 'Honolulu, HI',
-          status: 'From Official Records',
-          dataSource: 'authentic'
-        });
-      }
-      
-      if (source.name === 'Hawaii Police Department') {
-        // Real URL: https://www.hawaiipolice.gov/news-and-media/booking-logs/
-        // This would fetch actual booking log data from Hawaii County PD
-        arrests.push({
-          id: `hcpd-${Date.now()}`,
-          source: 'Hawaii Police Department',
-          sourceUrl: source.url,
-          arrestDate: new Date().toISOString().split('T')[0],
-          name: `${firstName} ${lastName}`,
-          charges: ['Retrieved from Hawaii County PD booking logs'],
-          bookingNumber: `HCPD-${Date.now().toString().slice(-6)}`,
-          location: 'Hawaii County, HI',
-          status: 'From Official Records',
-          dataSource: 'authentic'
-        });
+        // Use the actual arrest log scraper to fetch real data from HPD
+        const { arrestLogScraper } = await import('./services/arrestLogScraper');
+        const hpdRecords = await arrestLogScraper.scrapeHonoluluPD();
+        
+        // If searching for specific person, filter results
+        if (firstName !== '*' && lastName !== '*') {
+          const searchTerm = `${firstName} ${lastName}`.toLowerCase();
+          const filtered = hpdRecords.filter(record => 
+            record.name.toLowerCase().includes(searchTerm) ||
+            record.name.toLowerCase().includes(firstName.toLowerCase()) ||
+            record.name.toLowerCase().includes(lastName.toLowerCase())
+          );
+          
+          arrests.push(...filtered.map(record => ({
+            id: record.id,
+            source: record.agency,
+            sourceUrl: source.url,
+            arrestDate: record.arrestDate,
+            arrestTime: record.arrestTime,
+            name: record.name,
+            age: record.age,
+            address: record.address,
+            charges: record.charges,
+            bookingNumber: record.bookingNumber,
+            location: record.location,
+            status: record.status,
+            severity: record.severity,
+            dataSource: 'authentic'
+          })));
+        } else {
+          // Return all records
+          arrests.push(...hpdRecords.map(record => ({
+            id: record.id,
+            source: record.agency,
+            sourceUrl: source.url,
+            arrestDate: record.arrestDate,
+            arrestTime: record.arrestTime,
+            name: record.name,
+            age: record.age,
+            address: record.address,
+            charges: record.charges,
+            bookingNumber: record.bookingNumber,
+            location: record.location,
+            status: record.status,
+            severity: record.severity,
+            dataSource: 'authentic'
+          })));
+        }
       }
       
       return arrests;
       
     } catch (error) {
-      throw new Error(`Failed to fetch arrest data from ${source.name}: ${error}`);
+      console.error(`Failed to fetch arrest data from ${source.name}:`, error);
+      // Return empty array instead of throwing to allow other sources to be tried
+      return [];
     }
   }
 }
