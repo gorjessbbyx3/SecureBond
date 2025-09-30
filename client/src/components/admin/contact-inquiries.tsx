@@ -65,9 +65,13 @@ export function ContactInquiries() {
   const [selectedStaff, setSelectedStaff] = useState<string>("");
   const [assignNotes, setAssignNotes] = useState("");
 
-  const { data: inquiries = [], isLoading } = useQuery<ContactInquiry[]>({
+  const { data: inquiriesResponse, isLoading, isError } = useQuery<{ disabled?: boolean; message?: string; data: ContactInquiry[] }>({
     queryKey: ['/api/inquiries'],
   });
+
+  const inquiries = inquiriesResponse?.data || [];
+  const isDisabled = inquiriesResponse?.disabled || false;
+  const disabledMessage = inquiriesResponse?.message || "";
 
   const { data: staff = [] } = useQuery<Staff[]>({
     queryKey: ['/api/staff'],
@@ -188,6 +192,40 @@ export function ContactInquiries() {
         <CardHeader>
           <CardTitle>Contact Inquiries</CardTitle>
           <CardDescription>Loading inquiries...</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            Contact Inquiries
+          </CardTitle>
+          <CardDescription className="text-destructive">
+            Failed to load contact inquiries. Please try again later.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  if (isDisabled) {
+    return (
+      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-900 dark:text-amber-100">
+            <AlertTriangle className="h-5 w-5" />
+            Contact Inquiries - Configuration Required
+          </CardTitle>
+          <CardDescription className="text-amber-700 dark:text-amber-300">
+            {disabledMessage}
+            <br />
+            Contact form submissions will be available once Supabase credentials are configured.
+          </CardDescription>
         </CardHeader>
       </Card>
     );

@@ -13,6 +13,16 @@ A comprehensive, mission-critical bail bond management system designed for multi
 
 ## Recent Changes (September 2025)
 
+### ✅ Contact Form Integration with Supabase (September 30, 2025)
+- **Contact Inquiry Management**: Admin dashboard displays contact form submissions from website
+- **Supabase Integration**: Real-time fetching of inquiries from Supabase database with graceful error handling
+- **Inquiry Details**: View name, phone, email, case details, urgency level, and submission timestamp
+- **Convert to Client**: One-click conversion of inquiries to clients with auto-generated credentials
+- **Staff Assignment**: Assign inquiries to staff members with notes for follow-up
+- **Delete Functionality**: Remove inquiries once processed or invalid
+- **Smart Fallback**: System displays clear message when Supabase credentials are not configured
+- **Admin-Only Access**: All inquiry management operations restricted to admin users
+
 ### ✅ User Experience & Navigation Improvements (September 30, 2025)
 - **Global Search**: Unified search across clients, payments, court dates, and documents with Ctrl+K shortcut
 - **Keyboard Shortcuts**: Power user shortcuts (Ctrl+K for search, Ctrl+N for new client, Ctrl+R for refresh)
