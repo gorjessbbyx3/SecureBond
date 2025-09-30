@@ -110,12 +110,12 @@ export default function Landing() {
           {/* Main Sign In Card */}
           <Card className="secure-card overflow-hidden backdrop-blur-sm bg-white/95 shadow-2xl border-2 border-gray-300">
             {/* Card Header */}
-            <div className="relative px-8 py-16 text-center overflow-hidden min-h-[240px]">
+            <div className="relative px-8 py-16 text-center overflow-hidden min-h-[240px] bg-gradient-to-b from-slate-800 to-slate-900">
               <div className="absolute inset-0 z-0">
                 <img 
                   src={headerBgImage} 
                   alt="Art of Bail - Freedom Starts Here" 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain opacity-90"
                 />
               </div>
               <div className="relative z-10 mt-auto pt-32">
