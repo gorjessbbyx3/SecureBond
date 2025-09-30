@@ -26,6 +26,10 @@ interface ArrestLogPDF {
 export class ArrestLogScraper {
   private readonly userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
   private readonly HPD_ARREST_LOGS_URL = 'https://www.honolulupd.org/information/arrest-logs/';
+  private readonly MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB max
+  private pdfCache: Map<string, { records: ArrestRecord[]; timestamp: number }> = new Map();
+  private readonly CACHE_TTL = 3600000; // 1 hour in milliseconds
+  private inFlightRequests: Map<string, Promise<ArrestRecord[]>> = new Map(); // Prevent thundering herd
 
   async getMostRecentPDF(): Promise<ArrestLogPDF | null> {
     try {
@@ -59,8 +63,8 @@ export class ArrestLogScraper {
         if (href && href.toLowerCase().includes('.pdf')) {
           let fullUrl = href;
           if (!href.startsWith('http')) {
-            const baseUrl = new URL(this.HPD_ARREST_LOGS_URL);
-            fullUrl = new URL(href, baseUrl.origin).toString();
+            // Fix: Use base URL for proper relative path resolution
+            fullUrl = new URL(href, this.HPD_ARREST_LOGS_URL).toString();
           }
           
           // Try to extract date from filename or text
@@ -103,7 +107,19 @@ export class ArrestLogScraper {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      // Check content length before downloading
+      const contentLength = response.headers.get('content-length');
+      if (contentLength && parseInt(contentLength) > this.MAX_PDF_SIZE) {
+        throw new Error(`PDF file too large: ${contentLength} bytes (max ${this.MAX_PDF_SIZE})`);
+      }
+
       const arrayBuffer = await response.arrayBuffer();
+      
+      // Double-check size after download
+      if (arrayBuffer.byteLength > this.MAX_PDF_SIZE) {
+        throw new Error(`PDF file too large: ${arrayBuffer.byteLength} bytes (max ${this.MAX_PDF_SIZE})`);
+      }
+      
       const buffer = Buffer.from(arrayBuffer);
       
       const data = await pdf(buffer);
@@ -124,16 +140,34 @@ export class ArrestLogScraper {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       
-      // Look for name patterns (usually all caps or title case)
-      const nameMatch = line.match(/^([A-Z][A-Z\s]+[A-Z])\s*$/);
-      if (nameMatch && line.length > 5 && line.length < 50) {
+      // Improved name patterns to support various formats:
+      // - "LAST, FIRST MI" (comma-separated)
+      // - "FIRST LAST" (space-separated)
+      // - Names with hyphens (e.g., "SMITH-JONES")
+      // - Names with suffixes (e.g., "JOHN DOE JR")
+      const namePatterns = [
+        /^([A-Z][A-Z\-'\s]+[A-Z]),\s*([A-Z][A-Z\-'\s]*)\s*([A-Z]\.?)?$/,  // LAST, FIRST MI
+        /^([A-Z][A-Z\-'\s]+[A-Z])\s+([A-Z][A-Z\-'\s]+[A-Z])(?:\s+(JR|SR|II|III|IV))?$/,  // FIRST LAST [SUFFIX]
+        /^([A-Z][A-Z\-'\s]{2,}[A-Z])\s*$/  // Generic all-caps name
+      ];
+      
+      let matchedName = null;
+      for (const pattern of namePatterns) {
+        const match = line.match(pattern);
+        if (match && line.length > 5 && line.length < 60) {
+          matchedName = line;
+          break;
+        }
+      }
+      
+      if (matchedName) {
         // Save previous record if exists
         if (currentRecord.name) {
           records.push(this.finalizeRecord(currentRecord, recordCount++));
           currentRecord = {};
         }
         
-        currentRecord.name = nameMatch[1].trim();
+        currentRecord.name = matchedName.trim();
         continue;
       }
       
@@ -223,17 +257,65 @@ export class ArrestLogScraper {
       const recentPDF = await this.getMostRecentPDF();
       
       if (recentPDF) {
-        console.log(`Found recent PDF: ${recentPDF.filename}`);
-        try {
-          const pdfText = await this.downloadAndParsePDF(recentPDF.url);
-          const records = this.parseArrestRecordsFromText(pdfText);
-          
-          if (records.length > 0) {
-            console.log(`Successfully extracted ${records.length} arrest records from PDF`);
-            return records;
+        // Check cache first
+        const cached = this.pdfCache.get(recentPDF.url);
+        const now = Date.now();
+        
+        if (cached && (now - cached.timestamp) < this.CACHE_TTL) {
+          console.log(`Using cached arrest records for: ${recentPDF.filename} (${cached.records.length} records)`);
+          return cached.records;
+        }
+        
+        // Check if request is already in-flight (prevent thundering herd)
+        const inFlight = this.inFlightRequests.get(recentPDF.url);
+        if (inFlight) {
+          console.log(`Waiting for in-flight request for: ${recentPDF.filename}`);
+          return await inFlight;
+        }
+        
+        // Create promise for this request
+        const requestPromise = (async () => {
+          try {
+            console.log(`Found recent PDF: ${recentPDF.filename}`);
+            const pdfText = await this.downloadAndParsePDF(recentPDF.url);
+            const records = this.parseArrestRecordsFromText(pdfText);
+            
+            if (records.length > 0) {
+              console.log(`Successfully extracted ${records.length} arrest records from PDF`);
+              
+              // Cache the results
+              this.pdfCache.set(recentPDF.url, {
+                records: records,
+                timestamp: now
+              });
+              
+              // Clean up old cache entries (keep cache size manageable)
+              if (this.pdfCache.size > 5) {
+                const oldestKey = Array.from(this.pdfCache.entries())
+                  .sort((a, b) => a[1].timestamp - b[1].timestamp)[0][0];
+                this.pdfCache.delete(oldestKey);
+              }
+              
+              return records;
+            } else {
+              console.warn('No records extracted from PDF, falling back to HTML scraping');
+              return [];
+            }
+          } catch (pdfError) {
+            console.error('Error parsing PDF, falling back to HTML scraping:', pdfError);
+            return [];
+          } finally {
+            // Clean up in-flight request
+            this.inFlightRequests.delete(recentPDF.url);
           }
-        } catch (pdfError) {
-          console.error('Error parsing PDF, falling back to HTML scraping:', pdfError);
+        })();
+        
+        // Store in-flight request
+        this.inFlightRequests.set(recentPDF.url, requestPromise);
+        
+        const records = await requestPromise;
+        if (records.length > 0) {
+          return records;
         }
       }
 
