@@ -36,18 +36,15 @@ function Router() {
       <Route path="/maintenance-login" component={MaintenanceLogin} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
-      
+
       {/* Protected routes with role-based access control */}
       <Route path="/client-dashboard">
         <ProtectedRoute requiredRole="client">
           <ClientDashboard />
         </ProtectedRoute>
       </Route>
-      <Route path="/client/:id">
-        <ProtectedRoute>
-          <ClientDetails />
-        </ProtectedRoute>
-      </Route>
+      <Route path="/client/:id" component={ClientDetails} />
+          <Route path="/admin/client/:id" component={ClientDetails} />
       <Route path="/staff-dashboard">
         <ProtectedRoute requiredRole="admin">
           <StaffDashboard />
@@ -73,13 +70,13 @@ function Router() {
           <ClientPortalPreview />
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/maintenance-dashboard">
         <ProtectedRoute requiredRole="maintenance">
           <MaintenanceDashboard />
         </ProtectedRoute>
       </Route>
-      
+
       <Route component={NotFound} />
     </Switch>
   );

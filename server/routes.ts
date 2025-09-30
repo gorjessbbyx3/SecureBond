@@ -97,7 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register admin routes
   app.use('/api/admin', adminRoutes);
-  
+
   // Register teamwork routes (tasks, assignments, notes, etc.)
   app.use(teamworkRoutes);
 
@@ -1148,7 +1148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Here you would create a to-do item or assignment
       // For now, we'll just log it and return success
       console.log(`Inquiry ${req.params.id} assigned to staff ${staffId} with notes: ${notes}`);
-      
+
       res.json({ success: true, message: "Inquiry assigned successfully" });
     } catch (error) {
       console.error("Error assigning inquiry:", error);
@@ -4086,7 +4086,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const query = (req.query.query as string || '').toLowerCase();
-      
+
       if (query.length < 2) {
         return res.json([]);
       }

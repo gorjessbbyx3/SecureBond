@@ -26,6 +26,10 @@ export default function ClientDetails() {
   const queryClient = useQueryClient();
   const clientId = params?.id ? parseInt(params.id) : null;
 
+  // Debug logging
+  console.log("Client Details - params:", params);
+  console.log("Client Details - clientId:", clientId);
+
   const [isAddingVehicle, setIsAddingVehicle] = useState(false);
   const [isAddingFamily, setIsAddingFamily] = useState(false);
   const [isAddingEmployment, setIsAddingEmployment] = useState(false);
@@ -36,9 +40,11 @@ export default function ClientDetails() {
   const [isSearchingRecords, setIsSearchingRecords] = useState(false);
 
   // Fetch client data
-  const { data: client, isLoading } = useQuery({
+  const { data: client, isLoading, error: clientError } = useQuery({
     queryKey: [`/api/clients/${clientId}`],
     enabled: !!clientId,
+    retry: 2,
+    staleTime: 30000,
   });
 
   const { data: bonds = [] } = useQuery({
@@ -191,12 +197,62 @@ export default function ClientDetails() {
     },
   });
 
-  if (isLoading || !client) {
+  // Handle invalid clientId
+  if (!clientId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Invalid client ID</p>
+          <Button onClick={() => setLocation("/admin")}>
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading client details...</p>
+          <p className="text-slate-600">Loading client details for ID: {clientId}...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (clientError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load client details</p>
+          <p className="text-gray-600 mb-4">{clientError?.message || "Unknown error"}</p>
+          <div className="space-x-2">
+            <Button onClick={() => queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}`] })}>
+              Retry
+            </Button>
+            <Button variant="outline" onClick={() => setLocation("/admin")}>
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle no client found
+  if (!client) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Client not found</p>
+          <p className="text-gray-600 mb-4">Client with ID {clientId} does not exist</p>
+          <Button onClick={() => setLocation("/admin")}>
+            Back to Dashboard
+          </Button>
         </div>
       </div>
     );
