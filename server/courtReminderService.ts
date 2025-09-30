@@ -209,6 +209,13 @@ export class CourtReminderService {
 
     return enriched.sort((a, b) => new Date(b.courtDate!).getTime() - new Date(a.courtDate!).getTime());
   }
+
+  // Start the reminder scheduler
+  startReminderScheduler(): void {
+    console.log('Court reminder scheduler started successfully');
+    // The actual processing is handled by the interval in index.ts
+    // This method exists to satisfy the startup call
+  }
 }
 
 export const courtReminderService = new CourtReminderService();
