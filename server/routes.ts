@@ -242,18 +242,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin login endpoint
   app.post('/api/auth/admin-login', async (req, res) => {
     try {
-      const { email, password, username } = req.body;
+      const { email, password, username, role } = req.body;
       
-      // SECURE: Default admin credentials (bcrypt hashed)
-      // Default password is "secure_admin_2025" - CHANGE THIS IN PRODUCTION
+      // Admin credentials
       const ADMIN_CREDENTIALS = {
         email: 'admin@artofbail.com',
         username: 'admin',
-        // Password hash for "secure_admin_2025"
-        passwordHash: '$2b$10$rKvV5YUZFQxHzqJ8x8Y0oeN3vE0xH5jF6zLJ5QfJ6oDvN9YZJeKvC'
+        password: 'Wordpass3211!'
       };
       
-      // Verify credentials with bcrypt
+      // Verify credentials
       const isValidEmail = email === ADMIN_CREDENTIALS.email;
       const isValidUsername = username === ADMIN_CREDENTIALS.username;
       
@@ -261,32 +259,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
-      // Verify password with bcrypt
-      const passwordMatch = await bcrypt.compare(password, ADMIN_CREDENTIALS.passwordHash);
-      
-      if (passwordMatch) {
-        (req.session as any).adminRole = 'admin';
-        (req.session as any).user = {
-          email: ADMIN_CREDENTIALS.email,
-          username: ADMIN_CREDENTIALS.username,
-          role: 'admin'
-        };
-        
-        await auditLogger.log({
-          eventType: 'LOGIN_SUCCESS',
-          category: 'AUTHENTICATION',
-          severity: 'LOW',
-          action: 'Admin login successful',
-          details: { email: email || username },
-          complianceRelevant: true
-        });
-        
-        res.json({
-          success: true,
-          role: 'admin',
-          email: ADMIN_CREDENTIALS.email
-        });
-      } else {
+      // Verify password
+      if (password !== ADMIN_CREDENTIALS.password) {
         await auditLogger.log({
           eventType: 'LOGIN_FAILED',
           category: 'AUTHENTICATION',
@@ -299,6 +273,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return res.status(401).json({ message: "Invalid credentials" });
       }
+      
+      (req.session as any).adminRole = 'admin';
+      (req.session as any).user = {
+        email: ADMIN_CREDENTIALS.email,
+        username: ADMIN_CREDENTIALS.username,
+        role: 'admin'
+      };
+      
+      await auditLogger.log({
+        eventType: 'LOGIN_SUCCESS',
+        category: 'AUTHENTICATION',
+        severity: 'LOW',
+        action: 'Admin login successful',
+        details: { email: email || username },
+        complianceRelevant: true
+      });
+      
+      res.json({
+        success: true,
+        role: 'admin',
+        email: ADMIN_CREDENTIALS.email
+      });
     } catch (error) {
       console.error("Admin login error:", error);
       res.status(500).json({ message: "Login failed" });
