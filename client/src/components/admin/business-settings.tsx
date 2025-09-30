@@ -85,17 +85,17 @@ export function BusinessSettings() {
   });
   
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>({
-    companyName: "SecureBond Services",
-    licenseNumber: "BB-2024-001",
-    address: "123 Business Center Dr",
-    city: "Honolulu",
-    state: "Hawaii",
-    zipCode: "96813",
-    phone: "(808) 555-0123",
-    email: "admin@securebond.com",
-    website: "www.securebond.com",
+    companyName: "Art of Bail",
+    licenseNumber: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    phone: "",
+    email: "",
+    website: "",
     logo: "",
-    description: "Professional bail bond services with advanced technology solutions",
+    description: "",
     operatingHours: {
       monday: { open: "08:00", close: "18:00", isOpen: true },
       tuesday: { open: "08:00", close: "18:00", isOpen: true },

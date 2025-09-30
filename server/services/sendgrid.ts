@@ -25,13 +25,16 @@ export class SendGridService {
     }
 
     try {
-      await mailService.send({
+      const emailData: any = {
         to: params.to,
         from: params.from,
         subject: params.subject,
-        text: params.text,
-        html: params.html,
-      });
+      };
+      
+      if (params.text) emailData.text = params.text;
+      if (params.html) emailData.html = params.html;
+      
+      await mailService.send(emailData);
       return true;
     } catch (error) {
       console.error('SendGrid email error:', error);
@@ -69,7 +72,7 @@ export class SendGridService {
         <p>If you have any questions, please contact us immediately.</p>
         <hr style="margin: 30px 0;">
         <p style="color: #6b7280; font-size: 12px;">
-          This is an automated reminder from Aloha Bail Bond.<br>
+          This is an automated reminder from Art of Bail.<br>
           Please do not reply to this email.
         </p>
       </div>
@@ -77,7 +80,7 @@ export class SendGridService {
 
     return this.sendEmail({
       to: clientEmail,
-      from: 'noreply@alohabailbond.com',
+      from: 'noreply@artofbail.com',
       subject,
       html,
       text: `Court Date Reminder - ${clientName}, your court date is scheduled for ${courtDate.toLocaleDateString()} at ${courtDate.toLocaleTimeString()}. ${caseNumber ? `Case Number: ${caseNumber}. ` : ''}Please ensure you appear at the scheduled time.`
@@ -99,7 +102,7 @@ export class SendGridService {
         <p>Thank you for your payment. Your account has been updated accordingly.</p>
         <hr style="margin: 30px 0;">
         <p style="color: #6b7280; font-size: 12px;">
-          This is an automated confirmation from Aloha Bail Bond.<br>
+          This is an automated confirmation from Art of Bail.<br>
           Please keep this email for your records.
         </p>
       </div>
@@ -107,7 +110,7 @@ export class SendGridService {
 
     return this.sendEmail({
       to: clientEmail,
-      from: 'payments@alohabailbond.com',
+      from: 'payments@artofbail.com',
       subject,
       html,
       text: `Payment Confirmation - ${clientName}, we have confirmed your payment of $${amount} received on ${paymentDate.toLocaleDateString()}. Thank you for your payment.`
@@ -128,7 +131,7 @@ export class SendGridService {
       // Send a minimal test email to verify connection
       const testResult = await this.sendEmail({
         to: 'test@example.com',
-        from: 'noreply@alohabailbond.com',
+        from: 'noreply@artofbail.com',
         subject: 'SendGrid Connection Test',
         text: 'This is a connection test.'
       });

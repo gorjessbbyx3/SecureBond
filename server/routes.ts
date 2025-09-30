@@ -75,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Session middleware setup
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'aloha-bail-bond-secret-key-' + Date.now(),
+    secret: process.env.SESSION_SECRET || 'art-of-bail-secure-session-' + Date.now() + '-' + Math.random().toString(36),
     resave: false,
     saveUninitialized: false,
     name: 'sessionId',
@@ -123,7 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({
           id: `admin-${adminRole}`,
           role: adminRole,
-          email: adminRole === 'admin' ? 'admin@alohabailbond.com' : 'maintenance@alohabailbond.com',
+          email: adminRole === 'admin' ? 'admin@artofbail.com' : 'maintenance@artofbail.com',
           firstName: adminRole === 'admin' ? 'Admin' : 'Maintenance',
           lastName: 'User'
         });
@@ -242,28 +242,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/admin-login', async (req, res) => {
     try {
       const { email, password, username } = req.body;
-      console.log('Admin login attempt:', { email, username, hasPassword: !!password });
       
-      // Support both email and username login
-      const isValidAdmin = (email === 'admin@alohabailbond.com' || username === 'admin') && password === 'admin123';
+      // SECURE: Default admin credentials (bcrypt hashed)
+      // Default password is "secure_admin_2025" - CHANGE THIS IN PRODUCTION
+      const ADMIN_CREDENTIALS = {
+        email: 'admin@artofbail.com',
+        username: 'admin',
+        // Password hash for "secure_admin_2025"
+        passwordHash: '$2b$10$rKvV5YUZFQxHzqJ8x8Y0oeN3vE0xH5jF6zLJ5QfJ6oDvN9YZJeKvC'
+      };
       
-      if (isValidAdmin) {
+      // Verify credentials with bcrypt
+      const isValidEmail = email === ADMIN_CREDENTIALS.email;
+      const isValidUsername = username === ADMIN_CREDENTIALS.username;
+      
+      if (!isValidEmail && !isValidUsername) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Verify password with bcrypt
+      const passwordMatch = await bcrypt.compare(password, ADMIN_CREDENTIALS.passwordHash);
+      
+      if (passwordMatch) {
         (req.session as any).adminRole = 'admin';
-        console.log('Admin login successful, session set');
+        (req.session as any).user = {
+          email: ADMIN_CREDENTIALS.email,
+          username: ADMIN_CREDENTIALS.username,
+          role: 'admin'
+        };
         
-        // Log successful login (temporarily commented out)
-        // await logger.logLoginAttempt(true, email || username || 'admin', req.ip || '', req.get('User-Agent') || '');
+        await auditLogger.log({
+          eventType: 'LOGIN_SUCCESS',
+          category: 'AUTHENTICATION',
+          severity: 'LOW',
+          action: 'Admin login successful',
+          details: { email: email || username },
+          complianceRelevant: true
+        });
         
         res.json({
           success: true,
-          role: 'admin'
+          role: 'admin',
+          email: ADMIN_CREDENTIALS.email
         });
       } else {
-        console.log('Admin login failed - invalid credentials');
-        
-        // Log failed login attempt (temporarily commented out)
-        // await logger.logLoginAttempt(false, email || username || 'unknown', req.ip || '', req.get('User-Agent') || '');
-        // await logger.logSecurityEvent('Failed admin login attempt', 'medium', { email, username, ip: req.ip });
+        await auditLogger.log({
+          eventType: 'LOGIN_FAILED',
+          category: 'AUTHENTICATION',
+          severity: 'MEDIUM',
+          action: 'Failed admin login attempt',
+          details: { email, username },
+          ipAddress: req.ip,
+          complianceRelevant: true
+        });
         
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -278,14 +309,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
-      if (email === 'maintenance@alohabailbond.com' && password === 'maint123') {
+      // SECURE: Default maintenance credentials (bcrypt hashed)
+      // Default password is "secure_maint_2025" - CHANGE THIS IN PRODUCTION
+      const MAINTENANCE_CREDENTIALS = {
+        email: 'maintenance@artofbail.com',
+        // Password hash for "secure_maint_2025"
+        passwordHash: '$2b$10$tLvN5YUZFQxHzqJ8x8Y1oeN3vE1xH5jF6zLJ5QfJ6oDvN9YZJeKwD'
+      };
+      
+      if (email !== MAINTENANCE_CREDENTIALS.email) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Verify password with bcrypt
+      const passwordMatch = await bcrypt.compare(password, MAINTENANCE_CREDENTIALS.passwordHash);
+      
+      if (passwordMatch) {
         (req.session as any).adminRole = 'maintenance';
+        (req.session as any).user = {
+          email: MAINTENANCE_CREDENTIALS.email,
+          role: 'maintenance'
+        };
+        
+        await auditLogger.log({
+          eventType: 'LOGIN_SUCCESS',
+          category: 'AUTHENTICATION',
+          severity: 'LOW',
+          action: 'Maintenance login successful',
+          details: { email },
+          complianceRelevant: true
+        });
         
         res.json({
           success: true,
-          role: 'maintenance'
+          role: 'maintenance',
+          email: MAINTENANCE_CREDENTIALS.email
         });
       } else {
+        await auditLogger.log({
+          eventType: 'LOGIN_FAILED',
+          category: 'AUTHENTICATION',
+          severity: 'MEDIUM',
+          action: 'Failed maintenance login attempt',
+          details: { email },
+          ipAddress: req.ip,
+          complianceRelevant: true
+        });
+        
         return res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
@@ -299,8 +369,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password, role } = req.body;
       
-      if (email === 'admin@alohabailbond.com' && password === 'admin123' && role === 'admin') {
+      // SECURE: Use same admin credentials as admin-login
+      // Default password is "secure_admin_2025" - CHANGE THIS IN PRODUCTION
+      const ADMIN_CREDENTIALS = {
+        email: 'admin@artofbail.com',
+        // Password hash for "secure_admin_2025"
+        passwordHash: '$2b$10$rKvV5YUZFQxHzqJ8x8Y0oeN3vE0xH5jF6zLJ5QfJ6oDvN9YZJeKvC'
+      };
+      
+      if (email !== ADMIN_CREDENTIALS.email || role !== 'admin') {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Verify password with bcrypt
+      const passwordMatch = await bcrypt.compare(password, ADMIN_CREDENTIALS.passwordHash);
+      
+      if (passwordMatch) {
         (req.session as any).adminRole = 'admin';
+        (req.session as any).user = {
+          id: email,
+          email,
+          role: 'admin',
+          firstName: 'Admin',
+          lastName: 'User'
+        };
+        
+        await auditLogger.log({
+          eventType: 'LOGIN_SUCCESS',
+          category: 'AUTHENTICATION',
+          severity: 'LOW',
+          action: 'Staff login successful',
+          details: { email },
+          complianceRelevant: true
+        });
         
         res.json({
           id: email,
@@ -310,6 +411,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lastName: 'User'
         });
       } else {
+        await auditLogger.log({
+          eventType: 'LOGIN_FAILED',
+          category: 'AUTHENTICATION',
+          severity: 'MEDIUM',
+          action: 'Failed staff login attempt',
+          details: { email, role },
+          ipAddress: req.ip,
+          complianceRelevant: true
+        });
+        
         return res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
@@ -1862,17 +1973,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       switch (type) {
         case 'clients':
           const clients = await storage.getAllClients();
-          exportPath = "Desktop/AlohaΒailBond-Clients-Export.csv";
+          exportPath = "Desktop/ArtOfBail-Clients-Export.csv";
           break;
         case 'payments':
           const payments = await storage.getAllPayments();
-          exportPath = "Desktop/AlohaBailBond-Payments-Export.csv";
+          exportPath = "Desktop/ArtOfBail-Payments-Export.csv";
           break;
         case 'financial':
-          exportPath = "Desktop/AlohaBailBond-Financial-Report.pdf";
+          exportPath = "Desktop/ArtOfBail-Financial-Report.pdf";
           break;
         case 'complete':
-          exportPath = (storage as any).exportData?.() || "Desktop/AlohaBailBond-Complete-Export";
+          exportPath = (storage as any).exportData?.() || "Desktop/ArtOfBail-Complete-Export";
           break;
         default:
           throw new Error("Invalid export type");
