@@ -9,10 +9,10 @@
     "notes": "First appearance - defendant must be present",
     "adminApproved": true,
     "approvedBy": "admin",
-    "approvedAt": "2025-09-30T20:03:09.527Z",
+    "approvedAt": "2025-10-03T21:09:05.586Z",
     "source": "manual",
-    "id": 19,
-    "createdAt": "2025-09-30T20:03:09.529Z"
+    "id": 63,
+    "createdAt": "2025-10-03T21:09:05.587Z"
   },
   {
     "clientId": 2,
@@ -24,10 +24,10 @@
     "notes": "Preliminary hearing scheduled",
     "adminApproved": true,
     "approvedBy": "admin",
-    "approvedAt": "2025-09-30T20:03:09.527Z",
+    "approvedAt": "2025-10-03T21:09:05.586Z",
     "source": "manual",
-    "id": 20,
-    "createdAt": "2025-09-30T20:03:09.532Z"
+    "id": 64,
+    "createdAt": "2025-10-03T21:09:05.592Z"
   },
   {
     "clientId": 3,
@@ -39,8 +39,8 @@
     "notes": "Jury trial scheduled - 2 day estimated duration",
     "adminApproved": false,
     "source": "scraped",
-    "id": 21,
-    "createdAt": "2025-09-30T20:03:09.534Z"
+    "id": 65,
+    "createdAt": "2025-10-03T21:09:05.597Z"
   },
   {
     "clientId": 1,
@@ -52,9 +52,9 @@
     "notes": "Sentencing hearing if guilty plea entered",
     "adminApproved": true,
     "approvedBy": "admin",
-    "approvedAt": "2025-09-30T20:03:09.527Z",
+    "approvedAt": "2025-10-03T21:09:05.586Z",
     "source": "manual",
-    "id": 22,
-    "createdAt": "2025-09-30T20:03:09.537Z"
+    "id": 66,
+    "createdAt": "2025-10-03T21:09:05.600Z"
   }
 ]

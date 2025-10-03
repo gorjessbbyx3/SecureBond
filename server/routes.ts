@@ -211,33 +211,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin login endpoint
+  // Admin login endpoint - uses stored credentials with bcrypt
   app.post('/api/auth/admin-login', async (req, res) => {
     try {
-      const { email, password, username, role } = req.body;
+      const { email, password, username } = req.body;
 
-      // Admin credentials
-      const ADMIN_CREDENTIALS = {
-        email: 'admin@artofbail.com',
-        username: 'admin',
-        password: 'Wordpass3211!'
-      };
+      // Find user credential by username or email
+      const usernameToCheck = username || email || '';
+      const userCredential = await storage.getUserCredential(usernameToCheck);
 
-      // Verify credentials
-      const isValidEmail = email === ADMIN_CREDENTIALS.email;
-      const isValidUsername = username === ADMIN_CREDENTIALS.username;
-
-      if (!isValidEmail && !isValidUsername) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      // Verify password
-      if (password !== ADMIN_CREDENTIALS.password) {
+      if (!userCredential || userCredential.credentialType !== 'admin_access') {
         await auditLogger.log({
           eventType: 'LOGIN_FAILED',
           category: 'AUTHENTICATION',
           severity: 'MEDIUM',
-          action: 'Failed admin login attempt',
+          action: 'Failed admin login attempt - user not found',
           details: { email, username },
           ipAddress: req.ip,
           complianceRelevant: true
@@ -246,10 +234,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
+      // Check if account is active
+      if (!userCredential.isActive) {
+        await auditLogger.log({
+          eventType: 'LOGIN_FAILED',
+          category: 'AUTHENTICATION',
+          severity: 'HIGH',
+          action: 'Failed admin login attempt - account disabled',
+          details: { email, username },
+          ipAddress: req.ip,
+          complianceRelevant: true
+        });
+
+        return res.status(401).json({ message: "Account is disabled" });
+      }
+
+      // Verify password with bcrypt
+      const passwordToCheck = userCredential.permanentPassword || userCredential.temporaryPassword;
+      const passwordMatch = await bcrypt.compare(password, passwordToCheck);
+
+      if (!passwordMatch) {
+        await auditLogger.log({
+          eventType: 'LOGIN_FAILED',
+          category: 'AUTHENTICATION',
+          severity: 'MEDIUM',
+          action: 'Failed admin login attempt - invalid password',
+          details: { email, username },
+          ipAddress: req.ip,
+          complianceRelevant: true
+        });
+
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Set session
       (req.session as any).adminRole = 'admin';
       (req.session as any).user = {
-        email: ADMIN_CREDENTIALS.email,
-        username: ADMIN_CREDENTIALS.username,
+        email: userCredential.email || 'admin@artofbail.com',
+        username: userCredential.username,
         role: 'admin'
       };
 
@@ -265,7 +287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         success: true,
         role: 'admin',
-        email: ADMIN_CREDENTIALS.email
+        email: userCredential.email || 'admin@artofbail.com'
       });
     } catch (error) {
       console.error("Admin login error:", error);

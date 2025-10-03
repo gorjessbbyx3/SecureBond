@@ -5,8 +5,8 @@
     "senderType": "admin",
     "message": "Good morning James. This is a reminder about your upcoming court date on February 15th at 9:00 AM. Please confirm receipt.",
     "isRead": true,
-    "id": 38,
-    "createdAt": "2025-09-30T20:03:09.593Z"
+    "id": 82,
+    "createdAt": "2025-10-03T21:09:05.650Z"
   },
   {
     "clientId": 2,
@@ -14,8 +14,8 @@
     "senderType": "admin",
     "message": "Kailani, your payment has been received and processed. Thank you for staying current with your obligations.",
     "isRead": false,
-    "id": 39,
-    "createdAt": "2025-09-30T20:03:09.596Z"
+    "id": 83,
+    "createdAt": "2025-10-03T21:09:05.652Z"
   },
   {
     "clientId": 3,
@@ -23,8 +23,8 @@
     "senderType": "admin",
     "message": "Robert, you have missed your last two check-ins. Please contact our office immediately at (808) 555-BAIL.",
     "isRead": false,
-    "id": 40,
-    "createdAt": "2025-09-30T20:03:09.598Z"
+    "id": 84,
+    "createdAt": "2025-10-03T21:09:05.655Z"
   },
   {
     "clientId": 1,
@@ -32,8 +32,8 @@
     "senderType": "client",
     "message": "Hi, I received the court reminder. I will be there on time. Thank you.",
     "isRead": true,
-    "id": 41,
-    "createdAt": "2025-09-30T20:03:09.600Z"
+    "id": 85,
+    "createdAt": "2025-10-03T21:09:05.658Z"
   },
   {
     "clientId": 4,
@@ -41,7 +41,7 @@
     "senderType": "admin",
     "message": "Ana, welcome to our system. Please remember to check in weekly and keep us updated with any address changes.",
     "isRead": false,
-    "id": 42,
-    "createdAt": "2025-09-30T20:03:09.602Z"
+    "id": 86,
+    "createdAt": "2025-10-03T21:09:05.661Z"
   }
 ]

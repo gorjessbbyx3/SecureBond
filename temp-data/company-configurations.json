@@ -65,5 +65,58 @@
     "isActive": true,
     "createdAt": "2025-09-30T20:03:09.315Z",
     "updatedAt": "2025-09-30T20:03:09.315Z"
+  },
+  {
+    "id": 50,
+    "companyName": "Aloha Bail Bonds LLC",
+    "licenseNumber": "HI-BB-2025-001",
+    "state": "HI",
+    "address": "1234 Kalakaua Avenue",
+    "city": "Honolulu",
+    "zipCode": "96815",
+    "phone": "(808) 555-BAIL",
+    "email": "admin@alohabailbonds.com",
+    "website": "https://alohabailbonds.com",
+    "description": "Premier bail bond services across all Hawaiian islands with 24/7 emergency support",
+    "timezone": "Pacific/Honolulu",
+    "businessType": "bail_bonds",
+    "operatingHours": {
+      "monday": {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      "tuesday": {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      "wednesday": {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      "thursday": {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      "friday": {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      "saturday": {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      "sunday": {
+        "open": "00:00",
+        "close": "23:59"
+      }
+    },
+    "customSettings": {
+      "courtReminderDays": 3,
+      "checkInFrequency": "weekly",
+      "gpsTrackingEnabled": true
+    },
+    "isActive": true,
+    "createdAt": "2025-10-03T21:09:05.428Z",
+    "updatedAt": "2025-10-03T21:09:05.428Z"
   }
 ]

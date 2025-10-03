@@ -4,47 +4,47 @@
     "checkInTime": "2025-01-20T09:00:00.000Z",
     "location": "21.3099, -157.8581",
     "notes": "Weekly check-in - client in compliance",
-    "id": 28,
-    "createdAt": "2025-09-30T20:03:09.558Z"
+    "id": 72,
+    "createdAt": "2025-10-03T21:09:05.620Z"
   },
   {
     "clientId": 1,
     "checkInTime": "2025-01-27T09:15:00.000Z",
     "location": "21.3099, -157.8581",
     "notes": "Weekly check-in - no issues reported",
-    "id": 29,
-    "createdAt": "2025-09-30T20:03:09.561Z"
+    "id": 73,
+    "createdAt": "2025-10-03T21:09:05.624Z"
   },
   {
     "clientId": 2,
     "checkInTime": "2025-01-21T14:30:00.000Z",
     "location": "20.7984, -156.3319",
     "notes": "Phone check-in - client working on Maui",
-    "id": 30,
-    "createdAt": "2025-09-30T20:03:09.564Z"
+    "id": 74,
+    "createdAt": "2025-10-03T21:09:05.627Z"
   },
   {
     "clientId": 2,
     "checkInTime": "2025-01-28T15:00:00.000Z",
     "location": "20.7984, -156.3319",
     "notes": "In-person check-in at Maui office",
-    "id": 31,
-    "createdAt": "2025-09-30T20:03:09.566Z"
+    "id": 75,
+    "createdAt": "2025-10-03T21:09:05.630Z"
   },
   {
     "clientId": 4,
     "checkInTime": "2025-01-19T11:00:00.000Z",
     "location": "21.3099, -157.8581",
     "notes": "Initial check-in after bond posting",
-    "id": 32,
-    "createdAt": "2025-09-30T20:03:09.571Z"
+    "id": 76,
+    "createdAt": "2025-10-03T21:09:05.633Z"
   },
   {
     "clientId": 4,
     "checkInTime": "2025-01-26T11:30:00.000Z",
     "location": "21.3099, -157.8581",
     "notes": "Weekly check-in - client reported job interview",
-    "id": 33,
-    "createdAt": "2025-09-30T20:03:09.574Z"
+    "id": 77,
+    "createdAt": "2025-10-03T21:09:05.635Z"
   }
 ]

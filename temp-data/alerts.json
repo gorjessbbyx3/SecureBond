@@ -5,8 +5,8 @@
     "severity": "high",
     "message": "Robert Thompson has missed 2 consecutive weekly check-ins. Last contact: January 15, 2025",
     "acknowledged": false,
-    "id": 34,
-    "createdAt": "2025-09-30T20:03:09.578Z"
+    "id": 78,
+    "createdAt": "2025-10-03T21:09:05.639Z"
   },
   {
     "clientId": 5,
@@ -14,8 +14,8 @@
     "severity": "critical",
     "message": "Tyler Wong has upcoming court date in 2 days (January 27, 2025) and has not acknowledged",
     "acknowledged": false,
-    "id": 35,
-    "createdAt": "2025-09-30T20:03:09.581Z"
+    "id": 79,
+    "createdAt": "2025-10-03T21:09:05.641Z"
   },
   {
     "clientId": 3,
@@ -23,8 +23,8 @@
     "severity": "medium",
     "message": "Monthly payment of $200 overdue by 5 days for Robert Thompson",
     "acknowledged": false,
-    "id": 36,
-    "createdAt": "2025-09-30T20:03:09.587Z"
+    "id": 80,
+    "createdAt": "2025-10-03T21:09:05.644Z"
   },
   {
     "clientId": 1,
@@ -34,7 +34,7 @@
     "acknowledged": true,
     "acknowledgedBy": "admin",
     "acknowledgedAt": "2025-01-25T14:45:00.000Z",
-    "id": 37,
-    "createdAt": "2025-09-30T20:03:09.590Z"
+    "id": 81,
+    "createdAt": "2025-10-03T21:09:05.647Z"
   }
 ]

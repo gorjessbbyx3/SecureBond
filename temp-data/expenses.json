@@ -5,8 +5,8 @@
     "category": "court_fees",
     "expenseDate": "2025-01-15T00:00:00.000Z",
     "createdBy": "admin",
-    "id": 43,
-    "createdAt": "2025-09-30T20:03:09.605Z"
+    "id": 87,
+    "createdAt": "2025-10-03T21:09:05.664Z"
   },
   {
     "description": "Office rent - January 2025",
@@ -14,8 +14,8 @@
     "category": "office_expenses",
     "expenseDate": "2025-01-01T00:00:00.000Z",
     "createdBy": "admin",
-    "id": 44,
-    "createdAt": "2025-09-30T20:03:09.607Z"
+    "id": 88,
+    "createdAt": "2025-10-03T21:09:05.668Z"
   },
   {
     "description": "GPS monitoring equipment maintenance",
@@ -23,8 +23,8 @@
     "category": "equipment",
     "expenseDate": "2025-01-18T00:00:00.000Z",
     "createdBy": "admin",
-    "id": 45,
-    "createdAt": "2025-09-30T20:03:09.610Z"
+    "id": 89,
+    "createdAt": "2025-10-03T21:09:05.671Z"
   },
   {
     "description": "Insurance premium - liability coverage",
@@ -32,8 +32,8 @@
     "category": "insurance",
     "expenseDate": "2025-01-10T00:00:00.000Z",
     "createdBy": "admin",
-    "id": 46,
-    "createdAt": "2025-09-30T20:03:09.614Z"
+    "id": 90,
+    "createdAt": "2025-10-03T21:09:05.674Z"
   },
   {
     "description": "Legal consultation fees",
@@ -41,7 +41,7 @@
     "category": "legal",
     "expenseDate": "2025-01-22T00:00:00.000Z",
     "createdBy": "admin",
-    "id": 47,
-    "createdAt": "2025-09-30T20:03:09.617Z"
+    "id": 91,
+    "createdAt": "2025-10-03T21:09:05.678Z"
   }
 ]

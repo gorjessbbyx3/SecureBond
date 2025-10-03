@@ -11,11 +11,11 @@
     "dateOfBirth": "1985-03-15",
     "emergencyContact": "Maria Mitchell",
     "emergencyPhone": "(808) 555-1002",
-    "password": "$2b$10$m1O2YiAhqiHFbCHL26m2QugJ1W4wMOeM1ovfRBSdfXyibr1GQ259C",
+    "password": "$2b$10$6NbegPndipBi03YeqCyOfu/tQ7zPW9pO.9KC6C5OZ7AtGaohc9Ff6",
     "isActive": true,
     "accountStatus": "active",
-    "id": 11,
-    "createdAt": "2025-09-30T20:03:09.493Z"
+    "id": 55,
+    "createdAt": "2025-10-03T21:09:05.560Z"
   },
   {
     "clientId": "CLT-002",
@@ -29,11 +29,11 @@
     "dateOfBirth": "1992-07-22",
     "emergencyContact": "David Nakamura",
     "emergencyPhone": "(808) 555-1004",
-    "password": "$2b$10$m1O2YiAhqiHFbCHL26m2QugJ1W4wMOeM1ovfRBSdfXyibr1GQ259C",
+    "password": "$2b$10$6NbegPndipBi03YeqCyOfu/tQ7zPW9pO.9KC6C5OZ7AtGaohc9Ff6",
     "isActive": true,
     "accountStatus": "active",
-    "id": 12,
-    "createdAt": "2025-09-30T20:03:09.496Z"
+    "id": 56,
+    "createdAt": "2025-10-03T21:09:05.563Z"
   },
   {
     "clientId": "CLT-003",
@@ -47,12 +47,12 @@
     "dateOfBirth": "1978-11-30",
     "emergencyContact": "Susan Thompson",
     "emergencyPhone": "(808) 555-1006",
-    "password": "$2b$10$m1O2YiAhqiHFbCHL26m2QugJ1W4wMOeM1ovfRBSdfXyibr1GQ259C",
+    "password": "$2b$10$6NbegPndipBi03YeqCyOfu/tQ7zPW9pO.9KC6C5OZ7AtGaohc9Ff6",
     "isActive": true,
     "accountStatus": "pending",
     "missedCheckIns": 2,
-    "id": 13,
-    "createdAt": "2025-09-30T20:03:09.508Z"
+    "id": 57,
+    "createdAt": "2025-10-03T21:09:05.566Z"
   },
   {
     "clientId": "CLT-004",
@@ -66,11 +66,11 @@
     "dateOfBirth": "1988-05-18",
     "emergencyContact": "Carlos Santos",
     "emergencyPhone": "(808) 555-1008",
-    "password": "$2b$10$m1O2YiAhqiHFbCHL26m2QugJ1W4wMOeM1ovfRBSdfXyibr1GQ259C",
+    "password": "$2b$10$6NbegPndipBi03YeqCyOfu/tQ7zPW9pO.9KC6C5OZ7AtGaohc9Ff6",
     "isActive": true,
     "accountStatus": "active",
-    "id": 14,
-    "createdAt": "2025-09-30T20:03:09.511Z"
+    "id": 58,
+    "createdAt": "2025-10-03T21:09:05.569Z"
   },
   {
     "clientId": "CLT-005",
@@ -84,11 +84,11 @@
     "dateOfBirth": "1995-09-12",
     "emergencyContact": "Jennifer Wong",
     "emergencyPhone": "(808) 555-1010",
-    "password": "$2b$10$m1O2YiAhqiHFbCHL26m2QugJ1W4wMOeM1ovfRBSdfXyibr1GQ259C",
+    "password": "$2b$10$6NbegPndipBi03YeqCyOfu/tQ7zPW9pO.9KC6C5OZ7AtGaohc9Ff6",
     "isActive": false,
     "accountStatus": "suspended",
     "missedCheckIns": 5,
-    "id": 15,
-    "createdAt": "2025-09-30T20:03:09.514Z"
+    "id": 59,
+    "createdAt": "2025-10-03T21:09:05.572Z"
   }
 ]
