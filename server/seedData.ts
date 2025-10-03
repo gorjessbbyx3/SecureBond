@@ -10,6 +10,10 @@ export async function seedDatabase() {
     console.log('🧹 Clearing existing data...');
     await clearAllData();
 
+    // Seed admin credentials first
+    console.log('🔑 Seeding admin credentials...');
+    await seedAdminCredentials();
+
     // Seed company configuration
     console.log('🏢 Seeding company configuration...');
     await seedCompanyConfiguration();
@@ -83,7 +87,36 @@ async function clearAllData() {
   await storage.writeJsonFile('expenses.json', []);
   await storage.writeJsonFile('staff.json', []);
   await storage.writeJsonFile('users.json', []);
+  await storage.writeJsonFile('user-credentials.json', []);
   await storage.writeJsonFile('index.json', { nextId: 1 });
+}
+
+async function seedAdminCredentials() {
+  // Seed admin credential
+  const adminPasswordHash = await bcrypt.hash('Wordpass3211!', 10);
+  await storage.createUserCredential({
+    username: 'admin',
+    email: 'admin@artofbail.com',
+    credentialType: 'admin_access',
+    temporaryPassword: adminPasswordHash,
+    permanentPassword: adminPasswordHash,
+    passwordResetRequired: false,
+    isActive: true,
+    createdBy: 'system'
+  });
+
+  // Seed maintenance credential
+  const maintenancePasswordHash = await bcrypt.hash('MaintenanceSecure2025!', 10);
+  await storage.createUserCredential({
+    username: 'maintenance',
+    email: 'maintenance@artofbail.com',
+    credentialType: 'admin_access',
+    temporaryPassword: maintenancePasswordHash,
+    permanentPassword: maintenancePasswordHash,
+    passwordResetRequired: false,
+    isActive: true,
+    createdBy: 'system'
+  });
 }
 
 async function seedCompanyConfiguration() {
