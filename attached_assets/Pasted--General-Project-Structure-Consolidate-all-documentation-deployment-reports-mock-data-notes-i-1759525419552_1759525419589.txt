@@ -1,0 +1,91 @@
+🔹 General Project Structure
+
+ Consolidate all documentation (deployment reports, mock data notes) into a single polished README.md.
+
+ Remove committed secrets/sensitive files (cookies.txt, .env.local, temp-data/, etc.).
+
+ Enforce coding standards with ESLint + Prettier in client and server.
+
+ Add a .gitignore that covers node_modules, build artifacts, and temp files.
+
+🔹 Client (Frontend - Vite + React + Tailwind)
+
+ Configure vite.config.ts for proper base path when deployed (e.g. GitHub Pages or Vercel).
+
+ Optimize tailwind.config.ts by enabling purge/content paths to remove unused styles.
+
+ Add auth state management (React Context, Redux, or Zustand).
+
+ Add error boundaries for catching rendering issues.
+
+ Ensure components validate and sanitize any user input before sending to server.
+
+🔹 Server (Backend - Express + Drizzle)
+
+ Implement authentication (JWT, OAuth, or session-based) with middleware.
+
+ Add authorization checks on protected routes.
+
+ Harden input validation in validate.js:
+
+Ensure all routes sanitize user input (SQL injection, XSS prevention).
+
+ Complete drizzle.config.ts setup and generate database migrations.
+
+ Add structured error handling (centralized error middleware).
+
+ Use environment variables (process.env) for secrets instead of hardcoded values.
+
+ Implement logging (winston/pino) for server activity.
+
+🔹 Shared Code
+
+ Centralize types/interfaces in shared/ (so client + server use the same schemas).
+
+ Move reusable constants, validation rules, and error messages into shared/.
+
+🔹 Testing
+
+ Expand beyond test-geolocation.js:
+
+Add unit tests for utils (Jest or Mocha).
+
+Add integration tests for API endpoints (Supertest).
+
+Add frontend component tests (React Testing Library).
+
+ Create a GitHub Actions CI workflow to run test.sh automatically on push/PR.
+
+ Add coverage reports (nyc/coverage tools).
+
+🔹 Deployment
+
+ Review deploy.sh and build.sh for production safety:
+
+Avoid hardcoded paths.
+
+Ensure proper npm install --production.
+
+Handle DB migrations during deploy.
+
+ Use .env files for secrets (and load with dotenv).
+
+ Set up deployment environments (staging vs production).
+
+ Remove temp-data/ and mock data from production build.
+
+ Confirm SSL/TLS configuration for production (HTTPS only).
+
+🔹 Security
+
+ Add Helmet.js middleware for HTTP header hardening.
+
+ Implement rate limiting (express-rate-limit).
+
+ Add CORS configuration to whitelist allowed origins.
+
+ Ensure secure cookie flags (HttpOnly, SameSite, Secure).
+
+ Add automated dependency vulnerability scanning (GitHub Dependabot or Snyk).
+
+ Review DB queries to prevent SQL injection (drizzle ORM helps, but validation is still critical).

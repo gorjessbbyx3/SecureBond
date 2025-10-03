@@ -1,0 +1,1 @@
+{"id":"audit_mgbbzy5i_futtrfck42q","timestamp":"2025-10-03T21:03:28.422Z","retentionPeriod":2555,"eventType":"LOGIN_SUCCESS","category":"AUTHENTICATION","severity":"LOW","action":"Admin login successful","details":{"email":"admin"},"complianceRelevant":true}

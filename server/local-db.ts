@@ -130,8 +130,7 @@ export class LocalFileStorage {
       const records = await arrestLogScraper.scrapeHonoluluPD();
       
       // Store records in local storage
-      const arrestRecordsPath = path.join(this.dataDir, 'public-arrest-logs.json');
-      await this.writeJsonFile(arrestRecordsPath, records);
+      await this.writeJsonFile('public-arrest-logs.json', records);
       
       return {
         success: true,
